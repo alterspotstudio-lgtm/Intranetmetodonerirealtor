@@ -1251,7 +1251,8 @@ function crmBuildModal(title, editable, values){
 
   const html = editable.map(({f, type, opts}) => {
     let val = values[f] ?? '';
-    if(typeof val === 'object') val = val?.name ?? '';
+    // Airtable devuelve Single Select como objeto {id, name, color} o como string
+    if(typeof val === 'object' && val !== null) val = val?.name ?? '';
     val = String(val);
 
     if(type === 'select'){
@@ -1290,7 +1291,15 @@ async function crmSave(){
   const cfg = CRM_CFG[crmState.tab];
   const inputs = document.querySelectorAll('#crm-modal-fields [data-field]');
   const fields = {};
-  inputs.forEach(el => { if(el.value.trim()) fields[el.dataset.field] = el.value.trim(); });
+  // Mapa de campos tipo select para formatearlos correctamente para Airtable
+  const selectFields = {};
+  (cfg.editable || []).forEach(({f, type}) => { if(type === 'select') selectFields[f] = true; });
+  inputs.forEach(el => {
+    const val = el.value.trim();
+    if(!val) return;
+    // Los campos Single Select en Airtable necesitan {name: "valor"}, no texto plano
+    fields[el.dataset.field] = selectFields[el.dataset.field] ? {name: val} : val;
+  });
 
   try {
     if(crmState.isNew){
