@@ -1091,7 +1091,7 @@ const CRM_CFG = {
       {f:'Comprador',         type:'text'},
       {f:'Propiedad',         type:'text'},
       {f:'Precio',            type:'text'},
-      {f:'Fase Actual',       type:'select', opts:['0 — Apartado','1 — Expediente','2 — Valuación','3 — Crédito','4 — Escrituración','5 — Firma','6 — Entrega','7 — Completado']},
+      {f:'Fase Actual',       type:'select', asText:true, opts:['Apartado','Expediente','Valuación','Crédito','Escrituración','Firma','Entrega','Completado']},
       {f:'Asesor',            type:'text'},
       {f:'Próximo paso',      type:'textarea'},
       {f:'Pendientes visibles', type:'textarea'},
@@ -1251,8 +1251,7 @@ function crmBuildModal(title, editable, values){
 
   const html = editable.map(({f, type, opts}) => {
     let val = values[f] ?? '';
-    // Airtable devuelve Single Select como objeto {id, name, color} o como string
-    if(typeof val === 'object' && val !== null) val = val?.name ?? '';
+    if(typeof val === 'object') val = val?.name ?? '';
     val = String(val);
 
     if(type === 'select'){
@@ -1291,14 +1290,14 @@ async function crmSave(){
   const cfg = CRM_CFG[crmState.tab];
   const inputs = document.querySelectorAll('#crm-modal-fields [data-field]');
   const fields = {};
-  // Mapa de campos tipo select para formatearlos correctamente para Airtable
-  const selectFields = {};
-  (cfg.editable || []).forEach(({f, type}) => { if(type === 'select') selectFields[f] = true; });
+  // Mapa de campos: select normal → {name:val}, asText → texto plano
+  const fieldMeta = {};
+  (cfg.editable || []).forEach(({f, type, asText}) => { fieldMeta[f] = {type, asText}; });
   inputs.forEach(el => {
     const val = el.value.trim();
     if(!val) return;
-    // Los campos Single Select en Airtable necesitan {name: "valor"}, no texto plano
-    fields[el.dataset.field] = selectFields[el.dataset.field] ? {name: val} : val;
+    const meta = fieldMeta[el.dataset.field] || {};
+    fields[el.dataset.field] = (meta.type === 'select' && !meta.asText) ? {name: val} : val;
   });
 
   try {
