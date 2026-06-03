@@ -609,6 +609,7 @@ select.form-input option{background:#111;color:#fff}
 .fk-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
 .fk-name{font-family:var(--display);font-size:24px;letter-spacing:1px;color:var(--white);line-height:1.1}
 .fk-folio{font-size:11px;color:var(--gold);letter-spacing:2px;margin-top:6px;font-family:monospace}
+.fk-op{font-size:10px;color:var(--w30);letter-spacing:1px;margin-top:3px;font-family:monospace}
 .fk-tags{display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex-shrink:0}
 .fk-sub{font-size:12px;color:var(--w50);margin-top:10px}
 .fk-diag{
@@ -1088,8 +1089,7 @@ const CRM_CFG = {
     dot: 'compradores',
     ficha: true,
     portalBase: 'https://progreso-zeta.vercel.app/',
-    portalFolioField: 'Folio',
-    fichaExtra: ['Riesgo principal','Diagnóstico comercial','Estado emocional','Siguiente jugada','Mensaje sugerido','Última interacción','Propiedad de Interés','Status del Lead','Clasificación'],
+    fichaExtra: ['Riesgo principal','Diagnóstico comercial','Estado emocional','Siguiente jugada','Mensaje sugerido','Última interacción','Propiedad de Interés','Status del Lead','Clasificación','Folio Propiedad NERI','Folio del Comprador'],
     cols: ['Folio','Nombre','WhatsApp','Propiedad Interés','Status','Clasificación','Crédito','Asesor','Fecha'],
     fields: ['Folio','Nombre Completo','Teléfono WhatsApp','Propiedad de Interés','Status del Lead','Clasificación','Método / Crédito','Asesor','Fecha de Entrada'],
     editable: [
@@ -1313,7 +1313,8 @@ function crmOpenFicha(recId){
   crmState.isNew  = false;
 
   const nombre = _fval(rec,'Nombre Completo') || 'Sin nombre';
-  const folio  = _fval(rec, cfg.portalFolioField || 'Folio');
+  const folioLead = _fval(rec,'Folio del Comprador') || _fval(rec,'Folio');
+  const folioOp   = _fval(rec,'Folio Propiedad NERI') || folioLead.replace(/-\d+$/,'');
   const diag   = _fval(rec,'Diagnóstico comercial');
   const status = _fval(rec,'Status del Lead');
   const clasif = _fval(rec,'Clasificación');
@@ -1321,7 +1322,7 @@ function crmOpenFicha(recId){
   const wa     = _fval(rec,'Teléfono WhatsApp');
 
   const sd = v => v ? v : '<span class="fk-empty">Sin definir</span>';
-  const portalUrl = folio ? (cfg.portalBase + '?folio=' + encodeURIComponent(folio)) : '';
+  const portalUrl = folioOp ? (cfg.portalBase + '?folio=' + encodeURIComponent(folioOp)) : '';
 
   const rows = [
     ['Riesgo principal',     _fval(rec,'Riesgo principal')],
@@ -1342,7 +1343,8 @@ function crmOpenFicha(recId){
     <div class="fk-top">
       <div>
         <div class="fk-name">${nombre}</div>
-        <div class="fk-folio">${folio || '— sin folio —'}</div>
+        <div class="fk-folio">${folioLead || '— sin folio —'}</div>
+        ${folioOp && folioOp!==folioLead ? `<div class="fk-op">Operación: ${folioOp}</div>` : ''}
       </div>
       <div class="fk-tags">
         ${clasif ? `<span class="badge ${STATUS_BADGE[clasif]||''}">${clasif}</span>`:''}
