@@ -984,7 +984,7 @@ const NAV_ROL = {
     { id:'vendedores',  label:'Landing Vendedores', icon:'🏠' },
     { section:'Seguimiento' },
     { id:'citas',       label:'Panel de Citas',     icon:'📋' },
-    { id:'progreso',    label:'Portal Cliente',     icon:'◎' },
+    { id:'progreso',    label:'Portal Progreso',     icon:'◎' },
     { id:'opciones',    label:'Opciones de Compra', icon:'⊞' },
   ],
   gerente: [
@@ -1009,7 +1009,7 @@ const NAV_ROL = {
     { id:'compradores', label:'Landing Compradores',icon:'⊕' },
     { id:'vendedores',  label:'Landing Vendedores', icon:'🏠' },
     { id:'citas',       label:'Panel de Citas',     icon:'📋' },
-    { id:'progreso',    label:'Portal Cliente',     icon:'◎' },
+    { id:'progreso',    label:'Portal Progreso',     icon:'◎' },
   ],
   admin: [
     { section:'Sistema' },
@@ -1020,7 +1020,7 @@ const NAV_ROL = {
     { id:'compradores', label:'Landing Compradores',icon:'⊕' },
     { id:'vendedores',  label:'Landing Vendedores', icon:'🏠' },
     { id:'citas',       label:'Panel de Citas',     icon:'📋' },
-    { id:'progreso',    label:'Portal Cliente',     icon:'◎' },
+    { id:'progreso',    label:'Portal Progreso',     icon:'◎' },
     { id:'opciones',    label:'Opciones de Compra', icon:'⊞' },
   ],
 };
@@ -1033,7 +1033,7 @@ const TOOLS = {
   compradores: { name:'Landing Compradores', url:'https://captacion.vercel.app',             ext:true },
   vendedores:  { name:'Landing Vendedores',  url:'https://ahuatlan32m.vercel.app',      ext:true },
   citas:       { name:'Panel de Citas',      url:'https://citas-vert.vercel.app',                    ext:true },
-  progreso:    { name:'Portal Cliente',      url:'https://captacion.vercel.app',        ext:true },
+  progreso:    { name:'Portal Progreso',      url:'https://captacion.vercel.app',        ext:true },
   opciones:    { name:'Opciones de Compra',  url:'https://opcionesdecompra.vercel.app',     ext:true },
   reportes:    { name:'Reportes',            url:'Reportes.html',                        ext:true },
 };
@@ -1180,7 +1180,7 @@ function getToolDesc(id){
     compradores: 'Landing personalizada para captar compradores.',
     vendedores:  'Diagnóstico profesional para propietarios.',
     citas:       'Agenda, documentos y avances de cada cliente.',
-    progreso:    'El cliente ve su etapa en tiempo real.',
+    progreso:    'Portal de seguimiento solo para clientes con apartado.',
     opciones:    'Esquemas de compra para presentar al cliente.',
     reportes:    'Métricas y resultados del equipo.',
   };
@@ -1456,7 +1456,8 @@ function crmOpenFicha(recId){
   crmState.isNew  = false;
 
   const nombre = _fval(rec,'Nombre Completo') || 'Sin nombre';
-  const folioLead = _fval(rec,'Folio del Comprador') || _fval(rec,'Folio');
+  // Folio correcto para el lead: NO usar el campo primario "Folio" cuando venga vacío o '-'
+  const folioLead = _fval(rec,'Folio del Comprador') || _fval(rec,'Folio Propiedad NERI') || '';
   const folioOp   = _fval(rec,'Folio Propiedad NERI') || folioLead.replace(/-\d+$/,'');
   const diag   = _fval(rec,'Diagnóstico comercial');
   const status = _fval(rec,'Status del Lead');
@@ -1465,7 +1466,9 @@ function crmOpenFicha(recId){
   const wa     = _fval(rec,'Teléfono WhatsApp');
 
   const sd = v => v ? v : '<span class="fk-empty">Sin definir</span>';
-  const portalUrl = folioOp ? (cfg.portalBase + '?folio=' + encodeURIComponent(folioOp)) : '';
+  // Un lead comprador todavía NO tiene portal de cliente.
+  // El portal nace hasta Apartado → Portal Progreso Clientes.
+  const portalUrl = ''; // intencional: no mostrar portal en ficha de lead
 
   const rows = [
     ['Riesgo principal',     _fval(rec,'Riesgo principal')],
@@ -1504,9 +1507,9 @@ function crmOpenFicha(recId){
     <div class="fk-grid">${rows}</div>
     ${msgBlock}`;
 
+  // No mostrar Portal del cliente en ficha de lead comprador.
   const portalBtn = document.getElementById('crm-ficha-portal');
-  if(portalUrl){ portalBtn.style.display=''; portalBtn.onclick = () => window.open(portalUrl,'_blank'); }
-  else { portalBtn.style.display='none'; }
+  if(portalBtn) portalBtn.style.display='none';
 
   document.getElementById('crm-ficha').style.display = 'flex';
 }
@@ -1976,12 +1979,18 @@ async function citaSave(){
     const ftype = el.dataset.ftype;
     const orig  = (el.dataset.orig || '').trim();
     const nv    = (el.value || '').trim();
-    if(nv === orig) return;   // sin cambios
+    // En edición: guardar solo cambios. En nueva cita: guardar todo lo que venga lleno,
+    // incluyendo valores default como Tipo de Cita y Estado Cita.
+    if(crmState.isNew){
+      if(nv === '') return;
+    } else {
+      if(nv === orig) return;
+    }
 
     if(ftype === 'select'){
-      fields[name] = nv === '' ? null : { name: nv };
+      fields[name] = { name: nv };
     } else {
-      fields[name] = nv === '' ? null : nv;
+      fields[name] = nv;
     }
   });
 
@@ -2212,9 +2221,8 @@ function buildAirtablePanel(){
       <div id="crm-ficha-body"></div>
       <div class="crm-modal-actions">
         <button class="btn btn-ghost" onclick="crmCloseFicha()">Cerrar</button>
-        <button class="btn btn-ghost" id="crm-ficha-portal">◎ Portal del cliente</button>
         <button class="btn btn-cita" onclick="fichaAgendarCita()" title="Agendar visita desde este lead">📅 Agendar visita</button>
-        <button class="btn btn-primary" onclick="fichaEditFromFicha()">Editar</button>
+        <button class="btn btn-primary" onclick="fichaEditFromFicha()">Editar registro</button>
       </div>
     </div>
   </div>
@@ -2357,7 +2365,7 @@ function openExternal(id){
 const LABELS = {
   hoy:'Inicio', airtable:'Mi CRM', sala:'Sala de Mensajes',
   compradores:'Landing Compradores', vendedores:'Landing Vendedores',
-  citas:'Panel de Citas', progreso:'Portal Cliente',
+  citas:'Panel de Citas', progreso:'Portal Progreso',
   opciones:'Opciones de Compra', reportes:'Reportes'
 };
 
