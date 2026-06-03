@@ -357,6 +357,68 @@ select.form-input option{background:#111;color:#fff}
 }
 .tc-arrow{transition:transform .15s;font-size:13px}
 
+/* ─ Dashboard Hoy: refresh, KPIs, inteligencia ─ */
+.hoy-banner-right{display:flex;align-items:center;gap:12px}
+.hoy-refresh{
+  width:30px;height:30px;border-radius:50%;border:1px solid var(--border2);
+  background:transparent;color:var(--gold);font-size:14px;cursor:pointer;
+  transition:all .15s;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.hoy-refresh:hover{border-color:var(--goldbdr);background:var(--golddim)}
+.hoy-refresh.spin{animation:hoyspin .8s linear infinite}
+@keyframes hoyspin{to{transform:rotate(360deg)}}
+
+.kpi-strip{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:1px;
+  background:var(--border);border:1px solid var(--border);border-radius:var(--r);
+  overflow:hidden;margin-bottom:24px;
+}
+.kpi{background:var(--surface);padding:18px 20px}
+.kpi-num{font-family:var(--display);font-size:42px;letter-spacing:1px;line-height:.9;color:var(--gold)}
+.kpi-lbl{font-size:7px;letter-spacing:2.5px;text-transform:uppercase;color:var(--w50);font-weight:700;margin-top:8px}
+
+.hoy-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px}
+.hoy-col{border:1px solid var(--border);border-radius:var(--r);background:var(--surface);overflow:hidden}
+.hoy-col-head{
+  display:flex;align-items:center;gap:9px;padding:14px 18px;
+  font-size:8px;letter-spacing:3px;text-transform:uppercase;font-weight:800;color:var(--w80);
+  border-bottom:1px solid var(--border);background:var(--surface2);
+}
+.hoy-col-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;background:var(--gold)}
+.hoy-col-dot.red{background:var(--red)}
+.hoy-col-count{margin-left:auto;color:var(--gold);font-family:var(--mono);font-size:11px;letter-spacing:0}
+.hoy-list{max-height:340px;overflow-y:auto}
+
+.hoy-item{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:13px 18px;border-bottom:1px solid var(--border);width:100%;text-align:left;
+  background:transparent;color:inherit;border-left:none;border-right:none;border-top:none;
+}
+.hoy-item:last-child{border-bottom:none}
+.hoy-item.act{cursor:pointer;transition:background .15s}
+.hoy-item.act:hover{background:var(--surface2)}
+.hoy-item.act:hover .hi-go{transform:translateX(3px);color:var(--gold)}
+.hoy-item.is-today{background:var(--golddim);border-left:2px solid var(--gold)}
+.hi-main{min-width:0;flex:1}
+.hi-title{font-size:12px;font-weight:600;color:var(--white);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.hi-sub{font-size:10px;color:var(--w50);font-weight:300;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:240px}
+.hi-meta{text-align:right;flex-shrink:0}
+.hi-when{font-family:var(--mono);font-size:10px;color:var(--w50);margin-bottom:5px;white-space:nowrap}
+.hi-today{font-size:6px;letter-spacing:1.5px;background:var(--gold);color:#060606;padding:2px 6px;border-radius:999px;font-weight:800}
+.hi-pill{font-size:6px;letter-spacing:1.5px;text-transform:uppercase;padding:3px 8px;border-radius:999px;font-weight:800;white-space:nowrap}
+.hi-pill.gold{background:var(--golddim);border:1px solid var(--goldbdr);color:var(--gold)}
+.hi-pill.green{background:var(--greendim);border:1px solid rgba(74,222,128,.25);color:var(--green)}
+.hi-pill.red{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3);color:var(--red)}
+.hi-go{font-size:15px;color:var(--w30);transition:all .15s;flex-shrink:0}
+.hoy-empty{padding:22px 18px;font-size:11px;color:var(--w30);font-weight:300;text-align:center}
+.hoy-empty.err{color:var(--red)}
+
+.hoy-launch-label{
+  font-size:8px;letter-spacing:3px;text-transform:uppercase;font-weight:800;
+  color:var(--w50);margin-bottom:12px;display:flex;align-items:center;gap:10px;
+}
+.hoy-launch-label::before{content:'';width:20px;height:1px;background:var(--goldbdr);display:block}
+
 /* ══════════════════════════════════════════
    CRM PANEL — diseño premium
 ══════════════════════════════════════════ */
@@ -984,6 +1046,9 @@ select.form-inp option{background:#111;color:#fff}
   #screen-login{grid-template-columns:1fr}
   .login-left{display:none}
   .hoy-tools-grid{grid-template-columns:1fr 1fr}
+  .hoy-grid{grid-template-columns:1fr}
+  .kpi-strip{grid-template-columns:1fr 1fr}
+  .hi-sub{max-width:160px}
 }
 </style>
 </head>
@@ -1275,6 +1340,8 @@ function buildPanels(){
 /* ═══════════════════════════════════════════════════
    PANEL HOY
 ═══════════════════════════════════════════════════ */
+let _hoyLoaded = false;
+
 function buildHoyPanel(){
   const s = SESSION;
   const hora = new Date().getHours();
@@ -1290,6 +1357,9 @@ function buildHoyPanel(){
       <div class="tc-action">Abrir <span class="tc-arrow">→</span></div>
     </button>`).join('');
 
+  const kpi = l=>`<div class="kpi"><div class="kpi-num">—</div><div class="kpi-lbl">${l}</div></div>`;
+  const skel = `<div class="hoy-empty">Cargando…</div>`;
+
   return `<div class="panel" id="panel-hoy">
     <div class="hoy-body">
       <div class="ph-head">
@@ -1301,11 +1371,145 @@ function buildHoyPanel(){
           <div class="hoy-name">${s.nombre}</div>
           <div class="hoy-role">${s.empresa} · <span style="text-transform:capitalize">${s.rol}</span></div>
         </div>
-        <span class="pill pill-green">● Sesión activa</span>
+        <div class="hoy-banner-right">
+          <span class="pill pill-green">● Sesión activa</span>
+          <button class="hoy-refresh" id="hoy-refresh" onclick="loadHoyData(true)" title="Actualizar">↻</button>
+        </div>
       </div>
+
+      <div class="kpi-strip" id="hoy-kpis">
+        ${kpi('Citas activas')}${kpi('Calientes (A)')}${kpi('Apartados')}${kpi('Total leads')}
+      </div>
+
+      <div class="hoy-grid">
+        <section class="hoy-col">
+          <div class="hoy-col-head"><span class="hoy-col-dot gold"></span>Agenda <span class="hoy-col-count" id="hoy-agenda-count"></span></div>
+          <div class="hoy-list" id="hoy-agenda">${skel}</div>
+        </section>
+        <section class="hoy-col">
+          <div class="hoy-col-head"><span class="hoy-col-dot red"></span>Requieren acción <span class="hoy-col-count" id="hoy-accion-count"></span></div>
+          <div class="hoy-list" id="hoy-accion">${skel}</div>
+        </section>
+      </div>
+
+      <div class="hoy-launch-label">Herramientas</div>
       <div class="hoy-tools-grid">${cards}</div>
     </div>
   </div>`;
+}
+
+/* ── DASHBOARD HOY: datos en vivo (lectura, aditivo) ── */
+function _isToday(str){
+  if(!str) return false;
+  const d = new Date(str); if(isNaN(d)) return false;
+  const n = new Date();
+  return d.getFullYear()===n.getFullYear() && d.getMonth()===n.getMonth() && d.getDate()===n.getDate();
+}
+function _daysSince(str){
+  if(!str) return null;
+  const d = new Date(str); if(isNaN(d)) return null;
+  return Math.floor((Date.now()-d.getTime())/86400000);
+}
+function _setKpis(arr){
+  const el = document.getElementById('hoy-kpis'); if(!el) return;
+  el.innerHTML = arr.map(([n,l])=>`<div class="kpi"><div class="kpi-num">${n}</div><div class="kpi-lbl">${l}</div></div>`).join('');
+}
+
+async function loadHoyData(force){
+  if(_hoyLoaded && !force) return;
+  _hoyLoaded = true;
+  const rb = document.getElementById('hoy-refresh'); if(rb) rb.classList.add('spin');
+  try{
+    const cCfg = CRM_CFG.compradores, kCfg = CRM_CFG.citas;
+    const cF = ['Nombre Completo','Status del Lead','Clasificación','Diagnóstico comercial','Riesgo principal','Siguiente jugada','Última interacción','Folio del Comprador','Propiedad de Interés'];
+    const kF = ['Comprador','Propiedad','Fecha de la Cita','Hora','Estado Cita','Tipo de Cita','Asesor','Folio Cita'];
+    const cP = cF.map(f=>'fields[]='+encodeURIComponent(f)).join('&');
+    const kP = kF.map(f=>'fields[]='+encodeURIComponent(f)).join('&');
+    const [comp, cit] = await Promise.all([
+      atFetch(`${cCfg.tableId}?${cP}&maxRecords=100&view=Grid%20view`),
+      atFetch(`${kCfg.tableId}?${kP}&maxRecords=100&view=Grid%20view`)
+    ]);
+    renderHoy(comp.records||[], cit.records||[]);
+  }catch(e){
+    const a = document.getElementById('hoy-agenda');
+    if(a) a.innerHTML = '<div class="hoy-empty err">No se pudo cargar. Pulsa ↻ para reintentar.</div>';
+    const k = document.getElementById('hoy-accion');
+    if(k) k.innerHTML = '<div class="hoy-empty err">—</div>';
+  } finally {
+    if(rb) rb.classList.remove('spin');
+  }
+}
+
+function renderHoy(comp, cit){
+  // Citas activas
+  const activas = cit.filter(r=>{
+    const e = _fval(r,'Estado Cita');
+    return e==='Pendiente' || e==='Confirmada' || e==='Reagendada';
+  });
+  const calientes = comp.filter(r=>String(_fval(r,'Clasificación')).startsWith('A')).length;
+  const apartados = comp.filter(r=>_fval(r,'Status del Lead')==='Apartado').length;
+  _setKpis([
+    [activas.length,'Citas activas'],
+    [calientes,'Calientes (A)'],
+    [apartados,'Apartados'],
+    [comp.length,'Total leads'],
+  ]);
+
+  // Agenda
+  const agEl = document.getElementById('hoy-agenda');
+  const agC  = document.getElementById('hoy-agenda-count');
+  if(!activas.length){ agEl.innerHTML='<div class="hoy-empty">Sin citas pendientes.</div>'; if(agC)agC.textContent=''; }
+  else{
+    if(agC) agC.textContent = activas.length;
+    activas.sort((a,b)=> (_isToday(_fval(b,'Fecha de la Cita'))?1:0) - (_isToday(_fval(a,'Fecha de la Cita'))?1:0));
+    agEl.innerHTML = activas.slice(0,8).map(r=>{
+      const hoy = _isToday(_fval(r,'Fecha de la Cita'));
+      const est = _fval(r,'Estado Cita');
+      const estCls = est==='Confirmada' ? 'green' : 'gold';
+      return `<div class="hoy-item${hoy?' is-today':''}">
+        <div class="hi-main">
+          <div class="hi-title">${_esc(_fval(r,'Comprador')||'—')}${hoy?' <span class="hi-today">HOY</span>':''}</div>
+          <div class="hi-sub">${_esc(_fval(r,'Propiedad')||'')}</div>
+        </div>
+        <div class="hi-meta">
+          <div class="hi-when">${_esc((_fval(r,'Fecha de la Cita')||'')+' '+(_fval(r,'Hora')||''))}</div>
+          <span class="hi-pill ${estCls}">${_esc(est||'—')}</span>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // Requieren acción
+  const scored = [];
+  comp.forEach(r=>{
+    const diag   = _fval(r,'Diagnóstico comercial');
+    const status = _fval(r,'Status del Lead');
+    const clas   = String(_fval(r,'Clasificación'));
+    const dias   = _daysSince(_fval(r,'Última interacción'));
+    let tag=null, cls='gold', order=9, dorm='';
+    if(diag==='Listo para avanzar'){ tag='CERCA'; cls='gold'; order=0; }
+    else if(status==='Apartado'){ tag='APARTADO'; cls='gold'; order=1; }
+    else if(clas.startsWith('A')){ tag='CALIENTE'; cls='gold'; order=2; }
+    if(dias!=null && dias>=7){ dorm=dias+'d sin contacto'; if(!tag){ tag='DORMIDO'; cls='red'; order=3; } }
+    if(!tag) return;
+    const why = _fval(r,'Riesgo principal') || _fval(r,'Siguiente jugada') || dorm || _fval(r,'Propiedad de Interés') || '';
+    scored.push({r,tag,cls,order,why});
+  });
+  scored.sort((a,b)=>a.order-b.order);
+  const acEl = document.getElementById('hoy-accion');
+  const acC  = document.getElementById('hoy-accion-count');
+  if(!scored.length){ acEl.innerHTML='<div class="hoy-empty">Todo al día. Sin pendientes críticos.</div>'; if(acC)acC.textContent=''; }
+  else{
+    if(acC) acC.textContent = scored.length;
+    acEl.innerHTML = scored.slice(0,8).map(o=>`
+      <button class="hoy-item act" onclick="goTo('airtable')">
+        <div class="hi-main">
+          <div class="hi-title">${_esc(_fval(o.r,'Nombre Completo')||'—')} <span class="hi-pill ${o.cls}">${o.tag}</span></div>
+          <div class="hi-sub">${_esc(o.why||'')}</div>
+        </div>
+        <span class="hi-go">→</span>
+      </button>`).join('');
+  }
 }
 
 function getSectionForId(id, rol){
@@ -2766,6 +2970,7 @@ function goTo(id){
 
   document.getElementById('tb-label').textContent = LABELS[id] || id;
   if(id === 'airtable') setTimeout(onAirtablePanelActivate, 60);
+  if(id === 'hoy') setTimeout(()=>loadHoyData(false), 60);
 }
 
 /* ═══════════════════════════════════════════════════
