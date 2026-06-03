@@ -1588,11 +1588,21 @@ function crmOpenEdit(recId){
   crmBuildModal('EDITAR REGISTRO', CRM_CFG[crmState.tab].editable, rec.fields || {});
 }
 
+function crmDefaultsForNew(tab){
+  const values = {};
+  // Para nuevos leads vendedores, el asesor debe salir del usuario configurado
+  // en la sesión, no de un nombre fijo. Si después se borra manualmente, se guarda en blanco.
+  if(tab === 'vendedores' && SESSION?.nombre){
+    values['Asesor'] = SESSION.nombre;
+  }
+  return values;
+}
+
 function crmOpenNew(){
   if(crmState.tab === 'citas'){ citaOpenNew(); return; }
   crmState.editId = null;
   crmState.isNew  = true;
-  crmBuildModal('NUEVO REGISTRO', CRM_CFG[crmState.tab].editable, {});
+  crmBuildModal('NUEVO REGISTRO', CRM_CFG[crmState.tab].editable, crmDefaultsForNew(crmState.tab));
 }
 
 /* ─── FICHA PREMIUM (solo lectura) ─────────────────── */
@@ -2402,21 +2412,24 @@ function crmBuildModal(title, editable, values){
     if(typeof val === 'object') val = val?.name ?? '';
     val = String(val);
 
+    const fieldAttr = _escAttr(f);
+    const valueAttr = _escAttr(val);
+
     if(type === 'select'){
       const os = (opts||[]).map(o =>
-        `<option value="${o}"${val===o?' selected':''}>${o}</option>`).join('');
+        `<option value="${_escAttr(o)}"${val===o?' selected':''}>${_esc(o)}</option>`).join('');
       return `<div class="form-group">
-        <label class="form-label">${f}</label>
-        <select class="form-inp" data-field="${f}" data-ftype="select"><option value="">— Sin selección</option>${os}</select></div>`;
+        <label class="form-label">${_esc(f)}</label>
+        <select class="form-inp" data-field="${fieldAttr}" data-ftype="select" data-orig="${valueAttr}"><option value="">— Sin selección</option>${os}</select></div>`;
     }
     if(type === 'textarea'){
       return `<div class="form-group full">
-        <label class="form-label">${f}</label>
-        <textarea class="form-inp" data-field="${f}" rows="3">${val}</textarea></div>`;
+        <label class="form-label">${_esc(f)}</label>
+        <textarea class="form-inp" data-field="${fieldAttr}" data-orig="${valueAttr}" rows="3">${_esc(val)}</textarea></div>`;
     }
     return `<div class="form-group">
-      <label class="form-label">${f}</label>
-      <input class="form-inp" type="text" data-field="${f}" value="${val.replace(/"/g,'&quot;')}"></div>`;
+      <label class="form-label">${_esc(f)}</label>
+      <input class="form-inp" type="text" data-field="${fieldAttr}" data-orig="${valueAttr}" value="${valueAttr}"></div>`;
   }).join('');
 
   document.getElementById('crm-modal-fields').innerHTML = html;
@@ -2442,9 +2455,18 @@ async function crmSave(){
   const fieldMeta = {};
   (cfg.editable || []).forEach(({f, type, asText}) => { fieldMeta[f] = {type, asText}; });
   inputs.forEach(el => {
-    const val = el.value.trim();
-    if(!val) return;
+    const val  = el.value.trim();
+    const orig = (el.dataset.orig || '').trim();
     const meta = fieldMeta[el.dataset.field] || {};
+
+    // En registros nuevos no mandamos campos vacíos.
+    // En edición, si el usuario borra un campo que antes tenía valor, mandamos null
+    // para limpiar Airtable de verdad. Esto evita que "Asesor" se quede pegado.
+    if(!val){
+      if(!crmState.isNew && orig) fields[el.dataset.field] = null;
+      return;
+    }
+
     // Con typecast:true Airtable acepta string directo para singleSelect; evita 422 por mayúsculas
     fields[el.dataset.field] = val;
   });
