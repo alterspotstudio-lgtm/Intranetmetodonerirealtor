@@ -758,6 +758,74 @@ select.form-inp option{background:#111;color:#fff}
 }
 #toast.show{transform:translateY(0);opacity:1}
 
+/* ─── MODAL DE CITA ─── */
+#crm-cita{
+  display:none;position:fixed;inset:0;z-index:915;
+  background:rgba(0,0,0,.92);backdrop-filter:blur(14px);
+  align-items:center;justify-content:center;padding:20px;
+}
+.cita-box{width:min(640px,100%)}
+
+/* Cabecera tipo ticket */
+.cita-ticket{
+  background:linear-gradient(135deg,rgba(201,169,110,.09) 0%,rgba(201,169,110,.03) 100%);
+  border:1px solid var(--goldbdr);border-radius:3px;
+  padding:20px 24px;margin-bottom:20px;
+  display:grid;grid-template-columns:1fr auto;gap:12px;align-items:start;
+}
+.cita-folio-tag{font-size:7px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);font-weight:800;margin-bottom:6px}
+.cita-nombre{font-family:var(--display);font-size:26px;letter-spacing:2px;color:var(--white);line-height:1.1}
+.cita-propiedad{font-size:11px;color:var(--w50);margin-top:5px;display:flex;align-items:center;gap:6px}
+.cita-folio-code{font-family:var(--mono);font-size:11px;color:var(--gold);letter-spacing:1.5px;
+  padding:5px 12px;border:1px solid var(--goldbdr);border-radius:2px;white-space:nowrap;background:rgba(201,169,110,.06)}
+
+/* Secciones del formulario */
+.cita-sec-title{
+  font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--w30);
+  font-weight:800;padding-bottom:7px;margin:18px 0 12px;
+  border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;
+}
+.cita-sec-title span{color:var(--gold);font-size:11px}
+.cita-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cita-grid .full{grid-column:1/-1}
+
+/* Bloque de confirmación (solo lectura) */
+.cita-confirm-block{
+  background:rgba(74,222,128,.06);border:1px solid rgba(74,222,128,.22);
+  border-left:3px solid var(--green);border-radius:3px;
+  padding:16px 18px;margin-top:14px;
+}
+.cita-confirm-title{
+  font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--green);
+  font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:8px;
+}
+.cita-confirm-row{
+  display:grid;grid-template-columns:130px 1fr;gap:8px;
+  padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06);
+}
+.cita-confirm-row:last-child{border-bottom:none}
+.cita-ck{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--w30)}
+.cita-cv{font-size:12px;color:var(--w80);font-family:inherit;line-height:1.4}
+
+/* Botón de link de cita */
+.cita-link-chip{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:6px 14px;border:1px solid var(--goldbdr);border-radius:999px;
+  font-size:8px;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--gold);background:var(--golddim);cursor:pointer;
+  transition:all .13s;font-weight:700;margin-top:10px;
+}
+.cita-link-chip:hover{background:rgba(201,169,110,.18)}
+
+/* Badge estado cita */
+.badge-cita-pend{background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.2);color:#fbbf24}
+.badge-cita-conf{background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.25);color:#4ade80}
+.badge-cita-real{background:rgba(201,169,110,.08);border:1px solid var(--goldbdr);color:var(--gold)}
+.badge-cita-canc{background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);color:#f87171}
+
+/* Tab dot citas */
+.at-tab-dot.citas{background:#f59e0b}
+
 /* ══════════════════════════════════════════
    RESPONSIVE
 ══════════════════════════════════════════ */
@@ -1191,6 +1259,24 @@ const CRM_CFG = {
       {f:'Mensaje WhatsApp Actualización',   type:'textarea'},
     ]
   },
+  citas: {
+    tableId: 'tblaAfbSD3pqSLdAA', // tabla Citas real (base appRh791vGXRdOJs3)
+    label: 'Citas',
+    dot: 'citas',
+    cita: true,
+    cols: ['Folio Cita','Comprador','Propiedad','Fecha','Hora','Tipo','Estado','Asesor'],
+    fields: ['Folio Cita','Comprador','Propiedad','Fecha de la Cita','Hora','Tipo de Cita','Estado Cita','Asesor'],
+    editable: [
+      {f:'Comprador',       type:'text'},
+      {f:'Propiedad',       type:'text'},
+      {f:'Fecha de la Cita',type:'text'},
+      {f:'Hora',            type:'text'},
+      {f:'Tipo de Cita',    type:'select', opts:['Visita presencial','Videollamada','Segunda visita','Visita con familia','Visita con valuador']},
+      {f:'Estado Cita',     type:'select', opts:['Pendiente','Confirmada','Realizada','Cancelada','Reagendada']},
+      {f:'Asesor',          type:'text'},
+      {f:'Notas de la Cita',type:'textarea'},
+    ]
+  },
   propiedades: {
     tableId: 'tblmco2JyXRiZGhaY',
     label: 'Propiedades',
@@ -1223,6 +1309,8 @@ const STATUS_BADGE = {
   'A — Caliente':'badge-close','B — Tibio':'badge-offer',
   'C — Frío':'badge-visit','D — Descartado':'badge-lost',
   'Firma exclusiva':'badge-offer','Firma venta directa':'badge-close',
+  'Pendiente':'badge-cita-pend','Confirmada':'badge-cita-conf',
+  'Realizada':'badge-cita-real','Cancelada':'badge-cita-canc','Reagendada':'badge-visit',
 };
 
 let crmState = { tab:'compradores', records:[], editId:null, isNew:false };
@@ -1335,6 +1423,7 @@ function crmOpenEdit(recId){
 }
 
 function crmOpenNew(){
+  if(crmState.tab === 'citas'){ citaOpenNew(); return; }
   crmState.editId = null;
   crmState.isNew  = true;
   crmBuildModal('NUEVO REGISTRO', CRM_CFG[crmState.tab].editable, {});
@@ -1344,6 +1433,7 @@ function crmOpenNew(){
 function crmOpenRow(recId){
   const cfg = CRM_CFG[crmState.tab];
   if(cfg && cfg.landing) landOpenEditor(recId);
+  else if(cfg && cfg.cita) citaOpenFicha(recId);
   else if(cfg && cfg.ficha) crmOpenFicha(recId);
   else crmOpenEdit(recId);
 }
@@ -1661,6 +1751,176 @@ async function landSave(){
   }
 }
 
+/* ─── FICHA DE CITA ───────────────────────────────── */
+/*  Patrón: abre modal de solo lectura/edición de una cita.
+    Si no existe cita para ese folio lead → modo creación.
+    Nunca escribe el Folio Cita (campo calculado / Make).     */
+
+const CITA_VERCEL_BASE = 'https://cita-neri.vercel.app/'; // ← URL de la página de cita (ajustar)
+
+function citaOpenFicha(recId){
+  const rec = crmState.records.find(r => r.id === recId);
+  if(!rec) return;
+  crmState.editId = recId;
+  crmState.isNew  = false;
+
+  const cfg = CRM_CFG['citas'];
+  document.getElementById('crm-cita-err').textContent = '';
+
+  const folioCita = _fval(rec,'Folio Cita');
+  const comprador = _fval(rec,'Comprador');
+  const propiedad = _fval(rec,'Propiedad');
+  const fecha     = _fval(rec,'Fecha de la Cita');
+  const hora      = _fval(rec,'Hora');
+  const tipo      = _fval(rec,'Tipo de Cita');
+  const estado    = _fval(rec,'Estado Cita');
+  const asesor    = _fval(rec,'Asesor');
+  const notas     = _fval(rec,'Notas de la Cita');
+
+  const citaUrl = folioCita ? (CITA_VERCEL_BASE + '?cita=' + encodeURIComponent(folioCita)) : '';
+
+  // Bloque de ticket superior
+  const ticketHtml = `
+    <div class="cita-ticket">
+      <div>
+        <div class="cita-folio-tag">Cita agendada</div>
+        <div class="cita-nombre">${_esc(comprador || 'Comprador sin nombre')}</div>
+        <div class="cita-propiedad">◈ ${_esc(propiedad || 'Propiedad sin ligar')}</div>
+      </div>
+      <div>${folioCita ? `<div class="cita-folio-code">${_esc(folioCita)}</div>` : '<span class="le-vstatus off">Sin folio aún</span>'}</div>
+    </div>`;
+
+  // Bloque editable: fecha, hora, tipo, estado, notas
+  const TIPO_OPTS = ['Visita presencial','Videollamada','Segunda visita','Visita con familia','Visita con valuador'];
+  const ESTADO_OPTS = ['Pendiente','Confirmada','Realizada','Cancelada','Reagendada'];
+
+  const _sel = (name, opts, cur) =>
+    `<div class="form-group full">
+       <label class="form-label">${name}</label>
+       <select class="form-inp" data-field="${_escAttr(name)}" data-ftype="select" data-orig="${_escAttr(cur)}">
+         <option value="">— Sin selección</option>
+         ${opts.map(o=>`<option value="${_escAttr(o)}"${cur===o?' selected':''}>${o}</option>`).join('')}
+       </select></div>`;
+
+  const _inp = (name, val, full) =>
+    `<div class="form-group${full?' full':''}">
+       <label class="form-label">${name}</label>
+       <input class="form-inp" type="text" data-field="${_escAttr(name)}" data-ftype="text"
+              data-orig="${_escAttr(val)}" value="${_escAttr(val)}"></div>`;
+
+  const _ta = (name, val) =>
+    `<div class="form-group full">
+       <label class="form-label">${name}</label>
+       <textarea class="form-inp" data-field="${_escAttr(name)}" data-ftype="text"
+                 data-orig="${_escAttr(val)}" rows="2">${_esc(val)}</textarea></div>`;
+
+  const formHtml = `
+    <div class="cita-sec-title"><span>◷</span>Fecha y hora</div>
+    <div class="cita-grid">
+      ${_inp('Fecha de la Cita', fecha)}
+      ${_inp('Hora', hora)}
+    </div>
+    <div class="cita-sec-title"><span>◈</span>Detalles</div>
+    <div class="cita-grid">
+      ${_inp('Asesor', asesor)}
+      ${_sel('Tipo de Cita', TIPO_OPTS, tipo)}
+      ${_sel('Estado Cita', ESTADO_OPTS, estado)}
+      ${_ta('Notas de la Cita', notas)}
+    </div>`;
+
+  // Bloque de confirmación (solo lectura, visible si hay fecha/hora)
+  const confirmHtml = (fecha || hora) ? `
+    <div class="cita-confirm-block">
+      <div class="cita-confirm-title">◎ Resumen de la cita</div>
+      ${[['Comprador', comprador],['Propiedad', propiedad],['Fecha', fecha],['Hora', hora],
+         ['Tipo', tipo],['Estado', estado],['Asesor', asesor]]
+        .filter(([,v])=>v)
+        .map(([k,v])=>`<div class="cita-confirm-row"><div class="cita-ck">${k}</div><div class="cita-cv">${_esc(v)}</div></div>`)
+        .join('')}
+      ${citaUrl ? `<button class="cita-link-chip" onclick="window.open('${_escAttr(citaUrl)}','_blank')">↗ Link de la cita</button>` : ''}
+    </div>` : '';
+
+  // Bloque folio — solo lectura
+  const lockHtml = `
+    <div class="cita-sec-title"><span>🔒</span>Sistema (solo lectura)</div>
+    <div class="le-banner">El Folio de Cita lo genera Make automáticamente. La intranet nunca lo escribe.</div>
+    ${folioCita ? `<div class="le-lock" style="margin-top:10px">
+      <div class="le-lock-k">🔒 Folio Cita</div>
+      <div class="le-lock-v">${_esc(folioCita)}</div>
+    </div>` : ''}
+    ${citaUrl ? `<div class="le-lock">
+      <div class="le-lock-k">🔒 Link de la cita</div>
+      <div class="le-lock-v">${_esc(citaUrl)}</div>
+    </div>` : ''}`;
+
+  document.getElementById('crm-cita-body').innerHTML = ticketHtml + formHtml + confirmHtml + lockHtml;
+
+  // Botón "Ver cita"
+  const verBtn = document.getElementById('crm-cita-ver');
+  if(citaUrl){ verBtn.style.display=''; verBtn.onclick = () => window.open(citaUrl,'_blank'); }
+  else { verBtn.style.display='none'; }
+
+  document.getElementById('crm-cita').style.display = 'flex';
+}
+
+function citaClose(){
+  document.getElementById('crm-cita').style.display = 'none';
+}
+
+async function citaSave(){
+  const btn   = document.getElementById('crm-cita-save');
+  const errEl = document.getElementById('crm-cita-err');
+  const cfg   = CRM_CFG['citas'];
+  btn.textContent = 'Guardando...'; btn.disabled = true; errEl.textContent = '';
+
+  const fields = {};
+  document.querySelectorAll('#crm-cita-body [data-field]').forEach(el => {
+    const name  = el.dataset.field;
+    const ftype = el.dataset.ftype;
+    const orig  = (el.dataset.orig || '').trim();
+    const nv    = (el.value || '').trim();
+    if(nv === orig) return;   // sin cambios
+
+    if(ftype === 'select'){
+      fields[name] = nv === '' ? null : { name: nv };
+    } else {
+      fields[name] = nv === '' ? null : nv;
+    }
+  });
+
+  if(Object.keys(fields).length === 0){
+    errEl.style.color = 'var(--w50)';
+    errEl.textContent = 'No hay cambios para guardar.';
+    btn.textContent = 'Guardar cambios'; btn.disabled = false;
+    return;
+  }
+
+  try {
+    if(crmState.isNew){
+      await atFetch(cfg.tableId, { method:'POST', body: JSON.stringify({ fields, typecast:true }) });
+    } else {
+      await atFetch(`${cfg.tableId}/${crmState.editId}`, {
+        method:'PATCH', body: JSON.stringify({ fields, typecast:true })
+      });
+    }
+    citaClose();
+    showToast('✓ Cita guardada');
+    await crmLoad('citas', true);
+  } catch(e){
+    errEl.style.color = 'var(--red)';
+    errEl.textContent = 'Error al guardar: ' + e.message;
+  } finally {
+    btn.textContent = 'Guardar cambios'; btn.disabled = false;
+  }
+}
+
+function citaOpenNew(){
+  crmState.editId = null;
+  crmState.isNew  = true;
+  crmBuildModal('NUEVA CITA', CRM_CFG['citas'].editable, {});
+}
+
+/* ─── BUILD MODAL HTML ─────────────────────────────── */
 function crmBuildModal(title, editable, values){
   document.getElementById('crm-modal-title').innerHTML = title;
   document.getElementById('crm-modal-sub').textContent = CRM_CFG[crmState.tab]?.label || '';
@@ -1863,6 +2123,26 @@ function buildAirtablePanel(){
         <button class="btn btn-ghost" onclick="landClose()">Cerrar</button>
         <button class="btn btn-ghost" id="crm-landing-view">◎ Ver landing</button>
         <button class="btn btn-primary" id="crm-landing-save" onclick="landSave()">Guardar cambios</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL FICHA DE CITA -->
+  <div id="crm-cita">
+    <div class="crm-modal-box cita-box" style="animation:fadeUp .25s var(--ease)">
+      <div class="crm-modal-head">
+        <div>
+          <div class="crm-modal-title">FICHA DE <em>CITA</em></div>
+          <div style="font-size:9px;color:var(--w30);letter-spacing:2px;text-transform:uppercase;margin-top:6px">Agenda · confirmación · link</div>
+        </div>
+        <button class="crm-modal-close" onclick="citaClose()">✕</button>
+      </div>
+      <div id="crm-cita-body"></div>
+      <div id="crm-cita-err" style="color:var(--red);font-size:11px;min-height:16px;margin-top:8px;text-align:center"></div>
+      <div class="crm-modal-actions">
+        <button class="btn btn-ghost" onclick="citaClose()">Cerrar</button>
+        <button class="btn btn-ghost" id="crm-cita-ver" style="display:none">↗ Ver cita</button>
+        <button class="btn btn-primary" id="crm-cita-save" onclick="citaSave()">Guardar cambios</button>
       </div>
     </div>
   </div>`;
