@@ -973,6 +973,45 @@ select.form-inp option{background:#111;color:#fff}
   position:sticky;bottom:0;
 }
 
+
+/* ─── Tarjeta asesor dentro de ficha vendedor ─── */
+.fv-asesor-card{
+  display:flex;align-items:center;gap:16px;
+  padding:14px 16px;
+  background:linear-gradient(135deg,rgba(201,169,110,.08) 0%,rgba(201,169,110,.02) 100%);
+  border:1px solid var(--goldbdr);border-left:3px solid var(--gold);
+  border-radius:3px;
+}
+.fv-asesor-avatar{
+  width:52px;height:52px;border-radius:50%;flex-shrink:0;overflow:hidden;
+  border:2px solid var(--goldbdr);background:var(--surface3);
+  display:flex;align-items:center;justify-content:center;
+}
+.fv-asesor-img{width:100%;height:100%;object-fit:cover}
+.fv-asesor-initials{
+  font-family:var(--display);font-size:20px;color:var(--gold);letter-spacing:1px;
+}
+.fv-asesor-info{flex:1;min-width:0}
+.fv-asesor-nombre{
+  font-family:var(--display);font-size:18px;letter-spacing:1px;
+  color:var(--white);line-height:1;margin-bottom:4px;
+}
+.fv-asesor-cargo{
+  font-size:10px;letter-spacing:1px;color:var(--w50);margin-bottom:10px;
+  text-transform:uppercase;font-weight:600;
+}
+.fv-asesor-actions{display:flex;gap:6px;flex-wrap:wrap}
+.fv-asesor-skeleton{
+  display:flex;align-items:center;gap:14px;
+  padding:14px 16px;
+  border:1px solid var(--border);border-radius:3px;
+}
+.fv-asesor-avatar-ph{
+  width:52px;height:52px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(90deg,var(--w04) 25%,var(--w08) 50%,var(--w04) 75%);
+  background-size:200% 100%;animation:shimmer 1.4s infinite;
+}
+
 /* ══════════════════════════════════════════
    RESPONSIVE
 ══════════════════════════════════════════ */
@@ -1686,21 +1725,20 @@ function crmCloseFicha(){ document.getElementById('crm-ficha').style.display = '
    Los campos candado (Folio, Propiedad Creada, Fecha creada) son solo
    lectura; el botón "Editar" abre el modal genérico de edición.       */
 
-function vendedorOpenFicha(recId){
+async function vendedorOpenFicha(recId){
   const rec = crmState.records.find(r => r.id === recId);
   if(!rec) return;
   crmState.editId = recId;
   crmState.isNew  = false;
 
   const fv = f => _fval(rec, f);
-  const sd = v => v || '<span class="fv-row-v empty">Sin datos</span>';
 
-  // Datos clave
+  // Datos clave del lead
   const nombre    = fv('Nombre Completo') || 'Sin nombre';
   const folio     = fv('Folio') || '— sin folio —';
   const wa        = fv('Teléfono WhatsApp');
   const fuente    = fv('Fuente');
-  const asesor    = fv('Asesor');
+  const asesorNombre = fv('Asesor');
   const fechaEnt  = fv('Fecha de Entrada');
   const horaEnt   = fv('Hora de Entrada');
   const estado    = fv('Estado');
@@ -1726,7 +1764,7 @@ function vendedorOpenFicha(recId){
   const docs      = fv('Documentos');
   const propCreada= fv('Propiedad Creada');
 
-  // WhatsApp link
+  // WhatsApp link del prospecto
   const waClean = wa.replace(/\D/g,'');
   const waLink  = waClean ? `https://wa.me/52${waClean}` : '';
 
@@ -1745,20 +1783,20 @@ function vendedorOpenFicha(recId){
     'No calificó': 'Lead descartado del proceso.',
   }[conv] || '';
 
-  // Números de la propiedad
+  // Helpers de render
   const numBlock = (val, lbl) => `
     <div class="fv-num${val ? '' : ' empty'}">
       <div class="fv-num-val">${val || '—'}</div>
       <div class="fv-num-lbl">${lbl}</div>
     </div>`;
 
-  // Fila de dato
   const row = (k, v, full, isLong) => `
     <div class="fv-row${full ? ' full' : ''}">
       <div class="fv-row-k">${k}</div>
       <div class="fv-row-v${isLong ? ' long' : ''}">${v ? _esc(v) : '<span class="fv-row-v empty">Sin datos</span>'}</div>
     </div>`;
 
+  // ── Render inicial con skeleton para el bloque del asesor ──
   const html = `
     <!-- HEADER -->
     <div class="fv-header">
@@ -1769,7 +1807,6 @@ function vendedorOpenFicha(recId){
             ${waLink ? `<a class="fv-wa-btn" href="${waLink}" target="_blank">↗ WhatsApp</a>` : ''}` : '<span style="color:var(--w30);font-size:11px">Sin teléfono</span>'}
         </div>
         <div class="fv-meta">
-          ${asesor   ? `<div class="fv-meta-chip">Asesor <em>${_esc(asesor)}</em></div>` : ''}
           ${fuente   ? `<div class="fv-meta-chip">Fuente <em>${_esc(fuente)}</em></div>` : ''}
           ${fechaEnt ? `<div class="fv-meta-chip">Entrada <em>${_esc(fechaEnt)}${horaEnt ? ' · '+_esc(horaEnt) : ''}</em></div>` : ''}
         </div>
@@ -1783,6 +1820,20 @@ function vendedorOpenFicha(recId){
 
     <!-- BODY -->
     <div class="fv-body">
+
+      <!-- TARJETA ASESOR — se rellena async -->
+      <div class="fv-sec">
+        <div class="fv-sec-title"><em>◉</em>Asesor asignado</div>
+        <div id="fv-asesor-card">
+          ${asesorNombre ? `<div class="fv-asesor-skeleton">
+            <div class="fv-asesor-avatar-ph"></div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+              <div class="crm-skeleton-cell" style="width:140px;height:13px"></div>
+              <div class="crm-skeleton-cell" style="width:90px;height:10px"></div>
+            </div>
+          </div>` : '<div class="fv-row full"><div class="fv-row-v empty">Sin asesor asignado</div></div>'}
+        </div>
+      </div>
 
       <!-- SECCIÓN: La propiedad -->
       <div class="fv-sec">
@@ -1845,6 +1896,79 @@ function vendedorOpenFicha(recId){
 
   document.getElementById('crm-fv-inner').innerHTML = html;
   document.getElementById('crm-ficha-vendedor').style.display = 'flex';
+
+  // ── Carga async del asesor real desde Asesor captación ──
+  if(asesorNombre){
+    _vendedorLoadAsesor(asesorNombre);
+  }
+}
+
+/* Carga el registro del asesor desde tblIRPmLIyj8sWyEk
+   cruzando por {Nombre} = asesorNombre (texto del campo Asesor del lead).
+   Actualiza el bloque #fv-asesor-card sin tocar el resto de la ficha.    */
+async function _vendedorLoadAsesor(asesorNombre){
+  const cardEl = document.getElementById('fv-asesor-card');
+  if(!cardEl) return;
+
+  // Campos a pedir — tolerante: si no existen simplemente vienen vacíos
+  const ASESOR_FIELDS = ['Nombre','Foto','Slug','Teléfono','WhatsApp','Cargo','Ciudad','Link Landing'];
+  const fieldsParam = ASESOR_FIELDS.map(f => 'fields[]=' + encodeURIComponent(f)).join('&');
+  // Filtro por fórmula: {Nombre} = "Diana Salgado"
+  const filterParam = 'filterByFormula=' + encodeURIComponent(`{Nombre}="${asesorNombre}"`);
+
+  try {
+    const data = await atFetch(`tblIRPmLIyj8sWyEk?${fieldsParam}&${filterParam}&maxRecords=1`);
+    const aRec = data.records?.[0];
+
+    if(!aRec){
+      cardEl.innerHTML = `<div class="fv-row full"><div class="fv-row-v empty">Asesor "${_esc(asesorNombre)}" no encontrado en el catálogo.</div></div>`;
+      return;
+    }
+
+    const af = f => {
+      const v = aRec.fields?.[f];
+      if(v == null || v === '') return '';
+      if(Array.isArray(v)) return v[0]?.name ?? v[0]?.url ?? '';
+      if(typeof v === 'object') return v.name ?? '';
+      return String(v);
+    };
+
+    const nombre   = af('Nombre');
+    const cargo    = af('Cargo');
+    const ciudad   = af('Ciudad');
+    // Teléfono: puede estar en 'Teléfono' o 'WhatsApp' según el nombre real del campo
+    const tel      = af('Teléfono') || af('WhatsApp');
+    const slug     = af('Slug');
+    const landing  = af('Link Landing');
+    // Foto: primer attachment
+    const fotoArr  = aRec.fields?.['Foto'];
+    const fotoThumb = Array.isArray(fotoArr) && fotoArr[0]
+      ? (fotoArr[0].thumbnails?.large?.url || fotoArr[0].url)
+      : '';
+
+    const telClean = tel.replace(/\D/g,'');
+    const waLink   = telClean ? `https://wa.me/52${telClean}` : '';
+    const landLink = landing || (slug ? `https://captacion.vercel.app/?asesor=${encodeURIComponent(slug)}` : '');
+
+    cardEl.innerHTML = `
+      <div class="fv-asesor-card">
+        <div class="fv-asesor-avatar">
+          ${fotoThumb
+            ? `<img src="${_escAttr(fotoThumb)}" alt="${_escAttr(nombre)}" class="fv-asesor-img">`
+            : `<div class="fv-asesor-initials">${nombre.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()}</div>`}
+        </div>
+        <div class="fv-asesor-info">
+          <div class="fv-asesor-nombre">${_esc(nombre)}</div>
+          <div class="fv-asesor-cargo">${_esc(cargo || 'Asesor Inmobiliario')}${ciudad ? ' · '+_esc(ciudad) : ''}</div>
+          <div class="fv-asesor-actions">
+            ${waLink   ? `<a class="fv-wa-btn" href="${waLink}" target="_blank">↗ WhatsApp${tel ? ' '+_esc(tel) : ''}</a>` : ''}
+            ${landLink ? `<a class="fv-wa-btn" href="${landLink}" target="_blank" style="border-color:var(--goldbdr);color:var(--gold)">◈ Landing</a>` : ''}
+          </div>
+        </div>
+      </div>`;
+  } catch(e){
+    cardEl.innerHTML = `<div class="fv-row full"><div class="fv-row-v empty">Error al cargar asesor: ${_esc(e.message)}</div></div>`;
+  }
 }
 
 function crmBadgeForConv(conv){
