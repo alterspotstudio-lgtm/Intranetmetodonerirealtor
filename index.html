@@ -410,6 +410,69 @@ select.form-input option{background:#111;color:#fff}
 .hi-pill.green{background:var(--greendim);border:1px solid rgba(74,222,128,.25);color:var(--green)}
 .hi-pill.red{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3);color:var(--red)}
 .hi-go{font-size:15px;color:var(--w30);transition:all .15s;flex-shrink:0}
+.hi-actions{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.hi-wa{
+  font-size:7px;letter-spacing:1.5px;text-transform:uppercase;font-weight:800;
+  padding:6px 11px;border-radius:999px;text-decoration:none;white-space:nowrap;
+  background:var(--greendim);border:1px solid rgba(74,222,128,.3);color:var(--green);
+  transition:all .15s;
+}
+.hi-wa:hover{background:rgba(74,222,128,.2)}
+.hi-pill.amber{background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.35);color:#fbbf24}
+
+/* Briefing cálido */
+.hoy-brief{
+  padding:14px 18px;margin-bottom:22px;border-radius:var(--r);
+  background:linear-gradient(90deg,var(--golddim),transparent);
+  border:1px solid var(--border);border-left:2px solid var(--gold);
+  font-size:13px;color:var(--w80);font-weight:300;line-height:1.6;
+}
+.hoy-brief b{color:var(--gold);font-weight:700}
+
+/* Operaciones — encabezado */
+.hoy-ops-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin:30px 0 14px;flex-wrap:wrap}
+.hoy-ops-eyebrow{font-size:7px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);font-weight:800}
+.hoy-ops-title{font-family:var(--display);font-size:24px;letter-spacing:2px;margin-top:4px}
+.hoy-ops-hint{font-size:10px;color:var(--w50);font-weight:300;max-width:280px;text-align:right}
+
+/* Tarjeta de operación */
+.op-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+  padding:20px 22px;margin-bottom:14px;
+}
+.op-top{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:18px}
+.op-name{font-family:var(--display);font-size:20px;letter-spacing:1.5px}
+.op-prop{font-size:11px;color:var(--w50);font-weight:300;margin-top:3px}
+.op-link{color:var(--gold);text-decoration:none}
+.op-link:hover{text-decoration:underline}
+.op-pct{text-align:right;flex-shrink:0}
+.op-pct span{font-family:var(--display);font-size:30px;color:var(--gold);line-height:1}
+.op-pct small{display:block;font-size:7px;letter-spacing:2px;text-transform:uppercase;color:var(--w50);font-weight:700;margin-top:3px}
+
+/* Stepper estilo Amazon */
+.op-steps{display:flex;align-items:flex-start;gap:0;margin-bottom:14px}
+.step{display:flex;flex-direction:column;align-items:center;gap:7px;text-align:center;flex:0 0 auto;width:46px}
+.step-dot{width:13px;height:13px;border-radius:50%;border:2px solid var(--w15);background:var(--surface);transition:all .2s}
+.step-lbl{font-size:6px;letter-spacing:.3px;color:var(--w30);line-height:1.25;text-transform:uppercase;font-weight:700}
+.step-bar{flex:1;height:2px;background:var(--w08);margin-top:6px;border-radius:2px;min-width:8px}
+.step.done .step-dot{background:var(--gold);border-color:var(--gold)}
+.step.done .step-lbl{color:var(--w50)}
+.step.now .step-dot{background:var(--green);border-color:var(--green);box-shadow:0 0 0 4px var(--greendim);animation:oppulse 1.8s ease-in-out infinite}
+.step.now .step-lbl{color:var(--green);font-weight:800}
+@keyframes oppulse{0%,100%{box-shadow:0 0 0 3px var(--greendim)}50%{box-shadow:0 0 0 6px rgba(74,222,128,.05)}}
+
+.op-progress{height:4px;background:var(--w08);border-radius:4px;overflow:hidden;margin-bottom:16px}
+.op-progress-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--green));border-radius:4px;transition:width .5s var(--ease)}
+
+.op-foot{display:grid;gap:12px}
+.op-next,.op-docs,.op-pend{font-size:11px;color:var(--w80);font-weight:300;line-height:1.55;padding-left:12px;border-left:2px solid var(--border2)}
+.op-next{border-left-color:var(--green)}
+.op-docs{border-left-color:var(--gold)}
+.op-pend{border-left-color:#fbbf24}
+.op-next-lbl,.op-docs-lbl,.op-pend-lbl{display:block;font-size:7px;letter-spacing:2px;text-transform:uppercase;font-weight:800;color:var(--w50);margin-bottom:4px}
+.op-next-lbl{color:var(--green)}
+.op-docs-lbl{color:var(--gold)}
+.op-pend-lbl{color:#fbbf24}
 .hoy-empty{padding:22px 18px;font-size:11px;color:var(--w30);font-weight:300;text-align:center}
 .hoy-empty.err{color:var(--red)}
 
@@ -1049,6 +1112,8 @@ select.form-inp option{background:#111;color:#fff}
   .hoy-grid{grid-template-columns:1fr}
   .kpi-strip{grid-template-columns:1fr 1fr}
   .hi-sub{max-width:160px}
+  .op-steps{overflow-x:auto;padding-bottom:6px}
+  .hoy-ops-hint{text-align:left;max-width:none}
 }
 </style>
 </head>
@@ -1377,8 +1442,10 @@ function buildHoyPanel(){
         </div>
       </div>
 
+      <div class="hoy-brief" id="hoy-brief">Cargando tu día…</div>
+
       <div class="kpi-strip" id="hoy-kpis">
-        ${kpi('Citas activas')}${kpi('Calientes (A)')}${kpi('Apartados')}${kpi('Total leads')}
+        ${kpi('Citas activas')}${kpi('Leads HOT')}${kpi('Apartados')}${kpi('Dormidos +7d')}
       </div>
 
       <div class="hoy-grid">
@@ -1387,10 +1454,16 @@ function buildHoyPanel(){
           <div class="hoy-list" id="hoy-agenda">${skel}</div>
         </section>
         <section class="hoy-col">
-          <div class="hoy-col-head"><span class="hoy-col-dot red"></span>Requieren acción <span class="hoy-col-count" id="hoy-accion-count"></span></div>
+          <div class="hoy-col-head"><span class="hoy-col-dot red"></span>No dejes esto pendiente <span class="hoy-col-count" id="hoy-accion-count"></span></div>
           <div class="hoy-list" id="hoy-accion">${skel}</div>
         </section>
       </div>
+
+      <div class="hoy-ops-head">
+        <div><span class="hoy-ops-eyebrow">El diferenciador</span><div class="hoy-ops-title">Operaciones en curso · guía paso a paso</div></div>
+        <div class="hoy-ops-hint">Como un pedido en línea: cada cliente sabe dónde va y qué falta.</div>
+      </div>
+      <div id="hoy-ops">${skel}</div>
 
       <div class="hoy-launch-label">Herramientas</div>
       <div class="hoy-tools-grid">${cards}</div>
@@ -1420,40 +1493,71 @@ async function loadHoyData(force){
   _hoyLoaded = true;
   const rb = document.getElementById('hoy-refresh'); if(rb) rb.classList.add('spin');
   try{
-    const cCfg = CRM_CFG.compradores, kCfg = CRM_CFG.citas;
-    const cF = ['Nombre Completo','Status del Lead','Clasificación','Diagnóstico comercial','Riesgo principal','Siguiente jugada','Última interacción','Folio del Comprador','Propiedad de Interés'];
+    const cCfg = CRM_CFG.compradores, kCfg = CRM_CFG.citas, pCfg = CRM_CFG.progreso;
+    const cF = ['Nombre Completo','Status del Lead','Clasificación','Conversión','Diagnóstico comercial','Riesgo principal','Siguiente jugada','Última interacción','Folio del Comprador','Propiedad de Interés','Teléfono WhatsApp','Mensaje sugerido'];
     const kF = ['Comprador','Propiedad','Fecha de la Cita','Hora','Estado Cita','Tipo de Cita','Asesor','Folio Cita'];
+    const pF = ['Folio','Comprador','Propiedad','Precio','Fase Actual','Próximo paso','Pendientes visibles','Asesor','Link Portal'];
     const cP = cF.map(f=>'fields[]='+encodeURIComponent(f)).join('&');
     const kP = kF.map(f=>'fields[]='+encodeURIComponent(f)).join('&');
-    const [comp, cit] = await Promise.all([
+    const pP = pF.map(f=>'fields[]='+encodeURIComponent(f)).join('&');
+    const [comp, cit, prog] = await Promise.all([
       atFetch(`${cCfg.tableId}?${cP}&maxRecords=100&view=Grid%20view`),
-      atFetch(`${kCfg.tableId}?${kP}&maxRecords=100&view=Grid%20view`)
+      atFetch(`${kCfg.tableId}?${kP}&maxRecords=100&view=Grid%20view`),
+      atFetch(`${pCfg.tableId}?${pP}&maxRecords=100&view=Grid%20view`)
     ]);
-    renderHoy(comp.records||[], cit.records||[]);
+    renderHoy(comp.records||[], cit.records||[], prog.records||[]);
   }catch(e){
     const a = document.getElementById('hoy-agenda');
     if(a) a.innerHTML = '<div class="hoy-empty err">No se pudo cargar. Pulsa ↻ para reintentar.</div>';
     const k = document.getElementById('hoy-accion');
     if(k) k.innerHTML = '<div class="hoy-empty err">—</div>';
+    const o = document.getElementById('hoy-ops');
+    if(o) o.innerHTML = '<div class="hoy-empty err">No se pudieron cargar las operaciones.</div>';
+    const b = document.getElementById('hoy-brief');
+    if(b) b.textContent = 'Hubo un problema al leer tus datos. Pulsa ↻ arriba.';
   } finally {
     if(rb) rb.classList.remove('spin');
   }
 }
 
-function renderHoy(comp, cit){
-  // Citas activas
+function _waLink(phone, msg){
+  const num = String(phone||'').replace(/\D/g,'');
+  if(!num) return null;
+  const t = msg ? ('?text='+encodeURIComponent(msg)) : '';
+  return 'https://wa.me/'+num+t;
+}
+
+function renderHoy(comp, cit, prog){
+  prog = prog || [];
+  // Citas activas (Pendiente / Confirmada / Reagendada)
   const activas = cit.filter(r=>{
     const e = _fval(r,'Estado Cita');
     return e==='Pendiente' || e==='Confirmada' || e==='Reagendada';
   });
-  const calientes = comp.filter(r=>String(_fval(r,'Clasificación')).startsWith('A')).length;
-  const apartados = comp.filter(r=>_fval(r,'Status del Lead')==='Apartado').length;
+
+  // KPIs con valores REALES de Airtable
+  const hot       = comp.filter(r=>_fval(r,'Clasificación')==='HOT' || _fval(r,'Status del Lead')==='HOT').length;
+  const apartados = comp.filter(r=>_fval(r,'Conversión')==='Apartado').length;
+  const dormidos  = comp.filter(r=>{ const d=_daysSince(_fval(r,'Última interacción')); return d!=null && d>=7 && _fval(r,'Conversión')!=='Apartado' && _fval(r,'Conversión')!=='No calificó'; }).length;
   _setKpis([
     [activas.length,'Citas activas'],
-    [calientes,'Calientes (A)'],
+    [hot,'Leads HOT'],
     [apartados,'Apartados'],
-    [comp.length,'Total leads'],
+    [dormidos,'Dormidos +7d'],
   ]);
+
+  // Briefing cálido — recuerda sin regañar
+  const citasHoy = activas.filter(r=>_isToday(_fval(r,'Fecha de la Cita'))).length;
+  const briefEl = document.getElementById('hoy-brief');
+  if(briefEl){
+    const partes = [];
+    if(citasHoy) partes.push(`<b>${citasHoy}</b> ${citasHoy===1?'cita es hoy':'citas son hoy'}`);
+    if(dormidos) partes.push(`<b>${dormidos}</b> ${dormidos===1?'cliente espera tu llamada':'clientes esperan tu llamada'}`);
+    if(prog.length) partes.push(`<b>${prog.length}</b> ${prog.length===1?'operación avanzando':'operaciones avanzando'}`);
+    briefEl.innerHTML = partes.length
+      ? `Listo para hoy: ${partes.join(' · ')}. Vamos cerrando, paso a paso. 💪`
+      : `Todo en orden por ahora. Buen momento para reactivar un cliente. ✨`;
+  }
 
   // Agenda
   const agEl = document.getElementById('hoy-agenda');
@@ -1479,37 +1583,110 @@ function renderHoy(comp, cit){
     }).join('');
   }
 
-  // Requieren acción
+  // No dejes esto pendiente — tono motivador (sin regaño)
   const scored = [];
   comp.forEach(r=>{
-    const diag   = _fval(r,'Diagnóstico comercial');
-    const status = _fval(r,'Status del Lead');
-    const clas   = String(_fval(r,'Clasificación'));
-    const dias   = _daysSince(_fval(r,'Última interacción'));
-    let tag=null, cls='gold', order=9, dorm='';
-    if(diag==='Listo para avanzar'){ tag='CERCA'; cls='gold'; order=0; }
-    else if(status==='Apartado'){ tag='APARTADO'; cls='gold'; order=1; }
-    else if(clas.startsWith('A')){ tag='CALIENTE'; cls='gold'; order=2; }
-    if(dias!=null && dias>=7){ dorm=dias+'d sin contacto'; if(!tag){ tag='DORMIDO'; cls='red'; order=3; } }
+    const diag = _fval(r,'Diagnóstico comercial');
+    const conv = _fval(r,'Conversión');
+    const clas = _fval(r,'Clasificación');
+    const stat = _fval(r,'Status del Lead');
+    const dias = _daysSince(_fval(r,'Última interacción'));
+    const dormido = (dias!=null && dias>=7);
+
+    let tag=null, cls='gold', order=99;
+    if(conv==='Apartado'){ tag='EN PROCESO'; cls='green'; order=0; }
+    else if(diag==='Listo para Banco'){ tag='LISTO ✓'; cls='green'; order=1; }
+    else if(clas==='HOT' || stat==='HOT'){ tag='CALIENTE'; cls='gold'; order=2; }
+    else if(conv==='Cita'){ tag='CON CITA'; cls='gold'; order=3; }
+    else if(dormido){ tag='RECONECTAR'; cls='amber'; order=4; }
     if(!tag) return;
-    const why = _fval(r,'Riesgo principal') || _fval(r,'Siguiente jugada') || dorm || _fval(r,'Propiedad de Interés') || '';
-    scored.push({r,tag,cls,order,why});
+    if(dormido && cls!=='amber'){ cls='amber'; order -= 0.5; }
+
+    const jugada = _fval(r,'Siguiente jugada') || _fval(r,'Riesgo principal') || _fval(r,'Propiedad de Interés') || 'Dale seguimiento';
+    const sub = (dormido ? `${dias} días sin contacto · ` : '') + jugada;
+    const wa = _waLink(_fval(r,'Teléfono WhatsApp'), _fval(r,'Mensaje sugerido'));
+    scored.push({ nombre:_fval(r,'Nombre Completo')||'—', tag, cls, order, sub, wa });
   });
   scored.sort((a,b)=>a.order-b.order);
+
   const acEl = document.getElementById('hoy-accion');
   const acC  = document.getElementById('hoy-accion-count');
-  if(!scored.length){ acEl.innerHTML='<div class="hoy-empty">Todo al día. Sin pendientes críticos.</div>'; if(acC)acC.textContent=''; }
+  if(!scored.length){ acEl.innerHTML='<div class="hoy-empty">Nada urgente. ¡Vas al corriente! 🎉</div>'; if(acC)acC.textContent=''; }
   else{
     if(acC) acC.textContent = scored.length;
-    acEl.innerHTML = scored.slice(0,8).map(o=>`
-      <button class="hoy-item act" onclick="goTo('airtable')">
+    acEl.innerHTML = scored.slice(0,10).map(o=>{
+      const waBtn = o.wa
+        ? `<a class="hi-wa" href="${o.wa}" target="_blank" rel="noopener" onclick="event.stopPropagation()" title="WhatsApp con mensaje sugerido">WhatsApp</a>`
+        : '';
+      return `<div class="hoy-item act" onclick="goTo('airtable')">
         <div class="hi-main">
-          <div class="hi-title">${_esc(_fval(o.r,'Nombre Completo')||'—')} <span class="hi-pill ${o.cls}">${o.tag}</span></div>
-          <div class="hi-sub">${_esc(o.why||'')}</div>
+          <div class="hi-title">${_esc(o.nombre)} <span class="hi-pill ${o.cls}">${o.tag}</span></div>
+          <div class="hi-sub">${_esc(o.sub||'')}</div>
         </div>
-        <span class="hi-go">→</span>
-      </button>`).join('');
+        <div class="hi-actions">${waBtn}<span class="hi-go">→</span></div>
+      </div>`;
+    }).join('');
   }
+
+  renderOperaciones(prog);
+}
+
+/* ── Rastreador estilo Amazon: fases + qué debe estar listo ── */
+const FASES_PROGRESO = [
+  { n:'Apartado',                 listo:'Comprobante de apartado, INE del comprador, datos de contacto.' },
+  { n:'Revisión de compra',       listo:'Confirmar precio y condiciones, definir forma de pago (crédito o contado) y tiempos.' },
+  { n:'Preparando documentos',    listo:'INE, CURP, comprobante de domicilio, comprobante de ingresos, RFC. Si es crédito: precalificación.' },
+  { n:'Acuerdo de compra',        listo:'Contrato de compraventa firmado, anticipo, autorización de crédito (si aplica).' },
+  { n:'Revisión en notaría',      listo:'Avalúo, libertad de gravamen, predial al corriente, agua y servicios al día, documentos del vendedor.' },
+  { n:'Últimas confirmaciones',   listo:'Fecha de firma agendada, fondos listos, revisión final de la escritura.' },
+  { n:'Día de firma',             listo:'Identificaciones, fondos disponibles, firma de escritura ante notario.' },
+  { n:'Entrega de llaves',        listo:'Acta de entrega, llaves, finiquito de servicios. ¡Operación cerrada!' },
+];
+function _faseIndex(nombre){
+  const i = FASES_PROGRESO.findIndex(f=>f.n===nombre);
+  return i<0 ? 0 : i;
+}
+function renderOperaciones(prog){
+  const el = document.getElementById('hoy-ops'); if(!el) return;
+  if(!prog.length){
+    el.innerHTML = '<div class="hoy-empty">Aún no hay operaciones en curso. En cuanto marques un <b>Apartado</b>, aparece aquí su recorrido completo.</div>';
+    return;
+  }
+  el.innerHTML = prog.map(r=>{
+    const fase = _fval(r,'Fase Actual') || 'Apartado';
+    const idx  = _faseIndex(fase);
+    const total = FASES_PROGRESO.length;
+    const pct = Math.round(((idx+1)/total)*100);
+    const sig = FASES_PROGRESO[Math.min(idx+1,total-1)];
+    const pasoTxt = _fval(r,'Próximo paso') || (idx>=total-1 ? '¡Operación completada!' : 'Continúa con: '+sig.n);
+    const pend = _fval(r,'Pendientes visibles') || '';
+    const link = _fval(r,'Link Portal') || '';
+
+    const dots = FASES_PROGRESO.map((f,i)=>{
+      const st = i<idx ? 'done' : (i===idx ? 'now' : 'next');
+      return `<div class="step ${st}" title="${_esc(f.n)}"><span class="step-dot"></span><span class="step-lbl">${_esc(f.n)}</span></div>`;
+    }).join('<span class="step-bar"></span>');
+
+    const docsAhora = FASES_PROGRESO[idx] ? FASES_PROGRESO[idx].listo : '';
+    const docsSig   = (idx<total-1) ? sig.listo : '';
+
+    return `<div class="op-card">
+      <div class="op-top">
+        <div>
+          <div class="op-name">${_esc(_fval(r,'Comprador')||'—')}</div>
+          <div class="op-prop">${_esc(_fval(r,'Propiedad')||'')} ${link?`· <a href="${_esc(link)}" target="_blank" rel="noopener" class="op-link">Ver portal del cliente ↗</a>`:''}</div>
+        </div>
+        <div class="op-pct"><span>${pct}%</span><small>${_esc(fase)}</small></div>
+      </div>
+      <div class="op-steps">${dots}</div>
+      <div class="op-progress"><div class="op-progress-fill" style="width:${pct}%"></div></div>
+      <div class="op-foot">
+        <div class="op-next"><span class="op-next-lbl">Siguiente paso</span>${_esc(pasoTxt)}</div>
+        <div class="op-docs"><span class="op-docs-lbl">Para avanzar debe estar listo</span>${_esc(docsSig || docsAhora)}</div>
+        ${pend?`<div class="op-pend"><span class="op-pend-lbl">Pendientes</span>${_esc(pend)}</div>`:''}
+      </div>
+    </div>`;
+  }).join('');
 }
 
 function getSectionForId(id, rol){
@@ -1562,13 +1739,16 @@ const CRM_CFG = {
       {f:'Nombre Completo',       type:'text'},
       {f:'Teléfono WhatsApp',     type:'text'},
       {f:'Propiedad de Interés',  type:'text'},
-      {f:'Status del Lead',       type:'select', opts:['Nuevo','Contactado','Cita agendada','Visita realizada','Oferta presentada','Apartado','Cerrado','Perdido']},
-      {f:'Clasificación',         type:'select', opts:['A — Caliente','B — Tibio','C — Frío','D — Descartado']},
+      {f:'Status del Lead',       type:'select', opts:['Nuevo','HOT','WARM','COLD']},
+      {f:'Clasificación',         type:'select', opts:['HOT','WARM','COLD','Frío']},
+      {f:'Conversión',            type:'select', opts:['En seguimiento','Cita','Apartado','No calificó']},
+      {f:'Diagnóstico comercial', type:'select', opts:['Listo para Banco','Comparar Antes de Firmar','Preparación Inteligente','Solo explorando','No viable por ahora']},
+      {f:'Riesgo principal',      type:'text'},
+      {f:'Estado emocional',      type:'text'},
+      {f:'Siguiente jugada',      type:'text'},
+      {f:'Última interacción',    type:'text'},
       {f:'Método / Crédito',      type:'text'},
       {f:'Asesor',                type:'text'},
-      {f:'Atención',              type:'text'},
-      {f:'Cambio',                type:'text'},
-      {f:'Decisión',              type:'text'},
       {f:'Score del Lead',        type:'text'},
     ]
   },
