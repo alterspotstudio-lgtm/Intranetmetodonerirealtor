@@ -599,6 +599,46 @@ select.form-input option{background:#111;color:#fff}
   margin-top:24px;padding-top:20px;border-top:1px solid var(--border);
 }
 
+/* ─── FICHA PREMIUM ─── */
+#crm-ficha{
+  display:none;position:fixed;inset:0;z-index:910;
+  background:rgba(0,0,0,.9);backdrop-filter:blur(12px);
+  align-items:center;justify-content:center;padding:20px;
+}
+.fk-box{width:min(600px,100%)}
+.fk-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.fk-name{font-family:var(--display);font-size:24px;letter-spacing:1px;color:var(--white);line-height:1.1}
+.fk-folio{font-size:11px;color:var(--gold);letter-spacing:2px;margin-top:6px;font-family:monospace}
+.fk-tags{display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex-shrink:0}
+.fk-sub{font-size:12px;color:var(--w50);margin-top:10px}
+.fk-diag{
+  margin-top:18px;padding:14px 16px;border-radius:3px;
+  border:1px solid var(--border2);background:rgba(255,255,255,.02);
+  display:flex;flex-direction:column;gap:4px;
+}
+.fk-diag.on{border-color:var(--goldbdr);background:rgba(201,169,110,.06)}
+.fk-diag-lbl{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--w30)}
+.fk-diag-val{font-size:15px;color:var(--white)}
+.fk-grid{margin-top:14px;display:flex;flex-direction:column;gap:2px}
+.fk-row{display:grid;grid-template-columns:150px 1fr;gap:12px;padding:11px 4px;border-bottom:1px solid var(--border)}
+.fk-k{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--w30);padding-top:2px}
+.fk-v{font-size:13px;color:var(--w80,#cfcfcf);line-height:1.4}
+.fk-empty{color:var(--w20);font-style:italic}
+.fk-msg-wrap{margin-top:16px}
+.fk-msg-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.fk-msg-head span{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--w30)}
+.fk-copy{
+  background:transparent;border:1px solid var(--border2);color:var(--w50);
+  font-size:10px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;
+  padding:4px 10px;border-radius:2px;transition:all .13s;
+}
+.fk-copy:hover{border-color:var(--goldbdr);color:var(--gold)}
+.fk-msg{
+  font-size:13px;color:var(--w80,#cfcfcf);line-height:1.5;white-space:pre-wrap;
+  padding:14px 16px;border-radius:3px;background:rgba(255,255,255,.02);
+  border:1px solid var(--border);
+}
+
 /* row-check */
 .row-check{
   width:14px;height:14px;border-radius:2px;border:1px solid var(--border2);
@@ -1046,6 +1086,10 @@ const CRM_CFG = {
     tableId: 'tblOdlY3bBlGi64qR',
     label: 'Leads Compradores',
     dot: 'compradores',
+    ficha: true,
+    portalBase: 'https://progreso-zeta.vercel.app/',
+    portalFolioField: 'Folio',
+    fichaExtra: ['Riesgo principal','Diagnóstico comercial','Estado emocional','Siguiente jugada','Mensaje sugerido','Última interacción','Propiedad de Interés','Status del Lead','Clasificación'],
     cols: ['Folio','Nombre','WhatsApp','Propiedad Interés','Status','Clasificación','Crédito','Asesor','Fecha'],
     fields: ['Folio','Nombre Completo','Teléfono WhatsApp','Propiedad de Interés','Status del Lead','Clasificación','Método / Crédito','Asesor','Fecha de Entrada'],
     editable: [
@@ -1164,7 +1208,8 @@ async function crmLoad(tab, force=false){
   errEl.style.display = 'none';
 
   try {
-    const fieldsParam = cfg.fields.map(f => 'fields[]=' + encodeURIComponent(f)).join('&');
+    const allFields = cfg.fields.concat(cfg.fichaExtra || []);
+    const fieldsParam = allFields.map(f => 'fields[]=' + encodeURIComponent(f)).join('&');
     const data = await atFetch(`${cfg.tableId}?${fieldsParam}&maxRecords=100&view=Grid%20view`);
     crmState.records = data.records || [];
     crmRender(tab, crmState.records);
@@ -1201,8 +1246,8 @@ function crmRender(tab, records){
       const cls = i===0 ? 'name' : (i===1 ? 'folio' : '');
       return `<td ${cls ? `class="${cls}"` : ''}>${badge}</td>`;
     }).join('');
-    return `<tr onclick="crmOpenEdit('${rec.id}')" title="Clic para editar">
-      <td>✎</td>${cells}</tr>`;
+    return `<tr onclick="crmOpenRow('${rec.id}')" title="Clic para abrir expediente">
+      <td>◎</td>${cells}</tr>`;
   }).join('') || `<tr><td colspan="20"><div class="crm-empty">
     <div class="crm-empty-icon">◎</div>
     <div class="crm-empty-text">Sin registros en esta tabla</div>
@@ -1244,6 +1289,94 @@ function crmOpenNew(){
   crmState.editId = null;
   crmState.isNew  = true;
   crmBuildModal('NUEVO REGISTRO', CRM_CFG[crmState.tab].editable, {});
+}
+
+/* ─── FICHA PREMIUM (solo lectura) ─────────────────── */
+function crmOpenRow(recId){
+  const cfg = CRM_CFG[crmState.tab];
+  if(cfg && cfg.ficha) crmOpenFicha(recId);
+  else crmOpenEdit(recId);
+}
+
+function _fval(rec, name){
+  let v = rec.fields?.[name];
+  if(v == null || v === '') return '';
+  if(typeof v === 'object') v = v.name ?? (Array.isArray(v) ? v.map(x=>x?.name||x).join(', ') : '');
+  return String(v);
+}
+
+function crmOpenFicha(recId){
+  const rec = crmState.records.find(r => r.id === recId);
+  if(!rec) return;
+  const cfg = CRM_CFG[crmState.tab];
+  crmState.editId = recId;
+  crmState.isNew  = false;
+
+  const nombre = _fval(rec,'Nombre Completo') || 'Sin nombre';
+  const folio  = _fval(rec, cfg.portalFolioField || 'Folio');
+  const diag   = _fval(rec,'Diagnóstico comercial');
+  const status = _fval(rec,'Status del Lead');
+  const clasif = _fval(rec,'Clasificación');
+  const propied= _fval(rec,'Propiedad de Interés');
+  const wa     = _fval(rec,'Teléfono WhatsApp');
+
+  const sd = v => v ? v : '<span class="fk-empty">Sin definir</span>';
+  const portalUrl = folio ? (cfg.portalBase + '?folio=' + encodeURIComponent(folio)) : '';
+
+  const rows = [
+    ['Riesgo principal',     _fval(rec,'Riesgo principal')],
+    ['Estado emocional',     _fval(rec,'Estado emocional')],
+    ['Siguiente jugada',     _fval(rec,'Siguiente jugada')],
+    ['Última interacción',   _fval(rec,'Última interacción')],
+  ].map(([k,v]) => `<div class="fk-row"><div class="fk-k">${k}</div><div class="fk-v">${sd(v)}</div></div>`).join('');
+
+  const msg = _fval(rec,'Mensaje sugerido');
+  const msgBlock = `<div class="fk-msg-wrap">
+      <div class="fk-msg-head"><span>Mensaje sugerido</span>
+        ${msg ? `<button class="fk-copy" onclick="fichaCopy(this)" data-msg="${msg.replace(/"/g,'&quot;')}">Copiar</button>` : ''}
+      </div>
+      <div class="fk-msg">${msg ? msg.replace(/</g,'&lt;') : '<span class="fk-empty">Sin definir</span>'}</div>
+    </div>`;
+
+  document.getElementById('crm-ficha-body').innerHTML = `
+    <div class="fk-top">
+      <div>
+        <div class="fk-name">${nombre}</div>
+        <div class="fk-folio">${folio || '— sin folio —'}</div>
+      </div>
+      <div class="fk-tags">
+        ${clasif ? `<span class="badge ${STATUS_BADGE[clasif]||''}">${clasif}</span>`:''}
+        ${status ? `<span class="badge ${STATUS_BADGE[status]||''}">${status}</span>`:''}
+      </div>
+    </div>
+    <div class="fk-sub">${propied ? '◈ '+propied : 'Sin propiedad ligada'}${wa ? ' · '+wa : ''}</div>
+
+    <div class="fk-diag ${diag ? 'on':''}">
+      <span class="fk-diag-lbl">Diagnóstico comercial</span>
+      <span class="fk-diag-val">${diag || 'Sin diagnóstico'}</span>
+    </div>
+
+    <div class="fk-grid">${rows}</div>
+    ${msgBlock}`;
+
+  const portalBtn = document.getElementById('crm-ficha-portal');
+  if(portalUrl){ portalBtn.style.display=''; portalBtn.onclick = () => window.open(portalUrl,'_blank'); }
+  else { portalBtn.style.display='none'; }
+
+  document.getElementById('crm-ficha').style.display = 'flex';
+}
+
+function crmCloseFicha(){ document.getElementById('crm-ficha').style.display = 'none'; }
+
+function fichaEditFromFicha(){
+  crmCloseFicha();
+  crmOpenEdit(crmState.editId);
+}
+
+function fichaCopy(btn){
+  const t = btn.getAttribute('data-msg') || '';
+  navigator.clipboard?.writeText(t).then(()=>{ showToast('✓ Mensaje copiado'); },
+    ()=>{ showToast('No se pudo copiar'); });
 }
 
 function crmBuildModal(title, editable, values){
@@ -1410,6 +1543,24 @@ function buildAirtablePanel(){
       <div class="crm-modal-actions">
         <button class="btn btn-ghost" onclick="crmCloseModal()">Cancelar</button>
         <button class="btn btn-primary" id="crm-save-btn" onclick="crmSave()">Guardar cambios</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="crm-ficha">
+    <div class="crm-modal-box fk-box" style="animation:fadeUp .25s var(--ease)">
+      <div class="crm-modal-head">
+        <div>
+          <div class="crm-modal-title">EXPEDIENTE <em>VIVO</em></div>
+          <div style="font-size:9px;color:var(--w30);letter-spacing:2px;text-transform:uppercase;margin-top:6px">Ficha del comprador</div>
+        </div>
+        <button class="crm-modal-close" onclick="crmCloseFicha()">✕</button>
+      </div>
+      <div id="crm-ficha-body"></div>
+      <div class="crm-modal-actions">
+        <button class="btn btn-ghost" onclick="crmCloseFicha()">Cerrar</button>
+        <button class="btn btn-ghost" id="crm-ficha-portal">◎ Portal del cliente</button>
+        <button class="btn btn-primary" onclick="fichaEditFromFicha()">Editar</button>
       </div>
     </div>
   </div>`;
