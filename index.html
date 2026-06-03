@@ -723,6 +723,8 @@ select.form-input option{background:#111;color:#fff}
 .btn-primary:disabled{opacity:.5;cursor:not-allowed}
 .btn-ghost{background:transparent;border-color:var(--border2);color:var(--w50)}
 .btn-ghost:hover{border-color:var(--goldbdr);color:var(--gold)}
+.btn-cita{background:transparent;border-color:#3b82f6;color:#3b82f6}
+.btn-cita:hover{background:rgba(59,130,246,.12);border-color:#60a5fa;color:#60a5fa}
 
 /* ── Inputs del modal ── */
 .form-inp{
@@ -1313,7 +1315,8 @@ const STATUS_BADGE = {
   'Realizada':'badge-cita-real','Cancelada':'badge-cita-canc','Reagendada':'badge-visit',
 };
 
-let crmState = { tab:'compradores', records:[], editId:null, isNew:false };
+let crmState = { tab:'compradores', records:[], editId:null, isNew:false, citaFromLead:null };
+// citaFromLead: { folioClienteOrigen, comprador, propiedad, asesor } — se limpia después del POST
 
 /* ─── API helpers — usa el proxy de Vercel ─────────── */
 async function atFetch(path, opts={}){
@@ -1509,6 +1512,100 @@ function crmOpenFicha(recId){
 }
 
 function crmCloseFicha(){ document.getElementById('crm-ficha').style.display = 'none'; }
+
+/* ─── AGENDAR VISITA desde la ficha del lead comprador ─────
+   Abre el modal de citas en modo NUEVO, pre-rellenado con los
+   datos del lead. Folio Cliente Origen viaja en crmState.citaFromLead
+   y se inyecta en el POST sin que el asesor lo toque.            */
+function fichaAgendarCita(){
+  const rec = crmState.records.find(r => r.id === crmState.editId);
+  if(!rec) return;
+
+  // Folio correcto: "Folio del Comprador" (lookup de la propiedad) o "Folio Propiedad NERI"
+  // El campo primario "Folio" suele estar vacío en Leads Compradores — no usarlo
+  const folioClienteOrigen =
+    _fval(rec,'Folio del Comprador') ||
+    _fval(rec,'Folio Propiedad NERI') ||
+    '';
+
+  const comprador = _fval(rec,'Nombre Completo') || '';
+  const propiedad = _fval(rec,'Propiedad de Interés') || '';
+  const asesor    = _fval(rec,'Asesor') || '';
+
+  // Guardar contexto para que citaSave() lo incluya en el POST
+  crmState.citaFromLead = { folioClienteOrigen, comprador, propiedad, asesor };
+
+  // Cerrar la ficha y abrir el modal de cita en modo nuevo, pre-rellenado
+  crmCloseFicha();
+
+  // Reutilizar el modal existente de cita: modo creación
+  crmState.isNew  = true;
+  crmState.editId = null;
+
+  const TIPO_OPTS   = ['Visita presencial','Videollamada','Segunda visita','Visita con familia','Visita con valuador'];
+  const ESTADO_OPTS = ['Pendiente','Confirmada','Realizada','Cancelada','Reagendada'];
+
+  const _sel = (name, opts, cur) =>
+    `<div class="form-group full">
+       <label class="form-label">${name}</label>
+       <select class="form-inp" data-field="${_escAttr(name)}" data-ftype="select" data-orig="${_escAttr(cur)}">
+         <option value="">— Sin selección</option>
+         ${opts.map(o=>`<option value="${_escAttr(o)}"${cur===o?' selected':''}>${o}</option>`).join('')}
+       </select></div>`;
+
+  const _inp = (name, val, full) =>
+    `<div class="form-group${full?' full':''}">
+       <label class="form-label">${name}</label>
+       <input class="form-inp" type="text" data-field="${_escAttr(name)}" data-ftype="text"
+              data-orig="" value="${_escAttr(val)}"></div>`;
+
+  const _ta = (name, val) =>
+    `<div class="form-group full">
+       <label class="form-label">${name}</label>
+       <textarea class="form-inp" data-field="${_escAttr(name)}" data-ftype="text"
+                 data-orig="" rows="2">${_esc(val)}</textarea></div>`;
+
+  const bannerHtml = folioClienteOrigen
+    ? `<div class="le-banner" style="margin-bottom:12px">
+         Lead de origen: <strong>${_esc(folioClienteOrigen)}</strong> — el folio se registra automáticamente.
+       </div>`
+    : `<div class="le-banner" style="margin-bottom:12px;border-color:var(--amber,#e8a838)">
+         ⚠ No se encontró folio en este lead. Verifica en Airtable.
+       </div>`;
+
+  const previewHtml = `
+    <div class="cita-ticket" style="margin-bottom:16px">
+      <div>
+        <div class="cita-folio-tag">Nueva cita</div>
+        <div class="cita-nombre">${_esc(comprador || 'Sin nombre')}</div>
+        <div class="cita-propiedad">◈ ${_esc(propiedad || 'Sin propiedad')}</div>
+      </div>
+      <span class="le-vstatus off">Folio lo asigna Make</span>
+    </div>`;
+
+  const formHtml = `
+    ${bannerHtml}
+    ${previewHtml}
+    <div class="cita-sec-title"><span>◷</span>Fecha y hora</div>
+    <div class="cita-grid">
+      ${_inp('Fecha de la Cita', '', false)}
+      ${_inp('Hora', '', false)}
+    </div>
+    <div class="cita-sec-title"><span>◈</span>Detalles</div>
+    <div class="cita-grid">
+      ${_inp('Comprador', comprador, false)}
+      ${_inp('Propiedad', propiedad, false)}
+      ${_inp('Asesor', asesor, false)}
+      ${_sel('Tipo de Cita', TIPO_OPTS, 'Visita presencial')}
+      ${_sel('Estado Cita', ESTADO_OPTS, 'Pendiente')}
+      ${_ta('Notas de la Cita', '')}
+    </div>`;
+
+  document.getElementById('crm-cita-err').textContent = '';
+  document.getElementById('crm-cita-body').innerHTML = formHtml;
+  document.getElementById('crm-cita-ver').style.display = 'none';
+  document.getElementById('crm-cita').style.display = 'flex';
+}
 
 function fichaEditFromFicha(){
   crmCloseFicha();
@@ -1895,6 +1992,14 @@ async function citaSave(){
     return;
   }
 
+  // Si la cita viene de la ficha del lead, heredar Folio Cliente Origen automáticamente
+  if(crmState.isNew && crmState.citaFromLead){
+    const ctx = crmState.citaFromLead;
+    if(ctx.folioClienteOrigen && !fields['Folio Cliente Origen']){
+      fields['Folio Cliente Origen'] = ctx.folioClienteOrigen;
+    }
+  }
+
   try {
     if(crmState.isNew){
       await atFetch(cfg.tableId, { method:'POST', body: JSON.stringify({ fields, typecast:true }) });
@@ -1903,6 +2008,7 @@ async function citaSave(){
         method:'PATCH', body: JSON.stringify({ fields, typecast:true })
       });
     }
+    crmState.citaFromLead = null; // limpiar contexto del lead
     citaClose();
     showToast('✓ Cita guardada');
     await crmLoad('citas', true);
@@ -1912,6 +2018,11 @@ async function citaSave(){
   } finally {
     btn.textContent = 'Guardar cambios'; btn.disabled = false;
   }
+}
+
+function citaCloseAndClear(){
+  crmState.citaFromLead = null;
+  citaClose();
 }
 
 function citaOpenNew(){
@@ -2102,6 +2213,7 @@ function buildAirtablePanel(){
       <div class="crm-modal-actions">
         <button class="btn btn-ghost" onclick="crmCloseFicha()">Cerrar</button>
         <button class="btn btn-ghost" id="crm-ficha-portal">◎ Portal del cliente</button>
+        <button class="btn btn-cita" onclick="fichaAgendarCita()" title="Agendar visita desde este lead">📅 Agendar visita</button>
         <button class="btn btn-primary" onclick="fichaEditFromFicha()">Editar</button>
       </div>
     </div>
@@ -2135,12 +2247,12 @@ function buildAirtablePanel(){
           <div class="crm-modal-title">FICHA DE <em>CITA</em></div>
           <div style="font-size:9px;color:var(--w30);letter-spacing:2px;text-transform:uppercase;margin-top:6px">Agenda · confirmación · link</div>
         </div>
-        <button class="crm-modal-close" onclick="citaClose()">✕</button>
+        <button class="crm-modal-close" onclick="citaCloseAndClear()">✕</button>
       </div>
       <div id="crm-cita-body"></div>
       <div id="crm-cita-err" style="color:var(--red);font-size:11px;min-height:16px;margin-top:8px;text-align:center"></div>
       <div class="crm-modal-actions">
-        <button class="btn btn-ghost" onclick="citaClose()">Cerrar</button>
+        <button class="btn btn-ghost" onclick="citaCloseAndClear()">Cancelar</button>
         <button class="btn btn-ghost" id="crm-cita-ver" style="display:none">↗ Ver cita</button>
         <button class="btn btn-primary" id="crm-cita-save" onclick="citaSave()">Guardar cambios</button>
       </div>
