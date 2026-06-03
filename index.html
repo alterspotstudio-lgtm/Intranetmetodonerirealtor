@@ -1239,10 +1239,11 @@ let SESSION = null;
    USUARIOS / CREDENCIALES (demo)
 ═══════════════════════════════════════════════════ */
 const USERS = {
-  'asesor':   { pass:'neri2024', nombre:'Enrique Neri',     rol:'asesor',   empresa:'Century 21 Haus · Cuernavaca' },
-  'gerente':  { pass:'neri2024', nombre:'Ana Gutiérrez',    rol:'gerente',  empresa:'Método NERI' },
-  'director': { pass:'neri2024', nombre:'Carlos Neri',      rol:'director', empresa:'Método NERI' },
-  'admin':    { pass:'neri2024', nombre:'Admin Sistema',    rol:'admin',    empresa:'Método NERI' },
+  'enrique':  { pass:'neri2024', nombre:'Enrique Neri',  rol:'asesor',   slug:'enrique', whatsapp:'527779855687', empresa:'Century 21 Haus · Cuernavaca', pixel:'1308747473990434' },
+  'asesor':   { pass:'neri2024', nombre:'Enrique Neri',  rol:'asesor',   slug:'enrique', whatsapp:'527779855687', empresa:'Century 21 Haus · Cuernavaca', pixel:'1308747473990434' },
+  'gerente':  { pass:'neri2024', nombre:'Ana Gutiérrez', rol:'gerente',  slug:'ana',     whatsapp:'527779855687', empresa:'Método NERI', pixel:'' },
+  'director': { pass:'neri2024', nombre:'Carlos Neri',   rol:'director', slug:'carlos',  whatsapp:'527779855687', empresa:'Método NERI', pixel:'' },
+  'admin':    { pass:'neri2024', nombre:'Admin Sistema', rol:'admin',    slug:'admin',   whatsapp:'527779855687', empresa:'Método NERI', pixel:'' },
 };
 
 /* ═══════════════════════════════════════════════════
@@ -1330,8 +1331,13 @@ function doLogin(){
 
   if(!user || !pass || !rol){ err.textContent='Completa todos los campos.'; return; }
 
-  const u = USERS[user];
-  if(!u || u.pass !== pass || u.rol !== rol){
+  let u = USERS[user];
+  // Modo prueba: cualquier slug de asesor con la contraseña demo entra como ese asesor.
+  if(!u){
+    if(pass !== 'neri2024'){ err.textContent='Credenciales incorrectas. (Demo: contraseña = neri2024)'; return; }
+    const bonito = user.charAt(0).toUpperCase()+user.slice(1);
+    u = { pass:'neri2024', nombre:bonito, rol, slug:user, whatsapp:'527779855687', empresa:'Método NERI', pixel:'' };
+  } else if(u.pass !== pass || u.rol !== rol){
     err.textContent='Credenciales incorrectas. (Demo: contraseña = neri2024)';
     return;
   }
@@ -1341,6 +1347,39 @@ function doLogin(){
   document.getElementById('screen-login').classList.add('hidden');
   document.getElementById('screen-app').classList.remove('hidden');
   bootApp();
+  // Identidad real desde Airtable (Asesor captación) — fuente única, no rompe nada.
+  enrichIdentity(SESSION.slug);
+}
+
+/* Trae nombre/whatsapp/empresa/pixel reales del asesor desde Airtable por slug.
+   Best-effort: si falla, la sesión sigue con el perfil local. */
+async function enrichIdentity(slug){
+  if(!slug) return;
+  try{
+    const formula = encodeURIComponent(`LOWER({Slug})='${String(slug).toLowerCase()}'`);
+    const data = await atFetch(`tblIRPmLIyj8sWyEk?filterByFormula=${formula}&maxRecords=1`);
+    const rec = (data.records||[])[0];
+    if(!rec) return;
+    const f = rec.fields || {};
+    if(f['Nombre'])            SESSION.nombre   = f['Nombre'];
+    if(f['Teléfono WhatsApp']) SESSION.whatsapp = String(f['Teléfono WhatsApp']).replace(/\D/g,'');
+    if(f['Pixel ID Meta'])     SESSION.pixel    = f['Pixel ID Meta'];
+    const ciudad = f['Ciudad'] || f['Ciudad (texto viejo)'] || '';
+    const puesto = f['Puesto'] || f['Puesto (texto viejo)'] || '';
+    if(ciudad || puesto) SESSION.empresa = [puesto, ciudad].filter(Boolean).join(' · ') || SESSION.empresa;
+    refreshChrome();
+    showToast('Identidad: '+SESSION.nombre);
+  }catch(e){ /* sin conexión: se queda el perfil local */ }
+}
+
+function refreshChrome(){
+  const s = SESSION; if(!s) return;
+  const a=document.getElementById('sb-name'); if(a) a.textContent=s.nombre;
+  const b=document.getElementById('sb-role'); if(b) b.textContent=s.rol.toUpperCase()+' · '+s.empresa;
+  const c=document.getElementById('tb-user'); if(c) c.textContent=s.nombre;
+  // Re-pinta el saludo del dashboard con la identidad correcta
+  const nameEl=document.querySelector('#panel-hoy .hoy-name'); if(nameEl) nameEl.textContent=s.nombre;
+  const roleEl=document.querySelector('#panel-hoy .hoy-role'); if(roleEl) roleEl.innerHTML=`${s.empresa} · <span style="text-transform:capitalize">${s.rol}</span>`;
 }
 
 function doLogout(){
@@ -3093,10 +3132,11 @@ function loadIframe(id, url){
   let fullUrl = url;
   if(SESSION){
     const params = new URLSearchParams({
-      asesor:   SESSION.nombre,
-      whatsapp: '527779855687',
-      firma:    SESSION.nombre + ' · Century 21 Haus · Cuernavaca',
-      pixel:    '1308747473990434',
+      asesor:   SESSION.slug || SESSION.user,            // las landings resuelven por SLUG desde Airtable
+      nombre:   SESSION.nombre || '',
+      whatsapp: SESSION.whatsapp || '527779855687',
+      firma:    (SESSION.nombre||'') + ' · ' + (SESSION.empresa||''),
+      pixel:    SESSION.pixel || '',
       webhook:  id === 'vendedores'
         ? 'https://hook.us2.make.com/vx9xx6qdg2dlldvdgfmvwxi54ibwwmcz'
         : 'https://hook.us2.make.com/qqsrjs8gtm0sdn7iba8hxmyfnc3m9y8j'
