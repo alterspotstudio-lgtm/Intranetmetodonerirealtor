@@ -1266,8 +1266,8 @@ const CRM_CFG = {
     label: 'Citas',
     dot: 'citas',
     cita: true,
-    cols: ['Folio Cita','Comprador','Propiedad','Fecha','Hora','Tipo','Estado','Asesor'],
-    fields: ['Folio Cita','Comprador','Propiedad','Fecha de la Cita','Hora','Tipo de Cita','Estado Cita','Asesor'],
+    cols: ['Folio Cita','Folio Origen','Comprador','Propiedad','Fecha','Hora','Tipo','Estado','Asesor'],
+    fields: ['Folio Cita','Folio Cliente Origen','Comprador','Propiedad','Fecha de la Cita','Hora','Tipo de Cita','Estado Cita','Asesor'],
     editable: [
       {f:'Comprador',       type:'text'},
       {f:'Propiedad',       type:'text'},
@@ -1816,7 +1816,7 @@ async function landSave(){
       if(nv === ''){ fields[name] = null; }        // se limpió
       else { const n = Number(nv.replace(/[, $]/g,'')); if(!isNaN(n)) fields[name] = n; }
     } else if(ftype === 'select'){
-      fields[name] = nv === '' ? null : { name: nv };
+      fields[name] = nv === '' ? null : nv;   // typecast:true maneja la conversión
     } else {
       fields[name] = nv === '' ? null : nv;        // texto / textarea / url / youtube id
     }
@@ -1988,7 +1988,9 @@ async function citaSave(){
     }
 
     if(ftype === 'select'){
-      fields[name] = { name: nv };
+      // Con typecast:true Airtable acepta el string directamente para singleSelect.
+      // Usar {name:val} falla con 422 si hay diferencia de mayúsculas/minúsculas.
+      fields[name] = nv;
     } else {
       fields[name] = nv;
     }
@@ -2056,7 +2058,7 @@ function crmBuildModal(title, editable, values){
         `<option value="${o}"${val===o?' selected':''}>${o}</option>`).join('');
       return `<div class="form-group">
         <label class="form-label">${f}</label>
-        <select class="form-inp" data-field="${f}"><option value="">— Sin selección</option>${os}</select></div>`;
+        <select class="form-inp" data-field="${f}" data-ftype="select"><option value="">— Sin selección</option>${os}</select></div>`;
     }
     if(type === 'textarea'){
       return `<div class="form-group full">
@@ -2087,24 +2089,25 @@ async function crmSave(){
   const cfg = CRM_CFG[crmState.tab];
   const inputs = document.querySelectorAll('#crm-modal-fields [data-field]');
   const fields = {};
-  // Mapa de campos: select normal → {name:val}, asText → texto plano
+  // Mapa de campos: select normal → string plano con typecast:true, asText → texto plano
   const fieldMeta = {};
   (cfg.editable || []).forEach(({f, type, asText}) => { fieldMeta[f] = {type, asText}; });
   inputs.forEach(el => {
     const val = el.value.trim();
     if(!val) return;
     const meta = fieldMeta[el.dataset.field] || {};
-    fields[el.dataset.field] = (meta.type === 'select' && !meta.asText) ? {name: val} : val;
+    // Con typecast:true Airtable acepta string directo para singleSelect; evita 422 por mayúsculas
+    fields[el.dataset.field] = val;
   });
 
   try {
     if(crmState.isNew){
       await atFetch(`${cfg.tableId}`, {
-        method:'POST', body: JSON.stringify({fields})
+        method:'POST', body: JSON.stringify({fields, typecast:true})
       });
     } else {
       await atFetch(`${cfg.tableId}/${crmState.editId}`, {
-        method:'PATCH', body: JSON.stringify({fields})
+        method:'PATCH', body: JSON.stringify({fields, typecast:true})
       });
     }
     crmCloseModal();
