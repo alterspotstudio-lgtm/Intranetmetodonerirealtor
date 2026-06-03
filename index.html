@@ -828,6 +828,151 @@ select.form-inp option{background:#111;color:#fff}
 /* Tab dot citas */
 .at-tab-dot.citas{background:#f59e0b}
 
+
+/* ══════════════════════════════════════════
+   FICHA VENDEDOR — premium
+══════════════════════════════════════════ */
+#crm-ficha-vendedor{
+  display:none;position:fixed;inset:0;z-index:911;
+  background:rgba(0,0,0,.92);backdrop-filter:blur(14px);
+  align-items:flex-start;justify-content:center;
+  padding:20px;overflow-y:auto;
+}
+.fv-box{
+  width:min(680px,100%);margin:auto;
+  animation:fadeUp .25s var(--ease);
+}
+/* Header de la ficha */
+.fv-header{
+  background:linear-gradient(135deg,rgba(201,169,110,.1) 0%,rgba(201,169,110,.03) 100%);
+  border:1px solid var(--goldbdr);border-top:2px solid var(--gold);
+  border-radius:3px 3px 0 0;padding:24px 28px 20px;
+  display:grid;grid-template-columns:1fr auto;gap:16px;align-items:start;
+  position:relative;overflow:hidden;
+}
+.fv-header::before{
+  content:'LEAD';font-family:var(--display);font-size:140px;
+  color:rgba(201,169,110,.04);position:absolute;right:-10px;bottom:-28px;
+  line-height:1;pointer-events:none;letter-spacing:-4px;
+}
+.fv-nombre{font-family:var(--display);font-size:32px;letter-spacing:2px;color:var(--white);line-height:1}
+.fv-wa{
+  margin-top:8px;display:flex;align-items:center;gap:8px;
+  font-family:var(--mono);font-size:13px;color:var(--w80);
+}
+.fv-wa-btn{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:4px 10px;border:1px solid rgba(74,222,128,.3);
+  border-radius:999px;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;
+  font-weight:700;color:var(--green);background:rgba(74,222,128,.06);
+  cursor:pointer;transition:all .13s;text-decoration:none;
+}
+.fv-wa-btn:hover{background:rgba(74,222,128,.14);border-color:rgba(74,222,128,.5)}
+.fv-folio{
+  font-family:var(--mono);font-size:11px;color:var(--gold);letter-spacing:1.5px;
+  padding:6px 14px;border:1px solid var(--goldbdr);border-radius:2px;
+  background:rgba(201,169,110,.06);white-space:nowrap;text-align:center;
+}
+.fv-folio-lbl{font-size:7px;letter-spacing:2px;text-transform:uppercase;color:var(--w30);margin-bottom:4px;font-weight:700}
+.fv-meta{
+  margin-top:8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+}
+.fv-meta-chip{
+  font-size:7px;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--w30);font-weight:700;
+  display:flex;align-items:center;gap:5px;
+}
+.fv-meta-chip em{font-style:normal;color:var(--w50)}
+
+/* Body scrollable */
+.fv-body{
+  background:linear-gradient(180deg,#141414 0%,#0f0f0f 100%);
+  border:1px solid var(--goldbdr);border-top:none;border-radius:0 0 3px 3px;
+  padding:0 28px 28px;
+  max-height:calc(90vh - 120px);overflow-y:auto;
+  scrollbar-width:thin;
+}
+.fv-body::-webkit-scrollbar{width:3px}
+.fv-body::-webkit-scrollbar-thumb{background:var(--w15)}
+
+/* Secciones */
+.fv-sec{margin-top:24px}
+.fv-sec-title{
+  font-size:8px;letter-spacing:3px;text-transform:uppercase;
+  color:var(--w30);font-weight:800;
+  padding-bottom:8px;margin-bottom:14px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:8px;
+}
+.fv-sec-title em{font-style:normal;color:var(--gold);font-size:12px}
+
+/* Grid de datos */
+.fv-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px}
+.fv-row{
+  display:flex;flex-direction:column;gap:3px;
+  padding:10px 12px;background:rgba(255,255,255,.018);
+  border-radius:2px;
+}
+.fv-row.full{grid-column:1/-1}
+.fv-row-k{font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--w30);font-weight:700}
+.fv-row-v{font-size:13px;color:var(--w80);line-height:1.5}
+.fv-row-v.empty{color:var(--w20);font-style:italic;font-size:11px}
+.fv-row-v.long{font-size:12px;white-space:pre-wrap}
+
+/* Grid numérico de la propiedad */
+.fv-nums{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:2px;
+  margin-top:2px;
+}
+.fv-num{
+  display:flex;flex-direction:column;align-items:center;
+  padding:12px 8px;background:rgba(255,255,255,.018);border-radius:2px;
+  gap:3px;
+}
+.fv-num-val{font-family:var(--display);font-size:28px;color:var(--gold);letter-spacing:1px;line-height:1}
+.fv-num-lbl{font-size:7px;letter-spacing:1.5px;text-transform:uppercase;color:var(--w30);font-weight:700;text-align:center}
+.fv-num.empty .fv-num-val{color:var(--w20);font-size:18px}
+
+/* Bloque de conversión (highlight) */
+.fv-conversion{
+  margin-top:14px;padding:14px 16px;border-radius:3px;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  border:1px solid var(--border2);background:rgba(255,255,255,.02);
+}
+.fv-conversion.firma-exc{border-color:rgba(251,191,36,.3);background:rgba(251,191,36,.06)}
+.fv-conversion.firma-dir{border-color:rgba(52,211,153,.3);background:rgba(52,211,153,.05)}
+.fv-conversion.seguimiento{border-color:rgba(167,139,250,.3);background:rgba(167,139,250,.05)}
+.fv-conversion.no-cal{border-color:rgba(248,113,113,.2);background:rgba(248,113,113,.04)}
+.fv-conv-lbl{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--w30)}
+.fv-conv-val{font-family:var(--display);font-size:20px;letter-spacing:1px;color:var(--white);margin-top:2px}
+.fv-conv-desc{font-size:10px;color:var(--w30);margin-top:2px;line-height:1.5}
+
+/* Candado sistema */
+.fv-lock{
+  margin-top:4px;padding:9px 12px;border-radius:2px;
+  background:rgba(255,255,255,.015);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+}
+.fv-lock-k{font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--w30);display:flex;align-items:center;gap:6px}
+.fv-lock-v{font-size:11px;font-family:var(--mono);color:var(--w50)}
+.fv-lock-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:2px 8px;border-radius:999px;font-size:7px;letter-spacing:1px;
+  font-weight:700;text-transform:uppercase;
+}
+.fv-lock-badge.on{background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.3);color:#34d399}
+.fv-lock-badge.off{background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--w30)}
+
+/* Actions footer */
+.fv-actions{
+  display:flex;gap:8px;justify-content:flex-end;
+  padding:16px 28px;
+  border-top:1px solid var(--border);
+  background:rgba(8,8,8,.6);
+  border-radius:0 0 3px 3px;
+  position:sticky;bottom:0;
+}
+
 /* ══════════════════════════════════════════
    RESPONSIVE
 ══════════════════════════════════════════ */
@@ -1227,18 +1372,35 @@ const CRM_CFG = {
     tableId: 'tblQHdwEucTaNrLzm',
     label: 'Leads Vendedores',
     dot: 'vendedores',
-    cols: ['Folio','Nombre','WhatsApp','Tipo Propiedad','Zona','Precio Estimado','Asesor','Conversión','Fecha'],
-    fields: ['Folio','Nombre Completo','Teléfono WhatsApp','Tipo de Propiedad','Zona','Precio Estimado','Asesor','Conversión','Fecha de Entrada'],
+    ficha: 'vendedor',
+    cols: ['Folio','Nombre','Tipo','Zona','Precio','Conversión','Asesor','Fecha'],
+    fields: ['Folio','Nombre Completo','Tipo de Propiedad','Zona','Precio Estimado','Conversión','Asesor','Fecha de Entrada'],
+    fichaExtra: [
+      'Teléfono WhatsApp','Fuente','Estado','Hora de Entrada',
+      'Habitaciones','Baños','Medios Baños','Estacionamientos',
+      'Tiempo de Venta','Razón de Venta',
+      'Diagnóstico Fiscal','Detalle Fiscal',
+      'Progreso Expediente','Documentos','Propiedad Creada'
+    ],
     editable: [
       {f:'Nombre Completo',    type:'text'},
       {f:'Teléfono WhatsApp',  type:'text'},
+      {f:'Fuente',             type:'text'},
+      {f:'Asesor',             type:'text'},
       {f:'Tipo de Propiedad',  type:'text'},
       {f:'Zona',               type:'text'},
-      {f:'Precio Estimado',    type:'select', opts:['Menos de $1M','$1M - $2M','$2M - $3M','$3M - $5M','$5M - $8M','Más de $8M']},
-      {f:'Asesor',             type:'text'},
-      {f:'Conversión',         type:'select', opts:['Firma exclusiva','Firma venta directa']},
+      {f:'Estado',             type:'text'},
+      {f:'Precio Estimado',    type:'select', opts:['Menos de $1M','$1M \u2013 $2M','$2M \u2013 $4M','$4M \u2013 $7M','Más de $7M','No lo sé aún']},
+      {f:'Habitaciones',       type:'text'},
+      {f:'Baños',              type:'text'},
+      {f:'Medios Baños',       type:'text'},
+      {f:'Estacionamientos',   type:'text'},
       {f:'Tiempo de Venta',    type:'text'},
       {f:'Razón de Venta',     type:'text'},
+      {f:'Diagnóstico Fiscal', type:'text'},
+      {f:'Detalle Fiscal',     type:'textarea'},
+      {f:'Conversión',         type:'select', opts:['Firma exclusiva','Firma venta directa','En seguimiento','No calificó']},
+      {f:'Progreso Expediente',type:'text'},
       {f:'Documentos',         type:'textarea'},
     ]
   },
@@ -1311,6 +1473,7 @@ const STATUS_BADGE = {
   'A — Caliente':'badge-close','B — Tibio':'badge-offer',
   'C — Frío':'badge-visit','D — Descartado':'badge-lost',
   'Firma exclusiva':'badge-offer','Firma venta directa':'badge-close',
+  'En seguimiento':'badge-visit','No calificó':'badge-lost',
   'Pendiente':'badge-cita-pend','Confirmada':'badge-cita-conf',
   'Realizada':'badge-cita-real','Cancelada':'badge-cita-canc','Reagendada':'badge-visit',
 };
@@ -1437,6 +1600,7 @@ function crmOpenRow(recId){
   const cfg = CRM_CFG[crmState.tab];
   if(cfg && cfg.landing) landOpenEditor(recId);
   else if(cfg && cfg.cita) citaOpenFicha(recId);
+  else if(cfg && cfg.ficha === 'vendedor') vendedorOpenFicha(recId);
   else if(cfg && cfg.ficha) crmOpenFicha(recId);
   else crmOpenEdit(recId);
 }
@@ -1515,6 +1679,191 @@ function crmOpenFicha(recId){
 }
 
 function crmCloseFicha(){ document.getElementById('crm-ficha').style.display = 'none'; }
+
+/* ─── FICHA PREMIUM — LEAD VENDEDOR ──────────────────────────────────
+   Diseño orientado al asesor: origen del lead arriba, propiedad en el
+   centro, intención de venta e info fiscal al fondo.
+   Los campos candado (Folio, Propiedad Creada, Fecha creada) son solo
+   lectura; el botón "Editar" abre el modal genérico de edición.       */
+
+function vendedorOpenFicha(recId){
+  const rec = crmState.records.find(r => r.id === recId);
+  if(!rec) return;
+  crmState.editId = recId;
+  crmState.isNew  = false;
+
+  const fv = f => _fval(rec, f);
+  const sd = v => v || '<span class="fv-row-v empty">Sin datos</span>';
+
+  // Datos clave
+  const nombre    = fv('Nombre Completo') || 'Sin nombre';
+  const folio     = fv('Folio') || '— sin folio —';
+  const wa        = fv('Teléfono WhatsApp');
+  const fuente    = fv('Fuente');
+  const asesor    = fv('Asesor');
+  const fechaEnt  = fv('Fecha de Entrada');
+  const horaEnt   = fv('Hora de Entrada');
+  const estado    = fv('Estado');
+
+  // Propiedad
+  const tipo      = fv('Tipo de Propiedad');
+  const zona      = fv('Zona');
+  const precio    = fv('Precio Estimado');
+  const hab       = fv('Habitaciones');
+  const ban       = fv('Baños');
+  const mban      = fv('Medios Baños');
+  const est       = fv('Estacionamientos');
+
+  // Intención
+  const tiempo    = fv('Tiempo de Venta');
+  const razon     = fv('Razón de Venta');
+  const diagFisc  = fv('Diagnóstico Fiscal');
+  const detFisc   = fv('Detalle Fiscal');
+
+  // Operación
+  const conv      = fv('Conversión');
+  const progExp   = fv('Progreso Expediente');
+  const docs      = fv('Documentos');
+  const propCreada= fv('Propiedad Creada');
+
+  // WhatsApp link
+  const waClean = wa.replace(/\D/g,'');
+  const waLink  = waClean ? `https://wa.me/52${waClean}` : '';
+
+  // Clase de conversión para color
+  const convClass = {
+    'Firma exclusiva': 'firma-exc',
+    'Firma venta directa': 'firma-dir',
+    'En seguimiento': 'seguimiento',
+    'No calificó': 'no-cal',
+  }[conv] || '';
+
+  const convDesc = {
+    'Firma exclusiva': 'La propiedad pasa a Propiedades NERI.',
+    'Firma venta directa': 'Venta sin exclusiva previa.',
+    'En seguimiento': 'Prospecto activo, sin firma aún.',
+    'No calificó': 'Lead descartado del proceso.',
+  }[conv] || '';
+
+  // Números de la propiedad
+  const numBlock = (val, lbl) => `
+    <div class="fv-num${val ? '' : ' empty'}">
+      <div class="fv-num-val">${val || '—'}</div>
+      <div class="fv-num-lbl">${lbl}</div>
+    </div>`;
+
+  // Fila de dato
+  const row = (k, v, full, isLong) => `
+    <div class="fv-row${full ? ' full' : ''}">
+      <div class="fv-row-k">${k}</div>
+      <div class="fv-row-v${isLong ? ' long' : ''}">${v ? _esc(v) : '<span class="fv-row-v empty">Sin datos</span>'}</div>
+    </div>`;
+
+  const html = `
+    <!-- HEADER -->
+    <div class="fv-header">
+      <div>
+        <div class="fv-nombre">${_esc(nombre)}</div>
+        <div class="fv-wa">
+          ${wa ? `<span>${_esc(wa)}</span>
+            ${waLink ? `<a class="fv-wa-btn" href="${waLink}" target="_blank">↗ WhatsApp</a>` : ''}` : '<span style="color:var(--w30);font-size:11px">Sin teléfono</span>'}
+        </div>
+        <div class="fv-meta">
+          ${asesor   ? `<div class="fv-meta-chip">Asesor <em>${_esc(asesor)}</em></div>` : ''}
+          ${fuente   ? `<div class="fv-meta-chip">Fuente <em>${_esc(fuente)}</em></div>` : ''}
+          ${fechaEnt ? `<div class="fv-meta-chip">Entrada <em>${_esc(fechaEnt)}${horaEnt ? ' · '+_esc(horaEnt) : ''}</em></div>` : ''}
+        </div>
+      </div>
+      <div>
+        <div class="fv-folio-lbl">Folio</div>
+        <div class="fv-folio">${_esc(folio)}</div>
+        ${conv ? `<div style="margin-top:8px;text-align:right"><span class="badge ${crmBadgeForConv(conv)}">${_esc(conv)}</span></div>` : ''}
+      </div>
+    </div>
+
+    <!-- BODY -->
+    <div class="fv-body">
+
+      <!-- SECCIÓN: La propiedad -->
+      <div class="fv-sec">
+        <div class="fv-sec-title"><em>◈</em>La propiedad</div>
+        <div class="fv-grid">
+          ${row('Tipo', tipo)}
+          ${row('Zona', zona)}
+          ${row('Precio estimado', precio)}
+          ${row('Estado / Entidad', estado)}
+        </div>
+        <div class="fv-nums" style="margin-top:2px">
+          ${numBlock(hab,  'Rec.')}
+          ${numBlock(ban,  'Baños')}
+          ${numBlock(mban, 'Medios')}
+          ${numBlock(est,  'Est.')}
+        </div>
+      </div>
+
+      <!-- SECCIÓN: Intención de venta -->
+      <div class="fv-sec">
+        <div class="fv-sec-title"><em>◎</em>Intención de venta</div>
+        <div class="fv-grid">
+          ${row('¿Cuándo quiere vender?', tiempo)}
+          ${row('Razón de venta', razon)}
+          ${row('Diagnóstico fiscal', diagFisc)}
+          ${detFisc ? `<div class="fv-row full"><div class="fv-row-k">Detalle fiscal</div><div class="fv-row-v long">${_esc(detFisc)}</div></div>` : ''}
+        </div>
+      </div>
+
+      <!-- SECCIÓN: Operación -->
+      <div class="fv-sec">
+        <div class="fv-sec-title"><em>⊕</em>Operación</div>
+        <div class="fv-conversion ${convClass}">
+          <div>
+            <div class="fv-conv-lbl">Conversión</div>
+            <div class="fv-conv-val">${conv ? _esc(conv) : '— Sin definir —'}</div>
+            ${convDesc ? `<div class="fv-conv-desc">${convDesc}</div>` : ''}
+          </div>
+        </div>
+        ${progExp ? `<div class="fv-grid" style="margin-top:2px">${row('Progreso expediente', progExp, true)}</div>` : ''}
+        ${docs    ? `<div class="fv-grid" style="margin-top:2px"><div class="fv-row full"><div class="fv-row-k">Documentos</div><div class="fv-row-v long">${_esc(docs)}</div></div></div>` : ''}
+      </div>
+
+      <!-- SECCIÓN: Sistema (solo lectura) -->
+      <div class="fv-sec">
+        <div class="fv-sec-title"><em>🔒</em>Sistema</div>
+        <div class="le-banner" style="margin-bottom:10px">Campos generados automáticamente. No se editan desde la intranet.</div>
+        <div class="fv-lock">
+          <div class="fv-lock-k">🔒 Folio</div>
+          <div class="fv-lock-v">${_esc(folio)}</div>
+        </div>
+        <div class="fv-lock" style="margin-top:4px">
+          <div class="fv-lock-k">🔒 Propiedad creada en sistema</div>
+          <span class="fv-lock-badge ${propCreada ? 'on' : 'off'}">${propCreada ? '✓ Creada' : '○ Pendiente'}</span>
+        </div>
+      </div>
+
+    </div><!-- /fv-body -->
+  `;
+
+  document.getElementById('crm-fv-inner').innerHTML = html;
+  document.getElementById('crm-ficha-vendedor').style.display = 'flex';
+}
+
+function crmBadgeForConv(conv){
+  return {
+    'Firma exclusiva':'badge-offer',
+    'Firma venta directa':'badge-close',
+    'En seguimiento':'badge-visit',
+    'No calificó':'badge-lost',
+  }[conv] || '';
+}
+
+function vendedorClose(){
+  document.getElementById('crm-ficha-vendedor').style.display = 'none';
+}
+
+function vendedorEditFromFicha(){
+  vendedorClose();
+  crmOpenEdit(crmState.editId);
+}
 
 /* ─── AGENDAR VISITA desde la ficha del lead comprador ─────
    Abre el modal de citas en modo NUEVO, pre-rellenado con los
@@ -2226,6 +2575,17 @@ function buildAirtablePanel(){
         <button class="btn btn-ghost" onclick="crmCloseFicha()">Cerrar</button>
         <button class="btn btn-cita" onclick="fichaAgendarCita()" title="Agendar visita desde este lead">📅 Agendar visita</button>
         <button class="btn btn-primary" onclick="fichaEditFromFicha()">Editar registro</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL FICHA VENDEDOR -->
+  <div id="crm-ficha-vendedor">
+    <div class="fv-box">
+      <div id="crm-fv-inner"></div>
+      <div class="fv-actions">
+        <button class="btn btn-ghost" onclick="vendedorClose()">Cerrar</button>
+        <button class="btn btn-primary" onclick="vendedorEditFromFicha()">Editar registro</button>
       </div>
     </div>
   </div>
