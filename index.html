@@ -1190,6 +1190,11 @@ select.form-inp option{background:#111;color:#fff}
 .admin-empty .big{font-size:38px;opacity:.18}
 .admin-warning{border:1px solid rgba(248,113,113,.2);background:rgba(248,113,113,.055);color:rgba(255,255,255,.66);font-size:10px;line-height:1.7;padding:12px 14px;margin-top:14px}
 .admin-mode-pill{display:inline-flex;align-items:center;gap:6px;background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.22);color:var(--green);border-radius:999px;padding:6px 10px;font-size:7px;letter-spacing:1.6px;text-transform:uppercase;font-weight:900}
+
+.admin-conditional-note{border:1px dashed rgba(214,181,118,.35);background:rgba(214,181,118,.07);padding:14px 16px;border-radius:12px;color:var(--w55);font-size:13px;line-height:1.55}
+.admin-check.disabled{opacity:.55;cursor:not-allowed}
+.admin-check.disabled input{cursor:not-allowed}
+.admin-check small{display:block;margin-top:5px;color:var(--gold);font-size:11px;letter-spacing:.6px;text-transform:uppercase}
 @media(max-width:980px){.admin-grid{grid-template-columns:1fr}.admin-flow,.admin-mini-kpis{grid-template-columns:1fr 1fr}.admin-form-grid,.admin-checks{grid-template-columns:1fr}.admin-lock{grid-template-columns:1fr}}
 
 </style>
@@ -1833,12 +1838,12 @@ function getToolDesc(id){
    ADMINISTRACIÓN BASE — Cuentas → Usuarios → Permisos → Activación
    Modo prueba: datos locales en el navegador. No toca CRM ni leads.
 ═══════════════════════════════════════════════════ */
-const ADMIN_STORAGE_KEY = 'neri_admin_base_v1';
+const ADMIN_STORAGE_KEY = 'neri_admin_base_v3_regla_oro';
 let adminState = { tab:'cuentas', selectedCuentaId:null, selectedUsuarioId:null, data:null };
 
 const ADMIN_PERMISSION_CATALOG = [
   { id:'perfil_publico', title:'Perfil público', desc:'Editar nombre, WhatsApp, email, foto, frase, ciudad y Pixel ID Meta.' },
-  { id:'copiar_link', title:'Copiar Link Captación', desc:'Ver y copiar el link generado por el slug oficial.' },
+  { id:'copiar_link', title:'Copiar Link Captación', desc:'Ver y copiar el link generado por el slug oficial automático.' },
   { id:'landing_compradores', title:'Landing compradores', desc:'Usar herramientas comerciales de compradores.' },
   { id:'landing_vendedores', title:'Landing vendedores', desc:'Usar diagnóstico de captación de propietarios.' },
   { id:'sala_mensajes', title:'Sala de mensajes', desc:'Consultar biblioteca de mensajes y guías.' },
@@ -1847,20 +1852,28 @@ const ADMIN_PERMISSION_CATALOG = [
   { id:'branding_cuenta', title:'Branding de cuenta', desc:'Usar logo y marca de inmobiliaria o grupo.' },
 ];
 
+const ADMIN_DEFAULT_PERMS_INDEPENDIENTE = ['perfil_publico','copiar_link','landing_compradores','landing_vendedores','sala_mensajes','panel_citas','reportes_basicos'];
+const ADMIN_DEFAULT_PERMS_ORG = ['perfil_publico','copiar_link','landing_compradores','landing_vendedores','sala_mensajes','panel_citas','reportes_basicos','branding_cuenta'];
+
 function adminSeedData(){
   return {
     cuentas:[
+      { id:'cta-diana-independiente', nombre:'Diana captación inteligente', tipo:'Asesor independiente', estado:'Activo', ciudad:'Cuernavaca', responsable:'Diana Salgado', logo:'CASITA_METODO_NERI', notas:'Ejemplo de asesor independiente. No usa logo inmobiliaria; usa casita automática Método NERI.' },
       { id:'cta-metodo-neri', nombre:'Método NERI · Prueba Admin', tipo:'Grupo de asesores sin inmobiliaria', estado:'Activo', ciudad:'Cuernavaca', responsable:'Enrique Neri', logo:'', notas:'Cuenta interna para validar estructura sin bloquear navegación.' },
       { id:'cta-c21-haus', nombre:'Century 21 Haus · Cuernavaca', tipo:'Inmobiliaria', estado:'Pendiente', ciudad:'Cuernavaca', responsable:'Dirección comercial', logo:'', notas:'Ejemplo de cuenta con branding inmobiliario controlado por administración.' },
     ],
     usuarios:[
       {
-        id:'usr-enrique-neri', cuentaId:'cta-metodo-neri', nombre:'Enrique Neri', whatsapp:'527779855687', email:'', foto:'', frase:'El lead es consecuencia de una gestión de calidad.', ciudad:'Cuernavaca', pixel:'1308747473990434',
-        tipo:'Grupo de asesores sin inmobiliaria', estado:'Activo', puesto:'Administrador / Asesor', slugSugerido:'enrique-neri', slugOficial:'enrique', permisos:['perfil_publico','copiar_link','landing_compradores','landing_vendedores','sala_mensajes','panel_citas','reportes_basicos','branding_cuenta']
+        id:'usr-diana-salgado', cuentaId:'cta-diana-independiente', nombre:'Diana Salgado', whatsapp:'', email:'', foto:'', frase:'Te ayudo a preparar tu venta con orden.', ciudad:'Cuernavaca', pixel:'',
+        tipo:'Asesor independiente', estado:'Activo', puesto:'Asesor independiente', slugSugerido:'diana-salgado', slugOficial:'diana-salgado', permisos:[...ADMIN_DEFAULT_PERMS_INDEPENDIENTE]
       },
       {
-        id:'usr-diana-demo', cuentaId:'cta-c21-haus', nombre:'Diana Demo', whatsapp:'', email:'', foto:'', frase:'Te ayudo a preparar tu venta con orden.', ciudad:'Cuernavaca', pixel:'',
-        tipo:'Inmobiliaria', estado:'Pendiente', puesto:'Asesora', slugSugerido:'diana-demo', slugOficial:'', permisos:['perfil_publico','copiar_link','landing_vendedores','branding_cuenta']
+        id:'usr-enrique-neri', cuentaId:'cta-metodo-neri', nombre:'Enrique Neri', whatsapp:'527779855687', email:'', foto:'', frase:'El lead es consecuencia de una gestión de calidad.', ciudad:'Cuernavaca', pixel:'1308747473990434',
+        tipo:'Grupo de asesores sin inmobiliaria', estado:'Activo', puesto:'Administrador / Asesor', slugSugerido:'enrique-neri', slugOficial:'enrique-neri', permisos:[...ADMIN_DEFAULT_PERMS_ORG]
+      },
+      {
+        id:'usr-c21-pendiente', cuentaId:'cta-c21-haus', nombre:'Asesor pendiente', whatsapp:'', email:'', foto:'', frase:'', ciudad:'Cuernavaca', pixel:'',
+        tipo:'Inmobiliaria', estado:'Pendiente', puesto:'Asesor', slugSugerido:'asesor-pendiente', slugOficial:'asesor-pendiente', permisos:[...ADMIN_DEFAULT_PERMS_ORG]
       }
     ]
   };
@@ -1875,6 +1888,7 @@ function adminLoad(){
   adminSave(false);
 }
 function adminSave(show=true){
+  adminApplyBusinessRules();
   localStorage.setItem(ADMIN_STORAGE_KEY, JSON.stringify(adminState.data));
   if(show) showToast('✓ Administración Base guardada');
 }
@@ -1882,11 +1896,50 @@ function adminNormalize(){
   const d = adminState.data || adminSeedData();
   d.cuentas = Array.isArray(d.cuentas) ? d.cuentas : [];
   d.usuarios = Array.isArray(d.usuarios) ? d.usuarios : [];
-  d.cuentas.forEach(c=>{ if(!c.id) c.id = adminId('cta'); if(!c.estado) c.estado='Pendiente'; });
-  d.usuarios.forEach(u=>{ if(!u.id) u.id = adminId('usr'); if(!Array.isArray(u.permisos)) u.permisos=[]; if(!u.estado) u.estado='Pendiente'; if(!u.slugSugerido) u.slugSugerido = adminSlug(u.nombre||'asesor'); });
+  d.cuentas.forEach(c=>{
+    if(!c.id) c.id = adminId('cta');
+    if(!c.estado) c.estado='Pendiente';
+    if(!c.tipo) c.tipo='Asesor independiente';
+    if(c.tipo === 'Asesor independiente') c.logo = 'CASITA_METODO_NERI';
+  });
+  d.usuarios.forEach(u=>{
+    if(!u.id) u.id = adminId('usr');
+    if(!Array.isArray(u.permisos)) u.permisos=[];
+    if(!u.estado) u.estado='Pendiente';
+    if(!u.tipo) u.tipo='Asesor independiente';
+    const base = u.slugOficial || u.slugSugerido || adminSlug(u.nombre||'asesor');
+    u.slugSugerido = adminSlug(base);
+    u.slugOficial = adminUniqueSlug(u.slugSugerido, u.id);
+  });
   adminState.data = d;
+  adminApplyBusinessRules();
   if(!adminState.selectedCuentaId && d.cuentas[0]) adminState.selectedCuentaId = d.cuentas[0].id;
   if(!adminState.selectedUsuarioId && d.usuarios[0]) adminState.selectedUsuarioId = d.usuarios[0].id;
+}
+function adminApplyBusinessRules(){
+  const d = adminState.data; if(!d) return;
+  d.cuentas.forEach(c=>{
+    if(c.tipo === 'Asesor independiente') c.logo = 'CASITA_METODO_NERI';
+  });
+  d.usuarios.forEach(u=>{
+    const c = adminCuenta(u.cuentaId);
+    if(c){
+      u.tipo = c.tipo;
+      if(c.tipo === 'Asesor independiente'){
+        u.estado = c.estado;
+        u.puesto = 'Asesor independiente';
+        u.permisos = Array.isArray(u.permisos) && u.permisos.length ? u.permisos : [...ADMIN_DEFAULT_PERMS_INDEPENDIENTE];
+        u.permisos = u.permisos.filter(p=>p !== 'branding_cuenta');
+      }else{
+        u.estado = u.estado || c.estado || 'Pendiente';
+        u.puesto = u.puesto || 'Asesor';
+        u.permisos = Array.isArray(u.permisos) && u.permisos.length ? u.permisos : [...ADMIN_DEFAULT_PERMS_ORG];
+      }
+    }
+    const base = u.slugOficial || u.slugSugerido || adminSlug(u.nombre || c?.responsable || c?.nombre || 'asesor');
+    u.slugSugerido = adminSlug(base);
+    u.slugOficial = adminUniqueSlug(u.slugSugerido, u.id);
+  });
 }
 function adminId(prefix){ return prefix+'-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,7); }
 function adminSlug(txt){
@@ -1894,6 +1947,16 @@ function adminSlug(txt){
     .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
     .replace(/ñ/g,'n').replace(/[^a-z0-9]+/g,'-')
     .replace(/^-+|-+$/g,'').slice(0,42) || 'asesor';
+}
+function adminUniqueSlug(base, userId){
+  const d = adminState.data;
+  const clean = adminSlug(base || 'asesor');
+  if(!d || !Array.isArray(d.usuarios)) return clean;
+  let candidate = clean, n = 2;
+  while(d.usuarios.some(u=>u.id !== userId && adminSlug(u.slugOficial || u.slugSugerido) === candidate)){
+    candidate = `${clean}-${n++}`;
+  }
+  return candidate;
 }
 function adminEsc(v){ return _esc(String(v ?? '')); }
 function adminBadge(estado){
@@ -1904,7 +1967,35 @@ function adminBadge(estado){
 function adminCuenta(id){ return adminState.data.cuentas.find(c=>c.id===id) || null; }
 function adminUsuario(id){ return adminState.data.usuarios.find(u=>u.id===id) || null; }
 function adminCuentaName(id){ return adminCuenta(id)?.nombre || 'Sin cuenta asignada'; }
-function adminLink(u){ return u && u.slugOficial ? `https://captacion.vercel.app/?asesor=${encodeURIComponent(u.slugOficial)}` : 'Pendiente de slug oficial'; }
+function adminLink(u){ return u && u.slugOficial ? `https://captacion.vercel.app/?asesor=${encodeURIComponent(u.slugOficial)}` : 'Pendiente de slug automático'; }
+function adminLogoLabel(c){ return c?.tipo === 'Asesor independiente' ? '⌂ Casita Método NERI automática' : (c?.logo || 'Sin logo cargado'); }
+
+function adminDefaultPermsForType(tipo){ return tipo === 'Asesor independiente' ? [...ADMIN_DEFAULT_PERMS_INDEPENDIENTE] : [...ADMIN_DEFAULT_PERMS_ORG]; }
+function adminEnsureUserForCuenta(c){
+  if(!c) return null;
+  let u = adminState.data.usuarios.find(x=>x.cuentaId === c.id);
+  if(!u){
+    const nombreBase = c.responsable || c.nombre || 'Nuevo asesor';
+    const slug = adminUniqueSlug(adminSlug(nombreBase), null);
+    u = {
+      id:adminId('usr'), cuentaId:c.id, nombre:nombreBase, whatsapp:'', email:'', foto:'', frase:'', ciudad:c.ciudad||'', pixel:'',
+      tipo:c.tipo, estado:c.estado, puesto:c.tipo === 'Asesor independiente' ? 'Asesor independiente' : 'Asesor',
+      slugSugerido:slug, slugOficial:slug, permisos:adminDefaultPermsForType(c.tipo)
+    };
+    adminState.data.usuarios.unshift(u);
+  }else{
+    u.tipo = c.tipo;
+    if(c.tipo === 'Asesor independiente') u.estado = c.estado;
+    if(!u.ciudad) u.ciudad = c.ciudad || '';
+    if(!u.slugOficial){
+      const slug = adminUniqueSlug(adminSlug(u.nombre || c.responsable || c.nombre), u.id);
+      u.slugSugerido = slug; u.slugOficial = slug;
+    }
+    if(c.tipo === 'Asesor independiente') u.permisos = (u.permisos||adminDefaultPermsForType(c.tipo)).filter(p=>p !== 'branding_cuenta');
+  }
+  adminState.selectedUsuarioId = u.id;
+  return u;
+}
 
 function buildAdministracionPanel(){
   return `<div class="panel" id="panel-administracion">
@@ -1914,17 +2005,17 @@ function buildAdministracionPanel(){
           <div>
             <div class="ph-eyebrow">Administración Método NERI</div>
             <div class="ph-title">ADMINISTRACIÓN <em>BASE</em></div>
-            <div class="admin-base-note">Estructura administrativa antes del CRM: cuentas, usuarios, permisos y activación. Este panel no muestra leads, clientes, propiedades, citas, mensajes ni expedientes.</div>
+            <div class="admin-base-note">Estructura administrativa antes del CRM: cuentas, usuarios, permisos y activación automática. Este panel no muestra leads, clientes, propiedades, citas, mensajes ni expedientes.</div>
           </div>
           <div class="admin-mode-pill">● Modo prueba abierto</div>
         </div>
       </div>
 
       <div class="admin-flow" id="admin-flow">
-        <div class="admin-flow-step active" onclick="adminSwitchTab('cuentas')"><div class="af-k">Paso 01</div><div class="af-v">Cuentas</div><div class="af-d">Organizaciones: asesor independiente, inmobiliaria o grupo.</div><div class="af-num">01</div></div>
-        <div class="admin-flow-step" onclick="adminSwitchTab('usuarios')"><div class="af-k">Paso 02</div><div class="af-v">Usuarios</div><div class="af-d">Asesores asignados a una cuenta administrativa.</div><div class="af-num">02</div></div>
-        <div class="admin-flow-step" onclick="adminSwitchTab('permisos')"><div class="af-k">Paso 03</div><div class="af-v">Permisos</div><div class="af-d">Qué puede ver y qué puede editar cada asesor.</div><div class="af-num">03</div></div>
-        <div class="admin-flow-step" onclick="adminSwitchTab('activacion')"><div class="af-k">Paso 04</div><div class="af-v">Activación</div><div class="af-d">Estado, slug oficial y Link Captación aprobado.</div><div class="af-num">04</div></div>
+        <div class="admin-flow-step active" onclick="adminSwitchTab('cuentas')"><div class="af-k">Paso 01</div><div class="af-v">Cuentas</div><div class="af-d">Administración crea la cuenta y define tipo, estado y responsable.</div><div class="af-num">01</div></div>
+        <div class="admin-flow-step" onclick="adminSwitchTab('usuarios')"><div class="af-k">Paso 02</div><div class="af-v">Perfil usuario</div><div class="af-d">El asesor solo llena datos públicos. Lo administrativo se muestra bloqueado.</div><div class="af-num">02</div></div>
+        <div class="admin-flow-step" onclick="adminSwitchTab('permisos')"><div class="af-k">Paso 03</div><div class="af-v">Permisos</div><div class="af-d">Qué puede usar cada asesor cuando exista login real.</div><div class="af-num">03</div></div>
+        <div class="admin-flow-step" onclick="adminSwitchTab('activacion')"><div class="af-k">Paso 04</div><div class="af-v">Activación automática</div><div class="af-d">Estado de cuenta + slug automático + Link Captación.</div><div class="af-num">04</div></div>
       </div>
 
       <div class="admin-mini-kpis" id="admin-kpis"></div>
@@ -1951,6 +2042,7 @@ function adminSwitchTab(tab){
 }
 function adminRender(){
   if(!adminState.data) adminLoad();
+  adminApplyBusinessRules();
   document.querySelectorAll('.admin-tab').forEach(b=>b.classList.remove('active'));
   document.getElementById('admin-tab-'+adminState.tab)?.classList.add('active');
   const flowMap = ['cuentas','usuarios','permisos','activacion'];
@@ -1973,7 +2065,7 @@ function adminRenderKpis(){
     <div class="admin-mini-kpi"><div class="admin-mini-num">${d.cuentas.length}</div><div class="admin-mini-lbl">Cuentas</div></div>
     <div class="admin-mini-kpi"><div class="admin-mini-num">${d.usuarios.length}</div><div class="admin-mini-lbl">Usuarios</div></div>
     <div class="admin-mini-kpi"><div class="admin-mini-num">${activos}</div><div class="admin-mini-lbl">Activos</div></div>
-    <div class="admin-mini-kpi"><div class="admin-mini-num">${conSlug}/${d.usuarios.length}</div><div class="admin-mini-lbl">Slug oficial</div></div>`;
+    <div class="admin-mini-kpi"><div class="admin-mini-num">${conSlug}/${d.usuarios.length}</div><div class="admin-mini-lbl">Slug automático</div></div>`;
 }
 
 function adminRenderCuentas(){
@@ -1984,6 +2076,7 @@ function adminRenderCuentas(){
     <div class="admin-row ${c.id===adminState.selectedCuentaId?'active':''}" onclick="adminSelectCuenta('${c.id}')">
       <div class="ar-top"><div><div class="ar-name">${adminEsc(c.nombre)}</div><div class="ar-meta">${adminEsc(c.tipo)} · ${adminEsc(c.ciudad||'Sin ciudad')}</div></div>${adminBadge(c.estado)}</div>
       <div class="ar-meta">Responsable: ${adminEsc(c.responsable||'Sin responsable')}</div>
+      <div class="ar-link">${adminEsc(adminLogoLabel(c))}</div>
     </div>`).join('') || `<div class="admin-empty"><div class="big">▣</div>Sin cuentas creadas</div>`;
   const form = selected ? adminCuentaForm(selected) : `<div class="admin-empty"><div class="big">▣</div>Crea una cuenta para iniciar</div>`;
   return `<div class="admin-grid">
@@ -1991,27 +2084,64 @@ function adminRenderCuentas(){
     <div class="admin-card"><div class="admin-card-head"><div><div class="admin-card-title">CONTROL DE <em>CUENTA</em></div><div class="admin-card-sub">Base administrativa, no CRM</div></div></div><div class="admin-card-body">${form}</div></div>
   </div>`;
 }
+function adminCuentaLogoBlock(c){
+  if(c.tipo === 'Asesor independiente'){
+    return `<div class="form-group full" id="cuenta-logo-wrap"><div class="admin-conditional-note"><b>Identidad visual automática:</b> Asesor independiente no carga logo inmobiliaria. Se usa la casita Método NERI en automático.</div></div>`;
+  }
+  const label = c.tipo === 'Inmobiliaria' ? 'Logo inmobiliaria' : 'Logo de grupo / cuenta';
+  return `<div id="cuenta-logo-wrap">${adminField(label,'cuenta-logo',c.logo,'URL del logo')}</div>`;
+}
 function adminCuentaForm(c){
-  return `<div class="admin-help">Aquí se define la organización. Si es inmobiliaria, el logo y branding se controlan desde administración, no desde el asesor.</div>
+  const isIndependiente = c.tipo === 'Asesor independiente';
+  const help = isIndependiente
+    ? 'Administración crea la cuenta independiente. El estado de esta cuenta activa o pausa al asesor. No se pide logo inmobiliaria.'
+    : 'Aquí se define la organización. Si es inmobiliaria o grupo, el logo y branding se controlan desde administración, no desde el asesor.';
+  return `<div class="admin-help">${adminEsc(help)}</div>
   <div class="admin-form-grid">
     ${adminField('Nombre de cuenta','cuenta-nombre',c.nombre)}
-    ${adminSelect('Tipo de cuenta','cuenta-tipo',c.tipo,['Asesor independiente','Inmobiliaria','Grupo de asesores sin inmobiliaria'])}
+    ${adminSelect('Tipo de cuenta','cuenta-tipo',c.tipo,['Asesor independiente','Inmobiliaria','Grupo de asesores sin inmobiliaria'],'onchange="adminHandleCuentaTipoUi(this.value)"')}
     ${adminSelect('Estado','cuenta-estado',c.estado,['Pendiente','Activo','Inactivo'])}
     ${adminField('Ciudad','cuenta-ciudad',c.ciudad)}
     ${adminField('Responsable','cuenta-responsable',c.responsable)}
-    ${adminField('Logo inmobiliaria / cuenta','cuenta-logo',c.logo,'URL del logo')}
+    ${adminCuentaLogoBlock(c)}
     ${adminArea('Notas administrativas','cuenta-notas',c.notas,'full')}
   </div>
   <div class="admin-actions"><button class="btn btn-ghost" onclick="adminDeleteCuenta()">Eliminar cuenta</button><button class="btn btn-primary" onclick="adminSaveCuenta()">Guardar cuenta</button></div>`;
 }
+function adminHandleCuentaTipoUi(tipo){
+  const wrap = document.getElementById('cuenta-logo-wrap');
+  if(!wrap) return;
+  if(tipo === 'Asesor independiente'){
+    wrap.classList.add('full');
+    wrap.innerHTML = `<div class="admin-conditional-note"><b>Identidad visual automática:</b> Asesor independiente no carga logo inmobiliaria. Se usa la casita Método NERI en automático.</div>`;
+  }else{
+    wrap.classList.remove('full');
+    const label = tipo === 'Inmobiliaria' ? 'Logo inmobiliaria' : 'Logo de grupo / cuenta';
+    if(!document.getElementById('cuenta-logo')) wrap.innerHTML = `${adminField(label,'cuenta-logo','','URL del logo')}`;
+    const lbl = wrap.querySelector('label'); if(lbl) lbl.textContent = label;
+  }
+}
 function adminSelectCuenta(id){ adminState.selectedCuentaId=id; adminRender(); }
 function adminNewCuenta(){
-  const c={id:adminId('cta'), nombre:'Nueva cuenta', tipo:'Asesor independiente', estado:'Pendiente', ciudad:'', responsable:'', logo:'', notas:''};
+  const c={id:adminId('cta'), nombre:'Nueva cuenta independiente', tipo:'Asesor independiente', estado:'Pendiente', ciudad:'', responsable:'', logo:'CASITA_METODO_NERI', notas:''};
   adminState.data.cuentas.unshift(c); adminState.selectedCuentaId=c.id; adminSave(); adminRender();
 }
 function adminSaveCuenta(){
   const c=adminCuenta(adminState.selectedCuentaId); if(!c) return;
-  c.nombre=val('cuenta-nombre'); c.tipo=val('cuenta-tipo'); c.estado=val('cuenta-estado'); c.ciudad=val('cuenta-ciudad'); c.responsable=val('cuenta-responsable'); c.logo=val('cuenta-logo'); c.notas=val('cuenta-notas');
+  c.nombre=val('cuenta-nombre'); c.tipo=val('cuenta-tipo'); c.estado=val('cuenta-estado'); c.ciudad=val('cuenta-ciudad'); c.responsable=val('cuenta-responsable'); c.logo=c.tipo==='Asesor independiente' ? 'CASITA_METODO_NERI' : val('cuenta-logo'); c.notas=val('cuenta-notas');
+  if(c.tipo === 'Asesor independiente') adminEnsureUserForCuenta(c);
+  adminState.data.usuarios.filter(u=>u.cuentaId===c.id).forEach(u=>{
+    u.tipo=c.tipo;
+    if(c.tipo === 'Asesor independiente'){
+      u.estado=c.estado;
+      u.puesto='Asesor independiente';
+      u.permisos=(u.permisos||adminDefaultPermsForType(c.tipo)).filter(p=>p!=='branding_cuenta');
+    }
+    if(!u.slugOficial){
+      const slug = adminUniqueSlug(adminSlug(u.nombre || c.responsable || c.nombre), u.id);
+      u.slugSugerido=slug; u.slugOficial=slug;
+    }
+  });
   adminSave(); adminRender();
 }
 function adminDeleteCuenta(){
@@ -2029,16 +2159,16 @@ function adminRenderUsuarios(){
       <div class="ar-top"><div><div class="ar-name">${adminEsc(u.nombre)}</div><div class="ar-meta">${adminEsc(adminCuentaName(u.cuentaId))}</div></div>${adminBadge(u.estado)}</div>
       <div class="ar-meta">Tipo: ${adminEsc(u.tipo)} · Puesto: ${adminEsc(u.puesto||'Sin puesto')}</div>
       <div class="ar-link">${adminEsc(adminLink(u))}</div>
-    </div>`).join('') || `<div class="admin-empty"><div class="big">◎</div>Sin usuarios creados</div>`;
-  const form = selected ? adminUsuarioForm(selected) : `<div class="admin-empty"><div class="big">◎</div>Crea un usuario para asignarlo a una cuenta</div>`;
+    </div>`).join('') || `<div class="admin-empty"><div class="big">◎</div>Sin perfiles creados</div>`;
+  const form = selected ? adminUsuarioForm(selected) : `<div class="admin-empty"><div class="big">◎</div>Primero guarda una cuenta independiente o crea un perfil interno.</div>`;
   return `<div class="admin-grid">
-    <div class="admin-card"><div class="admin-card-head"><div><div class="admin-card-title">LISTA DE <em>USUARIOS</em></div><div class="admin-card-sub">Asesores asignados</div></div><button class="btn btn-primary" onclick="adminNewUsuario()">+ Usuario</button></div><div class="admin-card-body"><div class="admin-list">${list}</div></div></div>
-    <div class="admin-card"><div class="admin-card-head"><div><div class="admin-card-title">FICHA DE <em>USUARIO</em></div><div class="admin-card-sub">Administración controla estado, tipo, cuenta y slug</div></div></div><div class="admin-card-body">${form}</div></div>
+    <div class="admin-card"><div class="admin-card-head"><div><div class="admin-card-title">LISTA DE <em>USUARIOS</em></div><div class="admin-card-sub">Perfiles asignados</div></div><button class="btn btn-primary" onclick="adminNewUsuario()">+ Perfil interno</button></div><div class="admin-card-body"><div class="admin-list">${list}</div></div></div>
+    <div class="admin-card"><div class="admin-card-head"><div><div class="admin-card-title">PERFIL DE <em>USUARIO</em></div><div class="admin-card-sub">El asesor solo llena datos públicos</div></div></div><div class="admin-card-body">${form}</div></div>
   </div>`;
 }
 function adminUsuarioForm(u){
-  const cuentaOptions = adminState.data.cuentas.map(c=>({value:c.id,label:c.nombre}));
-  return `<div class="admin-help">El asesor solo editará su perfil público. Administración controla cuenta, tipo, estado, puesto, slug oficial y permisos.</div>
+  const cuenta = adminCuenta(u.cuentaId);
+  return `<div class="admin-help">El asesor edita solo su perfil público. Cuenta, tipo, estado, puesto, slug y Link Captación se muestran, pero no se pueden mover aquí.</div>
   <div class="admin-form-grid">
     ${adminField('Nombre','user-nombre',u.nombre)}
     ${adminField('WhatsApp','user-whatsapp',u.whatsapp)}
@@ -2047,30 +2177,44 @@ function adminUsuarioForm(u){
     ${adminField('Foto','user-foto',u.foto,'URL de foto')}
     ${adminField('Frase','user-frase',u.frase)}
     ${adminField('Pixel ID Meta','user-pixel',u.pixel)}
-    ${adminSelectObjects('Cuenta asignada','user-cuenta',u.cuentaId,cuentaOptions)}
-    ${adminSelect('Tipo','user-tipo',u.tipo,['Asesor independiente','Inmobiliaria','Grupo de asesores sin inmobiliaria'])}
-    ${adminSelect('Estado','user-estado',u.estado,['Pendiente','Activo','Inactivo'])}
-    ${adminField('Puesto','user-puesto',u.puesto)}
-    ${adminField('Slug sugerido','user-slug-sugerido',u.slugSugerido,'Auto sugerido')}
-    ${adminField('Slug oficial aprobado','user-slug-oficial',u.slugOficial,'Solo administración')}
-    <div class="form-group full"><label>Link Captación generado</label><input class="form-inp" value="${adminEsc(adminLink(u))}" readonly></div>
+    <div class="form-group full"><div class="admin-conditional-note"><b>Datos administrativos bloqueados:</b> estos campos se generan o se controlan desde Administración Base, no desde el perfil del asesor.</div></div>
   </div>
-  <div class="admin-actions"><button class="btn btn-ghost" onclick="adminSuggestSlug()">Sugerir slug</button><button class="btn btn-ghost" onclick="adminDeleteUsuario()">Eliminar usuario</button><button class="btn btn-primary" onclick="adminSaveUsuario()">Guardar usuario</button></div>`;
+  <div class="admin-lock"><div class="admin-lock-k">Cuenta asignada</div><div class="admin-lock-v">${adminEsc(adminCuentaName(u.cuentaId))}</div></div>
+  <div class="admin-lock"><div class="admin-lock-k">Tipo</div><div class="admin-lock-v">${adminEsc(u.tipo)}</div></div>
+  <div class="admin-lock"><div class="admin-lock-k">Estado</div><div class="admin-lock-v">${adminEsc(u.estado)}</div></div>
+  <div class="admin-lock"><div class="admin-lock-k">Puesto</div><div class="admin-lock-v">${adminEsc(u.puesto||'Asesor')}</div></div>
+  <div class="admin-lock"><div class="admin-lock-k">Slug automático oficial</div><div class="admin-lock-v gold">${adminEsc(u.slugOficial||u.slugSugerido||'Se generará al guardar')}</div></div>
+  <div class="admin-lock"><div class="admin-lock-k">Link Captación generado</div><div class="admin-lock-v gold">${adminEsc(adminLink(u))}</div></div>
+  <div class="admin-actions"><button class="btn btn-ghost" onclick="adminDeleteUsuario()">Eliminar perfil</button><button class="btn btn-primary" onclick="adminSaveUsuario()">Guardar perfil público</button></div>`;
 }
 function adminSelectUsuario(id){ adminState.selectedUsuarioId=id; adminRender(); }
 function adminNewUsuario(){
   const cuentaId = adminState.selectedCuentaId || adminState.data.cuentas[0]?.id || '';
-  const u={id:adminId('usr'), cuentaId, nombre:'Nuevo asesor', whatsapp:'', email:'', foto:'', frase:'', ciudad:'', pixel:'', tipo:'Asesor independiente', estado:'Pendiente', puesto:'Asesor', slugSugerido:'nuevo-asesor', slugOficial:'', permisos:['perfil_publico','copiar_link']};
+  const c = adminCuenta(cuentaId);
+  const nombreBase = c?.responsable || 'Nuevo asesor';
+  const slug = adminUniqueSlug(adminSlug(nombreBase), null);
+  const u={id:adminId('usr'), cuentaId, nombre:nombreBase, whatsapp:'', email:'', foto:'', frase:'', ciudad:c?.ciudad||'', pixel:'', tipo:c?.tipo||'Asesor independiente', estado:c?.estado||'Pendiente', puesto:c?.tipo==='Asesor independiente'?'Asesor independiente':'Asesor', slugSugerido:slug, slugOficial:slug, permisos:adminDefaultPermsForType(c?.tipo||'Asesor independiente')};
   adminState.data.usuarios.unshift(u); adminState.selectedUsuarioId=u.id; adminSave(); adminRender();
 }
 function adminSaveUsuario(){
   const u=adminUsuario(adminState.selectedUsuarioId); if(!u) return;
+  const c=adminCuenta(u.cuentaId);
   u.nombre=val('user-nombre'); u.whatsapp=val('user-whatsapp').replace(/\D/g,''); u.email=val('user-email'); u.ciudad=val('user-ciudad'); u.foto=val('user-foto'); u.frase=val('user-frase'); u.pixel=val('user-pixel');
-  u.cuentaId=val('user-cuenta'); u.tipo=val('user-tipo'); u.estado=val('user-estado'); u.puesto=val('user-puesto'); u.slugSugerido=adminSlug(val('user-slug-sugerido')); u.slugOficial=adminSlug(val('user-slug-oficial'));
+  if(c){
+    u.tipo=c.tipo;
+    if(c.tipo === 'Asesor independiente'){
+      u.estado=c.estado;
+      u.puesto='Asesor independiente';
+      u.permisos=(u.permisos||adminDefaultPermsForType(c.tipo)).filter(p=>p!=='branding_cuenta');
+    }
+  }
+  if(!u.slugOficial){
+    const slug = adminUniqueSlug(adminSlug(u.nombre || c?.responsable || c?.nombre), u.id);
+    u.slugSugerido=slug; u.slugOficial=slug;
+  }else{
+    u.slugSugerido = u.slugOficial;
+  }
   adminSave(); adminRender();
-}
-function adminSuggestSlug(){
-  const inp=document.getElementById('user-slug-sugerido'); if(inp) inp.value = adminSlug(document.getElementById('user-nombre')?.value || 'asesor');
 }
 function adminDeleteUsuario(){
   const id=adminState.selectedUsuarioId; if(!id) return;
@@ -2086,8 +2230,10 @@ function adminRenderPermisos(){
       <div class="ar-top"><div><div class="ar-name">${adminEsc(u.nombre)}</div><div class="ar-meta">${adminEsc(adminCuentaName(u.cuentaId))}</div></div>${adminBadge(u.estado)}</div>
       <div class="ar-meta">${u.permisos.length} permisos asignados</div>
     </div>`).join('');
-  const checks = selected ? ADMIN_PERMISSION_CATALOG.map(p=>`
-    <label class="admin-check"><input type="checkbox" data-perm="${p.id}" ${selected.permisos.includes(p.id)?'checked':''}><div><b>${adminEsc(p.title)}</b><span>${adminEsc(p.desc)}</span></div></label>`).join('') : '';
+  const checks = selected ? ADMIN_PERMISSION_CATALOG.map(p=>{
+    const blockedBranding = selected.tipo === 'Asesor independiente' && p.id === 'branding_cuenta';
+    return `<label class="admin-check ${blockedBranding?'disabled':''}"><input type="checkbox" data-perm="${p.id}" ${selected.permisos.includes(p.id)&&!blockedBranding?'checked':''} ${blockedBranding?'disabled':''}><div><b>${adminEsc(p.title)}</b><span>${adminEsc(p.desc)}</span>${blockedBranding?'<small>No aplica para asesor independiente. Se usa casita Método NERI automática.</small>':''}</div></label>`;
+  }).join('') : '';
   const form = selected ? `<div class="admin-help">Permisos base para ${adminEsc(selected.nombre)}. Todavía no bloquean navegación en esta prueba; quedan preparados para el login real.</div><div class="admin-checks">${checks}</div><div class="admin-actions"><button class="btn btn-primary" onclick="adminSavePermisos()">Guardar permisos</button></div>` : `<div class="admin-empty"><div class="big">◫</div>Selecciona un usuario</div>`;
   return `<div class="admin-grid">
     <div class="admin-card"><div class="admin-card-head"><div><div class="admin-card-title">USUARIO PARA <em>PERMISOS</em></div><div class="admin-card-sub">Selección administrativa</div></div></div><div class="admin-card-body"><div class="admin-list">${list}</div></div></div>
@@ -2097,6 +2243,7 @@ function adminRenderPermisos(){
 function adminSavePermisos(){
   const u=adminUsuario(adminState.selectedUsuarioId); if(!u) return;
   u.permisos = Array.from(document.querySelectorAll('[data-perm]:checked')).map(x=>x.dataset.perm);
+  if(u.tipo === 'Asesor independiente') u.permisos = u.permisos.filter(p=>p !== 'branding_cuenta');
   adminSave(); adminRender();
 }
 
@@ -2104,36 +2251,29 @@ function adminRenderActivacion(){
   const d=adminState.data;
   const selected = adminUsuario(adminState.selectedUsuarioId) || d.usuarios[0] || null;
   if(selected) adminState.selectedUsuarioId = selected.id;
-  const pendientes = d.usuarios.filter(u=>u.estado!=='Activo' || !u.slugOficial);
+  const pendientes = d.usuarios.filter(u=>u.estado!=='Activo');
   const list = d.usuarios.map(u=>`
     <div class="admin-row ${u.id===adminState.selectedUsuarioId?'active':''}" onclick="adminSelectUsuario('${u.id}')">
-      <div class="ar-top"><div><div class="ar-name">${adminEsc(u.nombre)}</div><div class="ar-meta">Slug sugerido: ${adminEsc(u.slugSugerido||'—')}</div></div>${adminBadge(u.estado)}</div>
+      <div class="ar-top"><div><div class="ar-name">${adminEsc(u.nombre)}</div><div class="ar-meta">Slug automático: ${adminEsc(u.slugOficial||'—')}</div></div>${adminBadge(u.estado)}</div>
       <div class="ar-link">${adminEsc(adminLink(u))}</div>
     </div>`).join('');
-  const form = selected ? `<div class="admin-help">La activación real ocurre cuando administración aprueba el slug oficial y el usuario queda en estado Activo. El asesor no puede mover este dato.</div>
+  const cuenta = selected ? adminCuenta(selected.cuentaId) : null;
+  const form = selected ? `<div class="admin-help">No hay aprobación manual de slug. El slug sugerido es el slug oficial. El Link Captación se genera automático. Para asesor independiente, el estado viene de la cuenta.</div>
     <div class="admin-lock"><div class="admin-lock-k">Usuario</div><div class="admin-lock-v">${adminEsc(selected.nombre)}</div></div>
     <div class="admin-lock"><div class="admin-lock-k">Cuenta</div><div class="admin-lock-v">${adminEsc(adminCuentaName(selected.cuentaId))}</div></div>
-    <div class="admin-lock"><div class="admin-lock-k">Slug sugerido</div><div class="admin-lock-v">${adminEsc(selected.slugSugerido||'—')}</div></div>
-    <div class="admin-form-grid" style="margin-top:14px">
-      ${adminField('Slug oficial aprobado','act-slug',selected.slugOficial,'ej. diana')}
-      ${adminSelect('Estado del asesor','act-estado',selected.estado,['Pendiente','Activo','Inactivo'])}
-      <div class="form-group full"><label>Link Captación final</label><input class="form-inp" id="act-link" value="${adminEsc(adminLink(selected))}" readonly></div>
-    </div>
-    <div class="admin-warning">Regla de operación: el Link Captación solo se considera válido cuando hay slug oficial y estado Activo. Antes de eso queda pendiente para evitar links improvisados.</div>
-    <div class="admin-actions"><button class="btn btn-ghost" onclick="adminCopyLink()">Copiar link</button><button class="btn btn-primary" onclick="adminActivateUser()">Guardar activación</button></div>` : `<div class="admin-empty"><div class="big">◎</div>Selecciona un usuario</div>`;
+    <div class="admin-lock"><div class="admin-lock-k">Tipo de cuenta</div><div class="admin-lock-v">${adminEsc(cuenta?.tipo||selected.tipo)}</div></div>
+    <div class="admin-lock"><div class="admin-lock-k">Estado</div><div class="admin-lock-v">${adminEsc(selected.estado)}</div></div>
+    <div class="admin-lock"><div class="admin-lock-k">Slug automático oficial</div><div class="admin-lock-v gold">${adminEsc(selected.slugOficial||'—')}</div></div>
+    <div class="admin-lock"><div class="admin-lock-k">Link Captación final</div><div class="admin-lock-v gold">${adminEsc(adminLink(selected))}</div></div>
+    <div class="admin-warning">Regla aplicada: el perfil no edita cuenta, tipo, estado, puesto, slug ni Link Captación. Solo muestra esos datos para evitar errores.</div>
+    <div class="admin-actions"><button class="btn btn-ghost" onclick="adminCopyLink()">Copiar link</button></div>` : `<div class="admin-empty"><div class="big">◎</div>Selecciona un usuario</div>`;
   return `<div class="admin-grid">
-    <div class="admin-card"><div class="admin-card-head"><div><div class="admin-card-title">COLA DE <em>ACTIVACIÓN</em></div><div class="admin-card-sub">${pendientes.length} pendiente(s) por revisar</div></div></div><div class="admin-card-body"><div class="admin-list">${list}</div></div></div>
-    <div class="admin-card"><div class="admin-card-head"><div><div class="admin-card-title">ACTIVAR <em>ASESOR</em></div><div class="admin-card-sub">Slug oficial + estado</div></div></div><div class="admin-card-body">${form}</div></div>
+    <div class="admin-card"><div class="admin-card-head"><div><div class="admin-card-title">RESUMEN DE <em>ACTIVACIÓN</em></div><div class="admin-card-sub">${pendientes.length} pendiente(s) por estado de cuenta</div></div></div><div class="admin-card-body"><div class="admin-list">${list}</div></div></div>
+    <div class="admin-card"><div class="admin-card-head"><div><div class="admin-card-title">ACTIVACIÓN <em>AUTOMÁTICA</em></div><div class="admin-card-sub">Estado + slug + link</div></div></div><div class="admin-card-body">${form}</div></div>
   </div>`;
 }
-function adminActivateUser(){
-  const u=adminUsuario(adminState.selectedUsuarioId); if(!u) return;
-  u.slugOficial=adminSlug(val('act-slug')); u.estado=val('act-estado');
-  if(!u.slugOficial && u.estado==='Activo'){ showToast('Falta slug oficial para activar'); return; }
-  adminSave(); adminRender();
-}
 function adminCopyLink(){
-  const u=adminUsuario(adminState.selectedUsuarioId); if(!u || !u.slugOficial){ showToast('Aún no hay slug oficial'); return; }
+  const u=adminUsuario(adminState.selectedUsuarioId); if(!u || !u.slugOficial){ showToast('Aún no hay slug automático'); return; }
   navigator.clipboard?.writeText(adminLink(u));
   showToast('Link Captación copiado');
 }
@@ -2144,8 +2284,8 @@ function adminField(label,id,value='',placeholder=''){
 function adminArea(label,id,value='',cls=''){
   return `<div class="form-group ${cls}"><label>${adminEsc(label)}</label><textarea class="form-inp" id="${id}" rows="4">${adminEsc(value)}</textarea></div>`;
 }
-function adminSelect(label,id,value,opts){
-  return `<div class="form-group"><label>${adminEsc(label)}</label><select class="form-inp" id="${id}">${opts.map(o=>`<option value="${adminEsc(o)}" ${o===value?'selected':''}>${adminEsc(o)}</option>`).join('')}</select></div>`;
+function adminSelect(label,id,value,opts,extra=''){
+  return `<div class="form-group"><label>${adminEsc(label)}</label><select class="form-inp" id="${id}" ${extra}>${opts.map(o=>`<option value="${adminEsc(o)}" ${o===value?'selected':''}>${adminEsc(o)}</option>`).join('')}</select></div>`;
 }
 function adminSelectObjects(label,id,value,opts){
   return `<div class="form-group"><label>${adminEsc(label)}</label><select class="form-inp" id="${id}">${opts.map(o=>`<option value="${adminEsc(o.value)}" ${o.value===value?'selected':''}>${adminEsc(o.label)}</option>`).join('')}</select></div>`;
