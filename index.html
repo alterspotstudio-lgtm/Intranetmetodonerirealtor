@@ -886,36 +886,6 @@ select.form-inp option{background:#111;color:#fff}
 .form-group{display:flex;flex-direction:column;gap:5px}
 .form-group label{font-size:7px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);font-weight:800}
 
-
-
-/* ══════════════════════════════════════════
-   PERFIL ASESOR
-══════════════════════════════════════════ */
-.perfil-body{flex:1;overflow-y:auto;padding:28px}
-.perfil-wrap{max-width:980px;margin:0 auto}
-.perfil-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:16px;margin-top:18px}
-.perfil-card{
-  background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
-  padding:18px;position:relative;overflow:hidden;
-}
-.perfil-card.gold{background:var(--golddim);border-color:var(--goldbdr);border-left:3px solid var(--gold)}
-.perfil-title{font-family:var(--display);font-size:28px;letter-spacing:2px;line-height:1;color:var(--white)}
-.perfil-title em{color:var(--gold);font-style:normal}
-.perfil-sub{font-size:10px;color:var(--w50);line-height:1.8;margin-top:8px;font-weight:300}
-.perfil-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
-.perfil-fields .full{grid-column:1/-1}
-.perfil-readonly{display:flex;flex-direction:column;gap:10px;margin-top:14px}
-.perfil-lock{border:1px solid var(--border2);background:rgba(0,0,0,.14);padding:12px;border-radius:var(--r)}
-.perfil-lock-k{font-size:7px;letter-spacing:2px;text-transform:uppercase;color:var(--w30);font-weight:800;margin-bottom:5px}
-.perfil-lock-v{font-size:12px;color:var(--w80);word-break:break-word;line-height:1.5}
-.perfil-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap}
-.perfil-note{font-size:10px;color:var(--w30);line-height:1.7;margin-top:8px}
-.perfil-photo-row{display:flex;gap:12px;align-items:center;margin-top:8px}
-.perfil-avatar{width:74px;height:74px;border-radius:50%;object-fit:cover;border:1px solid var(--goldbdr);background:var(--w04)}
-.perfil-avatar-empty{width:74px;height:74px;border-radius:50%;border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;color:var(--w30);font-family:var(--display);font-size:28px;background:var(--w04)}
-.perfil-status{font-size:11px;color:var(--w50);min-height:17px;text-align:right;margin-top:8px}
-@media(max-width:900px){.perfil-grid{grid-template-columns:1fr}.perfil-fields{grid-template-columns:1fr}}
-
 /* ══════════════════════════════════════════
    NOTIFICACIÓN TOAST
 ══════════════════════════════════════════ */
@@ -1159,6 +1129,69 @@ select.form-inp option{background:#111;color:#fff}
   .op-steps{overflow-x:auto;padding-bottom:6px}
   .hoy-ops-hint{text-align:left;max-width:none}
 }
+
+
+/* ══════════════════════════════════════════
+   ADMINISTRACIÓN BASE · CUENTAS → USUARIOS → PERMISOS → ACTIVACIÓN
+══════════════════════════════════════════ */
+.admin-base-body{flex:1;overflow-y:auto;padding:28px;background:radial-gradient(circle at top right,rgba(201,169,110,.055),transparent 34%),var(--black)}
+.admin-base-note{font-size:11px;color:var(--w50);line-height:1.8;max-width:860px;margin-top:10px;font-weight:300}
+.admin-flow{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin:22px 0 24px}
+.admin-flow-step{background:var(--surface);padding:18px 18px;position:relative;min-height:98px;border-top:2px solid transparent;cursor:pointer;transition:background .15s,border-color .15s}
+.admin-flow-step:hover,.admin-flow-step.active{background:var(--surface2);border-top-color:var(--gold)}
+.af-num{font-family:var(--display);font-size:46px;color:rgba(201,169,110,.11);position:absolute;right:12px;bottom:2px;line-height:1;letter-spacing:-1px}
+.af-k{font-size:6px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);font-weight:800;margin-bottom:8px}
+.af-v{font-family:var(--display);font-size:22px;letter-spacing:1.7px;line-height:1;color:var(--white)}
+.af-d{font-size:10px;line-height:1.65;color:var(--w50);margin-top:8px;max-width:210px}
+.admin-grid{display:grid;grid-template-columns:360px 1fr;gap:18px;align-items:start}
+.admin-card{background:linear-gradient(180deg,var(--surface2),var(--surface));border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.admin-card-head{padding:18px 18px 14px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.admin-card-title{font-family:var(--display);font-size:25px;letter-spacing:2px;line-height:1;color:var(--white)}
+.admin-card-title em{color:var(--gold);font-style:normal}
+.admin-card-sub{font-size:9px;color:var(--w30);letter-spacing:1.6px;text-transform:uppercase;margin-top:6px;line-height:1.6}
+.admin-card-body{padding:18px}
+.admin-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.admin-tab{background:transparent;border:1px solid var(--border2);color:var(--w50);border-radius:999px;padding:7px 12px;font-size:7px;letter-spacing:2px;text-transform:uppercase;font-weight:800;cursor:pointer;transition:all .14s}
+.admin-tab:hover,.admin-tab.active{border-color:var(--goldbdr);background:var(--golddim);color:var(--gold)}
+.admin-list{display:flex;flex-direction:column;gap:8px;max-height:560px;overflow:auto;padding-right:2px}
+.admin-row{border:1px solid var(--border);background:rgba(255,255,255,.025);border-radius:var(--r);padding:12px;cursor:pointer;transition:all .14s;position:relative;overflow:hidden}
+.admin-row::before{content:'';position:absolute;left:0;top:0;bottom:0;width:0;background:var(--gold);transition:width .14s}
+.admin-row:hover,.admin-row.active{border-color:var(--goldbdr);background:rgba(201,169,110,.055)}
+.admin-row:hover::before,.admin-row.active::before{width:2px}
+.ar-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.ar-name{font-size:12px;font-weight:800;color:var(--white);line-height:1.3}
+.ar-meta{font-size:9px;color:var(--w50);margin-top:5px;line-height:1.6}
+.ar-link{font-family:var(--mono);font-size:9px;color:var(--gold);margin-top:7px;word-break:break-all;opacity:.9}
+.admin-badge{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:4px 8px;font-size:6px;letter-spacing:1.4px;text-transform:uppercase;font-weight:900;white-space:nowrap}
+.admin-badge::before{content:'';width:4px;height:4px;border-radius:50%;background:currentColor}
+.ab-pendiente{background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.24);color:#fbbf24}
+.ab-activo{background:rgba(74,222,128,.09);border:1px solid rgba(74,222,128,.25);color:var(--green)}
+.ab-inactivo{background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);color:var(--red)}
+.admin-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.admin-form-grid .full{grid-column:1/-1}
+.admin-divider{height:1px;background:var(--border);margin:18px 0}
+.admin-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:18px;padding-top:18px;border-top:1px solid var(--border)}
+.admin-checks{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.admin-check{display:flex;align-items:flex-start;gap:9px;border:1px solid var(--border);background:rgba(255,255,255,.02);padding:10px;border-radius:var(--r);cursor:pointer;transition:all .12s}
+.admin-check:hover{border-color:var(--goldbdr);background:var(--golddim)}
+.admin-check input{margin-top:2px;accent-color:var(--gold)}
+.admin-check b{font-size:10px;color:var(--white);display:block;margin-bottom:3px}
+.admin-check span{font-size:9px;color:var(--w50);line-height:1.45}
+.admin-help{padding:12px 14px;background:var(--golddim);border:1px solid var(--goldbdr);border-left:3px solid var(--gold);font-size:10px;color:var(--w50);line-height:1.7;margin-bottom:14px}
+.admin-lock{display:grid;grid-template-columns:180px 1fr;gap:10px;border-bottom:1px solid var(--border);padding:10px 0;align-items:start}
+.admin-lock-k{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--w30);font-weight:800}
+.admin-lock-v{font-size:12px;color:var(--w80);line-height:1.55;word-break:break-word}
+.admin-lock-v.gold{color:var(--gold);font-family:var(--mono);font-size:11px}
+.admin-mini-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:18px}
+.admin-mini-kpi{background:var(--surface);padding:14px}
+.admin-mini-num{font-family:var(--display);font-size:34px;line-height:1;color:var(--gold)}
+.admin-mini-lbl{font-size:6px;letter-spacing:1.9px;text-transform:uppercase;color:var(--w50);font-weight:800;margin-top:5px}
+.admin-empty{height:190px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;color:var(--w30);font-size:10px;letter-spacing:2px;text-transform:uppercase;font-weight:800;text-align:center}
+.admin-empty .big{font-size:38px;opacity:.18}
+.admin-warning{border:1px solid rgba(248,113,113,.2);background:rgba(248,113,113,.055);color:rgba(255,255,255,.66);font-size:10px;line-height:1.7;padding:12px 14px;margin-top:14px}
+.admin-mode-pill{display:inline-flex;align-items:center;gap:6px;background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.22);color:var(--green);border-radius:999px;padding:6px 10px;font-size:7px;letter-spacing:1.6px;text-transform:uppercase;font-weight:900}
+@media(max-width:980px){.admin-grid{grid-template-columns:1fr}.admin-flow,.admin-mini-kpis{grid-template-columns:1fr 1fr}.admin-form-grid,.admin-checks{grid-template-columns:1fr}.admin-lock{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -1181,7 +1214,7 @@ select.form-inp option{background:#111;color:#fff}
   <div class="login-right">
     <div class="login-card">
       <div class="lc-brand">NERI</div>
-      <div class="lc-sub">Sistema Operativo · Acceso</div>
+      <div class="lc-sub">Sistema Operativo · Modo prueba abierto</div>
       <div class="lc-sep"></div>
 
       <!-- Quick login chips para demo -->
@@ -1214,8 +1247,8 @@ select.form-inp option{background:#111;color:#fff}
       <button class="login-btn" onclick="doLogin()">Entrar al sistema →</button>
       
       <div class="login-footer">
-        Modo prueba: administrador total sin contraseña<br>
-        Método NERI · Control de construcción
+        Modo administrador abierto · Sin login real todavía<br>
+        Método NERI · Century 21 Haus · Cuernavaca
       </div>
     </div>
   </div>
@@ -1231,7 +1264,7 @@ select.form-inp option{background:#111;color:#fff}
     <div class="sb-header">
       <div class="sb-logo">NERI</div>
       <div class="sb-sys">Sistema Operativo</div>
-      <div class="sb-user" onclick="goTo('perfil')" title="Abrir mi perfil">
+      <div class="sb-user">
         <div class="sb-user-name" id="sb-name">—</div>
         <div class="sb-user-role" id="sb-role">—</div>
         <div class="sb-user-dot"></div>
@@ -1279,32 +1312,15 @@ select.form-inp option{background:#111;color:#fff}
 ═══════════════════════════════════════════════════ */
 let SESSION = null;
 
-// MODO PRUEBA — ADMIN TOTAL SIN CONTRASEÑA
-// Activo mientras se construye y se prueba la intranet.
-// Cuando la intranet quede completa, cambiar a false y conectar login real.
-const TEST_MODE_ADMIN_TOTAL = true;
-const TEST_ADMIN_SESSION = {
-  user:'admin-prueba',
-  pass:'',
-  nombre:'Administrador Prueba',
-  rol:'admin',
-  slug:'admin-prueba',
-  whatsapp:'',
-  empresa:'Método NERI · Modo prueba',
-  pixel:'',
-  estado:'Activo',
-  tipo:'Administrador'
-};
-
 /* ═══════════════════════════════════════════════════
    USUARIOS / CREDENCIALES (demo)
 ═══════════════════════════════════════════════════ */
 const USERS = {
   'enrique':  { pass:'neri2024', nombre:'Enrique Neri',  rol:'asesor',   slug:'enrique', whatsapp:'527779855687', empresa:'Century 21 Haus · Cuernavaca', pixel:'1308747473990434' },
-  'asesor':   { pass:'neri2024', nombre:'Asesor Nuevo',  rol:'asesor',   slug:'asesor', whatsapp:'', empresa:'Método NERI', pixel:'' },
+  'asesor':   { pass:'neri2024', nombre:'Enrique Neri',  rol:'asesor',   slug:'enrique', whatsapp:'527779855687', empresa:'Century 21 Haus · Cuernavaca', pixel:'1308747473990434' },
   'gerente':  { pass:'neri2024', nombre:'Ana Gutiérrez', rol:'gerente',  slug:'ana',     whatsapp:'527779855687', empresa:'Método NERI', pixel:'' },
   'director': { pass:'neri2024', nombre:'Carlos Neri',   rol:'director', slug:'carlos',  whatsapp:'527779855687', empresa:'Método NERI', pixel:'' },
-  'admin':    { pass:'neri2024', nombre:'Admin Sistema', rol:'admin',    slug:'admin',   whatsapp:'527779855687', empresa:'Método NERI', pixel:'' },
+  'admin':    { pass:'neri2024', nombre:'Administrador Método NERI', rol:'admin',    slug:'admin',   whatsapp:'527779855687', empresa:'Método NERI', pixel:'' },
 };
 
 /* ═══════════════════════════════════════════════════
@@ -1314,7 +1330,6 @@ const NAV_ROL = {
   asesor: [
     { section:'Principal' },
     { id:'hoy',         label:'Hoy',               icon:'⬡' },
-    { id:'perfil',     label:'Mi Perfil',         icon:'◎' },
     { id:'airtable',    label:'Mi CRM',       icon:'◈', highlight:true },
     { section:'Captación' },
     { id:'sala',        label:'Sala de Mensajes',   icon:'⚡' },
@@ -1328,7 +1343,6 @@ const NAV_ROL = {
   gerente: [
     { section:'Principal' },
     { id:'hoy',         label:'Dashboard',          icon:'⬡' },
-    { id:'perfil',     label:'Perfil Asesor',     icon:'◎' },
     { id:'airtable',    label:'Mi CRM',       icon:'◈', highlight:true },
     { section:'Equipo' },
     { id:'sala',        label:'Sala de Mensajes',   icon:'⚡' },
@@ -1341,7 +1355,6 @@ const NAV_ROL = {
   director: [
     { section:'Dirección' },
     { id:'hoy',         label:'Dashboard',          icon:'⬡' },
-    { id:'perfil',     label:'Perfil Asesor',     icon:'◎' },
     { id:'airtable',    label:'Mi CRM',       icon:'◈', highlight:true },
     { id:'reportes',    label:'Reportes',           icon:'◫' },
     { section:'Sistema' },
@@ -1354,8 +1367,8 @@ const NAV_ROL = {
   admin: [
     { section:'Sistema' },
     { id:'hoy',         label:'Dashboard',          icon:'⬡' },
-    { id:'perfil',     label:'Perfil Asesor',     icon:'◎' },
-    { id:'airtable',    label:'Mi CRM',       icon:'◈', highlight:true },
+    { id:'administracion', label:'Administración Base', icon:'▣', highlight:true },
+    { id:'airtable',    label:'Mi CRM',       icon:'◈' },
     { section:'Herramientas' },
     { id:'sala',        label:'Sala de Mensajes',   icon:'⚡' },
     { id:'compradores', label:'Landing Compradores',icon:'⊕' },
@@ -1363,22 +1376,20 @@ const NAV_ROL = {
     { id:'citas',       label:'Panel de Citas',     icon:'📋' },
     { id:'progreso',    label:'Portal Progreso',     icon:'◎' },
     { id:'opciones',    label:'Opciones de Compra', icon:'⊞' },
-    { id:'reportes',    label:'Reportes',           icon:'◫' },
   ],
 };
 
 /* ═══════════════════════════════════════════════════
    TOOLS CONFIG (cada herramienta en su propio archivo)
 ═══════════════════════════════════════════════════ */
-const CITA_VERCEL_BASE = 'https://cita-sable.vercel.app/'; // URL única para panel/link de cita
 const TOOLS = {
   sala:        { name:'Sala de Mensajes',    url:'https://mensajesmaestros.vercel.app',                  ext:true },
   compradores: { name:'Landing Compradores', url:'https://captacion.vercel.app',             ext:true },
   vendedores:  { name:'Landing Vendedores',  url:'https://ahuatlan32m.vercel.app',      ext:true },
-  citas:       { name:'Panel de Citas',      url:CITA_VERCEL_BASE,                                  ext:true },
+  citas:       { name:'Panel de Citas',      url:'https://citas-vert.vercel.app',                    ext:true },
   progreso:    { name:'Portal Progreso',      url:'https://captacion.vercel.app',        ext:true },
   opciones:    { name:'Opciones de Compra',  url:'https://opcionesdecompra.vercel.app',     ext:true },
-  reportes:    { name:'Reportes',            url:'./Reportes.html',                       ext:true },
+  reportes:    { name:'Reportes',            url:'Reportes.html',                        ext:true },
 };
 
 /* ═══════════════════════════════════════════════════
@@ -1390,16 +1401,7 @@ function quickLogin(rol){
   document.getElementById('l-rol').value = rol;
 }
 
-function startTestAdminMode(){
-  SESSION = { ...TEST_ADMIN_SESSION };
-  document.getElementById('screen-login').classList.add('hidden');
-  document.getElementById('screen-app').classList.remove('hidden');
-  bootApp();
-  setTimeout(()=>showToast('Modo prueba: administrador total sin contraseña'), 300);
-}
-
 function doLogin(){
-  if(TEST_MODE_ADMIN_TOTAL){ startTestAdminMode(); return; }
   const user = document.getElementById('l-user').value.trim().toLowerCase();
   const pass = document.getElementById('l-pass').value;
   const rol  = document.getElementById('l-rol').value;
@@ -1438,14 +1440,11 @@ async function enrichIdentity(slug){
     if(!rec) return;
     const f = rec.fields || {};
     if(f['Nombre'])            SESSION.nombre   = f['Nombre'];
-    if(f['Teléfono WhatsApp'] || f['WhatsApp']) SESSION.whatsapp = String(f['Teléfono WhatsApp'] || f['WhatsApp']).replace(/\D/g,'');
-    if(f['Email'])             SESSION.email    = f['Email'];
-    if(f['Frase'])             SESSION.frase    = f['Frase'];
+    if(f['Teléfono WhatsApp']) SESSION.whatsapp = String(f['Teléfono WhatsApp']).replace(/\D/g,'');
     if(f['Pixel ID Meta'])     SESSION.pixel    = f['Pixel ID Meta'];
-    if(f['Estado'])            SESSION.estado   = f['Estado'];
-    if(f['Tipo'])              SESSION.tipo     = f['Tipo'];
-    if(f['Link Captación'])    SESSION.linkCaptacion = f['Link Captación'];
-    SESSION.empresa = f['Tipo'] || SESSION.empresa;
+    const ciudad = f['Ciudad'] || f['Ciudad (texto viejo)'] || '';
+    const puesto = f['Puesto'] || f['Puesto (texto viejo)'] || '';
+    if(ciudad || puesto) SESSION.empresa = [puesto, ciudad].filter(Boolean).join(' · ') || SESSION.empresa;
     refreshChrome();
     showToast('Identidad: '+SESSION.nombre);
   }catch(e){ /* sin conexión: se queda el perfil local */ }
@@ -1462,10 +1461,6 @@ function refreshChrome(){
 }
 
 function doLogout(){
-  if(TEST_MODE_ADMIN_TOTAL){
-    showToast('Modo prueba activo: sigues como administrador total');
-    return;
-  }
   SESSION = null;
   document.getElementById('screen-app').classList.add('hidden');
   document.getElementById('screen-login').classList.remove('hidden');
@@ -1515,8 +1510,8 @@ function buildPanels(){
   // Panel HOY siempre se construye
   ca.insertAdjacentHTML('beforeend', buildHoyPanel());
 
-  // Panel PERFIL
-  ca.insertAdjacentHTML('beforeend', buildPerfilPanel());
+  // Panel ADMINISTRACIÓN BASE
+  ca.insertAdjacentHTML('beforeend', buildAdministracionPanel());
 
   // Panel AIRTABLE
   ca.insertAdjacentHTML('beforeend', buildAirtablePanel());
@@ -1820,6 +1815,7 @@ function getSectionForId(id, rol){
 
 function getToolDesc(id){
   const descs = {
+    administracion: 'Cuentas, usuarios, permisos y activación. No es CRM.',
     airtable:    'Registros reales · edita directo desde aquí.',
     sala:        'Mensajes y comunicación con el equipo.',
     compradores: 'Landing personalizada para captar compradores.',
@@ -1834,297 +1830,327 @@ function getToolDesc(id){
 
 
 /* ═══════════════════════════════════════════════════
-   PANEL PERFIL ASESOR — alta/edición directa en Airtable
-════════════════════════════════════════════════════ */
-const ASESOR_TABLE_ID = 'tblIRPmLIyj8sWyEk';
-const CAPTACION_BASE_URL = 'https://captacion.vercel.app/';
-let perfilState = { loaded:false, recordId:null, fields:{}, isNew:false, slug:'' };
+   ADMINISTRACIÓN BASE — Cuentas → Usuarios → Permisos → Activación
+   Modo prueba: datos locales en el navegador. No toca CRM ni leads.
+═══════════════════════════════════════════════════ */
+const ADMIN_STORAGE_KEY = 'neri_admin_base_v1';
+let adminState = { tab:'cuentas', selectedCuentaId:null, selectedUsuarioId:null, data:null };
 
-function _firstField(f, names, fallback=''){
-  for(const n of names){
-    const v = f?.[n];
-    if(v !== undefined && v !== null && String(v).trim() !== '') return v;
-  }
-  return fallback;
+const ADMIN_PERMISSION_CATALOG = [
+  { id:'perfil_publico', title:'Perfil público', desc:'Editar nombre, WhatsApp, email, foto, frase, ciudad y Pixel ID Meta.' },
+  { id:'copiar_link', title:'Copiar Link Captación', desc:'Ver y copiar el link generado por el slug oficial.' },
+  { id:'landing_compradores', title:'Landing compradores', desc:'Usar herramientas comerciales de compradores.' },
+  { id:'landing_vendedores', title:'Landing vendedores', desc:'Usar diagnóstico de captación de propietarios.' },
+  { id:'sala_mensajes', title:'Sala de mensajes', desc:'Consultar biblioteca de mensajes y guías.' },
+  { id:'panel_citas', title:'Panel de citas', desc:'Usar módulo operativo de citas.' },
+  { id:'reportes_basicos', title:'Reportes básicos', desc:'Ver métricas permitidas por administración.' },
+  { id:'branding_cuenta', title:'Branding de cuenta', desc:'Usar logo y marca de inmobiliaria o grupo.' },
+];
+
+function adminSeedData(){
+  return {
+    cuentas:[
+      { id:'cta-metodo-neri', nombre:'Método NERI · Prueba Admin', tipo:'Grupo de asesores sin inmobiliaria', estado:'Activo', ciudad:'Cuernavaca', responsable:'Enrique Neri', logo:'', notas:'Cuenta interna para validar estructura sin bloquear navegación.' },
+      { id:'cta-c21-haus', nombre:'Century 21 Haus · Cuernavaca', tipo:'Inmobiliaria', estado:'Pendiente', ciudad:'Cuernavaca', responsable:'Dirección comercial', logo:'', notas:'Ejemplo de cuenta con branding inmobiliario controlado por administración.' },
+    ],
+    usuarios:[
+      {
+        id:'usr-enrique-neri', cuentaId:'cta-metodo-neri', nombre:'Enrique Neri', whatsapp:'527779855687', email:'', foto:'', frase:'El lead es consecuencia de una gestión de calidad.', ciudad:'Cuernavaca', pixel:'1308747473990434',
+        tipo:'Grupo de asesores sin inmobiliaria', estado:'Activo', puesto:'Administrador / Asesor', slugSugerido:'enrique-neri', slugOficial:'enrique', permisos:['perfil_publico','copiar_link','landing_compradores','landing_vendedores','sala_mensajes','panel_citas','reportes_basicos','branding_cuenta']
+      },
+      {
+        id:'usr-diana-demo', cuentaId:'cta-c21-haus', nombre:'Diana Demo', whatsapp:'', email:'', foto:'', frase:'Te ayudo a preparar tu venta con orden.', ciudad:'Cuernavaca', pixel:'',
+        tipo:'Inmobiliaria', estado:'Pendiente', puesto:'Asesora', slugSugerido:'diana-demo', slugOficial:'', permisos:['perfil_publico','copiar_link','landing_vendedores','branding_cuenta']
+      }
+    ]
+  };
 }
-function _firstAttachmentUrl(v){
-  if(Array.isArray(v) && v[0]) return v[0].thumbnails?.large?.url || v[0].url || '';
-  if(typeof v === 'string') return v;
-  return '';
+
+function adminLoad(){
+  try{
+    const raw = localStorage.getItem(ADMIN_STORAGE_KEY);
+    adminState.data = raw ? JSON.parse(raw) : adminSeedData();
+  }catch(e){ adminState.data = adminSeedData(); }
+  adminNormalize();
+  adminSave(false);
 }
-function _slugifyPerfil(value){
-  return String(value || '')
-    .trim()
-    .toLowerCase()
+function adminSave(show=true){
+  localStorage.setItem(ADMIN_STORAGE_KEY, JSON.stringify(adminState.data));
+  if(show) showToast('✓ Administración Base guardada');
+}
+function adminNormalize(){
+  const d = adminState.data || adminSeedData();
+  d.cuentas = Array.isArray(d.cuentas) ? d.cuentas : [];
+  d.usuarios = Array.isArray(d.usuarios) ? d.usuarios : [];
+  d.cuentas.forEach(c=>{ if(!c.id) c.id = adminId('cta'); if(!c.estado) c.estado='Pendiente'; });
+  d.usuarios.forEach(u=>{ if(!u.id) u.id = adminId('usr'); if(!Array.isArray(u.permisos)) u.permisos=[]; if(!u.estado) u.estado='Pendiente'; if(!u.slugSugerido) u.slugSugerido = adminSlug(u.nombre||'asesor'); });
+  adminState.data = d;
+  if(!adminState.selectedCuentaId && d.cuentas[0]) adminState.selectedCuentaId = d.cuentas[0].id;
+  if(!adminState.selectedUsuarioId && d.usuarios[0]) adminState.selectedUsuarioId = d.usuarios[0].id;
+}
+function adminId(prefix){ return prefix+'-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,7); }
+function adminSlug(txt){
+  return String(txt||'').trim().toLowerCase()
     .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
-    .replace(/[^a-z0-9]+/g,'-')
-    .replace(/^-+|-+$/g,'')
-    .slice(0,60);
+    .replace(/ñ/g,'n').replace(/[^a-z0-9]+/g,'-')
+    .replace(/^-+|-+$/g,'').slice(0,42) || 'asesor';
 }
-function perfilCurrentSlug(){
-  return _slugifyPerfil(SESSION?.slug || SESSION?.user || SESSION?.nombre || 'asesor');
+function adminEsc(v){ return _esc(String(v ?? '')); }
+function adminBadge(estado){
+  const e = String(estado||'Pendiente');
+  const cls = e.toLowerCase().replace(/\s+/g,'-');
+  return `<span class="admin-badge ab-${adminEsc(cls)}">${adminEsc(e)}</span>`;
 }
-function perfilBuildLink(slug){
-  const s = _slugifyPerfil(slug || perfilCurrentSlug());
-  return s ? `${CAPTACION_BASE_URL}?asesor=${encodeURIComponent(s)}` : '';
-}
+function adminCuenta(id){ return adminState.data.cuentas.find(c=>c.id===id) || null; }
+function adminUsuario(id){ return adminState.data.usuarios.find(u=>u.id===id) || null; }
+function adminCuentaName(id){ return adminCuenta(id)?.nombre || 'Sin cuenta asignada'; }
+function adminLink(u){ return u && u.slugOficial ? `https://captacion.vercel.app/?asesor=${encodeURIComponent(u.slugOficial)}` : 'Pendiente de slug oficial'; }
 
-function buildPerfilPanel(){
-  return `<div class="panel" id="panel-perfil">
-    <div class="perfil-body">
-      <div class="perfil-wrap">
-        <div class="ph-eyebrow">Configuración del asesor</div>
-        <div class="ph-title">MI <em>PERFIL</em></div>
-        <div class="perfil-sub">Este es el flujo correcto: el asesor llena su perfil aquí y la intranet lo crea o actualiza en Airtable. Estado, tipo y link de captación se ven bloqueados porque no se escriben manualmente.</div>
-
-        <div class="perfil-grid">
-          <section class="perfil-card">
-            <div class="perfil-title">Datos <em>editables</em></div>
-            <div class="perfil-sub">Nombre, WhatsApp, email, foto, frase y Pixel ID Meta.</div>
-            <div id="perfil-editable" class="perfil-fields">
-              <div class="hoy-empty">Cargando perfil…</div>
-            </div>
-            <div class="perfil-actions">
-              <button class="btn btn-ghost" onclick="perfilLoad(true)">Recargar</button>
-              <button class="btn btn-primary" id="perfil-save-btn" onclick="perfilSave()">Guardar perfil</button>
-            </div>
-            <div id="perfil-status" class="perfil-status"></div>
-          </section>
-
-          <aside class="perfil-card gold">
-            <div class="perfil-title">Datos <em>bloqueados</em></div>
-            <div class="perfil-sub">Estos se ven aquí, pero no los escribe el asesor.</div>
-            <div id="perfil-readonly" class="perfil-readonly">
-              <div class="hoy-empty">Cargando permisos…</div>
-            </div>
-            <div class="perfil-note">El Link Captación se genera por sistema con el usuario/slug de acceso. El asesor lo copia para WhatsApp, redes o campañas.</div>
-          </aside>
+function buildAdministracionPanel(){
+  return `<div class="panel" id="panel-administracion">
+    <div class="admin-base-body">
+      <div class="ph-head">
+        <div style="display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap">
+          <div>
+            <div class="ph-eyebrow">Administración Método NERI</div>
+            <div class="ph-title">ADMINISTRACIÓN <em>BASE</em></div>
+            <div class="admin-base-note">Estructura administrativa antes del CRM: cuentas, usuarios, permisos y activación. Este panel no muestra leads, clientes, propiedades, citas, mensajes ni expedientes.</div>
+          </div>
+          <div class="admin-mode-pill">● Modo prueba abierto</div>
         </div>
       </div>
+
+      <div class="admin-flow" id="admin-flow">
+        <div class="admin-flow-step active" onclick="adminSwitchTab('cuentas')"><div class="af-k">Paso 01</div><div class="af-v">Cuentas</div><div class="af-d">Organizaciones: asesor independiente, inmobiliaria o grupo.</div><div class="af-num">01</div></div>
+        <div class="admin-flow-step" onclick="adminSwitchTab('usuarios')"><div class="af-k">Paso 02</div><div class="af-v">Usuarios</div><div class="af-d">Asesores asignados a una cuenta administrativa.</div><div class="af-num">02</div></div>
+        <div class="admin-flow-step" onclick="adminSwitchTab('permisos')"><div class="af-k">Paso 03</div><div class="af-v">Permisos</div><div class="af-d">Qué puede ver y qué puede editar cada asesor.</div><div class="af-num">03</div></div>
+        <div class="admin-flow-step" onclick="adminSwitchTab('activacion')"><div class="af-k">Paso 04</div><div class="af-v">Activación</div><div class="af-d">Estado, slug oficial y Link Captación aprobado.</div><div class="af-num">04</div></div>
+      </div>
+
+      <div class="admin-mini-kpis" id="admin-kpis"></div>
+
+      <div class="admin-tabs">
+        <button class="admin-tab active" id="admin-tab-cuentas" onclick="adminSwitchTab('cuentas')">Cuentas</button>
+        <button class="admin-tab" id="admin-tab-usuarios" onclick="adminSwitchTab('usuarios')">Usuarios</button>
+        <button class="admin-tab" id="admin-tab-permisos" onclick="adminSwitchTab('permisos')">Permisos</button>
+        <button class="admin-tab" id="admin-tab-activacion" onclick="adminSwitchTab('activacion')">Activación</button>
+      </div>
+
+      <div id="admin-content"></div>
     </div>
   </div>`;
 }
 
-async function perfilLoad(force=false){
-  if(perfilState.loaded && !force) return;
-  perfilState.loaded = true;
-  const edit = document.getElementById('perfil-editable');
-  const ro = document.getElementById('perfil-readonly');
-  const st = document.getElementById('perfil-status');
-  if(edit) edit.innerHTML = '<div class="hoy-empty">Cargando perfil…</div>';
-  if(ro) ro.innerHTML = '<div class="hoy-empty">Cargando permisos…</div>';
-  if(st) { st.style.color='var(--w50)'; st.textContent = ''; }
-
-  const slug = perfilCurrentSlug();
-  perfilState.slug = slug;
-
-  try{
-    const formula = encodeURIComponent(`LOWER({Slug})='${slug}'`);
-    const data = await atFetch(`${ASESOR_TABLE_ID}?filterByFormula=${formula}&maxRecords=1`);
-    const rec = (data.records || [])[0];
-
-    if(rec){
-      perfilState.recordId = rec.id;
-      perfilState.fields = rec.fields || {};
-      perfilState.isNew = false;
-      perfilRender();
-      return;
-    }
-
-    // No existe en Airtable: NO es error. Se muestra formulario listo para crear.
-    perfilState.recordId = null;
-    perfilState.isNew = true;
-    perfilState.fields = {
-      'Nombre': (SESSION?.nombre && SESSION.nombre !== 'Asesor Nuevo') ? SESSION.nombre : '',
-      'WhatsApp': SESSION?.whatsapp || '',
-      'Email': SESSION?.email || '',
-      'Frase': SESSION?.frase || '',
-      'Pixel ID Meta': SESSION?.pixel || '',
-      'Slug': slug,
-      'Link Captación': perfilBuildLink(slug)
-    };
-    perfilRender();
-    if(st) st.textContent = 'Perfil nuevo: al guardar se creará el registro en Airtable.';
-  }catch(e){
-    if(edit) edit.innerHTML = `<div class="hoy-empty err">No se pudo consultar Airtable: ${_esc(e.message)}</div>`;
-    if(ro) ro.innerHTML = '<div class="hoy-empty err">Sin datos para mostrar.</div>';
-    if(st) { st.style.color='var(--red)'; st.textContent='Revisa la conexión Airtable o variables de Vercel.'; }
-  }
+function onAdministracionPanelActivate(){
+  adminLoad();
+  adminRender();
+}
+function adminSwitchTab(tab){
+  adminState.tab = tab;
+  adminRender();
+}
+function adminRender(){
+  if(!adminState.data) adminLoad();
+  document.querySelectorAll('.admin-tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('admin-tab-'+adminState.tab)?.classList.add('active');
+  const flowMap = ['cuentas','usuarios','permisos','activacion'];
+  document.querySelectorAll('.admin-flow-step').forEach((el,i)=>el.classList.toggle('active', flowMap[i]===adminState.tab));
+  adminRenderKpis();
+  const el = document.getElementById('admin-content');
+  if(!el) return;
+  if(adminState.tab==='cuentas') el.innerHTML = adminRenderCuentas();
+  if(adminState.tab==='usuarios') el.innerHTML = adminRenderUsuarios();
+  if(adminState.tab==='permisos') el.innerHTML = adminRenderPermisos();
+  if(adminState.tab==='activacion') el.innerHTML = adminRenderActivacion();
+}
+function adminRenderKpis(){
+  const d = adminState.data;
+  const el = document.getElementById('admin-kpis'); if(!el) return;
+  const activos = d.usuarios.filter(u=>u.estado==='Activo').length;
+  const pendientes = d.usuarios.filter(u=>u.estado==='Pendiente').length;
+  const conSlug = d.usuarios.filter(u=>u.slugOficial).length;
+  el.innerHTML = `
+    <div class="admin-mini-kpi"><div class="admin-mini-num">${d.cuentas.length}</div><div class="admin-mini-lbl">Cuentas</div></div>
+    <div class="admin-mini-kpi"><div class="admin-mini-num">${d.usuarios.length}</div><div class="admin-mini-lbl">Usuarios</div></div>
+    <div class="admin-mini-kpi"><div class="admin-mini-num">${activos}</div><div class="admin-mini-lbl">Activos</div></div>
+    <div class="admin-mini-kpi"><div class="admin-mini-num">${conSlug}/${d.usuarios.length}</div><div class="admin-mini-lbl">Slug oficial</div></div>`;
 }
 
-function perfilRender(){
-  const f = perfilState.fields || {};
-  const slug = perfilState.slug || _firstField(f, ['Slug'], perfilCurrentSlug());
-  const nombre = _firstField(f, ['Nombre'], SESSION?.nombre || '');
-  const whats  = _firstField(f, ['WhatsApp','Teléfono WhatsApp'], SESSION?.whatsapp || '');
-  const email  = _firstField(f, ['Email','Correo'], SESSION?.email || '');
-  const frase  = _firstField(f, ['Frase'], SESSION?.frase || '');
-  const pixel  = _firstField(f, ['Pixel ID Meta'], SESSION?.pixel || '');
-  const fotoUrl= _firstAttachmentUrl(_firstField(f, ['Foto'], ''));
-  const estado = perfilState.isNew ? 'Pendiente de administración' : _firstField(f, ['Estado'], SESSION?.estado || '—');
-  const tipo   = perfilState.isNew ? 'Pendiente de administración' : _firstField(f, ['Tipo'], SESSION?.tipo || '—');
-  const link   = _firstField(f, ['Link Captación'], SESSION?.linkCaptacion || perfilBuildLink(slug) || '—');
-
-  const initials = (nombre||'A').split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase();
-  const avatar = fotoUrl ? `<img class="perfil-avatar" src="${_escAttr(fotoUrl)}" alt="Foto asesor">` : `<div class="perfil-avatar-empty">${_esc(initials)}</div>`;
-  const modo = perfilState.isNew ? '<div class="perfil-note full" style="color:var(--gold)">Este perfil todavía no existe en Airtable. Cuando presiones Guardar perfil, la intranet lo va a crear.</div>' : '';
-
-  document.getElementById('perfil-editable').innerHTML = `
-    ${modo}
-    <div class="form-group"><label>Nombre</label><input class="form-inp" id="pf-nombre" value="${_escAttr(nombre)}"></div>
-    <div class="form-group"><label>WhatsApp</label><input class="form-inp" id="pf-whatsapp" value="${_escAttr(whats)}"></div>
-    <div class="form-group"><label>Email</label><input class="form-inp" id="pf-email" value="${_escAttr(email)}"></div>
-    <div class="form-group"><label>Pixel ID Meta</label><input class="form-inp" id="pf-pixel" value="${_escAttr(pixel)}"></div>
-    <div class="form-group full"><label>Frase</label><textarea class="form-inp" id="pf-frase" rows="3">${_esc(frase)}</textarea></div>
-    <div class="form-group full"><label>Foto</label>
-      <div class="perfil-photo-row">${avatar}<div style="flex:1">
-        <input class="form-inp" type="file" id="pf-foto-file" accept="image/jpeg,image/png,image/webp">
-        <input class="form-inp" style="margin-top:8px" type="text" id="pf-foto-url" placeholder="O pegar URL pública de foto" value="">
-        <div class="perfil-note">Si subes archivo, se guarda en Blob y Airtable recibe solo la URL.</div>
-      </div></div>
-    </div>`;
-
-  document.getElementById('perfil-readonly').innerHTML = `
-    <div class="perfil-lock"><div class="perfil-lock-k">Estado</div><div class="perfil-lock-v">${_esc(estado)}</div></div>
-    <div class="perfil-lock"><div class="perfil-lock-k">Tipo</div><div class="perfil-lock-v">${_esc(tipo)}</div></div>
-    <div class="perfil-lock"><div class="perfil-lock-k">Link Captación</div><div class="perfil-lock-v">${link && link !== '—' ? `<a href="${_escAttr(link)}" target="_blank" rel="noopener">${_esc(link)}</a>` : '—'}</div></div>
-    ${link && link !== '—' ? `<button class="btn btn-ghost" onclick="perfilCopyLink()">Copiar link</button>` : ''}`;
-
-  const btn = document.getElementById('perfil-save-btn');
-  if(btn) btn.textContent = perfilState.isNew ? 'Crear perfil' : 'Guardar perfil';
+function adminRenderCuentas(){
+  const d=adminState.data;
+  const selected = adminCuenta(adminState.selectedCuentaId) || d.cuentas[0] || null;
+  if(selected) adminState.selectedCuentaId = selected.id;
+  const list = d.cuentas.map(c=>`
+    <div class="admin-row ${c.id===adminState.selectedCuentaId?'active':''}" onclick="adminSelectCuenta('${c.id}')">
+      <div class="ar-top"><div><div class="ar-name">${adminEsc(c.nombre)}</div><div class="ar-meta">${adminEsc(c.tipo)} · ${adminEsc(c.ciudad||'Sin ciudad')}</div></div>${adminBadge(c.estado)}</div>
+      <div class="ar-meta">Responsable: ${adminEsc(c.responsable||'Sin responsable')}</div>
+    </div>`).join('') || `<div class="admin-empty"><div class="big">▣</div>Sin cuentas creadas</div>`;
+  const form = selected ? adminCuentaForm(selected) : `<div class="admin-empty"><div class="big">▣</div>Crea una cuenta para iniciar</div>`;
+  return `<div class="admin-grid">
+    <div class="admin-card"><div class="admin-card-head"><div><div class="admin-card-title">LISTA DE <em>CUENTAS</em></div><div class="admin-card-sub">Organizaciones comerciales</div></div><button class="btn btn-primary" onclick="adminNewCuenta()">+ Cuenta</button></div><div class="admin-card-body"><div class="admin-list">${list}</div></div></div>
+    <div class="admin-card"><div class="admin-card-head"><div><div class="admin-card-title">CONTROL DE <em>CUENTA</em></div><div class="admin-card-sub">Base administrativa, no CRM</div></div></div><div class="admin-card-body">${form}</div></div>
+  </div>`;
+}
+function adminCuentaForm(c){
+  return `<div class="admin-help">Aquí se define la organización. Si es inmobiliaria, el logo y branding se controlan desde administración, no desde el asesor.</div>
+  <div class="admin-form-grid">
+    ${adminField('Nombre de cuenta','cuenta-nombre',c.nombre)}
+    ${adminSelect('Tipo de cuenta','cuenta-tipo',c.tipo,['Asesor independiente','Inmobiliaria','Grupo de asesores sin inmobiliaria'])}
+    ${adminSelect('Estado','cuenta-estado',c.estado,['Pendiente','Activo','Inactivo'])}
+    ${adminField('Ciudad','cuenta-ciudad',c.ciudad)}
+    ${adminField('Responsable','cuenta-responsable',c.responsable)}
+    ${adminField('Logo inmobiliaria / cuenta','cuenta-logo',c.logo,'URL del logo')}
+    ${adminArea('Notas administrativas','cuenta-notas',c.notas,'full')}
+  </div>
+  <div class="admin-actions"><button class="btn btn-ghost" onclick="adminDeleteCuenta()">Eliminar cuenta</button><button class="btn btn-primary" onclick="adminSaveCuenta()">Guardar cuenta</button></div>`;
+}
+function adminSelectCuenta(id){ adminState.selectedCuentaId=id; adminRender(); }
+function adminNewCuenta(){
+  const c={id:adminId('cta'), nombre:'Nueva cuenta', tipo:'Asesor independiente', estado:'Pendiente', ciudad:'', responsable:'', logo:'', notas:''};
+  adminState.data.cuentas.unshift(c); adminState.selectedCuentaId=c.id; adminSave(); adminRender();
+}
+function adminSaveCuenta(){
+  const c=adminCuenta(adminState.selectedCuentaId); if(!c) return;
+  c.nombre=val('cuenta-nombre'); c.tipo=val('cuenta-tipo'); c.estado=val('cuenta-estado'); c.ciudad=val('cuenta-ciudad'); c.responsable=val('cuenta-responsable'); c.logo=val('cuenta-logo'); c.notas=val('cuenta-notas');
+  adminSave(); adminRender();
+}
+function adminDeleteCuenta(){
+  const id=adminState.selectedCuentaId; if(!id) return;
+  if(adminState.data.usuarios.some(u=>u.cuentaId===id)){ showToast('No se puede eliminar: tiene usuarios asignados'); return; }
+  adminState.data.cuentas=adminState.data.cuentas.filter(c=>c.id!==id); adminState.selectedCuentaId=adminState.data.cuentas[0]?.id||null; adminSave(); adminRender();
 }
 
-function perfilCopyLink(){
-  const f = perfilState.fields || {};
-  const link = _firstField(f, ['Link Captación'], SESSION?.linkCaptacion || perfilBuildLink(perfilState.slug));
-  if(!link) return showToast('No hay link para copiar');
-  navigator.clipboard.writeText(link).then(()=>showToast('Link copiado')).catch(()=>showToast('No se pudo copiar'));
+function adminRenderUsuarios(){
+  const d=adminState.data;
+  const selected = adminUsuario(adminState.selectedUsuarioId) || d.usuarios[0] || null;
+  if(selected) adminState.selectedUsuarioId = selected.id;
+  const list = d.usuarios.map(u=>`
+    <div class="admin-row ${u.id===adminState.selectedUsuarioId?'active':''}" onclick="adminSelectUsuario('${u.id}')">
+      <div class="ar-top"><div><div class="ar-name">${adminEsc(u.nombre)}</div><div class="ar-meta">${adminEsc(adminCuentaName(u.cuentaId))}</div></div>${adminBadge(u.estado)}</div>
+      <div class="ar-meta">Tipo: ${adminEsc(u.tipo)} · Puesto: ${adminEsc(u.puesto||'Sin puesto')}</div>
+      <div class="ar-link">${adminEsc(adminLink(u))}</div>
+    </div>`).join('') || `<div class="admin-empty"><div class="big">◎</div>Sin usuarios creados</div>`;
+  const form = selected ? adminUsuarioForm(selected) : `<div class="admin-empty"><div class="big">◎</div>Crea un usuario para asignarlo a una cuenta</div>`;
+  return `<div class="admin-grid">
+    <div class="admin-card"><div class="admin-card-head"><div><div class="admin-card-title">LISTA DE <em>USUARIOS</em></div><div class="admin-card-sub">Asesores asignados</div></div><button class="btn btn-primary" onclick="adminNewUsuario()">+ Usuario</button></div><div class="admin-card-body"><div class="admin-list">${list}</div></div></div>
+    <div class="admin-card"><div class="admin-card-head"><div><div class="admin-card-title">FICHA DE <em>USUARIO</em></div><div class="admin-card-sub">Administración controla estado, tipo, cuenta y slug</div></div></div><div class="admin-card-body">${form}</div></div>
+  </div>`;
+}
+function adminUsuarioForm(u){
+  const cuentaOptions = adminState.data.cuentas.map(c=>({value:c.id,label:c.nombre}));
+  return `<div class="admin-help">El asesor solo editará su perfil público. Administración controla cuenta, tipo, estado, puesto, slug oficial y permisos.</div>
+  <div class="admin-form-grid">
+    ${adminField('Nombre','user-nombre',u.nombre)}
+    ${adminField('WhatsApp','user-whatsapp',u.whatsapp)}
+    ${adminField('Email','user-email',u.email)}
+    ${adminField('Ciudad','user-ciudad',u.ciudad)}
+    ${adminField('Foto','user-foto',u.foto,'URL de foto')}
+    ${adminField('Frase','user-frase',u.frase)}
+    ${adminField('Pixel ID Meta','user-pixel',u.pixel)}
+    ${adminSelectObjects('Cuenta asignada','user-cuenta',u.cuentaId,cuentaOptions)}
+    ${adminSelect('Tipo','user-tipo',u.tipo,['Asesor independiente','Inmobiliaria','Grupo de asesores sin inmobiliaria'])}
+    ${adminSelect('Estado','user-estado',u.estado,['Pendiente','Activo','Inactivo'])}
+    ${adminField('Puesto','user-puesto',u.puesto)}
+    ${adminField('Slug sugerido','user-slug-sugerido',u.slugSugerido,'Auto sugerido')}
+    ${adminField('Slug oficial aprobado','user-slug-oficial',u.slugOficial,'Solo administración')}
+    <div class="form-group full"><label>Link Captación generado</label><input class="form-inp" value="${adminEsc(adminLink(u))}" readonly></div>
+  </div>
+  <div class="admin-actions"><button class="btn btn-ghost" onclick="adminSuggestSlug()">Sugerir slug</button><button class="btn btn-ghost" onclick="adminDeleteUsuario()">Eliminar usuario</button><button class="btn btn-primary" onclick="adminSaveUsuario()">Guardar usuario</button></div>`;
+}
+function adminSelectUsuario(id){ adminState.selectedUsuarioId=id; adminRender(); }
+function adminNewUsuario(){
+  const cuentaId = adminState.selectedCuentaId || adminState.data.cuentas[0]?.id || '';
+  const u={id:adminId('usr'), cuentaId, nombre:'Nuevo asesor', whatsapp:'', email:'', foto:'', frase:'', ciudad:'', pixel:'', tipo:'Asesor independiente', estado:'Pendiente', puesto:'Asesor', slugSugerido:'nuevo-asesor', slugOficial:'', permisos:['perfil_publico','copiar_link']};
+  adminState.data.usuarios.unshift(u); adminState.selectedUsuarioId=u.id; adminSave(); adminRender();
+}
+function adminSaveUsuario(){
+  const u=adminUsuario(adminState.selectedUsuarioId); if(!u) return;
+  u.nombre=val('user-nombre'); u.whatsapp=val('user-whatsapp').replace(/\D/g,''); u.email=val('user-email'); u.ciudad=val('user-ciudad'); u.foto=val('user-foto'); u.frase=val('user-frase'); u.pixel=val('user-pixel');
+  u.cuentaId=val('user-cuenta'); u.tipo=val('user-tipo'); u.estado=val('user-estado'); u.puesto=val('user-puesto'); u.slugSugerido=adminSlug(val('user-slug-sugerido')); u.slugOficial=adminSlug(val('user-slug-oficial'));
+  adminSave(); adminRender();
+}
+function adminSuggestSlug(){
+  const inp=document.getElementById('user-slug-sugerido'); if(inp) inp.value = adminSlug(document.getElementById('user-nombre')?.value || 'asesor');
+}
+function adminDeleteUsuario(){
+  const id=adminState.selectedUsuarioId; if(!id) return;
+  adminState.data.usuarios=adminState.data.usuarios.filter(u=>u.id!==id); adminState.selectedUsuarioId=adminState.data.usuarios[0]?.id||null; adminSave(); adminRender();
 }
 
-function _perfilCleanFields(fields){
-  const out = {};
-  Object.keys(fields).forEach(k=>{
-    const v = fields[k];
-    if(v === undefined) return;
-    if(typeof v === 'string' && v.trim() === '') return;
-    out[k] = v;
-  });
-  return out;
+function adminRenderPermisos(){
+  const d=adminState.data;
+  const selected = adminUsuario(adminState.selectedUsuarioId) || d.usuarios[0] || null;
+  if(selected) adminState.selectedUsuarioId = selected.id;
+  const list = d.usuarios.map(u=>`
+    <div class="admin-row ${u.id===adminState.selectedUsuarioId?'active':''}" onclick="adminSelectUsuario('${u.id}')">
+      <div class="ar-top"><div><div class="ar-name">${adminEsc(u.nombre)}</div><div class="ar-meta">${adminEsc(adminCuentaName(u.cuentaId))}</div></div>${adminBadge(u.estado)}</div>
+      <div class="ar-meta">${u.permisos.length} permisos asignados</div>
+    </div>`).join('');
+  const checks = selected ? ADMIN_PERMISSION_CATALOG.map(p=>`
+    <label class="admin-check"><input type="checkbox" data-perm="${p.id}" ${selected.permisos.includes(p.id)?'checked':''}><div><b>${adminEsc(p.title)}</b><span>${adminEsc(p.desc)}</span></div></label>`).join('') : '';
+  const form = selected ? `<div class="admin-help">Permisos base para ${adminEsc(selected.nombre)}. Todavía no bloquean navegación en esta prueba; quedan preparados para el login real.</div><div class="admin-checks">${checks}</div><div class="admin-actions"><button class="btn btn-primary" onclick="adminSavePermisos()">Guardar permisos</button></div>` : `<div class="admin-empty"><div class="big">◫</div>Selecciona un usuario</div>`;
+  return `<div class="admin-grid">
+    <div class="admin-card"><div class="admin-card-head"><div><div class="admin-card-title">USUARIO PARA <em>PERMISOS</em></div><div class="admin-card-sub">Selección administrativa</div></div></div><div class="admin-card-body"><div class="admin-list">${list}</div></div></div>
+    <div class="admin-card"><div class="admin-card-head"><div><div class="admin-card-title">PERMISOS <em>BASE</em></div><div class="admin-card-sub">Preparado para etapa con login real</div></div></div><div class="admin-card-body">${form}</div></div>
+  </div>`;
 }
-function _perfilAltPhone(fields){
-  if(!('WhatsApp' in fields)) return null;
-  const alt = { ...fields, 'Teléfono WhatsApp': fields['WhatsApp'] };
-  delete alt['WhatsApp'];
-  return alt;
-}
-function _perfilWithoutLink(fields){
-  if(!('Link Captación' in fields)) return null;
-  const alt = { ...fields };
-  delete alt['Link Captación'];
-  return alt;
-}
-function _perfilUniqueCandidates(fields){
-  const list = [];
-  const push = f => {
-    if(!f) return;
-    const clean = _perfilCleanFields(f);
-    const key = JSON.stringify(clean);
-    if(Object.keys(clean).length && !list.some(x=>JSON.stringify(x)===key)) list.push(clean);
-  };
-  push(fields);
-  push(_perfilAltPhone(fields));
-  push(_perfilWithoutLink(fields));
-  push(_perfilWithoutLink(_perfilAltPhone(fields) || {}));
-  return list;
-}
-async function _perfilPersist(fields){
-  const candidates = _perfilUniqueCandidates(fields);
-  let lastError = null;
-
-  for(const candidate of candidates){
-    try{
-      if(perfilState.recordId){
-        return await atFetch(`${ASESOR_TABLE_ID}/${perfilState.recordId}`, {
-          method:'PATCH', body: JSON.stringify({ fields:candidate, typecast:true })
-        });
-      }
-      const data = await atFetch(`${ASESOR_TABLE_ID}`, {
-        method:'POST', body: JSON.stringify({ records:[{ fields:candidate }], typecast:true })
-      });
-      return (data.records || [])[0] || data;
-    }catch(e){ lastError = e; }
-  }
-  throw lastError || new Error('No se pudo guardar el perfil.');
+function adminSavePermisos(){
+  const u=adminUsuario(adminState.selectedUsuarioId); if(!u) return;
+  u.permisos = Array.from(document.querySelectorAll('[data-perm]:checked')).map(x=>x.dataset.perm);
+  adminSave(); adminRender();
 }
 
-async function perfilSave(){
-  const btn = document.getElementById('perfil-save-btn');
-  const st = document.getElementById('perfil-status');
-  const slug = perfilState.slug || perfilCurrentSlug();
-  const linkCaptacion = perfilBuildLink(slug);
-  if(!slug){ if(st) st.textContent='No hay usuario/slug para crear el perfil.'; return; }
-
-  const nombre = (document.getElementById('pf-nombre')?.value || '').trim();
-  const whatsapp = (document.getElementById('pf-whatsapp')?.value || '').trim();
-  if(!nombre){ if(st) { st.style.color='var(--red)'; st.textContent='Escribe el nombre del asesor.'; } return; }
-
-  btn.disabled = true; btn.textContent = perfilState.isNew ? 'Creando...' : 'Guardando...';
-  if(st) { st.style.color='var(--w50)'; st.textContent=''; }
-
-  try{
-    const fields = {
-      'Nombre': nombre,
-      'WhatsApp': whatsapp,
-      'Email': (document.getElementById('pf-email')?.value || '').trim(),
-      'Frase': (document.getElementById('pf-frase')?.value || '').trim(),
-      'Pixel ID Meta': (document.getElementById('pf-pixel')?.value || '').trim(),
-    };
-
-    const fotoFile = document.getElementById('pf-foto-file')?.files?.[0];
-    const fotoUrl  = (document.getElementById('pf-foto-url')?.value || '').trim();
-    if(fotoFile){
-      btn.textContent = 'Subiendo foto...';
-      const url = await uploadBlobFile(fotoFile, slug || 'asesor', 'foto-perfil');
-      fields['Foto'] = [{ url }];
-    } else if(fotoUrl){
-      fields['Foto'] = [{ url: fotoUrl }];
-    }
-
-    // Al crear: la intranet registra el asesor en Airtable y genera su link.
-    // No manda Estado ni Tipo porque esos pertenecen a administración.
-    if(!perfilState.recordId){
-      fields['Slug'] = slug;
-      fields['Link Captación'] = linkCaptacion;
-    } else {
-      const linkActual = _firstField(perfilState.fields || {}, ['Link Captación'], '');
-      if(!linkActual) fields['Link Captación'] = linkCaptacion;
-    }
-
-    const saved = await _perfilPersist(fields);
-    perfilState.recordId = saved?.id || perfilState.recordId;
-    perfilState.fields = saved?.fields || { ...(perfilState.fields || {}), ...fields, 'Slug':slug, 'Link Captación':linkCaptacion };
-    perfilState.isNew = false;
-    perfilState.slug = slug;
-
-    Object.assign(SESSION, {
-      nombre: nombre || SESSION.nombre,
-      whatsapp: String(whatsapp || SESSION.whatsapp || '').replace(/\D/g,''),
-      email: fields['Email'] || '',
-      frase: fields['Frase'] || '',
-      pixel: fields['Pixel ID Meta'] || '',
-      slug,
-      linkCaptacion
-    });
-    refreshChrome();
-    perfilRender();
-    showToast('✓ Perfil guardado en Airtable');
-    if(st) st.textContent = perfilState.recordId ? 'Guardado correctamente en Airtable.' : 'Guardado.';
-  }catch(e){
-    if(st) { st.style.color='var(--red)'; st.textContent='Error al guardar en Airtable: '+e.message; }
-  }finally{
-    btn.disabled = false; btn.textContent = perfilState.isNew ? 'Crear perfil' : 'Guardar perfil';
-  }
+function adminRenderActivacion(){
+  const d=adminState.data;
+  const selected = adminUsuario(adminState.selectedUsuarioId) || d.usuarios[0] || null;
+  if(selected) adminState.selectedUsuarioId = selected.id;
+  const pendientes = d.usuarios.filter(u=>u.estado!=='Activo' || !u.slugOficial);
+  const list = d.usuarios.map(u=>`
+    <div class="admin-row ${u.id===adminState.selectedUsuarioId?'active':''}" onclick="adminSelectUsuario('${u.id}')">
+      <div class="ar-top"><div><div class="ar-name">${adminEsc(u.nombre)}</div><div class="ar-meta">Slug sugerido: ${adminEsc(u.slugSugerido||'—')}</div></div>${adminBadge(u.estado)}</div>
+      <div class="ar-link">${adminEsc(adminLink(u))}</div>
+    </div>`).join('');
+  const form = selected ? `<div class="admin-help">La activación real ocurre cuando administración aprueba el slug oficial y el usuario queda en estado Activo. El asesor no puede mover este dato.</div>
+    <div class="admin-lock"><div class="admin-lock-k">Usuario</div><div class="admin-lock-v">${adminEsc(selected.nombre)}</div></div>
+    <div class="admin-lock"><div class="admin-lock-k">Cuenta</div><div class="admin-lock-v">${adminEsc(adminCuentaName(selected.cuentaId))}</div></div>
+    <div class="admin-lock"><div class="admin-lock-k">Slug sugerido</div><div class="admin-lock-v">${adminEsc(selected.slugSugerido||'—')}</div></div>
+    <div class="admin-form-grid" style="margin-top:14px">
+      ${adminField('Slug oficial aprobado','act-slug',selected.slugOficial,'ej. diana')}
+      ${adminSelect('Estado del asesor','act-estado',selected.estado,['Pendiente','Activo','Inactivo'])}
+      <div class="form-group full"><label>Link Captación final</label><input class="form-inp" id="act-link" value="${adminEsc(adminLink(selected))}" readonly></div>
+    </div>
+    <div class="admin-warning">Regla de operación: el Link Captación solo se considera válido cuando hay slug oficial y estado Activo. Antes de eso queda pendiente para evitar links improvisados.</div>
+    <div class="admin-actions"><button class="btn btn-ghost" onclick="adminCopyLink()">Copiar link</button><button class="btn btn-primary" onclick="adminActivateUser()">Guardar activación</button></div>` : `<div class="admin-empty"><div class="big">◎</div>Selecciona un usuario</div>`;
+  return `<div class="admin-grid">
+    <div class="admin-card"><div class="admin-card-head"><div><div class="admin-card-title">COLA DE <em>ACTIVACIÓN</em></div><div class="admin-card-sub">${pendientes.length} pendiente(s) por revisar</div></div></div><div class="admin-card-body"><div class="admin-list">${list}</div></div></div>
+    <div class="admin-card"><div class="admin-card-head"><div><div class="admin-card-title">ACTIVAR <em>ASESOR</em></div><div class="admin-card-sub">Slug oficial + estado</div></div></div><div class="admin-card-body">${form}</div></div>
+  </div>`;
 }
+function adminActivateUser(){
+  const u=adminUsuario(adminState.selectedUsuarioId); if(!u) return;
+  u.slugOficial=adminSlug(val('act-slug')); u.estado=val('act-estado');
+  if(!u.slugOficial && u.estado==='Activo'){ showToast('Falta slug oficial para activar'); return; }
+  adminSave(); adminRender();
+}
+function adminCopyLink(){
+  const u=adminUsuario(adminState.selectedUsuarioId); if(!u || !u.slugOficial){ showToast('Aún no hay slug oficial'); return; }
+  navigator.clipboard?.writeText(adminLink(u));
+  showToast('Link Captación copiado');
+}
+
+function adminField(label,id,value='',placeholder=''){
+  return `<div class="form-group"><label>${adminEsc(label)}</label><input class="form-inp" id="${id}" value="${adminEsc(value)}" placeholder="${adminEsc(placeholder)}"></div>`;
+}
+function adminArea(label,id,value='',cls=''){
+  return `<div class="form-group ${cls}"><label>${adminEsc(label)}</label><textarea class="form-inp" id="${id}" rows="4">${adminEsc(value)}</textarea></div>`;
+}
+function adminSelect(label,id,value,opts){
+  return `<div class="form-group"><label>${adminEsc(label)}</label><select class="form-inp" id="${id}">${opts.map(o=>`<option value="${adminEsc(o)}" ${o===value?'selected':''}>${adminEsc(o)}</option>`).join('')}</select></div>`;
+}
+function adminSelectObjects(label,id,value,opts){
+  return `<div class="form-group"><label>${adminEsc(label)}</label><select class="form-inp" id="${id}">${opts.map(o=>`<option value="${adminEsc(o.value)}" ${o.value===value?'selected':''}>${adminEsc(o.label)}</option>`).join('')}</select></div>`;
+}
+function val(id){ return document.getElementById(id)?.value?.trim() || ''; }
 
 /* ═══════════════════════════════════════════════════
    PANEL AIRTABLE — el más importante, embebido
@@ -2848,7 +2874,7 @@ const LANDING_META = (() => {
 })();
 
 function _esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function _escAttr(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+function _escAttr(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;'); }
 
 function _attInfo(rec, name){
   const a = rec.fields?.[name];
@@ -2866,55 +2892,22 @@ function _safeDocKey(s){
     .slice(0,80);
 }
 
-let _blobClientUploadPromise = null;
-async function getBlobClientUpload(){
-  if(window.__neriBlobUpload) return window.__neriBlobUpload;
-  if(!_blobClientUploadPromise){
-    _blobClientUploadPromise = import('https://esm.sh/@vercel/blob@latest/client')
-      .then(mod => {
-        if(!mod.upload) throw new Error('No se pudo cargar @vercel/blob/client.');
-        window.__neriBlobUpload = mod.upload;
-        return mod.upload;
-      });
-  }
-  return _blobClientUploadPromise;
-}
-
 async function uploadBlobFile(file, folio, doc){
   if(!file) return null;
-  const maxBytes = 200 * 1024 * 1024;
-  if(file.size > maxBytes) throw new Error('El archivo supera 200 MB. Comprime el video o usa un enlace externo.');
-
-  const safeFolio = _safeDocKey(folio || 'sin-folio');
-  const safeDoc   = _safeDocKey(doc || 'archivo');
-  const safeName  = _safeDocKey(file.name || 'archivo');
-  const pathname  = `intranet/${safeFolio}/${safeDoc}-${Date.now()}-${safeName}`;
-
-  try{
-    const upload = await getBlobClientUpload();
-    const blob = await upload(pathname, file, {
-      access: 'public',
-      handleUploadUrl: '/api/upload',
-      clientPayload: JSON.stringify({ folio: safeFolio, doc: safeDoc })
-    });
-    if(!blob?.url) throw new Error('Blob no devolvió URL.');
-    return blob.url;
-  }catch(e){
-    // Respaldo controlado: solo para archivos pequeños. Vercel Functions tienen límite de 4.5 MB.
-    if(file.size <= 4 * 1024 * 1024){
-      const qs = new URLSearchParams({ folio: folio || 'sin-folio', doc: safeDoc, filename: file.name || 'archivo' });
-      const r = await fetch('/api/upload-documento?' + qs.toString(), {
-        method:'POST',
-        headers:{ 'x-content-type': file.type || 'application/octet-stream' },
-        body:file
-      });
-      const data = await r.json().catch(() => ({}));
-      if(!r.ok) throw new Error(data.error || ('No se pudo subir ' + (file.name || 'archivo')));
-      if(!data.url) throw new Error('Blob no devolvió URL para ' + (file.name || 'archivo'));
-      return data.url;
-    }
-    throw new Error('No se pudo subir directo a Vercel Blob. Revisa BLOB_READ_WRITE_TOKEN y que Blob esté conectado al proyecto. Detalle: ' + (e?.message || e));
-  }
+  const qs = new URLSearchParams({
+    folio: folio || 'sin-folio',
+    doc: _safeDocKey(doc || 'archivo'),
+    filename: file.name || 'archivo'
+  });
+  const r = await fetch('/api/upload-documento?' + qs.toString(), {
+    method:'POST',
+    headers:{ 'x-content-type': file.type || 'application/octet-stream' },
+    body:file
+  });
+  const data = await r.json().catch(() => ({}));
+  if(!r.ok) throw new Error(data.error || ('No se pudo subir ' + (file.name || 'archivo')));
+  if(!data.url) throw new Error('Blob no devolvió URL para ' + (file.name || 'archivo'));
+  return data.url;
 }
 
 function _landInput(fl, rec){
@@ -2938,7 +2931,7 @@ function _landInput(fl, rec){
         </div>
         <input class="form-inp" type="text" data-attach="${_escAttr(name)}"
                placeholder="O pegar URL pública para reemplazar (opcional)">
-        <div class="le-note">Puedes subir el archivo desde aquí. La intranet lo manda directo a Vercel Blob y guarda solo la URL en Airtable.</div>
+        <div class="le-note">Puedes subir el archivo desde aquí. La intranet lo manda a Vercel Blob y guarda solo la URL en Airtable.</div>
       </div>`;
   }
   if(fl.type === 'select'){
@@ -2994,7 +2987,7 @@ function landOpenEditor(recId){
   const secs = LANDING_FORM.map(sec => {
     let inner;
     if(sec.videos){
-      inner = `<div class="le-note" style="margin:0 0 8px">Puedes pegar ID de YouTube o subir el MP4 aquí. La intranet sube directo a Blob y guarda la URL en Airtable.</div>`
+      inner = `<div class="le-note" style="margin:0 0 8px">Puedes pegar ID de YouTube o subir el MP4 aquí. La intranet sube el archivo a Blob y guarda la URL en Airtable.</div>`
             + sec.videos.map(v => _landVideoRow(v, rec)).join('');
     } else {
       inner = `<div class="le-grid">${sec.fields.map(fl => _landInput(fl, rec)).join('')}</div>`;
@@ -3109,6 +3102,8 @@ async function landSave(){
 /*  Patrón: abre modal de solo lectura/edición de una cita.
     Si no existe cita para ese folio lead → modo creación.
     Nunca escribe el Folio Cita (campo calculado / Make).     */
+
+const CITA_VERCEL_BASE = 'https://cita-sable.vercel.app/'; // ← URL real de la pagina de cita (handoff 6)
 
 function citaOpenFicha(recId){
   const rec = crmState.records.find(r => r.id === recId);
@@ -3642,7 +3637,7 @@ function openExternal(id){
    NAVEGACIÓN
 ═══════════════════════════════════════════════════ */
 const LABELS = {
-  hoy:'Inicio', perfil:'Mi Perfil', airtable:'Mi CRM', sala:'Sala de Mensajes',
+  hoy:'Inicio', administracion:'Administración Base', airtable:'Mi CRM', sala:'Sala de Mensajes',
   compradores:'Landing Compradores', vendedores:'Landing Vendedores',
   citas:'Panel de Citas', progreso:'Portal Progreso',
   opciones:'Opciones de Compra', reportes:'Reportes'
@@ -3659,8 +3654,8 @@ function goTo(id){
   if(navBtn) navBtn.classList.add('active');
 
   document.getElementById('tb-label').textContent = LABELS[id] || id;
+  if(id === 'administracion') setTimeout(onAdministracionPanelActivate, 60);
   if(id === 'airtable') setTimeout(onAirtablePanelActivate, 60);
-  if(id === 'perfil') setTimeout(()=>perfilLoad(false), 60);
   if(id === 'hoy') setTimeout(()=>loadHoyData(false), 60);
 }
 
@@ -3697,14 +3692,19 @@ document.addEventListener('keydown', e=>{
   }
 });
 
-/* Inicio en modo prueba */
-if(TEST_MODE_ADMIN_TOTAL){
-  startTestAdminMode();
-} else {
-  document.getElementById('l-user').value = 'asesor';
-  document.getElementById('l-pass').value = 'neri2024';
-  document.getElementById('l-rol').value  = 'asesor';
-}
+/* MODO PRUEBA ADMINISTRADOR ABIERTO
+   En esta etapa NO hay login real, NO hay contraseña y NO se bloquea navegación.
+   El formulario demo se conserva en el HTML para no romper estructura, pero se entra directo. */
+document.getElementById('l-user').value = 'admin';
+document.getElementById('l-pass').value = 'neri2024';
+document.getElementById('l-rol').value  = 'admin';
+window.addEventListener('DOMContentLoaded', () => {
+  SESSION = { ...USERS.admin, user:'admin' };
+  document.getElementById('screen-login').classList.add('hidden');
+  document.getElementById('screen-app').classList.remove('hidden');
+  bootApp();
+  setTimeout(()=>goTo('administracion'), 80);
+});
 </script>
 </body>
 </html>

@@ -1,39 +1,23 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>NERI · Reportes</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@300;400;600;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
-:root{--black:#080808;--surface:#101010;--surface2:#171717;--border:rgba(255,255,255,.09);--gold:#C9A96E;--gold2:#E5CC9A;--w80:rgba(255,255,255,.8);--w50:rgba(255,255,255,.5);--w30:rgba(255,255,255,.3);--green:#4ade80;--red:#f87171;--display:'Bebas Neue',sans-serif;--mono:'DM Mono',monospace}
-*{box-sizing:border-box;margin:0;padding:0}body{background:var(--black);color:#fff;font-family:'Montserrat',sans-serif;min-height:100vh;padding:28px;overflow:auto}body:after{content:'';position:fixed;inset:0;pointer-events:none;opacity:.025;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}.wrap{max-width:1100px;margin:0 auto}.eyebrow{font-size:7px;letter-spacing:5px;text-transform:uppercase;color:var(--gold);font-weight:800;margin-bottom:12px}.title{font-family:var(--display);font-size:clamp(48px,7vw,88px);letter-spacing:4px;line-height:.85}.title em{color:var(--gold);font-style:normal}.sub{color:var(--w50);font-size:13px;line-height:1.8;max-width:720px;margin-top:16px}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin-top:30px}.card{background:var(--surface);padding:22px;min-height:150px}.num{font-family:var(--display);font-size:54px;color:var(--gold);line-height:.8}.lbl{font-size:8px;letter-spacing:2.2px;text-transform:uppercase;color:var(--w50);font-weight:800;margin-top:14px;line-height:1.5}.panel{margin-top:26px;border:1px solid var(--border);background:var(--surface);padding:22px}.panel h2{font-family:var(--display);letter-spacing:2px;font-size:34px;font-weight:400}.panel p{font-size:12px;color:var(--w50);line-height:1.8;margin-top:10px}.list{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}.item{background:var(--surface2);border:1px solid var(--border);padding:16px}.tag{font-size:7px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);font-weight:800}.item b{display:block;font-size:14px;margin-top:8px}.item span{display:block;color:var(--w50);font-size:11px;line-height:1.7;margin-top:8px}.note{font-family:var(--mono);font-size:10px;color:var(--w30);line-height:1.7;margin-top:18px;border-top:1px solid var(--border);padding-top:16px}@media(max-width:900px){.grid,.list{grid-template-columns:1fr 1fr}}@media(max-width:560px){body{padding:18px}.grid,.list{grid-template-columns:1fr}}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reportes · Método NERI</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root{--black:#080808;--surface:#111;--gold:#C9A96E;--border:rgba(255,255,255,.1);--w50:rgba(255,255,255,.5)}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:var(--black);color:#fff;font-family:Montserrat,sans-serif;display:flex;align-items:center;justify-content:center;padding:28px}
+    .card{width:min(760px,100%);background:linear-gradient(180deg,#151515,#0f0f0f);border:1px solid var(--border);border-top:2px solid var(--gold);padding:34px}
+    .eyebrow{font-size:8px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);font-weight:800;margin-bottom:12px}.title{font-family:'Bebas Neue',sans-serif;font-size:58px;letter-spacing:3px;line-height:.9}.title em{color:var(--gold);font-style:normal}.text{font-size:13px;color:var(--w50);line-height:1.8;margin-top:16px}.pill{display:inline-block;margin-top:20px;border:1px solid rgba(201,169,110,.25);color:var(--gold);padding:8px 12px;font-size:8px;letter-spacing:2px;text-transform:uppercase;font-weight:800}
+  </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="eyebrow">Método NERI · Reportes</div>
-  <h1 class="title">TABLERO DE <em>RESULTADOS</em></h1>
-  <p class="sub">Este archivo evita que el botón Reportes quede roto dentro de la intranet. Está listo para recibir después métricas reales desde Airtable: leads nuevos, citas, apartados, cierres, tiempos de respuesta y clientes dormidos.</p>
-
-  <section class="grid" aria-label="Indicadores base">
-    <div class="card"><div class="num">—</div><div class="lbl">Leads nuevos</div></div>
-    <div class="card"><div class="num">—</div><div class="lbl">Citas activas</div></div>
-    <div class="card"><div class="num">—</div><div class="lbl">Apartados</div></div>
-    <div class="card"><div class="num">—</div><div class="lbl">Dormidos +7 días</div></div>
-  </section>
-
-  <section class="panel">
-    <h2>Lo que debe medir este módulo</h2>
-    <p>No inventa números. La versión visual queda preparada; cuando se conecte la lectura de Airtable, aquí deben pintarse métricas verificables por tabla y fecha.</p>
-    <div class="list">
-      <div class="item"><div class="tag">Captación</div><b>Origen y calidad</b><span>De qué landing llegó, asesor responsable, clasificación HOT/WARM/COLD y última interacción.</span></div>
-      <div class="item"><div class="tag">Seguimiento</div><b>Acción pendiente</b><span>A quién llamar hoy, quién no ha recibido seguimiento y qué documento falta.</span></div>
-      <div class="item"><div class="tag">Operación</div><b>Avance real</b><span>Citas, apartados, expediente, valuación, notaría, firma y entrega.</span></div>
-    </div>
-    <div class="note">Archivo local: Reportes.html · Si no se quiere mostrar todavía, se puede ocultar del menú sin borrar este archivo.</div>
-  </section>
-</div>
+  <main class="card">
+    <div class="eyebrow">Método NERI</div>
+    <div class="title">REPORTES <em>BASE</em></div>
+    <div class="text">Archivo raíz conservado para que la ruta Reportes.html no marque 404 durante la etapa de prueba/error. Los reportes reales se conectarán después de confirmar la navegación general.</div>
+    <div class="pill">Modo prueba abierto</div>
+  </main>
 </body>
 </html>
