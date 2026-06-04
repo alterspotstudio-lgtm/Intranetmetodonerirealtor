@@ -1121,6 +1121,21 @@ const CRM_CFG = {
       {f:'Notas Internas',     type:'textarea'},
     ]
   },
+  asesores: {
+    tableId: 'tblIRPmLIyj8sWyEk',
+    label: 'Asesores',
+    dot: 'asesores',
+    cols: ['Nombre','Slug','WhatsApp','Puesto','Ciudad','Email','Activo'],
+    fields: ['Nombre','Slug','Teléfono WhatsApp','Puesto','Ciudad','Email','Activo'],
+    editable: [
+      {f:'Nombre',            type:'text'},
+      {f:'Slug',              type:'text'},
+      {f:'Teléfono WhatsApp', type:'text'},
+      {f:'Email',             type:'text'},
+      {f:'Frase',             type:'textarea'},
+      {f:'Pixel ID Meta',     type:'text'},
+    ]
+  },
   citas: {
     tableId: 'tblaAfbSD3pqSLdAA',
     label: 'Citas',
@@ -1136,21 +1151,6 @@ const CRM_CFG = {
       {f:'Estado Cita',       type:'select', opts:['Agendada','Confirmada','Realizada','Reagendada','Cancelada','No asistió']},
       {f:'Asesor',            type:'text'},
       {f:'Notas de la Cita',  type:'textarea'},
-    ]
-  },
-  asesores: {
-    tableId: 'tblIRPmLIyj8sWyEk',
-    label: 'Asesores',
-    dot: 'asesores',
-    cols: ['Nombre','Slug','WhatsApp','Puesto','Ciudad','Email','Activo'],
-    fields: ['Nombre','Slug','Teléfono WhatsApp','Puesto','Ciudad','Email','Activo'],
-    editable: [
-      {f:'Nombre',            type:'text'},
-      {f:'Slug',              type:'text'},
-      {f:'Teléfono WhatsApp', type:'text'},
-      {f:'Email',             type:'text'},
-      {f:'Frase',             type:'textarea'},
-      {f:'Pixel ID Meta',     type:'text'},
     ]
   }
 };
@@ -1458,14 +1458,29 @@ let _crmLoaded = false;
 function onAirtablePanelActivate(){
   const loading = document.getElementById('crm-loading');
   if(!loading) return;
-  // Primera vez: cargar. Siguientes veces: solo recargar si no hay datos aún.
+  // Primera vez: cargar Compradores y refrescar el conteo de TODAS las tablas.
   if(!_crmLoaded){
     _crmLoaded = true;
     crmLoad('compradores', true);
+    crmRefreshAllCounts();
   } else {
-    // Recargar si la tabla está vacía (por ejemplo al volver de otro panel)
     const body = document.getElementById('crm-body');
     if(body && body.style.display === 'none') crmLoad(crmState.tab, true);
+  }
+}
+
+/* Consulta cuántos registros tiene cada tabla y lo muestra en su pestaña.
+   Sirve de prueba inmediata de que cada tabla conecta con Airtable. */
+async function crmRefreshAllCounts(){
+  for(const [id, cfg] of Object.entries(CRM_CFG)){
+    try {
+      const data = await atFetch(`${cfg.tableId}?maxRecords=100`);
+      const el = document.getElementById('tab-count-' + id);
+      if(el) el.textContent = (data.records || []).length;
+    } catch(e){
+      const el = document.getElementById('tab-count-' + id);
+      if(el){ el.textContent = '⚠'; el.title = e.message; }
+    }
   }
 }
 
