@@ -3,7 +3,7 @@
  * Método NERI · Century 21 Haus
  *
  * Devuelve los campos públicos de la propiedad cuyo
- * campo "Estado Propiedad" = "Disponible" o "Activa" en la tabla
+ * campo "Estado Propiedad" = "Activa" en la tabla
  * "Propiedades NERI" de Airtable.
  *
  * Variables de entorno requeridas en Vercel:
@@ -12,7 +12,7 @@
  */
 
 const TABLA  = 'Propiedades NERI';
-const FILTRO = encodeURIComponent('OR({Estado Propiedad}="Disponible",{Estado Propiedad}="Activa")');
+const FILTRO = encodeURIComponent('{Estado Propiedad}="Activa"');
 
 const CAMPOS = [
   'Nombre Propiedad',
@@ -63,7 +63,7 @@ export default async function handler(req, res) {
 
     const registro = data.records?.[0];
     if (!registro) {
-      return res.status(404).json({ error: 'No hay ninguna propiedad con Estado Propiedad = "Disponible" o "Activa" en este momento.' });
+      return res.status(404).json({ error: 'No hay ninguna propiedad con Estado = "Activa" en este momento.' });
     }
 
     return res.status(200).json({
