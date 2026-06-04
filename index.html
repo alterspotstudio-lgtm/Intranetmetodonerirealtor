@@ -886,6 +886,36 @@ select.form-inp option{background:#111;color:#fff}
 .form-group{display:flex;flex-direction:column;gap:5px}
 .form-group label{font-size:7px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);font-weight:800}
 
+
+
+/* ══════════════════════════════════════════
+   PERFIL ASESOR
+══════════════════════════════════════════ */
+.perfil-body{flex:1;overflow-y:auto;padding:28px}
+.perfil-wrap{max-width:980px;margin:0 auto}
+.perfil-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:16px;margin-top:18px}
+.perfil-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+  padding:18px;position:relative;overflow:hidden;
+}
+.perfil-card.gold{background:var(--golddim);border-color:var(--goldbdr);border-left:3px solid var(--gold)}
+.perfil-title{font-family:var(--display);font-size:28px;letter-spacing:2px;line-height:1;color:var(--white)}
+.perfil-title em{color:var(--gold);font-style:normal}
+.perfil-sub{font-size:10px;color:var(--w50);line-height:1.8;margin-top:8px;font-weight:300}
+.perfil-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+.perfil-fields .full{grid-column:1/-1}
+.perfil-readonly{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.perfil-lock{border:1px solid var(--border2);background:rgba(0,0,0,.14);padding:12px;border-radius:var(--r)}
+.perfil-lock-k{font-size:7px;letter-spacing:2px;text-transform:uppercase;color:var(--w30);font-weight:800;margin-bottom:5px}
+.perfil-lock-v{font-size:12px;color:var(--w80);word-break:break-word;line-height:1.5}
+.perfil-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap}
+.perfil-note{font-size:10px;color:var(--w30);line-height:1.7;margin-top:8px}
+.perfil-photo-row{display:flex;gap:12px;align-items:center;margin-top:8px}
+.perfil-avatar{width:74px;height:74px;border-radius:50%;object-fit:cover;border:1px solid var(--goldbdr);background:var(--w04)}
+.perfil-avatar-empty{width:74px;height:74px;border-radius:50%;border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;color:var(--w30);font-family:var(--display);font-size:28px;background:var(--w04)}
+.perfil-status{font-size:11px;color:var(--w50);min-height:17px;text-align:right;margin-top:8px}
+@media(max-width:900px){.perfil-grid{grid-template-columns:1fr}.perfil-fields{grid-template-columns:1fr}}
+
 /* ══════════════════════════════════════════
    NOTIFICACIÓN TOAST
 ══════════════════════════════════════════ */
@@ -1201,7 +1231,7 @@ select.form-inp option{background:#111;color:#fff}
     <div class="sb-header">
       <div class="sb-logo">NERI</div>
       <div class="sb-sys">Sistema Operativo</div>
-      <div class="sb-user">
+      <div class="sb-user" onclick="goTo('perfil')" title="Abrir mi perfil">
         <div class="sb-user-name" id="sb-name">—</div>
         <div class="sb-user-role" id="sb-role">—</div>
         <div class="sb-user-dot"></div>
@@ -1267,6 +1297,7 @@ const NAV_ROL = {
   asesor: [
     { section:'Principal' },
     { id:'hoy',         label:'Hoy',               icon:'⬡' },
+    { id:'perfil',     label:'Mi Perfil',         icon:'◎' },
     { id:'airtable',    label:'Mi CRM',       icon:'◈', highlight:true },
     { section:'Captación' },
     { id:'sala',        label:'Sala de Mensajes',   icon:'⚡' },
@@ -1280,6 +1311,7 @@ const NAV_ROL = {
   gerente: [
     { section:'Principal' },
     { id:'hoy',         label:'Dashboard',          icon:'⬡' },
+    { id:'perfil',     label:'Perfil Asesor',     icon:'◎' },
     { id:'airtable',    label:'Mi CRM',       icon:'◈', highlight:true },
     { section:'Equipo' },
     { id:'sala',        label:'Sala de Mensajes',   icon:'⚡' },
@@ -1292,6 +1324,7 @@ const NAV_ROL = {
   director: [
     { section:'Dirección' },
     { id:'hoy',         label:'Dashboard',          icon:'⬡' },
+    { id:'perfil',     label:'Perfil Asesor',     icon:'◎' },
     { id:'airtable',    label:'Mi CRM',       icon:'◈', highlight:true },
     { id:'reportes',    label:'Reportes',           icon:'◫' },
     { section:'Sistema' },
@@ -1304,6 +1337,7 @@ const NAV_ROL = {
   admin: [
     { section:'Sistema' },
     { id:'hoy',         label:'Dashboard',          icon:'⬡' },
+    { id:'perfil',     label:'Perfil Asesor',     icon:'◎' },
     { id:'airtable',    label:'Mi CRM',       icon:'◈', highlight:true },
     { section:'Herramientas' },
     { id:'sala',        label:'Sala de Mensajes',   icon:'⚡' },
@@ -1318,14 +1352,15 @@ const NAV_ROL = {
 /* ═══════════════════════════════════════════════════
    TOOLS CONFIG (cada herramienta en su propio archivo)
 ═══════════════════════════════════════════════════ */
+const CITA_VERCEL_BASE = 'https://cita-sable.vercel.app/'; // URL única para panel/link de cita
 const TOOLS = {
   sala:        { name:'Sala de Mensajes',    url:'https://mensajesmaestros.vercel.app',                  ext:true },
   compradores: { name:'Landing Compradores', url:'https://captacion.vercel.app',             ext:true },
   vendedores:  { name:'Landing Vendedores',  url:'https://ahuatlan32m.vercel.app',      ext:true },
-  citas:       { name:'Panel de Citas',      url:'https://citas-vert.vercel.app',                    ext:true },
+  citas:       { name:'Panel de Citas',      url:CITA_VERCEL_BASE,                                  ext:true },
   progreso:    { name:'Portal Progreso',      url:'https://captacion.vercel.app',        ext:true },
   opciones:    { name:'Opciones de Compra',  url:'https://opcionesdecompra.vercel.app',     ext:true },
-  reportes:    { name:'Reportes',            url:'Reportes.html',                        ext:true },
+  reportes:    { name:'Reportes',            url:'./Reportes.html',                       ext:true },
 };
 
 /* ═══════════════════════════════════════════════════
@@ -1376,11 +1411,14 @@ async function enrichIdentity(slug){
     if(!rec) return;
     const f = rec.fields || {};
     if(f['Nombre'])            SESSION.nombre   = f['Nombre'];
-    if(f['Teléfono WhatsApp']) SESSION.whatsapp = String(f['Teléfono WhatsApp']).replace(/\D/g,'');
+    if(f['Teléfono WhatsApp'] || f['WhatsApp']) SESSION.whatsapp = String(f['Teléfono WhatsApp'] || f['WhatsApp']).replace(/\D/g,'');
+    if(f['Email'])             SESSION.email    = f['Email'];
+    if(f['Frase'])             SESSION.frase    = f['Frase'];
     if(f['Pixel ID Meta'])     SESSION.pixel    = f['Pixel ID Meta'];
-    const ciudad = f['Ciudad'] || f['Ciudad (texto viejo)'] || '';
-    const puesto = f['Puesto'] || f['Puesto (texto viejo)'] || '';
-    if(ciudad || puesto) SESSION.empresa = [puesto, ciudad].filter(Boolean).join(' · ') || SESSION.empresa;
+    if(f['Estado'])            SESSION.estado   = f['Estado'];
+    if(f['Tipo'])              SESSION.tipo     = f['Tipo'];
+    if(f['Link Captación'])    SESSION.linkCaptacion = f['Link Captación'];
+    SESSION.empresa = f['Tipo'] || SESSION.empresa;
     refreshChrome();
     showToast('Identidad: '+SESSION.nombre);
   }catch(e){ /* sin conexión: se queda el perfil local */ }
@@ -1445,6 +1483,9 @@ function buildPanels(){
 
   // Panel HOY siempre se construye
   ca.insertAdjacentHTML('beforeend', buildHoyPanel());
+
+  // Panel PERFIL
+  ca.insertAdjacentHTML('beforeend', buildPerfilPanel());
 
   // Panel AIRTABLE
   ca.insertAdjacentHTML('beforeend', buildAirtablePanel());
@@ -1758,6 +1799,179 @@ function getToolDesc(id){
     reportes:    'Métricas y resultados del equipo.',
   };
   return descs[id] || 'Herramienta del sistema NERI.';
+}
+
+
+/* ═══════════════════════════════════════════════════
+   PANEL PERFIL ASESOR — permisos claros
+═══════════════════════════════════════════════════ */
+const ASESOR_TABLE_ID = 'tblIRPmLIyj8sWyEk';
+let perfilState = { loaded:false, recordId:null, fields:{} };
+
+function _firstField(f, names, fallback=''){
+  for(const n of names){
+    const v = f?.[n];
+    if(v !== undefined && v !== null && String(v).trim() !== '') return v;
+  }
+  return fallback;
+}
+function _firstAttachmentUrl(v){
+  if(Array.isArray(v) && v[0]) return v[0].thumbnails?.large?.url || v[0].url || '';
+  if(typeof v === 'string') return v;
+  return '';
+}
+
+function buildPerfilPanel(){
+  return `<div class="panel" id="panel-perfil">
+    <div class="perfil-body">
+      <div class="perfil-wrap">
+        <div class="ph-eyebrow">Configuración del asesor</div>
+        <div class="ph-title">MI <em>PERFIL</em></div>
+        <div class="perfil-sub">Aquí solo se edita lo que el asesor sí puede tocar. Estado, tipo y link de captación quedan bloqueados porque pertenecen a administración / sistema.</div>
+
+        <div class="perfil-grid">
+          <section class="perfil-card">
+            <div class="perfil-title">Datos <em>editables</em></div>
+            <div class="perfil-sub">Nombre, WhatsApp, email, foto, frase y Pixel ID Meta.</div>
+            <div id="perfil-editable" class="perfil-fields">
+              <div class="hoy-empty">Cargando perfil…</div>
+            </div>
+            <div class="perfil-actions">
+              <button class="btn btn-ghost" onclick="perfilLoad(true)">Recargar</button>
+              <button class="btn btn-primary" id="perfil-save-btn" onclick="perfilSave()">Guardar perfil</button>
+            </div>
+            <div id="perfil-status" class="perfil-status"></div>
+          </section>
+
+          <aside class="perfil-card gold">
+            <div class="perfil-title">Datos <em>bloqueados</em></div>
+            <div class="perfil-sub">Estos se ven, pero no se editan aquí.</div>
+            <div id="perfil-readonly" class="perfil-readonly">
+              <div class="hoy-empty">Cargando permisos…</div>
+            </div>
+            <div class="perfil-note">El Link Captación es la pieza fuerte: el asesor lo copia para WhatsApp, redes o campañas, pero no lo escribe manualmente.</div>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+async function perfilLoad(force=false){
+  if(perfilState.loaded && !force) return;
+  perfilState.loaded = true;
+  const edit = document.getElementById('perfil-editable');
+  const ro = document.getElementById('perfil-readonly');
+  const st = document.getElementById('perfil-status');
+  if(edit) edit.innerHTML = '<div class="hoy-empty">Cargando perfil…</div>';
+  if(ro) ro.innerHTML = '<div class="hoy-empty">Cargando permisos…</div>';
+  if(st) st.textContent = '';
+  try{
+    const slug = String(SESSION?.slug || SESSION?.user || '').toLowerCase();
+    const formula = encodeURIComponent(`LOWER({Slug})='${slug}'`);
+    const data = await atFetch(`${ASESOR_TABLE_ID}?filterByFormula=${formula}&maxRecords=1`);
+    const rec = (data.records || [])[0];
+    if(!rec) throw new Error('No encontré el registro del asesor con slug: '+slug);
+    perfilState.recordId = rec.id;
+    perfilState.fields = rec.fields || {};
+    perfilRender();
+  }catch(e){
+    if(edit) edit.innerHTML = `<div class="hoy-empty err">${_esc(e.message)}</div>`;
+    if(ro) ro.innerHTML = '<div class="hoy-empty err">Sin datos para mostrar.</div>';
+  }
+}
+
+function perfilRender(){
+  const f = perfilState.fields || {};
+  const nombre = _firstField(f, ['Nombre'], SESSION?.nombre || '');
+  const whats  = _firstField(f, ['Teléfono WhatsApp','WhatsApp'], SESSION?.whatsapp || '');
+  const email  = _firstField(f, ['Email','Correo'], SESSION?.email || '');
+  const frase  = _firstField(f, ['Frase'], SESSION?.frase || '');
+  const pixel  = _firstField(f, ['Pixel ID Meta'], SESSION?.pixel || '');
+  const fotoUrl= _firstAttachmentUrl(_firstField(f, ['Foto'], ''));
+  const estado = _firstField(f, ['Estado'], SESSION?.estado || '—');
+  const tipo   = _firstField(f, ['Tipo'], SESSION?.tipo || '—');
+  const link   = _firstField(f, ['Link Captación'], SESSION?.linkCaptacion || '—');
+
+  const initials = (nombre||'A').split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase();
+  const avatar = fotoUrl ? `<img class="perfil-avatar" src="${_escAttr(fotoUrl)}" alt="Foto asesor">` : `<div class="perfil-avatar-empty">${_esc(initials)}</div>`;
+
+  document.getElementById('perfil-editable').innerHTML = `
+    <div class="form-group"><label>Nombre</label><input class="form-inp" id="pf-nombre" value="${_escAttr(nombre)}"></div>
+    <div class="form-group"><label>WhatsApp</label><input class="form-inp" id="pf-whatsapp" value="${_escAttr(whats)}"></div>
+    <div class="form-group"><label>Email</label><input class="form-inp" id="pf-email" value="${_escAttr(email)}"></div>
+    <div class="form-group"><label>Pixel ID Meta</label><input class="form-inp" id="pf-pixel" value="${_escAttr(pixel)}"></div>
+    <div class="form-group full"><label>Frase</label><textarea class="form-inp" id="pf-frase" rows="3">${_esc(frase)}</textarea></div>
+    <div class="form-group full"><label>Foto</label>
+      <div class="perfil-photo-row">${avatar}<div style="flex:1">
+        <input class="form-inp" type="file" id="pf-foto-file" accept="image/jpeg,image/png,image/webp">
+        <input class="form-inp" style="margin-top:8px" type="text" id="pf-foto-url" placeholder="O pegar URL pública de foto" value="">
+        <div class="perfil-note">Si subes archivo, se guarda en Blob y Airtable recibe solo la URL.</div>
+      </div></div>
+    </div>`;
+
+  document.getElementById('perfil-readonly').innerHTML = `
+    <div class="perfil-lock"><div class="perfil-lock-k">Estado</div><div class="perfil-lock-v">${_esc(estado)}</div></div>
+    <div class="perfil-lock"><div class="perfil-lock-k">Tipo</div><div class="perfil-lock-v">${_esc(tipo)}</div></div>
+    <div class="perfil-lock"><div class="perfil-lock-k">Link Captación</div><div class="perfil-lock-v">${link && link !== '—' ? `<a href="${_escAttr(link)}" target="_blank" rel="noopener">${_esc(link)}</a>` : '—'}</div></div>
+    ${link && link !== '—' ? `<button class="btn btn-ghost" onclick="perfilCopyLink()">Copiar link</button>` : ''}`;
+}
+
+function perfilCopyLink(){
+  const f = perfilState.fields || {};
+  const link = _firstField(f, ['Link Captación'], SESSION?.linkCaptacion || '');
+  if(!link) return showToast('No hay link para copiar');
+  navigator.clipboard.writeText(link).then(()=>showToast('Link copiado')).catch(()=>showToast('No se pudo copiar'));
+}
+
+async function perfilSave(){
+  const btn = document.getElementById('perfil-save-btn');
+  const st = document.getElementById('perfil-status');
+  if(!perfilState.recordId){ if(st) st.textContent='Primero carga el perfil.'; return; }
+  btn.disabled = true; btn.textContent = 'Guardando...'; if(st) st.textContent='';
+  try{
+    const fields = {
+      'Nombre': (document.getElementById('pf-nombre')?.value || '').trim(),
+      'Teléfono WhatsApp': (document.getElementById('pf-whatsapp')?.value || '').trim(),
+      'Email': (document.getElementById('pf-email')?.value || '').trim(),
+      'Frase': (document.getElementById('pf-frase')?.value || '').trim(),
+      'Pixel ID Meta': (document.getElementById('pf-pixel')?.value || '').trim(),
+    };
+
+    const fotoFile = document.getElementById('pf-foto-file')?.files?.[0];
+    const fotoUrl  = (document.getElementById('pf-foto-url')?.value || '').trim();
+    if(fotoFile){
+      btn.textContent = 'Subiendo foto...';
+      const url = await uploadBlobFile(fotoFile, SESSION?.slug || 'asesor', 'foto-perfil');
+      fields['Foto'] = [{ url }];
+    } else if(fotoUrl){
+      fields['Foto'] = [{ url: fotoUrl }];
+    }
+
+    // Limpia vacíos sin borrar campos bloqueados ni campos viejos.
+    Object.keys(fields).forEach(k=>{ if(fields[k] === '') fields[k] = null; });
+
+    await atFetch(`${ASESOR_TABLE_ID}/${perfilState.recordId}`, {
+      method:'PATCH', body: JSON.stringify({ fields, typecast:true })
+    });
+
+    Object.assign(SESSION, {
+      nombre: fields['Nombre'] || SESSION.nombre,
+      whatsapp: String(fields['Teléfono WhatsApp'] || SESSION.whatsapp || '').replace(/\D/g,''),
+      email: fields['Email'] || '',
+      frase: fields['Frase'] || '',
+      pixel: fields['Pixel ID Meta'] || ''
+    });
+    refreshChrome();
+    perfilState.loaded = false;
+    await perfilLoad(true);
+    showToast('✓ Perfil actualizado');
+    if(st) st.textContent='Guardado correctamente.';
+  }catch(e){
+    if(st) { st.style.color='var(--red)'; st.textContent='Error: '+e.message; }
+  }finally{
+    btn.disabled = false; btn.textContent = 'Guardar perfil';
+  }
 }
 
 /* ═══════════════════════════════════════════════════
@@ -2482,7 +2696,7 @@ const LANDING_META = (() => {
 })();
 
 function _esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function _escAttr(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;'); }
+function _escAttr(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 
 function _attInfo(rec, name){
   const a = rec.fields?.[name];
@@ -2500,22 +2714,55 @@ function _safeDocKey(s){
     .slice(0,80);
 }
 
+let _blobClientUploadPromise = null;
+async function getBlobClientUpload(){
+  if(window.__neriBlobUpload) return window.__neriBlobUpload;
+  if(!_blobClientUploadPromise){
+    _blobClientUploadPromise = import('https://esm.sh/@vercel/blob@latest/client')
+      .then(mod => {
+        if(!mod.upload) throw new Error('No se pudo cargar @vercel/blob/client.');
+        window.__neriBlobUpload = mod.upload;
+        return mod.upload;
+      });
+  }
+  return _blobClientUploadPromise;
+}
+
 async function uploadBlobFile(file, folio, doc){
   if(!file) return null;
-  const qs = new URLSearchParams({
-    folio: folio || 'sin-folio',
-    doc: _safeDocKey(doc || 'archivo'),
-    filename: file.name || 'archivo'
-  });
-  const r = await fetch('/api/upload-documento?' + qs.toString(), {
-    method:'POST',
-    headers:{ 'x-content-type': file.type || 'application/octet-stream' },
-    body:file
-  });
-  const data = await r.json().catch(() => ({}));
-  if(!r.ok) throw new Error(data.error || ('No se pudo subir ' + (file.name || 'archivo')));
-  if(!data.url) throw new Error('Blob no devolvió URL para ' + (file.name || 'archivo'));
-  return data.url;
+  const maxBytes = 200 * 1024 * 1024;
+  if(file.size > maxBytes) throw new Error('El archivo supera 200 MB. Comprime el video o usa un enlace externo.');
+
+  const safeFolio = _safeDocKey(folio || 'sin-folio');
+  const safeDoc   = _safeDocKey(doc || 'archivo');
+  const safeName  = _safeDocKey(file.name || 'archivo');
+  const pathname  = `intranet/${safeFolio}/${safeDoc}-${Date.now()}-${safeName}`;
+
+  try{
+    const upload = await getBlobClientUpload();
+    const blob = await upload(pathname, file, {
+      access: 'public',
+      handleUploadUrl: '/api/upload',
+      clientPayload: JSON.stringify({ folio: safeFolio, doc: safeDoc })
+    });
+    if(!blob?.url) throw new Error('Blob no devolvió URL.');
+    return blob.url;
+  }catch(e){
+    // Respaldo controlado: solo para archivos pequeños. Vercel Functions tienen límite de 4.5 MB.
+    if(file.size <= 4 * 1024 * 1024){
+      const qs = new URLSearchParams({ folio: folio || 'sin-folio', doc: safeDoc, filename: file.name || 'archivo' });
+      const r = await fetch('/api/upload-documento?' + qs.toString(), {
+        method:'POST',
+        headers:{ 'x-content-type': file.type || 'application/octet-stream' },
+        body:file
+      });
+      const data = await r.json().catch(() => ({}));
+      if(!r.ok) throw new Error(data.error || ('No se pudo subir ' + (file.name || 'archivo')));
+      if(!data.url) throw new Error('Blob no devolvió URL para ' + (file.name || 'archivo'));
+      return data.url;
+    }
+    throw new Error('No se pudo subir directo a Vercel Blob. Revisa BLOB_READ_WRITE_TOKEN y que Blob esté conectado al proyecto. Detalle: ' + (e?.message || e));
+  }
 }
 
 function _landInput(fl, rec){
@@ -2539,7 +2786,7 @@ function _landInput(fl, rec){
         </div>
         <input class="form-inp" type="text" data-attach="${_escAttr(name)}"
                placeholder="O pegar URL pública para reemplazar (opcional)">
-        <div class="le-note">Puedes subir el archivo desde aquí. La intranet lo manda a Vercel Blob y guarda solo la URL en Airtable.</div>
+        <div class="le-note">Puedes subir el archivo desde aquí. La intranet lo manda directo a Vercel Blob y guarda solo la URL en Airtable.</div>
       </div>`;
   }
   if(fl.type === 'select'){
@@ -2595,7 +2842,7 @@ function landOpenEditor(recId){
   const secs = LANDING_FORM.map(sec => {
     let inner;
     if(sec.videos){
-      inner = `<div class="le-note" style="margin:0 0 8px">Puedes pegar ID de YouTube o subir el MP4 aquí. La intranet sube el archivo a Blob y guarda la URL en Airtable.</div>`
+      inner = `<div class="le-note" style="margin:0 0 8px">Puedes pegar ID de YouTube o subir el MP4 aquí. La intranet sube directo a Blob y guarda la URL en Airtable.</div>`
             + sec.videos.map(v => _landVideoRow(v, rec)).join('');
     } else {
       inner = `<div class="le-grid">${sec.fields.map(fl => _landInput(fl, rec)).join('')}</div>`;
@@ -2710,8 +2957,6 @@ async function landSave(){
 /*  Patrón: abre modal de solo lectura/edición de una cita.
     Si no existe cita para ese folio lead → modo creación.
     Nunca escribe el Folio Cita (campo calculado / Make).     */
-
-const CITA_VERCEL_BASE = 'https://cita-sable.vercel.app/'; // ← URL real de la pagina de cita (handoff 6)
 
 function citaOpenFicha(recId){
   const rec = crmState.records.find(r => r.id === recId);
@@ -3245,7 +3490,7 @@ function openExternal(id){
    NAVEGACIÓN
 ═══════════════════════════════════════════════════ */
 const LABELS = {
-  hoy:'Inicio', airtable:'Mi CRM', sala:'Sala de Mensajes',
+  hoy:'Inicio', perfil:'Mi Perfil', airtable:'Mi CRM', sala:'Sala de Mensajes',
   compradores:'Landing Compradores', vendedores:'Landing Vendedores',
   citas:'Panel de Citas', progreso:'Portal Progreso',
   opciones:'Opciones de Compra', reportes:'Reportes'
@@ -3263,6 +3508,7 @@ function goTo(id){
 
   document.getElementById('tb-label').textContent = LABELS[id] || id;
   if(id === 'airtable') setTimeout(onAirtablePanelActivate, 60);
+  if(id === 'perfil') setTimeout(()=>perfilLoad(false), 60);
   if(id === 'hoy') setTimeout(()=>loadHoyData(false), 60);
 }
 
