@@ -357,6 +357,131 @@ select.form-input option{background:#111;color:#fff}
 }
 .tc-arrow{transition:transform .15s;font-size:13px}
 
+/* ─ Dashboard Hoy: refresh, KPIs, inteligencia ─ */
+.hoy-banner-right{display:flex;align-items:center;gap:12px}
+.hoy-refresh{
+  width:30px;height:30px;border-radius:50%;border:1px solid var(--border2);
+  background:transparent;color:var(--gold);font-size:14px;cursor:pointer;
+  transition:all .15s;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.hoy-refresh:hover{border-color:var(--goldbdr);background:var(--golddim)}
+.hoy-refresh.spin{animation:hoyspin .8s linear infinite}
+@keyframes hoyspin{to{transform:rotate(360deg)}}
+
+.kpi-strip{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:1px;
+  background:var(--border);border:1px solid var(--border);border-radius:var(--r);
+  overflow:hidden;margin-bottom:24px;
+}
+.kpi{background:var(--surface);padding:18px 20px}
+.kpi-num{font-family:var(--display);font-size:42px;letter-spacing:1px;line-height:.9;color:var(--gold)}
+.kpi-lbl{font-size:7px;letter-spacing:2.5px;text-transform:uppercase;color:var(--w50);font-weight:700;margin-top:8px}
+
+.hoy-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px}
+.hoy-col{border:1px solid var(--border);border-radius:var(--r);background:var(--surface);overflow:hidden}
+.hoy-col-head{
+  display:flex;align-items:center;gap:9px;padding:14px 18px;
+  font-size:8px;letter-spacing:3px;text-transform:uppercase;font-weight:800;color:var(--w80);
+  border-bottom:1px solid var(--border);background:var(--surface2);
+}
+.hoy-col-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;background:var(--gold)}
+.hoy-col-dot.red{background:var(--red)}
+.hoy-col-count{margin-left:auto;color:var(--gold);font-family:var(--mono);font-size:11px;letter-spacing:0}
+.hoy-list{max-height:340px;overflow-y:auto}
+
+.hoy-item{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:13px 18px;border-bottom:1px solid var(--border);width:100%;text-align:left;
+  background:transparent;color:inherit;border-left:none;border-right:none;border-top:none;
+}
+.hoy-item:last-child{border-bottom:none}
+.hoy-item.act{cursor:pointer;transition:background .15s}
+.hoy-item.act:hover{background:var(--surface2)}
+.hoy-item.act:hover .hi-go{transform:translateX(3px);color:var(--gold)}
+.hoy-item.is-today{background:var(--golddim);border-left:2px solid var(--gold)}
+.hi-main{min-width:0;flex:1}
+.hi-title{font-size:12px;font-weight:600;color:var(--white);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.hi-sub{font-size:10px;color:var(--w50);font-weight:300;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:240px}
+.hi-meta{text-align:right;flex-shrink:0}
+.hi-when{font-family:var(--mono);font-size:10px;color:var(--w50);margin-bottom:5px;white-space:nowrap}
+.hi-today{font-size:6px;letter-spacing:1.5px;background:var(--gold);color:#060606;padding:2px 6px;border-radius:999px;font-weight:800}
+.hi-pill{font-size:6px;letter-spacing:1.5px;text-transform:uppercase;padding:3px 8px;border-radius:999px;font-weight:800;white-space:nowrap}
+.hi-pill.gold{background:var(--golddim);border:1px solid var(--goldbdr);color:var(--gold)}
+.hi-pill.green{background:var(--greendim);border:1px solid rgba(74,222,128,.25);color:var(--green)}
+.hi-pill.red{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3);color:var(--red)}
+.hi-go{font-size:15px;color:var(--w30);transition:all .15s;flex-shrink:0}
+.hi-actions{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.hi-wa{
+  font-size:7px;letter-spacing:1.5px;text-transform:uppercase;font-weight:800;
+  padding:6px 11px;border-radius:999px;text-decoration:none;white-space:nowrap;
+  background:var(--greendim);border:1px solid rgba(74,222,128,.3);color:var(--green);
+  transition:all .15s;
+}
+.hi-wa:hover{background:rgba(74,222,128,.2)}
+.hi-pill.amber{background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.35);color:#fbbf24}
+
+/* Briefing cálido */
+.hoy-brief{
+  padding:14px 18px;margin-bottom:22px;border-radius:var(--r);
+  background:linear-gradient(90deg,var(--golddim),transparent);
+  border:1px solid var(--border);border-left:2px solid var(--gold);
+  font-size:13px;color:var(--w80);font-weight:300;line-height:1.6;
+}
+.hoy-brief b{color:var(--gold);font-weight:700}
+
+/* Operaciones — encabezado */
+.hoy-ops-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin:30px 0 14px;flex-wrap:wrap}
+.hoy-ops-eyebrow{font-size:7px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);font-weight:800}
+.hoy-ops-title{font-family:var(--display);font-size:24px;letter-spacing:2px;margin-top:4px}
+.hoy-ops-hint{font-size:10px;color:var(--w50);font-weight:300;max-width:280px;text-align:right}
+
+/* Tarjeta de operación */
+.op-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+  padding:20px 22px;margin-bottom:14px;
+}
+.op-top{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:18px}
+.op-name{font-family:var(--display);font-size:20px;letter-spacing:1.5px}
+.op-prop{font-size:11px;color:var(--w50);font-weight:300;margin-top:3px}
+.op-link{color:var(--gold);text-decoration:none}
+.op-link:hover{text-decoration:underline}
+.op-pct{text-align:right;flex-shrink:0}
+.op-pct span{font-family:var(--display);font-size:30px;color:var(--gold);line-height:1}
+.op-pct small{display:block;font-size:7px;letter-spacing:2px;text-transform:uppercase;color:var(--w50);font-weight:700;margin-top:3px}
+
+/* Stepper estilo Amazon */
+.op-steps{display:flex;align-items:flex-start;gap:0;margin-bottom:14px}
+.step{display:flex;flex-direction:column;align-items:center;gap:7px;text-align:center;flex:0 0 auto;width:46px}
+.step-dot{width:13px;height:13px;border-radius:50%;border:2px solid var(--w15);background:var(--surface);transition:all .2s}
+.step-lbl{font-size:6px;letter-spacing:.3px;color:var(--w30);line-height:1.25;text-transform:uppercase;font-weight:700}
+.step-bar{flex:1;height:2px;background:var(--w08);margin-top:6px;border-radius:2px;min-width:8px}
+.step.done .step-dot{background:var(--gold);border-color:var(--gold)}
+.step.done .step-lbl{color:var(--w50)}
+.step.now .step-dot{background:var(--green);border-color:var(--green);box-shadow:0 0 0 4px var(--greendim);animation:oppulse 1.8s ease-in-out infinite}
+.step.now .step-lbl{color:var(--green);font-weight:800}
+@keyframes oppulse{0%,100%{box-shadow:0 0 0 3px var(--greendim)}50%{box-shadow:0 0 0 6px rgba(74,222,128,.05)}}
+
+.op-progress{height:4px;background:var(--w08);border-radius:4px;overflow:hidden;margin-bottom:16px}
+.op-progress-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--green));border-radius:4px;transition:width .5s var(--ease)}
+
+.op-foot{display:grid;gap:12px}
+.op-next,.op-docs,.op-pend{font-size:11px;color:var(--w80);font-weight:300;line-height:1.55;padding-left:12px;border-left:2px solid var(--border2)}
+.op-next{border-left-color:var(--green)}
+.op-docs{border-left-color:var(--gold)}
+.op-pend{border-left-color:#fbbf24}
+.op-next-lbl,.op-docs-lbl,.op-pend-lbl{display:block;font-size:7px;letter-spacing:2px;text-transform:uppercase;font-weight:800;color:var(--w50);margin-bottom:4px}
+.op-next-lbl{color:var(--green)}
+.op-docs-lbl{color:var(--gold)}
+.op-pend-lbl{color:#fbbf24}
+.hoy-empty{padding:22px 18px;font-size:11px;color:var(--w30);font-weight:300;text-align:center}
+.hoy-empty.err{color:var(--red)}
+
+.hoy-launch-label{
+  font-size:8px;letter-spacing:3px;text-transform:uppercase;font-weight:800;
+  color:var(--w50);margin-bottom:12px;display:flex;align-items:center;gap:10px;
+}
+.hoy-launch-label::before{content:'';width:20px;height:1px;background:var(--goldbdr);display:block}
+
 /* ══════════════════════════════════════════
    CRM PANEL — diseño premium
 ══════════════════════════════════════════ */
@@ -518,7 +643,10 @@ select.form-input option{background:#111;color:#fff}
 }
 .at-table tbody td.folio{
   font-family:var(--mono);font-size:10px;
-  color:var(--gold);letter-spacing:1px;
+  color:var(--gold);letter-spacing:.5px;white-space:nowrap;
+}
+.at-table tbody td.clip{
+  max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
 
 /* Filas alternas muy sutil */
@@ -541,6 +669,9 @@ select.form-input option{background:#111;color:#fff}
 .badge-lost{background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);color:#f87171}
 .badge-active{background:rgba(201,169,110,.08);border:1px solid var(--goldbdr);color:var(--gold)}
 .badge-sold{background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);color:#34d399}
+.badge-hot{background:rgba(248,113,113,.12);border:1px solid rgba(248,113,113,.32);color:#f87171}
+.badge-warm{background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.28);color:#fbbf24}
+.badge-cold{background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.24);color:#60a5fa}
 
 /* Estado vacío */
 .crm-empty{
@@ -599,6 +730,94 @@ select.form-input option{background:#111;color:#fff}
   margin-top:24px;padding-top:20px;border-top:1px solid var(--border);
 }
 
+/* ─── FICHA PREMIUM ─── */
+#crm-ficha{
+  display:none;position:fixed;inset:0;z-index:910;
+  background:rgba(0,0,0,.9);backdrop-filter:blur(12px);
+  align-items:center;justify-content:center;padding:20px;
+}
+.fk-box{width:min(600px,100%)}
+.fk-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.fk-name{font-family:var(--display);font-size:24px;letter-spacing:1px;color:var(--white);line-height:1.1}
+.fk-folio{font-size:11px;color:var(--gold);letter-spacing:2px;margin-top:6px;font-family:monospace}
+.fk-op{font-size:10px;color:var(--w30);letter-spacing:1px;margin-top:3px;font-family:monospace}
+.fk-tags{display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex-shrink:0}
+.fk-sub{font-size:12px;color:var(--w50);margin-top:10px}
+.fk-diag{
+  margin-top:18px;padding:14px 16px;border-radius:3px;
+  border:1px solid var(--border2);background:rgba(255,255,255,.02);
+  display:flex;flex-direction:column;gap:4px;
+}
+.fk-diag.on{border-color:var(--goldbdr);background:rgba(201,169,110,.06)}
+.fk-diag-lbl{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--w30)}
+.fk-diag-val{font-size:15px;color:var(--white)}
+.fk-grid{margin-top:14px;display:flex;flex-direction:column;gap:2px}
+.fk-row{display:grid;grid-template-columns:150px 1fr;gap:12px;padding:11px 4px;border-bottom:1px solid var(--border)}
+.fk-k{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--w30);padding-top:2px}
+.fk-v{font-size:13px;color:var(--w80,#cfcfcf);line-height:1.4}
+.fk-empty{color:var(--w20);font-style:italic}
+.fk-msg-wrap{margin-top:16px}
+.fk-msg-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.fk-msg-head span{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--w30)}
+.fk-copy{
+  background:transparent;border:1px solid var(--border2);color:var(--w50);
+  font-size:10px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;
+  padding:4px 10px;border-radius:2px;transition:all .13s;
+}
+.fk-copy:hover{border-color:var(--goldbdr);color:var(--gold)}
+.fk-msg{
+  font-size:13px;color:var(--w80,#cfcfcf);line-height:1.5;white-space:pre-wrap;
+  padding:14px 16px;border-radius:3px;background:rgba(255,255,255,.02);
+  border:1px solid var(--border);
+}
+
+/* ─── EDITOR DE LANDING (Ficha de Propiedad) ─── */
+#crm-landing{
+  display:none;position:fixed;inset:0;z-index:912;
+  background:rgba(0,0,0,.9);backdrop-filter:blur(12px);
+  align-items:center;justify-content:center;padding:20px;
+}
+.le-box{width:min(680px,100%)}
+.le-sec{margin-top:22px}
+.le-sec:first-child{margin-top:4px}
+.le-sec-title{
+  font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);
+  font-weight:800;padding-bottom:8px;margin-bottom:14px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:8px;
+}
+.le-sec-title .le-ico{opacity:.65;font-style:normal}
+.le-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.le-grid .full{grid-column:1/-1}
+.le-vrow{
+  display:grid;grid-template-columns:96px 1fr auto;gap:10px;align-items:center;
+  padding:9px 0;border-bottom:1px solid var(--border);
+}
+.le-vroom{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--w50)}
+.le-vstatus{font-size:8px;letter-spacing:1.5px;text-transform:uppercase;white-space:nowrap;font-weight:700}
+.le-vstatus.on{color:var(--gold)}
+.le-vstatus.off{color:var(--w20)}
+.le-attach{display:flex;align-items:center;gap:10px;margin-bottom:7px}
+.le-thumb{
+  width:42px;height:42px;border-radius:3px;object-fit:cover;border:1px solid var(--border2);
+  background:#0a0a0a;flex-shrink:0;
+}
+.le-thumb-empty{
+  width:42px;height:42px;border-radius:3px;border:1px dashed var(--border2);
+  display:flex;align-items:center;justify-content:center;color:var(--w20);
+  font-size:16px;flex-shrink:0;
+}
+.le-note{font-size:10px;color:var(--w30);margin-top:4px;line-height:1.5}
+.le-lock{
+  display:flex;flex-direction:column;gap:2px;padding:11px 13px;border-radius:3px;
+  background:rgba(255,255,255,.02);border:1px solid var(--border);margin-bottom:8px;
+}
+.le-lock-k{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--w30);display:flex;gap:6px;align-items:center}
+.le-lock-v{font-size:12px;color:var(--w80,#cfcfcf);font-family:monospace;word-break:break-all;margin-top:2px}
+.le-banner{
+  font-size:10px;color:var(--w50);background:rgba(201,169,110,.06);
+  border:1px solid var(--goldbdr);border-radius:3px;padding:9px 12px;line-height:1.5;
+}
+
 /* row-check */
 .row-check{
   width:14px;height:14px;border-radius:2px;border:1px solid var(--border2);
@@ -635,6 +854,8 @@ select.form-input option{background:#111;color:#fff}
 .btn-primary:disabled{opacity:.5;cursor:not-allowed}
 .btn-ghost{background:transparent;border-color:var(--border2);color:var(--w50)}
 .btn-ghost:hover{border-color:var(--goldbdr);color:var(--gold)}
+.btn-cita{background:transparent;border-color:#3b82f6;color:#3b82f6}
+.btn-cita:hover{background:rgba(59,130,246,.12);border-color:#60a5fa;color:#60a5fa}
 
 /* ── Inputs del modal ── */
 .form-inp{
@@ -657,23 +878,6 @@ select.form-inp option{background:#111;color:#fff}
 .form-group{display:flex;flex-direction:column;gap:5px}
 .form-group label{font-size:7px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);font-weight:800}
 
-/* ══════════ Bloque DATOS AUTOMÁTICOS (solo lectura) ══════════ */
-.ro-block{margin-top:6px;padding:12px 14px;background:rgba(255,255,255,.02);
-  border:1px solid var(--border2);border-left:2px solid var(--gold);border-radius:var(--r)}
-.ro-head{font-size:8px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);font-weight:800;margin-bottom:10px}
-.ro-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04)}
-.ro-row:last-of-type{border-bottom:none}
-.ro-label{flex:0 0 130px;font-size:9px;letter-spacing:.5px;text-transform:uppercase;color:var(--w50);font-weight:700}
-.ro-field{flex:1;display:flex;align-items:center;gap:8px;min-width:0}
-.ro-val{font-size:11px;color:var(--w80);word-break:break-word}
-.ro-link{font-size:11px;color:var(--gold);text-decoration:none;word-break:break-all;flex:1}
-.ro-link:hover{text-decoration:underline}
-.ro-empty{font-size:10px;color:var(--w30);font-style:italic}
-.ro-copy{flex:0 0 auto;cursor:pointer;background:var(--surface2);border:1px solid var(--border2);
-  color:var(--w80);border-radius:6px;width:26px;height:24px;font-size:12px;line-height:1;transition:all .2s var(--ease)}
-.ro-copy:hover{border-color:var(--goldbdr);color:var(--gold);background:var(--golddim)}
-.ro-note{margin-top:9px;font-size:9px;color:var(--w30);line-height:1.5}
-
 /* ══════════════════════════════════════════
    NOTIFICACIÓN TOAST
 ══════════════════════════════════════════ */
@@ -687,6 +891,219 @@ select.form-inp option{background:#111;color:#fff}
 }
 #toast.show{transform:translateY(0);opacity:1}
 
+/* ─── MODAL DE CITA ─── */
+#crm-cita{
+  display:none;position:fixed;inset:0;z-index:915;
+  background:rgba(0,0,0,.92);backdrop-filter:blur(14px);
+  align-items:center;justify-content:center;padding:20px;
+}
+.cita-box{width:min(640px,100%)}
+
+/* Cabecera tipo ticket */
+.cita-ticket{
+  background:linear-gradient(135deg,rgba(201,169,110,.09) 0%,rgba(201,169,110,.03) 100%);
+  border:1px solid var(--goldbdr);border-radius:3px;
+  padding:20px 24px;margin-bottom:20px;
+  display:grid;grid-template-columns:1fr auto;gap:12px;align-items:start;
+}
+.cita-folio-tag{font-size:7px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);font-weight:800;margin-bottom:6px}
+.cita-nombre{font-family:var(--display);font-size:26px;letter-spacing:2px;color:var(--white);line-height:1.1}
+.cita-propiedad{font-size:11px;color:var(--w50);margin-top:5px;display:flex;align-items:center;gap:6px}
+.cita-folio-code{font-family:var(--mono);font-size:11px;color:var(--gold);letter-spacing:1.5px;
+  padding:5px 12px;border:1px solid var(--goldbdr);border-radius:2px;white-space:nowrap;background:rgba(201,169,110,.06)}
+
+/* Secciones del formulario */
+.cita-sec-title{
+  font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--w30);
+  font-weight:800;padding-bottom:7px;margin:18px 0 12px;
+  border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;
+}
+.cita-sec-title span{color:var(--gold);font-size:11px}
+.cita-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cita-grid .full{grid-column:1/-1}
+
+/* Bloque de confirmación (solo lectura) */
+.cita-confirm-block{
+  background:rgba(74,222,128,.06);border:1px solid rgba(74,222,128,.22);
+  border-left:3px solid var(--green);border-radius:3px;
+  padding:16px 18px;margin-top:14px;
+}
+.cita-confirm-title{
+  font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--green);
+  font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:8px;
+}
+.cita-confirm-row{
+  display:grid;grid-template-columns:130px 1fr;gap:8px;
+  padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06);
+}
+.cita-confirm-row:last-child{border-bottom:none}
+.cita-ck{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--w30)}
+.cita-cv{font-size:12px;color:var(--w80);font-family:inherit;line-height:1.4}
+
+/* Botón de link de cita */
+.cita-link-chip{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:6px 14px;border:1px solid var(--goldbdr);border-radius:999px;
+  font-size:8px;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--gold);background:var(--golddim);cursor:pointer;
+  transition:all .13s;font-weight:700;margin-top:10px;
+}
+.cita-link-chip:hover{background:rgba(201,169,110,.18)}
+
+/* Badge estado cita */
+.badge-cita-pend{background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.2);color:#fbbf24}
+.badge-cita-conf{background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.25);color:#4ade80}
+.badge-cita-real{background:rgba(201,169,110,.08);border:1px solid var(--goldbdr);color:var(--gold)}
+.badge-cita-canc{background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);color:#f87171}
+
+/* Tab dot citas */
+.at-tab-dot.citas{background:#f59e0b}
+
+
+/* ══════════════════════════════════════════
+   FICHA VENDEDOR — premium
+══════════════════════════════════════════ */
+#crm-ficha-vendedor{
+  display:none;position:fixed;inset:0;z-index:911;
+  background:rgba(0,0,0,.92);backdrop-filter:blur(14px);
+  align-items:flex-start;justify-content:center;
+  padding:20px;overflow-y:auto;
+}
+.fv-box{
+  width:min(680px,100%);margin:auto;
+  animation:fadeUp .25s var(--ease);
+}
+/* Header de la ficha */
+.fv-header{
+  background:linear-gradient(135deg,rgba(201,169,110,.1) 0%,rgba(201,169,110,.03) 100%);
+  border:1px solid var(--goldbdr);border-top:2px solid var(--gold);
+  border-radius:3px 3px 0 0;padding:24px 28px 20px;
+  display:grid;grid-template-columns:1fr auto;gap:16px;align-items:start;
+  position:relative;overflow:hidden;
+}
+.fv-header::before{
+  content:'LEAD';font-family:var(--display);font-size:140px;
+  color:rgba(201,169,110,.04);position:absolute;right:-10px;bottom:-28px;
+  line-height:1;pointer-events:none;letter-spacing:-4px;
+}
+.fv-nombre{font-family:var(--display);font-size:32px;letter-spacing:2px;color:var(--white);line-height:1}
+.fv-wa{
+  margin-top:8px;display:flex;align-items:center;gap:8px;
+  font-family:var(--mono);font-size:13px;color:var(--w80);
+}
+.fv-wa-btn{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:4px 10px;border:1px solid rgba(74,222,128,.3);
+  border-radius:999px;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;
+  font-weight:700;color:var(--green);background:rgba(74,222,128,.06);
+  cursor:pointer;transition:all .13s;text-decoration:none;
+}
+.fv-wa-btn:hover{background:rgba(74,222,128,.14);border-color:rgba(74,222,128,.5)}
+.fv-folio{
+  font-family:var(--mono);font-size:11px;color:var(--gold);letter-spacing:1.5px;
+  padding:6px 14px;border:1px solid var(--goldbdr);border-radius:2px;
+  background:rgba(201,169,110,.06);white-space:nowrap;text-align:center;
+}
+.fv-folio-lbl{font-size:7px;letter-spacing:2px;text-transform:uppercase;color:var(--w30);margin-bottom:4px;font-weight:700}
+.fv-meta{
+  margin-top:8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+}
+.fv-meta-chip{
+  font-size:7px;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--w30);font-weight:700;
+  display:flex;align-items:center;gap:5px;
+}
+.fv-meta-chip em{font-style:normal;color:var(--w50)}
+
+/* Body scrollable */
+.fv-body{
+  background:linear-gradient(180deg,#141414 0%,#0f0f0f 100%);
+  border:1px solid var(--goldbdr);border-top:none;border-radius:0 0 3px 3px;
+  padding:0 28px 28px;
+  max-height:calc(90vh - 120px);overflow-y:auto;
+  scrollbar-width:thin;
+}
+.fv-body::-webkit-scrollbar{width:3px}
+.fv-body::-webkit-scrollbar-thumb{background:var(--w15)}
+
+/* Secciones */
+.fv-sec{margin-top:24px}
+.fv-sec-title{
+  font-size:8px;letter-spacing:3px;text-transform:uppercase;
+  color:var(--w30);font-weight:800;
+  padding-bottom:8px;margin-bottom:14px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:8px;
+}
+.fv-sec-title em{font-style:normal;color:var(--gold);font-size:12px}
+
+/* Grid de datos */
+.fv-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px}
+.fv-row{
+  display:flex;flex-direction:column;gap:3px;
+  padding:10px 12px;background:rgba(255,255,255,.018);
+  border-radius:2px;
+}
+.fv-row.full{grid-column:1/-1}
+.fv-row-k{font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--w30);font-weight:700}
+.fv-row-v{font-size:13px;color:var(--w80);line-height:1.5}
+.fv-row-v.empty{color:var(--w20);font-style:italic;font-size:11px}
+.fv-row-v.long{font-size:12px;white-space:pre-wrap}
+
+/* Grid numérico de la propiedad */
+.fv-nums{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:2px;
+  margin-top:2px;
+}
+.fv-num{
+  display:flex;flex-direction:column;align-items:center;
+  padding:12px 8px;background:rgba(255,255,255,.018);border-radius:2px;
+  gap:3px;
+}
+.fv-num-val{font-family:var(--display);font-size:28px;color:var(--gold);letter-spacing:1px;line-height:1}
+.fv-num-lbl{font-size:7px;letter-spacing:1.5px;text-transform:uppercase;color:var(--w30);font-weight:700;text-align:center}
+.fv-num.empty .fv-num-val{color:var(--w20);font-size:18px}
+
+/* Bloque de conversión (highlight) */
+.fv-conversion{
+  margin-top:14px;padding:14px 16px;border-radius:3px;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  border:1px solid var(--border2);background:rgba(255,255,255,.02);
+}
+.fv-conversion.firma-exc{border-color:rgba(251,191,36,.3);background:rgba(251,191,36,.06)}
+.fv-conversion.firma-dir{border-color:rgba(52,211,153,.3);background:rgba(52,211,153,.05)}
+.fv-conversion.seguimiento{border-color:rgba(167,139,250,.3);background:rgba(167,139,250,.05)}
+.fv-conversion.no-cal{border-color:rgba(248,113,113,.2);background:rgba(248,113,113,.04)}
+.fv-conv-lbl{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--w30)}
+.fv-conv-val{font-family:var(--display);font-size:20px;letter-spacing:1px;color:var(--white);margin-top:2px}
+.fv-conv-desc{font-size:10px;color:var(--w30);margin-top:2px;line-height:1.5}
+
+/* Candado sistema */
+.fv-lock{
+  margin-top:4px;padding:9px 12px;border-radius:2px;
+  background:rgba(255,255,255,.015);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+}
+.fv-lock-k{font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--w30);display:flex;align-items:center;gap:6px}
+.fv-lock-v{font-size:11px;font-family:var(--mono);color:var(--w50)}
+.fv-lock-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:2px 8px;border-radius:999px;font-size:7px;letter-spacing:1px;
+  font-weight:700;text-transform:uppercase;
+}
+.fv-lock-badge.on{background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.3);color:#34d399}
+.fv-lock-badge.off{background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--w30)}
+
+/* Actions footer */
+.fv-actions{
+  display:flex;gap:8px;justify-content:flex-end;
+  padding:16px 28px;
+  border-top:1px solid var(--border);
+  background:rgba(8,8,8,.6);
+  border-radius:0 0 3px 3px;
+  position:sticky;bottom:0;
+}
+
 /* ══════════════════════════════════════════
    RESPONSIVE
 ══════════════════════════════════════════ */
@@ -698,6 +1115,11 @@ select.form-inp option{background:#111;color:#fff}
   #screen-login{grid-template-columns:1fr}
   .login-left{display:none}
   .hoy-tools-grid{grid-template-columns:1fr 1fr}
+  .hoy-grid{grid-template-columns:1fr}
+  .kpi-strip{grid-template-columns:1fr 1fr}
+  .hi-sub{max-width:160px}
+  .op-steps{overflow-x:auto;padding-bottom:6px}
+  .hoy-ops-hint{text-align:left;max-width:none}
 }
 </style>
 </head>
@@ -823,10 +1245,11 @@ let SESSION = null;
    USUARIOS / CREDENCIALES (demo)
 ═══════════════════════════════════════════════════ */
 const USERS = {
-  'asesor':   { pass:'neri2024', nombre:'Enrique Neri',     rol:'asesor',   empresa:'Century 21 Haus · Cuernavaca' },
-  'gerente':  { pass:'neri2024', nombre:'Ana Gutiérrez',    rol:'gerente',  empresa:'Método NERI' },
-  'director': { pass:'neri2024', nombre:'Carlos Neri',      rol:'director', empresa:'Método NERI' },
-  'admin':    { pass:'neri2024', nombre:'Admin Sistema',    rol:'admin',    empresa:'Método NERI' },
+  'enrique':  { pass:'neri2024', nombre:'Enrique Neri',  rol:'asesor',   slug:'enrique', whatsapp:'527779855687', empresa:'Century 21 Haus · Cuernavaca', pixel:'1308747473990434' },
+  'asesor':   { pass:'neri2024', nombre:'Enrique Neri',  rol:'asesor',   slug:'enrique', whatsapp:'527779855687', empresa:'Century 21 Haus · Cuernavaca', pixel:'1308747473990434' },
+  'gerente':  { pass:'neri2024', nombre:'Ana Gutiérrez', rol:'gerente',  slug:'ana',     whatsapp:'527779855687', empresa:'Método NERI', pixel:'' },
+  'director': { pass:'neri2024', nombre:'Carlos Neri',   rol:'director', slug:'carlos',  whatsapp:'527779855687', empresa:'Método NERI', pixel:'' },
+  'admin':    { pass:'neri2024', nombre:'Admin Sistema', rol:'admin',    slug:'admin',   whatsapp:'527779855687', empresa:'Método NERI', pixel:'' },
 };
 
 /* ═══════════════════════════════════════════════════
@@ -843,7 +1266,7 @@ const NAV_ROL = {
     { id:'vendedores',  label:'Landing Vendedores', icon:'🏠' },
     { section:'Seguimiento' },
     { id:'citas',       label:'Panel de Citas',     icon:'📋' },
-    { id:'progreso',    label:'Portal Cliente',     icon:'◎' },
+    { id:'progreso',    label:'Portal Progreso',     icon:'◎' },
     { id:'opciones',    label:'Opciones de Compra', icon:'⊞' },
   ],
   gerente: [
@@ -868,7 +1291,7 @@ const NAV_ROL = {
     { id:'compradores', label:'Landing Compradores',icon:'⊕' },
     { id:'vendedores',  label:'Landing Vendedores', icon:'🏠' },
     { id:'citas',       label:'Panel de Citas',     icon:'📋' },
-    { id:'progreso',    label:'Portal Cliente',     icon:'◎' },
+    { id:'progreso',    label:'Portal Progreso',     icon:'◎' },
   ],
   admin: [
     { section:'Sistema' },
@@ -879,7 +1302,7 @@ const NAV_ROL = {
     { id:'compradores', label:'Landing Compradores',icon:'⊕' },
     { id:'vendedores',  label:'Landing Vendedores', icon:'🏠' },
     { id:'citas',       label:'Panel de Citas',     icon:'📋' },
-    { id:'progreso',    label:'Portal Cliente',     icon:'◎' },
+    { id:'progreso',    label:'Portal Progreso',     icon:'◎' },
     { id:'opciones',    label:'Opciones de Compra', icon:'⊞' },
   ],
 };
@@ -892,7 +1315,7 @@ const TOOLS = {
   compradores: { name:'Landing Compradores', url:'https://captacion.vercel.app',             ext:true },
   vendedores:  { name:'Landing Vendedores',  url:'https://ahuatlan32m.vercel.app',      ext:true },
   citas:       { name:'Panel de Citas',      url:'https://citas-vert.vercel.app',                    ext:true },
-  progreso:    { name:'Portal Cliente',      url:'https://captacion.vercel.app',        ext:true },
+  progreso:    { name:'Portal Progreso',      url:'https://captacion.vercel.app',        ext:true },
   opciones:    { name:'Opciones de Compra',  url:'https://opcionesdecompra.vercel.app',     ext:true },
   reportes:    { name:'Reportes',            url:'Reportes.html',                        ext:true },
 };
@@ -914,8 +1337,13 @@ function doLogin(){
 
   if(!user || !pass || !rol){ err.textContent='Completa todos los campos.'; return; }
 
-  const u = USERS[user];
-  if(!u || u.pass !== pass || u.rol !== rol){
+  let u = USERS[user];
+  // Modo prueba: cualquier slug de asesor con la contraseña demo entra como ese asesor.
+  if(!u){
+    if(pass !== 'neri2024'){ err.textContent='Credenciales incorrectas. (Demo: contraseña = neri2024)'; return; }
+    const bonito = user.charAt(0).toUpperCase()+user.slice(1);
+    u = { pass:'neri2024', nombre:bonito, rol, slug:user, whatsapp:'527779855687', empresa:'Método NERI', pixel:'' };
+  } else if(u.pass !== pass || u.rol !== rol){
     err.textContent='Credenciales incorrectas. (Demo: contraseña = neri2024)';
     return;
   }
@@ -925,6 +1353,39 @@ function doLogin(){
   document.getElementById('screen-login').classList.add('hidden');
   document.getElementById('screen-app').classList.remove('hidden');
   bootApp();
+  // Identidad real desde Airtable (Asesor captación) — fuente única, no rompe nada.
+  enrichIdentity(SESSION.slug);
+}
+
+/* Trae nombre/whatsapp/empresa/pixel reales del asesor desde Airtable por slug.
+   Best-effort: si falla, la sesión sigue con el perfil local. */
+async function enrichIdentity(slug){
+  if(!slug) return;
+  try{
+    const formula = encodeURIComponent(`LOWER({Slug})='${String(slug).toLowerCase()}'`);
+    const data = await atFetch(`tblIRPmLIyj8sWyEk?filterByFormula=${formula}&maxRecords=1`);
+    const rec = (data.records||[])[0];
+    if(!rec) return;
+    const f = rec.fields || {};
+    if(f['Nombre'])            SESSION.nombre   = f['Nombre'];
+    if(f['Teléfono WhatsApp']) SESSION.whatsapp = String(f['Teléfono WhatsApp']).replace(/\D/g,'');
+    if(f['Pixel ID Meta'])     SESSION.pixel    = f['Pixel ID Meta'];
+    const ciudad = f['Ciudad'] || f['Ciudad (texto viejo)'] || '';
+    const puesto = f['Puesto'] || f['Puesto (texto viejo)'] || '';
+    if(ciudad || puesto) SESSION.empresa = [puesto, ciudad].filter(Boolean).join(' · ') || SESSION.empresa;
+    refreshChrome();
+    showToast('Identidad: '+SESSION.nombre);
+  }catch(e){ /* sin conexión: se queda el perfil local */ }
+}
+
+function refreshChrome(){
+  const s = SESSION; if(!s) return;
+  const a=document.getElementById('sb-name'); if(a) a.textContent=s.nombre;
+  const b=document.getElementById('sb-role'); if(b) b.textContent=s.rol.toUpperCase()+' · '+s.empresa;
+  const c=document.getElementById('tb-user'); if(c) c.textContent=s.nombre;
+  // Re-pinta el saludo del dashboard con la identidad correcta
+  const nameEl=document.querySelector('#panel-hoy .hoy-name'); if(nameEl) nameEl.textContent=s.nombre;
+  const roleEl=document.querySelector('#panel-hoy .hoy-role'); if(roleEl) roleEl.innerHTML=`${s.empresa} · <span style="text-transform:capitalize">${s.rol}</span>`;
 }
 
 function doLogout(){
@@ -989,6 +1450,8 @@ function buildPanels(){
 /* ═══════════════════════════════════════════════════
    PANEL HOY
 ═══════════════════════════════════════════════════ */
+let _hoyLoaded = false;
+
 function buildHoyPanel(){
   const s = SESSION;
   const hora = new Date().getHours();
@@ -1004,6 +1467,9 @@ function buildHoyPanel(){
       <div class="tc-action">Abrir <span class="tc-arrow">→</span></div>
     </button>`).join('');
 
+  const kpi = l=>`<div class="kpi"><div class="kpi-num">—</div><div class="kpi-lbl">${l}</div></div>`;
+  const skel = `<div class="hoy-empty">Cargando…</div>`;
+
   return `<div class="panel" id="panel-hoy">
     <div class="hoy-body">
       <div class="ph-head">
@@ -1015,11 +1481,257 @@ function buildHoyPanel(){
           <div class="hoy-name">${s.nombre}</div>
           <div class="hoy-role">${s.empresa} · <span style="text-transform:capitalize">${s.rol}</span></div>
         </div>
-        <span class="pill pill-green">● Sesión activa</span>
+        <div class="hoy-banner-right">
+          <span class="pill pill-green">● Sesión activa</span>
+          <button class="hoy-refresh" id="hoy-refresh" onclick="loadHoyData(true)" title="Actualizar">↻</button>
+        </div>
       </div>
+
+      <div class="hoy-brief" id="hoy-brief">Cargando tu día…</div>
+
+      <div class="kpi-strip" id="hoy-kpis">
+        ${kpi('Citas activas')}${kpi('Leads HOT')}${kpi('Apartados')}${kpi('Dormidos +7d')}
+      </div>
+
+      <div class="hoy-grid">
+        <section class="hoy-col">
+          <div class="hoy-col-head"><span class="hoy-col-dot gold"></span>Agenda <span class="hoy-col-count" id="hoy-agenda-count"></span></div>
+          <div class="hoy-list" id="hoy-agenda">${skel}</div>
+        </section>
+        <section class="hoy-col">
+          <div class="hoy-col-head"><span class="hoy-col-dot red"></span>No dejes esto pendiente <span class="hoy-col-count" id="hoy-accion-count"></span></div>
+          <div class="hoy-list" id="hoy-accion">${skel}</div>
+        </section>
+      </div>
+
+      <div class="hoy-ops-head">
+        <div><span class="hoy-ops-eyebrow">El diferenciador</span><div class="hoy-ops-title">Operaciones en curso · guía paso a paso</div></div>
+        <div class="hoy-ops-hint">Como un pedido en línea: cada cliente sabe dónde va y qué falta.</div>
+      </div>
+      <div id="hoy-ops">${skel}</div>
+
+      <div class="hoy-launch-label">Herramientas</div>
       <div class="hoy-tools-grid">${cards}</div>
     </div>
   </div>`;
+}
+
+/* ── DASHBOARD HOY: datos en vivo (lectura, aditivo) ── */
+function _isToday(str){
+  if(!str) return false;
+  const d = new Date(str); if(isNaN(d)) return false;
+  const n = new Date();
+  return d.getFullYear()===n.getFullYear() && d.getMonth()===n.getMonth() && d.getDate()===n.getDate();
+}
+function _daysSince(str){
+  if(!str) return null;
+  const d = new Date(str); if(isNaN(d)) return null;
+  return Math.floor((Date.now()-d.getTime())/86400000);
+}
+function _setKpis(arr){
+  const el = document.getElementById('hoy-kpis'); if(!el) return;
+  el.innerHTML = arr.map(([n,l])=>`<div class="kpi"><div class="kpi-num">${n}</div><div class="kpi-lbl">${l}</div></div>`).join('');
+}
+
+async function loadHoyData(force){
+  if(_hoyLoaded && !force) return;
+  _hoyLoaded = true;
+  const rb = document.getElementById('hoy-refresh'); if(rb) rb.classList.add('spin');
+  try{
+    const cCfg = CRM_CFG.compradores, kCfg = CRM_CFG.citas, pCfg = CRM_CFG.progreso;
+    const cF = ['Nombre Completo','Status del Lead','Clasificación','Conversión','Diagnóstico comercial','Riesgo principal','Siguiente jugada','Última interacción','Folio del Comprador','Propiedad de Interés','Teléfono WhatsApp','Mensaje sugerido'];
+    const kF = ['Comprador','Propiedad','Fecha de la Cita','Hora','Estado Cita','Tipo de Cita','Asesor','Folio Cita'];
+    const pF = ['Folio','Comprador','Propiedad','Precio','Fase Actual','Próximo paso','Pendientes visibles','Asesor','Link Portal'];
+    const cP = cF.map(f=>'fields[]='+encodeURIComponent(f)).join('&');
+    const kP = kF.map(f=>'fields[]='+encodeURIComponent(f)).join('&');
+    const pP = pF.map(f=>'fields[]='+encodeURIComponent(f)).join('&');
+    const [comp, cit, prog] = await Promise.all([
+      atFetch(`${cCfg.tableId}?${cP}&maxRecords=100&view=Grid%20view`),
+      atFetch(`${kCfg.tableId}?${kP}&maxRecords=100&view=Grid%20view`),
+      atFetch(`${pCfg.tableId}?${pP}&maxRecords=100&view=Grid%20view`)
+    ]);
+    renderHoy(comp.records||[], cit.records||[], prog.records||[]);
+  }catch(e){
+    const a = document.getElementById('hoy-agenda');
+    if(a) a.innerHTML = '<div class="hoy-empty err">No se pudo cargar. Pulsa ↻ para reintentar.</div>';
+    const k = document.getElementById('hoy-accion');
+    if(k) k.innerHTML = '<div class="hoy-empty err">—</div>';
+    const o = document.getElementById('hoy-ops');
+    if(o) o.innerHTML = '<div class="hoy-empty err">No se pudieron cargar las operaciones.</div>';
+    const b = document.getElementById('hoy-brief');
+    if(b) b.textContent = 'Hubo un problema al leer tus datos. Pulsa ↻ arriba.';
+  } finally {
+    if(rb) rb.classList.remove('spin');
+  }
+}
+
+function _waLink(phone, msg){
+  const num = String(phone||'').replace(/\D/g,'');
+  if(!num) return null;
+  const t = msg ? ('?text='+encodeURIComponent(msg)) : '';
+  return 'https://wa.me/'+num+t;
+}
+
+function renderHoy(comp, cit, prog){
+  prog = prog || [];
+  // Citas activas (Pendiente / Confirmada / Reagendada)
+  const activas = cit.filter(r=>{
+    const e = _fval(r,'Estado Cita');
+    return e==='Pendiente' || e==='Confirmada' || e==='Reagendada';
+  });
+
+  // KPIs con valores REALES de Airtable
+  const hot       = comp.filter(r=>_fval(r,'Clasificación')==='HOT' || _fval(r,'Status del Lead')==='HOT').length;
+  const apartados = comp.filter(r=>_fval(r,'Conversión')==='Apartado').length;
+  const dormidos  = comp.filter(r=>{ const d=_daysSince(_fval(r,'Última interacción')); return d!=null && d>=7 && _fval(r,'Conversión')!=='Apartado' && _fval(r,'Conversión')!=='No calificó'; }).length;
+  _setKpis([
+    [activas.length,'Citas activas'],
+    [hot,'Leads HOT'],
+    [apartados,'Apartados'],
+    [dormidos,'Dormidos +7d'],
+  ]);
+
+  // Briefing cálido — recuerda sin regañar
+  const citasHoy = activas.filter(r=>_isToday(_fval(r,'Fecha de la Cita'))).length;
+  const briefEl = document.getElementById('hoy-brief');
+  if(briefEl){
+    const partes = [];
+    if(citasHoy) partes.push(`<b>${citasHoy}</b> ${citasHoy===1?'cita es hoy':'citas son hoy'}`);
+    if(dormidos) partes.push(`<b>${dormidos}</b> ${dormidos===1?'cliente espera tu llamada':'clientes esperan tu llamada'}`);
+    if(prog.length) partes.push(`<b>${prog.length}</b> ${prog.length===1?'operación avanzando':'operaciones avanzando'}`);
+    briefEl.innerHTML = partes.length
+      ? `Listo para hoy: ${partes.join(' · ')}. Vamos cerrando, paso a paso. 💪`
+      : `Todo en orden por ahora. Buen momento para reactivar un cliente. ✨`;
+  }
+
+  // Agenda
+  const agEl = document.getElementById('hoy-agenda');
+  const agC  = document.getElementById('hoy-agenda-count');
+  if(!activas.length){ agEl.innerHTML='<div class="hoy-empty">Sin citas pendientes.</div>'; if(agC)agC.textContent=''; }
+  else{
+    if(agC) agC.textContent = activas.length;
+    activas.sort((a,b)=> (_isToday(_fval(b,'Fecha de la Cita'))?1:0) - (_isToday(_fval(a,'Fecha de la Cita'))?1:0));
+    agEl.innerHTML = activas.slice(0,8).map(r=>{
+      const hoy = _isToday(_fval(r,'Fecha de la Cita'));
+      const est = _fval(r,'Estado Cita');
+      const estCls = est==='Confirmada' ? 'green' : 'gold';
+      return `<div class="hoy-item${hoy?' is-today':''}">
+        <div class="hi-main">
+          <div class="hi-title">${_esc(_fval(r,'Comprador')||'—')}${hoy?' <span class="hi-today">HOY</span>':''}</div>
+          <div class="hi-sub">${_esc(_fval(r,'Propiedad')||'')}</div>
+        </div>
+        <div class="hi-meta">
+          <div class="hi-when">${_esc((_fval(r,'Fecha de la Cita')||'')+' '+(_fval(r,'Hora')||''))}</div>
+          <span class="hi-pill ${estCls}">${_esc(est||'—')}</span>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // No dejes esto pendiente — tono motivador (sin regaño)
+  const scored = [];
+  comp.forEach(r=>{
+    const diag = _fval(r,'Diagnóstico comercial');
+    const conv = _fval(r,'Conversión');
+    const clas = _fval(r,'Clasificación');
+    const stat = _fval(r,'Status del Lead');
+    const dias = _daysSince(_fval(r,'Última interacción'));
+    const dormido = (dias!=null && dias>=7);
+
+    let tag=null, cls='gold', order=99;
+    if(conv==='Apartado'){ tag='EN PROCESO'; cls='green'; order=0; }
+    else if(diag==='Listo para Banco'){ tag='LISTO ✓'; cls='green'; order=1; }
+    else if(clas==='HOT' || stat==='HOT'){ tag='CALIENTE'; cls='gold'; order=2; }
+    else if(conv==='Cita'){ tag='CON CITA'; cls='gold'; order=3; }
+    else if(dormido){ tag='RECONECTAR'; cls='amber'; order=4; }
+    if(!tag) return;
+    if(dormido && cls!=='amber'){ cls='amber'; order -= 0.5; }
+
+    const jugada = _fval(r,'Siguiente jugada') || _fval(r,'Riesgo principal') || _fval(r,'Propiedad de Interés') || 'Dale seguimiento';
+    const sub = (dormido ? `${dias} días sin contacto · ` : '') + jugada;
+    const wa = _waLink(_fval(r,'Teléfono WhatsApp'), _fval(r,'Mensaje sugerido'));
+    scored.push({ nombre:_fval(r,'Nombre Completo')||'—', tag, cls, order, sub, wa });
+  });
+  scored.sort((a,b)=>a.order-b.order);
+
+  const acEl = document.getElementById('hoy-accion');
+  const acC  = document.getElementById('hoy-accion-count');
+  if(!scored.length){ acEl.innerHTML='<div class="hoy-empty">Nada urgente. ¡Vas al corriente! 🎉</div>'; if(acC)acC.textContent=''; }
+  else{
+    if(acC) acC.textContent = scored.length;
+    acEl.innerHTML = scored.slice(0,10).map(o=>{
+      const waBtn = o.wa
+        ? `<a class="hi-wa" href="${o.wa}" target="_blank" rel="noopener" onclick="event.stopPropagation()" title="WhatsApp con mensaje sugerido">WhatsApp</a>`
+        : '';
+      return `<div class="hoy-item act" onclick="goTo('airtable')">
+        <div class="hi-main">
+          <div class="hi-title">${_esc(o.nombre)} <span class="hi-pill ${o.cls}">${o.tag}</span></div>
+          <div class="hi-sub">${_esc(o.sub||'')}</div>
+        </div>
+        <div class="hi-actions">${waBtn}<span class="hi-go">→</span></div>
+      </div>`;
+    }).join('');
+  }
+
+  renderOperaciones(prog);
+}
+
+/* ── Rastreador estilo Amazon: fases + qué debe estar listo ── */
+const FASES_PROGRESO = [
+  { n:'Apartado',                 listo:'Comprobante de apartado, INE del comprador, datos de contacto.' },
+  { n:'Revisión de compra',       listo:'Confirmar precio y condiciones, definir forma de pago (crédito o contado) y tiempos.' },
+  { n:'Preparando documentos',    listo:'INE, CURP, comprobante de domicilio, comprobante de ingresos, RFC. Si es crédito: precalificación.' },
+  { n:'Acuerdo de compra',        listo:'Contrato de compraventa firmado, anticipo, autorización de crédito (si aplica).' },
+  { n:'Revisión en notaría',      listo:'Avalúo, libertad de gravamen, predial al corriente, agua y servicios al día, documentos del vendedor.' },
+  { n:'Últimas confirmaciones',   listo:'Fecha de firma agendada, fondos listos, revisión final de la escritura.' },
+  { n:'Día de firma',             listo:'Identificaciones, fondos disponibles, firma de escritura ante notario.' },
+  { n:'Entrega de llaves',        listo:'Acta de entrega, llaves, finiquito de servicios. ¡Operación cerrada!' },
+];
+function _faseIndex(nombre){
+  const i = FASES_PROGRESO.findIndex(f=>f.n===nombre);
+  return i<0 ? 0 : i;
+}
+function renderOperaciones(prog){
+  const el = document.getElementById('hoy-ops'); if(!el) return;
+  if(!prog.length){
+    el.innerHTML = '<div class="hoy-empty">Aún no hay operaciones en curso. En cuanto marques un <b>Apartado</b>, aparece aquí su recorrido completo.</div>';
+    return;
+  }
+  el.innerHTML = prog.map(r=>{
+    const fase = _fval(r,'Fase Actual') || 'Apartado';
+    const idx  = _faseIndex(fase);
+    const total = FASES_PROGRESO.length;
+    const pct = Math.round(((idx+1)/total)*100);
+    const sig = FASES_PROGRESO[Math.min(idx+1,total-1)];
+    const pasoTxt = _fval(r,'Próximo paso') || (idx>=total-1 ? '¡Operación completada!' : 'Continúa con: '+sig.n);
+    const pend = _fval(r,'Pendientes visibles') || '';
+    const link = _fval(r,'Link Portal') || '';
+
+    const dots = FASES_PROGRESO.map((f,i)=>{
+      const st = i<idx ? 'done' : (i===idx ? 'now' : 'next');
+      return `<div class="step ${st}" title="${_esc(f.n)}"><span class="step-dot"></span><span class="step-lbl">${_esc(f.n)}</span></div>`;
+    }).join('<span class="step-bar"></span>');
+
+    const docsAhora = FASES_PROGRESO[idx] ? FASES_PROGRESO[idx].listo : '';
+    const docsSig   = (idx<total-1) ? sig.listo : '';
+
+    return `<div class="op-card">
+      <div class="op-top">
+        <div>
+          <div class="op-name">${_esc(_fval(r,'Comprador')||'—')}</div>
+          <div class="op-prop">${_esc(_fval(r,'Propiedad')||'')} ${link?`· <a href="${_esc(link)}" target="_blank" rel="noopener" class="op-link">Ver portal del cliente ↗</a>`:''}</div>
+        </div>
+        <div class="op-pct"><span>${pct}%</span><small>${_esc(fase)}</small></div>
+      </div>
+      <div class="op-steps">${dots}</div>
+      <div class="op-progress"><div class="op-progress-fill" style="width:${pct}%"></div></div>
+      <div class="op-foot">
+        <div class="op-next"><span class="op-next-lbl">Siguiente paso</span>${_esc(pasoTxt)}</div>
+        <div class="op-docs"><span class="op-docs-lbl">Para avanzar debe estar listo</span>${_esc(docsSig || docsAhora)}</div>
+        ${pend?`<div class="op-pend"><span class="op-pend-lbl">Pendientes</span>${_esc(pend)}</div>`:''}
+      </div>
+    </div>`;
+  }).join('');
 }
 
 function getSectionForId(id, rol){
@@ -1039,7 +1751,7 @@ function getToolDesc(id){
     compradores: 'Landing personalizada para captar compradores.',
     vendedores:  'Diagnóstico profesional para propietarios.',
     citas:       'Agenda, documentos y avances de cada cliente.',
-    progreso:    'El cliente ve su etapa en tiempo real.',
+    progreso:    'Portal de seguimiento solo para clientes con apartado.',
     opciones:    'Esquemas de compra para presentar al cliente.',
     reportes:    'Métricas y resultados del equipo.',
   };
@@ -1058,34 +1770,30 @@ const AT_PROXY = '/api/airtable';
 // Rutas relativas: el proxy añade la base automáticamente
 // Usamos solo tableId + params en cada llamada
 
-/* ─────────────────────────────────────────────────────────────
-   CONFIG ALINEADA AL 100% CON LA BASE REAL "Metodo Neri" (Airtable)
-   - Nombres de campo IDÉNTICOS a Airtable (acentos / ñ tal cual).
-   - Opciones de los menús IDÉNTICAS a las opciones reales del campo.
-   - Solo campos manuales en "editable". Las fórmulas y campos que
-     llena Make (Folio NERI, Link Portal, Folio Siguiente, Precio
-     Formateado, Resumen Propiedad, Prefijo Folio, Contador Leads…)
-     NO se tocan desde aquí: son automáticos.
-   ───────────────────────────────────────────────────────────── */
 const CRM_CFG = {
   compradores: {
     tableId: 'tblOdlY3bBlGi64qR',
     label: 'Leads Compradores',
     dot: 'compradores',
-    cols: ['Folio','Nombre','WhatsApp','Propiedad Interés','Status','Clasificación','Conversión','Asesor','Fecha'],
-    fields: ['Folio','Nombre Completo','Teléfono WhatsApp','Propiedad de Interés','Status del Lead','Clasificación','Conversión','Asesor','Fecha de Entrada'],
+    ficha: true,
+    portalBase: 'https://progreso-zeta.vercel.app/',
+    fichaExtra: ['Riesgo principal','Diagnóstico comercial','Estado emocional','Siguiente jugada','Mensaje sugerido','Última interacción','Propiedad de Interés','Status del Lead','Clasificación','Folio Propiedad NERI','Folio del Comprador'],
+    cols: ['Folio','Nombre','WhatsApp','Propiedad Interés','Status','Clasificación','Crédito','Asesor','Fecha'],
+    fields: ['Folio','Nombre Completo','Teléfono WhatsApp','Propiedad de Interés','Status del Lead','Clasificación','Método / Crédito','Asesor','Fecha de Entrada'],
     editable: [
       {f:'Nombre Completo',       type:'text'},
       {f:'Teléfono WhatsApp',     type:'text'},
       {f:'Propiedad de Interés',  type:'text'},
       {f:'Status del Lead',       type:'select', opts:['Nuevo','HOT','WARM','COLD']},
       {f:'Clasificación',         type:'select', opts:['HOT','WARM','COLD','Frío']},
-      {f:'Conversión',            type:'select', opts:['En seguimiento','No calificó','Cita','Apartado']},
+      {f:'Conversión',            type:'select', opts:['En seguimiento','Cita','Apartado','No calificó']},
+      {f:'Diagnóstico comercial', type:'select', opts:['Listo para Banco','Comparar Antes de Firmar','Preparación Inteligente','Solo explorando','No viable por ahora']},
+      {f:'Riesgo principal',      type:'text'},
+      {f:'Estado emocional',      type:'text'},
+      {f:'Siguiente jugada',      type:'text'},
+      {f:'Última interacción',    type:'text'},
       {f:'Método / Crédito',      type:'text'},
       {f:'Asesor',                type:'text'},
-      {f:'Atención',              type:'text'},
-      {f:'Cambio',                type:'text'},
-      {f:'Decisión',              type:'text'},
       {f:'Score del Lead',        type:'text'},
     ]
   },
@@ -1093,25 +1801,36 @@ const CRM_CFG = {
     tableId: 'tblQHdwEucTaNrLzm',
     label: 'Leads Vendedores',
     dot: 'vendedores',
-    cols: ['Folio','Nombre','WhatsApp','Tipo Propiedad','Zona','Precio Estimado','Asesor','Conversión','Fecha'],
-    fields: ['Folio','Nombre Completo','Teléfono WhatsApp','Tipo de Propiedad','Zona','Precio Estimado','Asesor','Conversión','Fecha de Entrada'],
+    ficha: 'vendedor',
+    cols: ['Folio','Nombre','Tipo','Zona','Precio','Conversión','Asesor','Fecha'],
+    fields: ['Folio','Nombre Completo','Tipo de Propiedad','Zona','Precio Estimado','Conversión','Asesor','Fecha de Entrada'],
+    fichaExtra: [
+      'Teléfono WhatsApp','Fuente','Estado','Hora de Entrada',
+      'Habitaciones','Baños','Medios Baños','Estacionamientos',
+      'Tiempo de Venta','Razón de Venta',
+      'Diagnóstico Fiscal','Detalle Fiscal',
+      'Progreso Expediente','Documentos','Propiedad Creada'
+    ],
     editable: [
-      {f:'Nombre Completo',     type:'text'},
-      {f:'Teléfono WhatsApp',   type:'text'},
-      {f:'Tipo de Propiedad',   type:'text'},
-      {f:'Zona',                type:'text'},
-      {f:'Precio Estimado',     type:'select', opts:['Menos de $1M','$1M – $2M','$2M – $4M','$4M – $7M','Más de $7M','No lo sé aún']},
-      {f:'Habitaciones',        type:'text'},
-      {f:'Baños',               type:'text'},
-      {f:'Medios Baños',        type:'text'},
-      {f:'Estacionamientos',    type:'text'},
-      {f:'Diagnóstico Fiscal',  type:'text'},
-      {f:'Detalle Fiscal',      type:'textarea'},
-      {f:'Asesor',              type:'text'},
-      {f:'Conversión',          type:'select', opts:['Firma exclusiva','Firma venta directa','En seguimiento','No calificó']},
-      {f:'Tiempo de Venta',     type:'text'},
-      {f:'Razón de Venta',      type:'text'},
-      {f:'Documentos',          type:'textarea'},
+      {f:'Nombre Completo',    type:'text'},
+      {f:'Teléfono WhatsApp',  type:'text'},
+      {f:'Fuente',             type:'text'},
+      {f:'Asesor',             type:'text'},
+      {f:'Tipo de Propiedad',  type:'text'},
+      {f:'Zona',               type:'text'},
+      {f:'Estado',             type:'text'},
+      {f:'Precio Estimado',    type:'select', opts:['Menos de $1M','$1M \u2013 $2M','$2M \u2013 $4M','$4M \u2013 $7M','Más de $7M','No lo sé aún']},
+      {f:'Habitaciones',       type:'text'},
+      {f:'Baños',              type:'text'},
+      {f:'Medios Baños',       type:'text'},
+      {f:'Estacionamientos',   type:'text'},
+      {f:'Tiempo de Venta',    type:'text'},
+      {f:'Razón de Venta',     type:'text'},
+      {f:'Diagnóstico Fiscal', type:'text'},
+      {f:'Detalle Fiscal',     type:'textarea'},
+      {f:'Conversión',         type:'select', opts:['Firma exclusiva','Firma venta directa','En seguimiento','No calificó']},
+      {f:'Progreso Expediente',type:'text'},
+      {f:'Documentos',         type:'textarea'},
     ]
   },
   progreso: {
@@ -1124,84 +1843,76 @@ const CRM_CFG = {
       {f:'Comprador',                        type:'text'},
       {f:'Propiedad',                        type:'text'},
       {f:'Precio',                           type:'text'},
-      {f:'Fase Actual',                      type:'select', asText:true, opts:['Apartado','Revisión de compra','Preparando documentos','Acuerdo de compra','Revisión en notaría','Últimas confirmaciones','Día de firma','Entrega de llaves']},
+      {f:'Fase Actual',                      type:'select', asText:true, opts:['Apartado','Expediente','Valuación','Crédito','Escrituración','Firma','Entrega','Completado']},
       {f:'Asesor',                           type:'text'},
       {f:'WhatsApp Asesor',                  type:'text'},
       {f:'Etiqueta WhatsApp',                type:'text'},
       {f:'Próximo paso',                     type:'textarea'},
       {f:'Pendientes visibles',              type:'textarea'},
       {f:'Mensaje WhatsApp Actualización',   type:'textarea'},
-    ],
-    readonly: [
-      {f:'Link Portal',  link:true},   // link que se comparte con el cliente apartado
-      {f:'Folio Lead Origen'},
-      {f:'Fecha de Conversión'},
+    ]
+  },
+  citas: {
+    tableId: 'tblaAfbSD3pqSLdAA', // tabla Citas real (base appRh791vGXRdOJs3)
+    label: 'Citas',
+    dot: 'citas',
+    cita: true,
+    cols: ['Folio Cita','Folio Origen','Comprador','Propiedad','Fecha','Hora','Tipo','Estado','Asesor'],
+    fields: ['Folio Cita','Folio Cliente Origen','Comprador','Propiedad','Fecha de la Cita','Hora','Tipo de Cita','Estado Cita','Asesor'],
+    editable: [
+      {f:'Comprador',       type:'text'},
+      {f:'Propiedad',       type:'text'},
+      {f:'Fecha de la Cita',type:'text'},
+      {f:'Hora',            type:'text'},
+      {f:'Tipo de Cita',    type:'select', opts:['Visita presencial','Videollamada','Segunda visita','Visita con familia','Visita con valuador']},
+      {f:'Estado Cita',     type:'select', opts:['Pendiente','Confirmada','Realizada','Cancelada','Reagendada']},
+      {f:'Asesor',          type:'text'},
+      {f:'Notas de la Cita',type:'textarea'},
     ]
   },
   propiedades: {
     tableId: 'tblmco2JyXRiZGhaY',
     label: 'Propiedades',
     dot: 'propiedades',
+    landing: true,
+    landingFields: ['Nombre Propiedad','Folio NERI','Folio Vendedor','Link Comprador','Link Portal','Frase Portada','Frase Inicio','Foto de portada','Precio Lista','Precio Minimo','Moneda','Plusvalia Valor','Plusvalia Texto','Video Sala','Video Sala MP4','Video Cocina','Video Cocina MP4','Video Recamara','Video Recamara MP4','Video Jardin','Video Jardin MP4','Video Alberca','Video Alberca MP4','Nombre Video Extra','Video Extra MP4','Tipo de Propiedad','Estado Propiedad','Habitaciones','Banos','Medios Banos','Estacionamientos','Metros Construccion','Metros Terreno','Zona / Colonia','Municipio','Estado / Entidad','Direccion','Link Tour Virtual','Google Maps URL'],
     cols: ['Nombre','Tipo','Estado','Zona','Municipio','Precio Lista','Recámaras','Asesor'],
     fields: ['Nombre Propiedad','Tipo de Propiedad','Estado Propiedad','Zona / Colonia','Municipio','Precio Lista','Habitaciones','Asesor'],
     editable: [
-      {f:'Nombre Propiedad',    type:'text'},
-      {f:'Tipo de Propiedad',   type:'select', opts:['Casa','Departamento','Terreno','Local comercial','Otro']},
-      {f:'Estado Propiedad',    type:'select', opts:['Activa','Apartada','Vendida','En pausa','Cancelada']},
-      {f:'Asesor',              type:'text'},
-      {f:'Asesor Slug',         type:'text'},   // CRÍTICO: Make jala foto/WhatsApp/pixel del asesor con esto
-      {f:'Propietario',         type:'text'},   // uso interno, lo copia Make del lead vendedor
-      {f:'Zona / Colonia',      type:'text'},
-      {f:'Municipio',           type:'text'},
-      {f:'Estado / Entidad',    type:'text'},
-      {f:'Direccion',           type:'text'},   // SIN acento: así se llama en Airtable
-      {f:'Google Maps URL',     type:'text'},
-      {f:'Precio Lista',        type:'text'},
-      {f:'Precio Minimo',       type:'text'},   // sin acento, tal cual Airtable
-      {f:'Moneda',              type:'select', opts:['MXN','USD']},
-      {f:'Habitaciones',        type:'text'},
-      {f:'Banos',               type:'text'},   // sin ñ: así se llama en Propiedades
-      {f:'Medios Banos',        type:'text'},   // sin ñ
-      {f:'Estacionamientos',    type:'text'},
-      {f:'Metros Construccion', type:'text'},   // sin acento
-      {f:'Metros Terreno',      type:'text'},
-      {f:'Diagnostico Fiscal',  type:'select', opts:['Sin adeudos','Con adeudos menores','Con adeudos mayores','Por revisar','EN PROCESO']},
-      {f:'Frase Portada',       type:'text'},
-      {f:'Frase Inicio',        type:'textarea'},
-      {f:'Plusvalia Valor',     type:'text'},
-      {f:'Plusvalia Texto',     type:'textarea'},
-      {f:'Link Tour Virtual',   type:'text'},
-      {f:'Notas Internas',      type:'textarea'},
-    ],
-    /* Campos AUTOMÁTICOS (fórmulas / Make). El asesor los VE y COPIA, no los edita.
-       Esto es lo que nos diferencia: el asesor tiene todo a la mano sin brincar de app. */
-    readonly: [
-      {f:'Folio NERI'},                  // folio maestro de la propiedad
-      {f:'Link Comprador', link:true},   // landing de la casa → va en la pauta
-      {f:'Link Portal',    link:true},   // portal del cliente apartado
-      {f:'Resumen Propiedad'},           // se arma solo (nombre · zona · rec · baños)
-      {f:'Precio Formateado'},
-      {f:'Folio Siguiente'},             // folio del próximo lead comprador
-      {f:'Contador Leads'},              // cuántos leads han entrado por esta propiedad
+      {f:'Nombre Propiedad',   type:'text'},
+      {f:'Tipo de Propiedad',  type:'select', opts:['Casa','Departamento','Terreno','Local','Oficina','Bodega']},
+      {f:'Estado Propiedad',   type:'select', opts:['Disponible','Apartada','Vendida','En proceso','Suspendida']},
+      {f:'Zona / Colonia',     type:'text'},
+      {f:'Municipio',          type:'text'},
+      {f:'Precio Lista',       type:'text'},
+      {f:'Habitaciones',       type:'text'},
+      {f:'Asesor',             type:'text'},
+      {f:'Dirección',          type:'text'},
+      {f:'Notas Internas',     type:'textarea'},
     ]
   }
 };
 
 const STATUS_BADGE = {
-  // Leads (Status del Lead + Clasificación) — valores reales en Airtable
-  'Nuevo':'badge-new','HOT':'badge-close','WARM':'badge-offer','COLD':'badge-visit','Frío':'badge-visit',
-  // Conversión compradores
-  'En seguimiento':'badge-visit','No calificó':'badge-lost','Cita':'badge-visit','Apartado':'badge-offer',
-  // Estado Propiedad
-  'Activa':'badge-active','Apartada':'badge-offer','Vendida':'badge-close','En pausa':'badge-visit','Cancelada':'badge-lost',
-  // Conversión vendedores
+  'HOT':'badge-hot','WARM':'badge-warm','COLD':'badge-cold','Frío':'badge-cold','Frio':'badge-cold',
+  'Listo para Banco':'badge-close','Comparar Antes de Firmar':'badge-contact',
+  'Preparación Inteligente':'badge-warm','Solo explorando':'badge-visit','No viable por ahora':'badge-lost',
+  'Cita':'badge-new',
+  'Nuevo':'badge-new','Contactado':'badge-contact','Cita agendada':'badge-visit',
+  'Visita realizada':'badge-visit','Oferta presentada':'badge-offer',
+  'Apartado':'badge-offer','Cerrado':'badge-close','Perdido':'badge-lost',
+  'Disponible':'badge-active','Vendida':'badge-close','Apartada':'badge-offer',
+  'En proceso':'badge-visit','Suspendida':'badge-lost',
+  'A — Caliente':'badge-close','B — Tibio':'badge-offer',
+  'C — Frío':'badge-visit','D — Descartado':'badge-lost',
   'Firma exclusiva':'badge-offer','Firma venta directa':'badge-close',
-  // Fases del Portal Progreso
-  'Revisión de compra':'badge-visit','Preparando documentos':'badge-visit','Acuerdo de compra':'badge-offer',
-  'Revisión en notaría':'badge-offer','Últimas confirmaciones':'badge-offer','Día de firma':'badge-close','Entrega de llaves':'badge-active',
+  'En seguimiento':'badge-visit','No calificó':'badge-lost',
+  'Pendiente':'badge-cita-pend','Confirmada':'badge-cita-conf',
+  'Realizada':'badge-cita-real','Cancelada':'badge-cita-canc','Reagendada':'badge-visit',
 };
 
-let crmState = { tab:'compradores', records:[], editId:null, isNew:false };
+let crmState = { tab:'compradores', records:[], editId:null, isNew:false, citaFromLead:null };
+// citaFromLead: { folioClienteOrigen, comprador, propiedad, asesor } — se limpia después del POST
 
 /* ─── API helpers — usa el proxy de Vercel ─────────── */
 async function atFetch(path, opts={}){
@@ -1233,13 +1944,8 @@ async function crmLoad(tab, force=false){
   errEl.style.display = 'none';
 
   try {
-    // Traemos TODO lo que necesita la ficha: columnas + editables + campos automáticos (de solo lectura)
-    const wanted = new Set([
-      ...cfg.fields,
-      ...(cfg.editable || []).map(e => e.f),
-      ...(cfg.readonly || []).map(r => r.f),
-    ]);
-    const fieldsParam = [...wanted].map(f => 'fields[]=' + encodeURIComponent(f)).join('&');
+    const allFields = cfg.fields.concat(cfg.fichaExtra || []).concat(cfg.landingFields || []);
+    const fieldsParam = allFields.map(f => 'fields[]=' + encodeURIComponent(f)).join('&');
     const data = await atFetch(`${cfg.tableId}?${fieldsParam}&maxRecords=100&view=Grid%20view`);
     crmState.records = data.records || [];
     crmRender(tab, crmState.records);
@@ -1264,20 +1970,27 @@ function crmRender(tab, records){
     i===0 ? `<th style="width:44px"></th>` : `<th>${c}</th>`
   ).join('');
 
+  const FOLIO_FIELDS = ['Folio','Folio Cita'];
+  const NAME_FIELDS  = ['nombre completo','nombre','comprador','nombre propiedad'];
+
   const trs = records.map(rec => {
-    const cells = cfg.fields.map((fname, i) => {
+    const cells = cfg.fields.map((fname) => {
       let val = rec.fields?.[fname] ?? '';
-      if(typeof val === 'object') val = val?.name ?? JSON.stringify(val);
+      if(typeof val === 'object') val = Array.isArray(val) ? val.map(v=>v?.name||v).join(', ') : (val?.name ?? JSON.stringify(val));
       val = String(val);
-      const badge = STATUS_BADGE[val]
+      const isBadge = !!STATUS_BADGE[val];
+      const inner = isBadge
         ? `<span class="badge ${STATUS_BADGE[val]}">${val}</span>`
-        : (val ? val : '<span style="color:var(--w20)">—</span>');
-      // Primera col = nombre, segunda = folio
-      const cls = i===0 ? 'name' : (i===1 ? 'folio' : '');
-      return `<td ${cls ? `class="${cls}"` : ''}>${badge}</td>`;
+        : (val ? _esc(val) : '<span style="color:var(--w20)">—</span>');
+      let cls = '';
+      if(FOLIO_FIELDS.includes(fname)) cls = 'folio';
+      else if(NAME_FIELDS.includes(fname.toLowerCase())) cls = 'name';
+      else if(!isBadge && val.length > 22) cls = 'clip';
+      const title = cls==='clip' ? ` title="${_escAttr(val)}"` : '';
+      return `<td${cls?` class="${cls}"`:''}${title}>${inner}</td>`;
     }).join('');
-    return `<tr onclick="crmOpenEdit('${rec.id}')" title="Clic para editar">
-      <td>✎</td>${cells}</tr>`;
+    return `<tr onclick="crmOpenRow('${rec.id}')" title="Clic para abrir expediente">
+      <td>◎</td>${cells}</tr>`;
   }).join('') || `<tr><td colspan="20"><div class="crm-empty">
     <div class="crm-empty-icon">◎</div>
     <div class="crm-empty-text">Sin registros en esta tabla</div>
@@ -1315,12 +2028,820 @@ function crmOpenEdit(recId){
   crmBuildModal('EDITAR REGISTRO', CRM_CFG[crmState.tab].editable, rec.fields || {});
 }
 
-function crmOpenNew(){
-  crmState.editId = null;
-  crmState.isNew  = true;
-  crmBuildModal('NUEVO REGISTRO', CRM_CFG[crmState.tab].editable, {});
+function crmDefaultsForNew(tab){
+  const values = {};
+  // Para nuevos leads vendedores, el asesor debe salir del usuario configurado
+  // en la sesión, no de un nombre fijo. Si después se borra manualmente, se guarda en blanco.
+  if(tab === 'vendedores' && SESSION?.nombre){
+    values['Asesor'] = SESSION.nombre;
+  }
+  return values;
 }
 
+function crmOpenNew(){
+  if(crmState.tab === 'citas'){ citaOpenNew(); return; }
+  crmState.editId = null;
+  crmState.isNew  = true;
+  crmBuildModal('NUEVO REGISTRO', CRM_CFG[crmState.tab].editable, crmDefaultsForNew(crmState.tab));
+}
+
+/* ─── FICHA PREMIUM (solo lectura) ─────────────────── */
+function crmOpenRow(recId){
+  const cfg = CRM_CFG[crmState.tab];
+  if(cfg && cfg.landing) landOpenEditor(recId);
+  else if(cfg && cfg.cita) citaOpenFicha(recId);
+  else if(cfg && cfg.ficha === 'vendedor') vendedorOpenFicha(recId);
+  else if(cfg && cfg.ficha) crmOpenFicha(recId);
+  else crmOpenEdit(recId);
+}
+
+function _fval(rec, name){
+  let v = rec.fields?.[name];
+  if(v == null || v === '') return '';
+  if(typeof v === 'object') v = v.name ?? (Array.isArray(v) ? v.map(x=>x?.name||x).join(', ') : '');
+  return String(v);
+}
+
+function crmOpenFicha(recId){
+  const rec = crmState.records.find(r => r.id === recId);
+  if(!rec) return;
+  const cfg = CRM_CFG[crmState.tab];
+  crmState.editId = recId;
+  crmState.isNew  = false;
+
+  const nombre = _fval(rec,'Nombre Completo') || 'Sin nombre';
+  // Folio correcto para el lead: NO usar el campo primario "Folio" cuando venga vacío o '-'
+  const folioLead = _fval(rec,'Folio del Comprador') || _fval(rec,'Folio Propiedad NERI') || '';
+  const folioOp   = _fval(rec,'Folio Propiedad NERI') || folioLead.replace(/-\d+$/,'');
+  const diag   = _fval(rec,'Diagnóstico comercial');
+  const status = _fval(rec,'Status del Lead');
+  const clasif = _fval(rec,'Clasificación');
+  const propied= _fval(rec,'Propiedad de Interés');
+  const wa     = _fval(rec,'Teléfono WhatsApp');
+
+  const sd = v => v ? v : '<span class="fk-empty">Sin definir</span>';
+  // Un lead comprador todavía NO tiene portal de cliente.
+  // El portal nace hasta Apartado → Portal Progreso Clientes.
+  const portalUrl = ''; // intencional: no mostrar portal en ficha de lead
+
+  const rows = [
+    ['Riesgo principal',     _fval(rec,'Riesgo principal')],
+    ['Estado emocional',     _fval(rec,'Estado emocional')],
+    ['Siguiente jugada',     _fval(rec,'Siguiente jugada')],
+    ['Última interacción',   _fval(rec,'Última interacción')],
+  ].map(([k,v]) => `<div class="fk-row"><div class="fk-k">${k}</div><div class="fk-v">${sd(v)}</div></div>`).join('');
+
+  const msg = _fval(rec,'Mensaje sugerido');
+  const msgBlock = `<div class="fk-msg-wrap">
+      <div class="fk-msg-head"><span>Mensaje sugerido</span>
+        ${msg ? `<button class="fk-copy" onclick="fichaCopy(this)" data-msg="${msg.replace(/"/g,'&quot;')}">Copiar</button>` : ''}
+      </div>
+      <div class="fk-msg">${msg ? msg.replace(/</g,'&lt;') : '<span class="fk-empty">Sin definir</span>'}</div>
+    </div>`;
+
+  document.getElementById('crm-ficha-body').innerHTML = `
+    <div class="fk-top">
+      <div>
+        <div class="fk-name">${nombre}</div>
+        <div class="fk-folio">${folioLead || '— sin folio —'}</div>
+        ${folioOp && folioOp!==folioLead ? `<div class="fk-op">Operación: ${folioOp}</div>` : ''}
+      </div>
+      <div class="fk-tags">
+        ${clasif ? `<span class="badge ${STATUS_BADGE[clasif]||''}">${clasif}</span>`:''}
+        ${status ? `<span class="badge ${STATUS_BADGE[status]||''}">${status}</span>`:''}
+      </div>
+    </div>
+    <div class="fk-sub">${propied ? '◈ '+propied : 'Sin propiedad ligada'}${wa ? ' · '+wa : ''}</div>
+
+    <div class="fk-diag ${diag ? 'on':''}">
+      <span class="fk-diag-lbl">Diagnóstico comercial</span>
+      <span class="fk-diag-val">${diag || 'Sin diagnóstico'}</span>
+    </div>
+
+    <div class="fk-grid">${rows}</div>
+    ${msgBlock}`;
+
+  // No mostrar Portal del cliente en ficha de lead comprador.
+  const portalBtn = document.getElementById('crm-ficha-portal');
+  if(portalBtn) portalBtn.style.display='none';
+
+  document.getElementById('crm-ficha').style.display = 'flex';
+}
+
+function crmCloseFicha(){ document.getElementById('crm-ficha').style.display = 'none'; }
+
+/* ─── FICHA PREMIUM — LEAD VENDEDOR ──────────────────────────────────
+   Diseño orientado al asesor: origen del lead arriba, propiedad en el
+   centro, intención de venta e info fiscal al fondo.
+   Los campos candado (Folio, Propiedad Creada, Fecha creada) son solo
+   lectura; el botón "Editar" abre el modal genérico de edición.       */
+
+function vendedorOpenFicha(recId){
+  const rec = crmState.records.find(r => r.id === recId);
+  if(!rec) return;
+  crmState.editId = recId;
+  crmState.isNew  = false;
+
+  const fv = f => _fval(rec, f);
+  const sd = v => v || '<span class="fv-row-v empty">Sin datos</span>';
+
+  // Datos clave
+  const nombre    = fv('Nombre Completo') || 'Sin nombre';
+  const folio     = fv('Folio') || '— sin folio —';
+  const wa        = fv('Teléfono WhatsApp');
+  const fuente    = fv('Fuente');
+  const asesor    = fv('Asesor');
+  const fechaEnt  = fv('Fecha de Entrada');
+  const horaEnt   = fv('Hora de Entrada');
+  const estado    = fv('Estado');
+
+  // Propiedad
+  const tipo      = fv('Tipo de Propiedad');
+  const zona      = fv('Zona');
+  const precio    = fv('Precio Estimado');
+  const hab       = fv('Habitaciones');
+  const ban       = fv('Baños');
+  const mban      = fv('Medios Baños');
+  const est       = fv('Estacionamientos');
+
+  // Intención
+  const tiempo    = fv('Tiempo de Venta');
+  const razon     = fv('Razón de Venta');
+  const diagFisc  = fv('Diagnóstico Fiscal');
+  const detFisc   = fv('Detalle Fiscal');
+
+  // Operación
+  const conv      = fv('Conversión');
+  const progExp   = fv('Progreso Expediente');
+  const docs      = fv('Documentos');
+  const propCreada= fv('Propiedad Creada');
+
+  // WhatsApp link
+  const waClean = wa.replace(/\D/g,'');
+  const waLink  = waClean ? `https://wa.me/52${waClean}` : '';
+
+  // Clase de conversión para color
+  const convClass = {
+    'Firma exclusiva': 'firma-exc',
+    'Firma venta directa': 'firma-dir',
+    'En seguimiento': 'seguimiento',
+    'No calificó': 'no-cal',
+  }[conv] || '';
+
+  const convDesc = {
+    'Firma exclusiva': 'La propiedad pasa a Propiedades NERI.',
+    'Firma venta directa': 'Venta sin exclusiva previa.',
+    'En seguimiento': 'Prospecto activo, sin firma aún.',
+    'No calificó': 'Lead descartado del proceso.',
+  }[conv] || '';
+
+  // Números de la propiedad
+  const numBlock = (val, lbl) => `
+    <div class="fv-num${val ? '' : ' empty'}">
+      <div class="fv-num-val">${val || '—'}</div>
+      <div class="fv-num-lbl">${lbl}</div>
+    </div>`;
+
+  // Fila de dato
+  const row = (k, v, full, isLong) => `
+    <div class="fv-row${full ? ' full' : ''}">
+      <div class="fv-row-k">${k}</div>
+      <div class="fv-row-v${isLong ? ' long' : ''}">${v ? _esc(v) : '<span class="fv-row-v empty">Sin datos</span>'}</div>
+    </div>`;
+
+  const html = `
+    <!-- HEADER -->
+    <div class="fv-header">
+      <div>
+        <div class="fv-nombre">${_esc(nombre)}</div>
+        <div class="fv-wa">
+          ${wa ? `<span>${_esc(wa)}</span>
+            ${waLink ? `<a class="fv-wa-btn" href="${waLink}" target="_blank">↗ WhatsApp</a>` : ''}` : '<span style="color:var(--w30);font-size:11px">Sin teléfono</span>'}
+        </div>
+        <div class="fv-meta">
+          ${asesor   ? `<div class="fv-meta-chip">Asesor <em>${_esc(asesor)}</em></div>` : ''}
+          ${fuente   ? `<div class="fv-meta-chip">Fuente <em>${_esc(fuente)}</em></div>` : ''}
+          ${fechaEnt ? `<div class="fv-meta-chip">Entrada <em>${_esc(fechaEnt)}${horaEnt ? ' · '+_esc(horaEnt) : ''}</em></div>` : ''}
+        </div>
+      </div>
+      <div>
+        <div class="fv-folio-lbl">Folio</div>
+        <div class="fv-folio">${_esc(folio)}</div>
+        ${conv ? `<div style="margin-top:8px;text-align:right"><span class="badge ${crmBadgeForConv(conv)}">${_esc(conv)}</span></div>` : ''}
+      </div>
+    </div>
+
+    <!-- BODY -->
+    <div class="fv-body">
+
+      <!-- SECCIÓN: La propiedad -->
+      <div class="fv-sec">
+        <div class="fv-sec-title"><em>◈</em>La propiedad</div>
+        <div class="fv-grid">
+          ${row('Tipo', tipo)}
+          ${row('Zona', zona)}
+          ${row('Precio estimado', precio)}
+          ${row('Estado / Entidad', estado)}
+        </div>
+        <div class="fv-nums" style="margin-top:2px">
+          ${numBlock(hab,  'Rec.')}
+          ${numBlock(ban,  'Baños')}
+          ${numBlock(mban, 'Medios')}
+          ${numBlock(est,  'Est.')}
+        </div>
+      </div>
+
+      <!-- SECCIÓN: Intención de venta -->
+      <div class="fv-sec">
+        <div class="fv-sec-title"><em>◎</em>Intención de venta</div>
+        <div class="fv-grid">
+          ${row('¿Cuándo quiere vender?', tiempo)}
+          ${row('Razón de venta', razon)}
+          ${row('Diagnóstico fiscal', diagFisc)}
+          ${detFisc ? `<div class="fv-row full"><div class="fv-row-k">Detalle fiscal</div><div class="fv-row-v long">${_esc(detFisc)}</div></div>` : ''}
+        </div>
+      </div>
+
+      <!-- SECCIÓN: Operación -->
+      <div class="fv-sec">
+        <div class="fv-sec-title"><em>⊕</em>Operación</div>
+        <div class="fv-conversion ${convClass}">
+          <div>
+            <div class="fv-conv-lbl">Conversión</div>
+            <div class="fv-conv-val">${conv ? _esc(conv) : '— Sin definir —'}</div>
+            ${convDesc ? `<div class="fv-conv-desc">${convDesc}</div>` : ''}
+          </div>
+        </div>
+        ${progExp ? `<div class="fv-grid" style="margin-top:2px">${row('Progreso expediente', progExp, true)}</div>` : ''}
+        ${docs    ? `<div class="fv-grid" style="margin-top:2px"><div class="fv-row full"><div class="fv-row-k">Documentos</div><div class="fv-row-v long">${_esc(docs)}</div></div></div>` : ''}
+      </div>
+
+      <!-- SECCIÓN: Sistema (solo lectura) -->
+      <div class="fv-sec">
+        <div class="fv-sec-title"><em>🔒</em>Sistema</div>
+        <div class="le-banner" style="margin-bottom:10px">Campos generados automáticamente. No se editan desde la intranet.</div>
+        <div class="fv-lock">
+          <div class="fv-lock-k">🔒 Folio</div>
+          <div class="fv-lock-v">${_esc(folio)}</div>
+        </div>
+        <div class="fv-lock" style="margin-top:4px">
+          <div class="fv-lock-k">🔒 Propiedad creada en sistema</div>
+          <span class="fv-lock-badge ${propCreada ? 'on' : 'off'}">${propCreada ? '✓ Creada' : '○ Pendiente'}</span>
+        </div>
+      </div>
+
+    </div><!-- /fv-body -->
+  `;
+
+  document.getElementById('crm-fv-inner').innerHTML = html;
+  document.getElementById('crm-ficha-vendedor').style.display = 'flex';
+}
+
+function crmBadgeForConv(conv){
+  return {
+    'Firma exclusiva':'badge-offer',
+    'Firma venta directa':'badge-close',
+    'En seguimiento':'badge-visit',
+    'No calificó':'badge-lost',
+  }[conv] || '';
+}
+
+function vendedorClose(){
+  document.getElementById('crm-ficha-vendedor').style.display = 'none';
+}
+
+function vendedorEditFromFicha(){
+  vendedorClose();
+  crmOpenEdit(crmState.editId);
+}
+
+/* ─── AGENDAR VISITA desde la ficha del lead comprador ─────
+   Abre el modal de citas en modo NUEVO, pre-rellenado con los
+   datos del lead. Folio Cliente Origen viaja en crmState.citaFromLead
+   y se inyecta en el POST sin que el asesor lo toque.            */
+function fichaAgendarCita(){
+  const rec = crmState.records.find(r => r.id === crmState.editId);
+  if(!rec) return;
+
+  // Folio correcto: "Folio del Comprador" (lookup de la propiedad) o "Folio Propiedad NERI"
+  // El campo primario "Folio" suele estar vacío en Leads Compradores — no usarlo
+  const folioClienteOrigen =
+    _fval(rec,'Folio del Comprador') ||
+    _fval(rec,'Folio Propiedad NERI') ||
+    '';
+
+  const comprador = _fval(rec,'Nombre Completo') || '';
+  const propiedad = _fval(rec,'Propiedad de Interés') || '';
+  const asesor    = _fval(rec,'Asesor') || '';
+
+  // Guardar contexto para que citaSave() lo incluya en el POST
+  crmState.citaFromLead = { folioClienteOrigen, comprador, propiedad, asesor };
+
+  // Cerrar la ficha y abrir el modal de cita en modo nuevo, pre-rellenado
+  crmCloseFicha();
+
+  // Reutilizar el modal existente de cita: modo creación
+  crmState.isNew  = true;
+  crmState.editId = null;
+
+  const TIPO_OPTS   = ['Visita presencial','Videollamada','Segunda visita','Visita con familia','Visita con valuador'];
+  const ESTADO_OPTS = ['Pendiente','Confirmada','Realizada','Cancelada','Reagendada'];
+
+  const _sel = (name, opts, cur) =>
+    `<div class="form-group full">
+       <label class="form-label">${name}</label>
+       <select class="form-inp" data-field="${_escAttr(name)}" data-ftype="select" data-orig="${_escAttr(cur)}">
+         <option value="">— Sin selección</option>
+         ${opts.map(o=>`<option value="${_escAttr(o)}"${cur===o?' selected':''}>${o}</option>`).join('')}
+       </select></div>`;
+
+  const _inp = (name, val, full) =>
+    `<div class="form-group${full?' full':''}">
+       <label class="form-label">${name}</label>
+       <input class="form-inp" type="text" data-field="${_escAttr(name)}" data-ftype="text"
+              data-orig="" value="${_escAttr(val)}"></div>`;
+
+  const _ta = (name, val) =>
+    `<div class="form-group full">
+       <label class="form-label">${name}</label>
+       <textarea class="form-inp" data-field="${_escAttr(name)}" data-ftype="text"
+                 data-orig="" rows="2">${_esc(val)}</textarea></div>`;
+
+  const bannerHtml = folioClienteOrigen
+    ? `<div class="le-banner" style="margin-bottom:12px">
+         Lead de origen: <strong>${_esc(folioClienteOrigen)}</strong> — el folio se registra automáticamente.
+       </div>`
+    : `<div class="le-banner" style="margin-bottom:12px;border-color:var(--amber,#e8a838)">
+         ⚠ No se encontró folio en este lead. Verifica en Airtable.
+       </div>`;
+
+  const previewHtml = `
+    <div class="cita-ticket" style="margin-bottom:16px">
+      <div>
+        <div class="cita-folio-tag">Nueva cita</div>
+        <div class="cita-nombre">${_esc(comprador || 'Sin nombre')}</div>
+        <div class="cita-propiedad">◈ ${_esc(propiedad || 'Sin propiedad')}</div>
+      </div>
+      <span class="le-vstatus off">Folio lo asigna Make</span>
+    </div>`;
+
+  const formHtml = `
+    ${bannerHtml}
+    ${previewHtml}
+    <div class="cita-sec-title"><span>◷</span>Fecha y hora</div>
+    <div class="cita-grid">
+      ${_inp('Fecha de la Cita', '', false)}
+      ${_inp('Hora', '', false)}
+    </div>
+    <div class="cita-sec-title"><span>◈</span>Detalles</div>
+    <div class="cita-grid">
+      ${_inp('Comprador', comprador, false)}
+      ${_inp('Propiedad', propiedad, false)}
+      ${_inp('Asesor', asesor, false)}
+      ${_sel('Tipo de Cita', TIPO_OPTS, 'Visita presencial')}
+      ${_sel('Estado Cita', ESTADO_OPTS, 'Pendiente')}
+      ${_ta('Notas de la Cita', '')}
+    </div>`;
+
+  document.getElementById('crm-cita-err').textContent = '';
+  document.getElementById('crm-cita-body').innerHTML = formHtml;
+  document.getElementById('crm-cita-ver').style.display = 'none';
+  document.getElementById('crm-cita').style.display = 'flex';
+}
+
+function fichaEditFromFicha(){
+  crmCloseFicha();
+  crmOpenEdit(crmState.editId);
+}
+
+function fichaCopy(btn){
+  const t = btn.getAttribute('data-msg') || '';
+  navigator.clipboard?.writeText(t).then(()=>{ showToast('✓ Mensaje copiado'); },
+    ()=>{ showToast('No se pudo copiar'); });
+}
+
+/* ─── EDITOR DE LANDING (Ficha de Propiedad) ───────── */
+/* Solo lectura del folio; edita SOLO campos de contenido de la landing.
+   Folio NERI / Links / contadores son fórmula/Make → bloqueados.        */
+const LANDING_FORM = [
+  {title:'Portada', ico:'◫', fields:[
+    {f:'Frase Portada',  type:'text',     full:true},
+    {f:'Frase Inicio',   type:'textarea', full:true},
+    {f:'Foto de portada',type:'attach',   full:true, img:true},
+  ]},
+  {title:'Precio', ico:'$', fields:[
+    {f:'Precio Lista',  type:'number'},
+    {f:'Precio Minimo', type:'number'},
+    {f:'Moneda',        type:'select', opts:['MXN','USD']},
+  ]},
+  {title:'Plusvalía', ico:'↗', fields:[
+    {f:'Plusvalia Valor', type:'text'},
+    {f:'Plusvalia Texto', type:'textarea', full:true},
+  ]},
+  {title:'Videos de la landing', ico:'▶', videos:[
+    {room:'Sala',     yt:'Video Sala',         mp4:'Video Sala MP4'},
+    {room:'Cocina',   yt:'Video Cocina',       mp4:'Video Cocina MP4'},
+    {room:'Recámara', yt:'Video Recamara',     mp4:'Video Recamara MP4'},
+    {room:'Jardín',   yt:'Video Jardin',       mp4:'Video Jardin MP4'},
+    {room:'Alberca',  yt:'Video Alberca',      mp4:'Video Alberca MP4'},
+    {room:'Extra',    yt:'Nombre Video Extra', mp4:'Video Extra MP4', extra:true},
+  ]},
+  {title:'Datos de la casa', ico:'⌂', fields:[
+    {f:'Tipo de Propiedad', type:'select', opts:['Casa','Departamento','Terreno','Local','Oficina','Bodega']},
+    {f:'Estado Propiedad',  type:'select', opts:['Disponible','Apartada','Vendida','En proceso','Suspendida']},
+    {f:'Habitaciones',       type:'number'},
+    {f:'Banos',              type:'number'},
+    {f:'Medios Banos',       type:'number'},
+    {f:'Estacionamientos',   type:'number'},
+    {f:'Metros Construccion',type:'number'},
+    {f:'Metros Terreno',     type:'number'},
+    {f:'Zona / Colonia',     type:'text'},
+    {f:'Municipio',          type:'text'},
+    {f:'Estado / Entidad',   type:'text'},
+    {f:'Direccion',          type:'text', full:true},
+  ]},
+  {title:'Links', ico:'↗', fields:[
+    {f:'Link Tour Virtual', type:'url', full:true},
+    {f:'Google Maps URL',   type:'url', full:true},
+  ]},
+];
+
+// Metadatos de tipo, para guardar con el formato correcto
+const LANDING_META = (() => {
+  const m = {};
+  LANDING_FORM.forEach(sec => (sec.fields||[]).forEach(fl => { m[fl.f] = fl.type; }));
+  // videos: YouTube ID / nombre extra = texto plano
+  LANDING_FORM.forEach(sec => (sec.videos||[]).forEach(v => { m[v.yt] = 'text'; }));
+  return m;
+})();
+
+function _esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function _escAttr(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;'); }
+
+function _attInfo(rec, name){
+  const a = rec.fields?.[name];
+  if(Array.isArray(a) && a.length){
+    const f0 = a[0] || {};
+    return { has:true, count:a.length, url:f0.url||'', thumb:(f0.thumbnails&&f0.thumbnails.small&&f0.thumbnails.small.url)||'' };
+  }
+  return { has:false, count:0, url:'', thumb:'' };
+}
+
+function _landInput(fl, rec){
+  const name = fl.f;
+  let val = _fval(rec, name);
+  const orig = val;
+
+  if(fl.type === 'attach'){
+    const info = _attInfo(rec, name);
+    const thumb = (fl.img && info.thumb)
+      ? `<img class="le-thumb" src="${_escAttr(info.thumb)}" alt="">`
+      : `<div class="le-thumb-empty">${info.has?'▣':'＋'}</div>`;
+    const status = info.has
+      ? `<span class="le-vstatus on">Cargado${info.count>1?' ('+info.count+')':''}</span>`
+      : `<span class="le-vstatus off">Vacío</span>`;
+    return `<div class="form-group full">
+        <label class="form-label">${name}</label>
+        <div class="le-attach">${thumb}${status}</div>
+        <input class="form-inp" type="text" data-attach="${_escAttr(name)}"
+               placeholder="Pegar URL pública para reemplazar (opcional)">
+        <div class="le-note">El archivo se administra en Airtable. Para cambiarlo desde aquí, pega una URL pública; si lo dejas vacío no se toca.</div>
+      </div>`;
+  }
+  if(fl.type === 'select'){
+    const os = (fl.opts||[]).map(o => `<option value="${_escAttr(o)}"${val===o?' selected':''}>${o}</option>`).join('');
+    return `<div class="form-group${fl.full?' full':''}">
+        <label class="form-label">${name}</label>
+        <select class="form-inp" data-field="${_escAttr(name)}" data-ftype="select" data-orig="${_escAttr(orig)}">
+          <option value="">— Sin selección</option>${os}</select></div>`;
+  }
+  if(fl.type === 'textarea'){
+    return `<div class="form-group${fl.full?' full':''}">
+        <label class="form-label">${name}</label>
+        <textarea class="form-inp" data-field="${_escAttr(name)}" data-ftype="text" data-orig="${_escAttr(orig)}" rows="2">${_esc(val)}</textarea></div>`;
+  }
+  const inType = fl.type === 'number' ? 'number' : 'text';
+  const ft = fl.type === 'number' ? 'number' : 'text';
+  return `<div class="form-group${fl.full?' full':''}">
+      <label class="form-label">${name}</label>
+      <input class="form-inp" type="${inType}" data-field="${_escAttr(name)}" data-ftype="${ft}" data-orig="${_escAttr(orig)}" value="${_escAttr(val)}"></div>`;
+}
+
+function _landVideoRow(v, rec){
+  const ytVal = _fval(rec, v.yt);
+  const info  = _attInfo(rec, v.mp4);
+  const mp4 = info.has
+    ? `<span class="le-vstatus on">MP4 ✓</span>`
+    : `<span class="le-vstatus off">MP4 —</span>`;
+  const ph = v.extra ? 'Nombre (ej. Estudio)' : 'ID de YouTube';
+  return `<div class="le-vrow">
+      <span class="le-vroom">${v.room}</span>
+      <input class="form-inp" type="text" data-field="${_escAttr(v.yt)}" data-ftype="text" data-orig="${_escAttr(ytVal)}" value="${_escAttr(ytVal)}" placeholder="${ph}">
+      ${mp4}
+    </div>`;
+}
+
+function landOpenEditor(recId){
+  const rec = crmState.records.find(r => r.id === recId);
+  if(!rec) return;
+  crmState.editId = recId;
+  crmState.isNew  = false;
+  document.getElementById('crm-landing-err').textContent = '';
+
+  const nombre   = _fval(rec,'Nombre Propiedad') || 'Propiedad sin nombre';
+  const folioNeri= _fval(rec,'Folio NERI');
+  const linkComp = _fval(rec,'Link Comprador');
+  const linkPort = _fval(rec,'Link Portal');
+
+  const secs = LANDING_FORM.map(sec => {
+    let inner;
+    if(sec.videos){
+      inner = `<div class="le-note" style="margin:0 0 8px">El ID de YouTube se edita aquí. El MP4 se sube en Airtable (solo muestra estado).</div>`
+            + sec.videos.map(v => _landVideoRow(v, rec)).join('');
+    } else {
+      inner = `<div class="le-grid">${sec.fields.map(fl => _landInput(fl, rec)).join('')}</div>`;
+    }
+    return `<div class="le-sec">
+        <div class="le-sec-title"><span class="le-ico">${sec.ico}</span>${sec.title}</div>
+        ${inner}</div>`;
+  }).join('');
+
+  const lockRow = (k, v) => v ? `<div class="le-lock">
+      <div class="le-lock-k">🔒 ${k}</div><div class="le-lock-v">${_esc(v)}</div></div>` : '';
+
+  const lockBlock = `<div class="le-sec">
+      <div class="le-sec-title"><span class="le-ico">🔒</span>Folio y enlaces (solo lectura)</div>
+      <div class="le-banner">Estos los arma el sistema solo (folio maestro y links). La intranet nunca los escribe.</div>
+      <div style="margin-top:10px">
+        ${lockRow('Folio NERI', folioNeri)}
+        ${lockRow('Link Comprador (landing)', linkComp)}
+        ${lockRow('Link Portal del cliente', linkPort)}
+      </div></div>`;
+
+  document.getElementById('crm-landing-body').innerHTML = `
+    <div style="margin-bottom:4px">
+      <div class="fk-name">${_esc(nombre)}</div>
+      <div class="fk-folio">${folioNeri || '— sin folio aún —'}</div>
+    </div>
+    ${secs}
+    ${lockBlock}`;
+
+  const viewBtn = document.getElementById('crm-landing-view');
+  if(linkComp){ viewBtn.style.display=''; viewBtn.onclick = () => window.open(linkComp,'_blank'); }
+  else { viewBtn.style.display='none'; }
+
+  document.getElementById('crm-landing').style.display = 'flex';
+}
+
+function landClose(){ document.getElementById('crm-landing').style.display = 'none'; }
+
+async function landSave(){
+  const btn   = document.getElementById('crm-landing-save');
+  const errEl = document.getElementById('crm-landing-err');
+  const cfg   = CRM_CFG['propiedades'];
+  btn.textContent = 'Guardando...'; btn.disabled = true; errEl.textContent = '';
+
+  const fields = {};
+
+  // 1) Campos de texto / número / select: solo lo que cambió
+  document.querySelectorAll('#crm-landing-body [data-field]').forEach(el => {
+    const name = el.dataset.field;
+    const ftype= el.dataset.ftype;
+    const orig = (el.dataset.orig || '').trim();
+    const nv   = (el.value || '').trim();
+    if(nv === orig) return;                       // sin cambios → no tocar
+
+    if(ftype === 'number'){
+      if(nv === ''){ fields[name] = null; }        // se limpió
+      else { const n = Number(nv.replace(/[, $]/g,'')); if(!isNaN(n)) fields[name] = n; }
+    } else if(ftype === 'select'){
+      fields[name] = nv === '' ? null : nv;   // typecast:true maneja la conversión
+    } else {
+      fields[name] = nv === '' ? null : nv;        // texto / textarea / url / youtube id
+    }
+  });
+
+  // 2) Adjuntos: solo si se pegó una URL nueva (nunca se borran sin querer)
+  document.querySelectorAll('#crm-landing-body [data-attach]').forEach(el => {
+    const name = el.dataset.attach;
+    const url  = (el.value || '').trim();
+    if(url) fields[name] = [{ url }];
+  });
+
+  if(Object.keys(fields).length === 0){
+    errEl.style.color = 'var(--w50)';
+    errEl.textContent = 'No hay cambios para guardar.';
+    btn.textContent = 'Guardar cambios'; btn.disabled = false;
+    return;
+  }
+
+  try {
+    await atFetch(`${cfg.tableId}/${crmState.editId}`, {
+      method:'PATCH', body: JSON.stringify({ fields, typecast:true })
+    });
+    landClose();
+    showToast('✓ Landing actualizada');
+    await crmLoad('propiedades', true);
+  } catch(e){
+    errEl.style.color = 'var(--red)';
+    errEl.textContent = 'Error al guardar: ' + e.message;
+  } finally {
+    btn.textContent = 'Guardar cambios'; btn.disabled = false;
+  }
+}
+
+/* ─── FICHA DE CITA ───────────────────────────────── */
+/*  Patrón: abre modal de solo lectura/edición de una cita.
+    Si no existe cita para ese folio lead → modo creación.
+    Nunca escribe el Folio Cita (campo calculado / Make).     */
+
+const CITA_VERCEL_BASE = 'https://cita-sable.vercel.app/'; // ← URL real de la pagina de cita (handoff 6)
+
+function citaOpenFicha(recId){
+  const rec = crmState.records.find(r => r.id === recId);
+  if(!rec) return;
+  crmState.editId = recId;
+  crmState.isNew  = false;
+
+  const cfg = CRM_CFG['citas'];
+  document.getElementById('crm-cita-err').textContent = '';
+
+  const folioCita = _fval(rec,'Folio Cita');
+  const comprador = _fval(rec,'Comprador');
+  const propiedad = _fval(rec,'Propiedad');
+  const fecha     = _fval(rec,'Fecha de la Cita');
+  const hora      = _fval(rec,'Hora');
+  const tipo      = _fval(rec,'Tipo de Cita');
+  const estado    = _fval(rec,'Estado Cita');
+  const asesor    = _fval(rec,'Asesor');
+  const notas     = _fval(rec,'Notas de la Cita');
+
+  const citaUrl = folioCita ? (CITA_VERCEL_BASE + '?cita=' + encodeURIComponent(folioCita)) : '';
+
+  // Bloque de ticket superior
+  const ticketHtml = `
+    <div class="cita-ticket">
+      <div>
+        <div class="cita-folio-tag">Cita agendada</div>
+        <div class="cita-nombre">${_esc(comprador || 'Comprador sin nombre')}</div>
+        <div class="cita-propiedad">◈ ${_esc(propiedad || 'Propiedad sin ligar')}</div>
+      </div>
+      <div>${folioCita ? `<div class="cita-folio-code">${_esc(folioCita)}</div>` : '<span class="le-vstatus off">Sin folio aún</span>'}</div>
+    </div>`;
+
+  // Bloque editable: fecha, hora, tipo, estado, notas
+  const TIPO_OPTS = ['Visita presencial','Videollamada','Segunda visita','Visita con familia','Visita con valuador'];
+  const ESTADO_OPTS = ['Pendiente','Confirmada','Realizada','Cancelada','Reagendada'];
+
+  const _sel = (name, opts, cur) =>
+    `<div class="form-group full">
+       <label class="form-label">${name}</label>
+       <select class="form-inp" data-field="${_escAttr(name)}" data-ftype="select" data-orig="${_escAttr(cur)}">
+         <option value="">— Sin selección</option>
+         ${opts.map(o=>`<option value="${_escAttr(o)}"${cur===o?' selected':''}>${o}</option>`).join('')}
+       </select></div>`;
+
+  const _inp = (name, val, full) =>
+    `<div class="form-group${full?' full':''}">
+       <label class="form-label">${name}</label>
+       <input class="form-inp" type="text" data-field="${_escAttr(name)}" data-ftype="text"
+              data-orig="${_escAttr(val)}" value="${_escAttr(val)}"></div>`;
+
+  const _ta = (name, val) =>
+    `<div class="form-group full">
+       <label class="form-label">${name}</label>
+       <textarea class="form-inp" data-field="${_escAttr(name)}" data-ftype="text"
+                 data-orig="${_escAttr(val)}" rows="2">${_esc(val)}</textarea></div>`;
+
+  const formHtml = `
+    <div class="cita-sec-title"><span>◷</span>Fecha y hora</div>
+    <div class="cita-grid">
+      ${_inp('Fecha de la Cita', fecha)}
+      ${_inp('Hora', hora)}
+    </div>
+    <div class="cita-sec-title"><span>◈</span>Detalles</div>
+    <div class="cita-grid">
+      ${_inp('Asesor', asesor)}
+      ${_sel('Tipo de Cita', TIPO_OPTS, tipo)}
+      ${_sel('Estado Cita', ESTADO_OPTS, estado)}
+      ${_ta('Notas de la Cita', notas)}
+    </div>`;
+
+  // Bloque de confirmación (solo lectura, visible si hay fecha/hora)
+  const confirmHtml = (fecha || hora) ? `
+    <div class="cita-confirm-block">
+      <div class="cita-confirm-title">◎ Resumen de la cita</div>
+      ${[['Comprador', comprador],['Propiedad', propiedad],['Fecha', fecha],['Hora', hora],
+         ['Tipo', tipo],['Estado', estado],['Asesor', asesor]]
+        .filter(([,v])=>v)
+        .map(([k,v])=>`<div class="cita-confirm-row"><div class="cita-ck">${k}</div><div class="cita-cv">${_esc(v)}</div></div>`)
+        .join('')}
+      ${citaUrl ? `<button class="cita-link-chip" onclick="window.open('${_escAttr(citaUrl)}','_blank')">↗ Link de la cita</button>` : ''}
+    </div>` : '';
+
+  // Bloque folio — solo lectura
+  const lockHtml = `
+    <div class="cita-sec-title"><span>🔒</span>Sistema (solo lectura)</div>
+    <div class="le-banner">El Folio de Cita lo genera Make automáticamente. La intranet nunca lo escribe.</div>
+    ${folioCita ? `<div class="le-lock" style="margin-top:10px">
+      <div class="le-lock-k">🔒 Folio Cita</div>
+      <div class="le-lock-v">${_esc(folioCita)}</div>
+    </div>` : ''}
+    ${citaUrl ? `<div class="le-lock">
+      <div class="le-lock-k">🔒 Link de la cita</div>
+      <div class="le-lock-v">${_esc(citaUrl)}</div>
+    </div>` : ''}`;
+
+  document.getElementById('crm-cita-body').innerHTML = ticketHtml + formHtml + confirmHtml + lockHtml;
+
+  // Botón "Ver cita"
+  const verBtn = document.getElementById('crm-cita-ver');
+  if(citaUrl){ verBtn.style.display=''; verBtn.onclick = () => window.open(citaUrl,'_blank'); }
+  else { verBtn.style.display='none'; }
+
+  document.getElementById('crm-cita').style.display = 'flex';
+}
+
+function citaClose(){
+  document.getElementById('crm-cita').style.display = 'none';
+}
+
+async function citaSave(){
+  const btn   = document.getElementById('crm-cita-save');
+  const errEl = document.getElementById('crm-cita-err');
+  const cfg   = CRM_CFG['citas'];
+  btn.textContent = 'Guardando...'; btn.disabled = true; errEl.textContent = '';
+
+  const fields = {};
+  document.querySelectorAll('#crm-cita-body [data-field]').forEach(el => {
+    const name  = el.dataset.field;
+    const ftype = el.dataset.ftype;
+    const orig  = (el.dataset.orig || '').trim();
+    const nv    = (el.value || '').trim();
+    // En edición: guardar solo cambios. En nueva cita: guardar todo lo que venga lleno,
+    // incluyendo valores default como Tipo de Cita y Estado Cita.
+    if(crmState.isNew){
+      if(nv === '') return;
+    } else {
+      if(nv === orig) return;
+    }
+
+    if(ftype === 'select'){
+      // Con typecast:true Airtable acepta el string directamente para singleSelect.
+      // Usar {name:val} falla con 422 si hay diferencia de mayúsculas/minúsculas.
+      fields[name] = nv;
+    } else {
+      fields[name] = nv;
+    }
+  });
+
+  if(Object.keys(fields).length === 0){
+    errEl.style.color = 'var(--w50)';
+    errEl.textContent = 'No hay cambios para guardar.';
+    btn.textContent = 'Guardar cambios'; btn.disabled = false;
+    return;
+  }
+
+  // Si la cita viene de la ficha del lead, heredar Folio Cliente Origen automáticamente
+  if(crmState.isNew && crmState.citaFromLead){
+    const ctx = crmState.citaFromLead;
+    if(ctx.folioClienteOrigen && !fields['Folio Cliente Origen']){
+      fields['Folio Cliente Origen'] = ctx.folioClienteOrigen;
+    }
+  }
+
+  try {
+    if(crmState.isNew){
+      await atFetch(cfg.tableId, { method:'POST', body: JSON.stringify({ fields, typecast:true }) });
+    } else {
+      await atFetch(`${cfg.tableId}/${crmState.editId}`, {
+        method:'PATCH', body: JSON.stringify({ fields, typecast:true })
+      });
+    }
+    crmState.citaFromLead = null; // limpiar contexto del lead
+    citaClose();
+    showToast('✓ Cita guardada');
+    await crmLoad('citas', true);
+  } catch(e){
+    errEl.style.color = 'var(--red)';
+    errEl.textContent = 'Error al guardar: ' + e.message;
+  } finally {
+    btn.textContent = 'Guardar cambios'; btn.disabled = false;
+  }
+}
+
+function citaCloseAndClear(){
+  crmState.citaFromLead = null;
+  citaClose();
+}
+
+function citaOpenNew(){
+  crmState.editId = null;
+  crmState.isNew  = true;
+  crmBuildModal('NUEVA CITA', CRM_CFG['citas'].editable, {});
+}
+
+/* ─── BUILD MODAL HTML ─────────────────────────────── */
 function crmBuildModal(title, editable, values){
   document.getElementById('crm-modal-title').innerHTML = title;
   document.getElementById('crm-modal-sub').textContent = CRM_CFG[crmState.tab]?.label || '';
@@ -1331,59 +2852,28 @@ function crmBuildModal(title, editable, values){
     if(typeof val === 'object') val = val?.name ?? '';
     val = String(val);
 
+    const fieldAttr = _escAttr(f);
+    const valueAttr = _escAttr(val);
+
     if(type === 'select'){
       const os = (opts||[]).map(o =>
-        `<option value="${o}"${val===o?' selected':''}>${o}</option>`).join('');
+        `<option value="${_escAttr(o)}"${val===o?' selected':''}>${_esc(o)}</option>`).join('');
       return `<div class="form-group">
-        <label class="form-label">${f}</label>
-        <select class="form-inp" data-field="${f}"><option value="">— Sin selección</option>${os}</select></div>`;
+        <label class="form-label">${_esc(f)}</label>
+        <select class="form-inp" data-field="${fieldAttr}" data-ftype="select" data-orig="${valueAttr}"><option value="">— Sin selección</option>${os}</select></div>`;
     }
     if(type === 'textarea'){
       return `<div class="form-group full">
-        <label class="form-label">${f}</label>
-        <textarea class="form-inp" data-field="${f}" rows="3">${val}</textarea></div>`;
+        <label class="form-label">${_esc(f)}</label>
+        <textarea class="form-inp" data-field="${fieldAttr}" data-orig="${valueAttr}" rows="3">${_esc(val)}</textarea></div>`;
     }
     return `<div class="form-group">
-      <label class="form-label">${f}</label>
-      <input class="form-inp" type="text" data-field="${f}" value="${val.replace(/"/g,'&quot;')}"></div>`;
+      <label class="form-label">${_esc(f)}</label>
+      <input class="form-inp" type="text" data-field="${fieldAttr}" data-orig="${valueAttr}" value="${valueAttr}"></div>`;
   }).join('');
 
-  // ─── Bloque de SOLO LECTURA (campos automáticos: fórmulas / Make) ───
-  const ro = CRM_CFG[crmState.tab]?.readonly || [];
-  let roHtml = '';
-  if(ro.length && !crmState.isNew){
-    const rows = ro.map(({f, link}) => {
-      let v = values[f] ?? '';
-      if(typeof v === 'object') v = v?.name ?? '';
-      v = String(v).trim();
-      const safe = v.replace(/"/g,'&quot;');
-      const empty = !v;
-      const btn = empty ? '' :
-        `<button type="button" class="ro-copy" title="Copiar" onclick="crmCopy(this, '${safe.replace(/'/g,"\\'")}')">⧉</button>`;
-      const shown = empty ? '<span class="ro-empty">— se llena solo —</span>'
-                          : (link ? `<a href="${safe}" target="_blank" class="ro-link">${safe}</a>` : `<span class="ro-val">${safe}</span>`);
-      return `<div class="ro-row"><span class="ro-label">${f}</span><div class="ro-field">${shown}${btn}</div></div>`;
-    }).join('');
-    roHtml = `<div class="form-group full ro-block">
-      <div class="ro-head">DATOS AUTOMÁTICOS · solo lectura</div>
-      ${rows}
-      <div class="ro-note">Estos se generan solos (fórmulas / Make). El asesor los copia, no los edita.</div>
-    </div>`;
-  }
-
-  document.getElementById('crm-modal-fields').innerHTML = html + roHtml;
+  document.getElementById('crm-modal-fields').innerHTML = html;
   document.getElementById('crm-modal').style.display = 'flex';
-}
-
-/* Copiar al portapapeles con feedback */
-function crmCopy(btn, text){
-  const done = () => { const o = btn.textContent; btn.textContent='✓'; showToast('Copiado'); setTimeout(()=>btn.textContent=o, 1200); };
-  if(navigator.clipboard && navigator.clipboard.writeText){
-    navigator.clipboard.writeText(text).then(done).catch(()=>done());
-  } else {
-    const t=document.createElement('textarea'); t.value=text; document.body.appendChild(t); t.select();
-    try{ document.execCommand('copy'); }catch(e){} t.remove(); done();
-  }
 }
 
 function crmCloseModal(){
@@ -1401,24 +2891,34 @@ async function crmSave(){
   const cfg = CRM_CFG[crmState.tab];
   const inputs = document.querySelectorAll('#crm-modal-fields [data-field]');
   const fields = {};
-  // Mapa de campos: select normal → {name:val}, asText → texto plano
+  // Mapa de campos: select normal → string plano con typecast:true, asText → texto plano
   const fieldMeta = {};
   (cfg.editable || []).forEach(({f, type, asText}) => { fieldMeta[f] = {type, asText}; });
   inputs.forEach(el => {
-    const val = el.value.trim();
-    if(!val) return;
+    const val  = el.value.trim();
+    const orig = (el.dataset.orig || '').trim();
     const meta = fieldMeta[el.dataset.field] || {};
-    fields[el.dataset.field] = (meta.type === 'select' && !meta.asText) ? {name: val} : val;
+
+    // En registros nuevos no mandamos campos vacíos.
+    // En edición, si el usuario borra un campo que antes tenía valor, mandamos null
+    // para limpiar Airtable de verdad. Esto evita que "Asesor" se quede pegado.
+    if(!val){
+      if(!crmState.isNew && orig) fields[el.dataset.field] = null;
+      return;
+    }
+
+    // Con typecast:true Airtable acepta string directo para singleSelect; evita 422 por mayúsculas
+    fields[el.dataset.field] = val;
   });
 
   try {
     if(crmState.isNew){
       await atFetch(`${cfg.tableId}`, {
-        method:'POST', body: JSON.stringify({fields})
+        method:'POST', body: JSON.stringify({fields, typecast:true})
       });
     } else {
       await atFetch(`${cfg.tableId}/${crmState.editId}`, {
-        method:'PATCH', body: JSON.stringify({fields})
+        method:'PATCH', body: JSON.stringify({fields, typecast:true})
       });
     }
     crmCloseModal();
@@ -1521,6 +3021,75 @@ function buildAirtablePanel(){
         <button class="btn btn-primary" id="crm-save-btn" onclick="crmSave()">Guardar cambios</button>
       </div>
     </div>
+  </div>
+
+  <div id="crm-ficha">
+    <div class="crm-modal-box fk-box" style="animation:fadeUp .25s var(--ease)">
+      <div class="crm-modal-head">
+        <div>
+          <div class="crm-modal-title">EXPEDIENTE <em>VIVO</em></div>
+          <div style="font-size:9px;color:var(--w30);letter-spacing:2px;text-transform:uppercase;margin-top:6px">Ficha del comprador</div>
+        </div>
+        <button class="crm-modal-close" onclick="crmCloseFicha()">✕</button>
+      </div>
+      <div id="crm-ficha-body"></div>
+      <div class="crm-modal-actions">
+        <button class="btn btn-ghost" onclick="crmCloseFicha()">Cerrar</button>
+        <button class="btn btn-cita" onclick="fichaAgendarCita()" title="Agendar visita desde este lead">📅 Agendar visita</button>
+        <button class="btn btn-primary" onclick="fichaEditFromFicha()">Editar registro</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL FICHA VENDEDOR -->
+  <div id="crm-ficha-vendedor">
+    <div class="fv-box">
+      <div id="crm-fv-inner"></div>
+      <div class="fv-actions">
+        <button class="btn btn-ghost" onclick="vendedorClose()">Cerrar</button>
+        <button class="btn btn-primary" onclick="vendedorEditFromFicha()">Editar registro</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL EDITOR DE LANDING (Ficha de Propiedad) -->
+  <div id="crm-landing">
+    <div class="crm-modal-box le-box" style="animation:fadeUp .25s var(--ease)">
+      <div class="crm-modal-head">
+        <div>
+          <div class="crm-modal-title">EDITOR DE <em>LANDING</em></div>
+          <div style="font-size:9px;color:var(--w30);letter-spacing:2px;text-transform:uppercase;margin-top:6px">Ficha de la propiedad</div>
+        </div>
+        <button class="crm-modal-close" onclick="landClose()">✕</button>
+      </div>
+      <div id="crm-landing-body"></div>
+      <div id="crm-landing-err" style="color:var(--red);font-size:11px;min-height:16px;margin-top:8px;text-align:center"></div>
+      <div class="crm-modal-actions">
+        <button class="btn btn-ghost" onclick="landClose()">Cerrar</button>
+        <button class="btn btn-ghost" id="crm-landing-view">◎ Ver landing</button>
+        <button class="btn btn-primary" id="crm-landing-save" onclick="landSave()">Guardar cambios</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL FICHA DE CITA -->
+  <div id="crm-cita">
+    <div class="crm-modal-box cita-box" style="animation:fadeUp .25s var(--ease)">
+      <div class="crm-modal-head">
+        <div>
+          <div class="crm-modal-title">FICHA DE <em>CITA</em></div>
+          <div style="font-size:9px;color:var(--w30);letter-spacing:2px;text-transform:uppercase;margin-top:6px">Agenda · confirmación · link</div>
+        </div>
+        <button class="crm-modal-close" onclick="citaCloseAndClear()">✕</button>
+      </div>
+      <div id="crm-cita-body"></div>
+      <div id="crm-cita-err" style="color:var(--red);font-size:11px;min-height:16px;margin-top:8px;text-align:center"></div>
+      <div class="crm-modal-actions">
+        <button class="btn btn-ghost" onclick="citaCloseAndClear()">Cancelar</button>
+        <button class="btn btn-ghost" id="crm-cita-ver" style="display:none">↗ Ver cita</button>
+        <button class="btn btn-primary" id="crm-cita-save" onclick="citaSave()">Guardar cambios</button>
+      </div>
+    </div>
   </div>`;
 }
 
@@ -1580,10 +3149,11 @@ function loadIframe(id, url){
   let fullUrl = url;
   if(SESSION){
     const params = new URLSearchParams({
-      asesor:   SESSION.nombre,
-      whatsapp: '527779855687',
-      firma:    SESSION.nombre + ' · Century 21 Haus · Cuernavaca',
-      pixel:    '1308747473990434',
+      asesor:   SESSION.slug || SESSION.user,            // las landings resuelven por SLUG desde Airtable
+      nombre:   SESSION.nombre || '',
+      whatsapp: SESSION.whatsapp || '527779855687',
+      firma:    (SESSION.nombre||'') + ' · ' + (SESSION.empresa||''),
+      pixel:    SESSION.pixel || '',
       webhook:  id === 'vendedores'
         ? 'https://hook.us2.make.com/vx9xx6qdg2dlldvdgfmvwxi54ibwwmcz'
         : 'https://hook.us2.make.com/qqsrjs8gtm0sdn7iba8hxmyfnc3m9y8j'
@@ -1621,7 +3191,7 @@ function openExternal(id){
 const LABELS = {
   hoy:'Inicio', airtable:'Mi CRM', sala:'Sala de Mensajes',
   compradores:'Landing Compradores', vendedores:'Landing Vendedores',
-  citas:'Panel de Citas', progreso:'Portal Cliente',
+  citas:'Panel de Citas', progreso:'Portal Progreso',
   opciones:'Opciones de Compra', reportes:'Reportes'
 };
 
@@ -1637,6 +3207,7 @@ function goTo(id){
 
   document.getElementById('tb-label').textContent = LABELS[id] || id;
   if(id === 'airtable') setTimeout(onAirtablePanelActivate, 60);
+  if(id === 'hoy') setTimeout(()=>loadHoyData(false), 60);
 }
 
 /* ═══════════════════════════════════════════════════
