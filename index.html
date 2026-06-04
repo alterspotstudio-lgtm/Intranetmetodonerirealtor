@@ -792,6 +792,14 @@ select.form-input option{background:#111;color:#fff}
   display:grid;grid-template-columns:96px 1fr auto;gap:10px;align-items:center;
   padding:9px 0;border-bottom:1px solid var(--border);
 }
+.le-upload{margin-top:7px}
+.le-upload input[type="file"]{font-size:10px;color:var(--w50);padding:8px 10px}
+.le-upload input[type="file"]::file-selector-button{
+  margin-right:10px;padding:6px 10px;border:1px solid var(--goldbdr);
+  background:var(--golddim);color:var(--gold);border-radius:2px;
+  font-size:7px;letter-spacing:1.5px;text-transform:uppercase;font-weight:800;cursor:pointer;
+}
+.le-upload input[type="file"]::file-selector-button:hover{background:rgba(201,169,110,.18)}
 .le-vroom{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--w50)}
 .le-vstatus{font-size:8px;letter-spacing:1.5px;text-transform:uppercase;white-space:nowrap;font-weight:700}
 .le-vstatus.on{color:var(--gold)}
@@ -2485,6 +2493,31 @@ function _attInfo(rec, name){
   return { has:false, count:0, url:'', thumb:'' };
 }
 
+function _safeDocKey(s){
+  return String(s || 'archivo')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[^A-Za-z0-9\-_.]/g,'_')
+    .slice(0,80);
+}
+
+async function uploadBlobFile(file, folio, doc){
+  if(!file) return null;
+  const qs = new URLSearchParams({
+    folio: folio || 'sin-folio',
+    doc: _safeDocKey(doc || 'archivo'),
+    filename: file.name || 'archivo'
+  });
+  const r = await fetch('/api/upload-documento?' + qs.toString(), {
+    method:'POST',
+    headers:{ 'x-content-type': file.type || 'application/octet-stream' },
+    body:file
+  });
+  const data = await r.json().catch(() => ({}));
+  if(!r.ok) throw new Error(data.error || ('No se pudo subir ' + (file.name || 'archivo')));
+  if(!data.url) throw new Error('Blob no devolvió URL para ' + (file.name || 'archivo'));
+  return data.url;
+}
+
 function _landInput(fl, rec){
   const name = fl.f;
   let val = _fval(rec, name);
@@ -2501,9 +2534,12 @@ function _landInput(fl, rec){
     return `<div class="form-group full">
         <label class="form-label">${name}</label>
         <div class="le-attach">${thumb}${status}</div>
+        <div class="le-upload">
+          <input class="form-inp" type="file" data-upload-attach="${_escAttr(name)}" data-upload-doc="${_escAttr(name)}" accept="image/*,video/mp4,video/quicktime,application/pdf">
+        </div>
         <input class="form-inp" type="text" data-attach="${_escAttr(name)}"
-               placeholder="Pegar URL pública para reemplazar (opcional)">
-        <div class="le-note">El archivo se administra en Airtable. Para cambiarlo desde aquí, pega una URL pública; si lo dejas vacío no se toca.</div>
+               placeholder="O pegar URL pública para reemplazar (opcional)">
+        <div class="le-note">Puedes subir el archivo desde aquí. La intranet lo manda a Vercel Blob y guarda solo la URL en Airtable.</div>
       </div>`;
   }
   if(fl.type === 'select'){
@@ -2534,7 +2570,12 @@ function _landVideoRow(v, rec){
   const ph = v.extra ? 'Nombre (ej. Estudio)' : 'ID de YouTube';
   return `<div class="le-vrow">
       <span class="le-vroom">${v.room}</span>
-      <input class="form-inp" type="text" data-field="${_escAttr(v.yt)}" data-ftype="text" data-orig="${_escAttr(ytVal)}" value="${_escAttr(ytVal)}" placeholder="${ph}">
+      <div>
+        <input class="form-inp" type="text" data-field="${_escAttr(v.yt)}" data-ftype="text" data-orig="${_escAttr(ytVal)}" value="${_escAttr(ytVal)}" placeholder="${ph}">
+        <div class="le-upload">
+          <input class="form-inp" type="file" data-upload-attach="${_escAttr(v.mp4)}" data-upload-doc="${_escAttr(v.mp4)}" accept="video/mp4,video/quicktime">
+        </div>
+      </div>
       ${mp4}
     </div>`;
 }
@@ -2554,7 +2595,7 @@ function landOpenEditor(recId){
   const secs = LANDING_FORM.map(sec => {
     let inner;
     if(sec.videos){
-      inner = `<div class="le-note" style="margin:0 0 8px">El ID de YouTube se edita aquí. El MP4 se sube en Airtable (solo muestra estado).</div>`
+      inner = `<div class="le-note" style="margin:0 0 8px">Puedes pegar ID de YouTube o subir el MP4 aquí. La intranet sube el archivo a Blob y guarda la URL en Airtable.</div>`
             + sec.videos.map(v => _landVideoRow(v, rec)).join('');
     } else {
       inner = `<div class="le-grid">${sec.fields.map(fl => _landInput(fl, rec)).join('')}</div>`;
@@ -2619,12 +2660,29 @@ async function landSave(){
     }
   });
 
-  // 2) Adjuntos: solo si se pegó una URL nueva (nunca se borran sin querer)
+  // 2) Adjuntos por URL pegada: solo si se pegó una URL nueva (nunca se borran sin querer)
   document.querySelectorAll('#crm-landing-body [data-attach]').forEach(el => {
     const name = el.dataset.attach;
     const url  = (el.value || '').trim();
     if(url) fields[name] = [{ url }];
   });
+
+  // 3) Adjuntos por archivo: sube a Vercel Blob y guarda SOLO la URL en Airtable
+  const currentRec = crmState.records.find(r => r.id === crmState.editId);
+  const folioUpload = _fval(currentRec || {}, 'Folio NERI') || _fval(currentRec || {}, 'Nombre Propiedad') || crmState.editId;
+  const uploadInputs = Array.from(document.querySelectorAll('#crm-landing-body [data-upload-attach]'))
+    .filter(el => el.files && el.files[0]);
+
+  if(uploadInputs.length){
+    btn.textContent = uploadInputs.length === 1 ? 'Subiendo archivo...' : 'Subiendo archivos...';
+    for(const el of uploadInputs){
+      const name = el.dataset.uploadAttach;
+      const doc  = el.dataset.uploadDoc || name;
+      const file = el.files[0];
+      const url = await uploadBlobFile(file, folioUpload, doc);
+      fields[name] = [{ url }];
+    }
+  }
 
   if(Object.keys(fields).length === 0){
     errEl.style.color = 'var(--w50)';
