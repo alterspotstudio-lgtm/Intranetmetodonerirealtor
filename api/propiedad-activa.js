@@ -6,12 +6,9 @@
  * campo "Estado Propiedad" = "Activa" en la tabla
  * "Propiedades NERI" de Airtable.
  *
- * Make actualiza ese campo automáticamente cuando
- * detecta la firma del vendedor.
- *
- * Variables de entorno requeridas en Vercel (ya existen):
+ * Variables de entorno requeridas en Vercel:
  *   AIRTABLE_TOKEN  → Personal Access Token (pat...)
- *   AIRTABLE_BASE   → appRh791vGXRdOJs3
+ *   AIRTABLE_BASE_ID → appRh791vGXRdOJs3
  */
 
 const TABLA  = 'Propiedades NERI';
@@ -69,7 +66,6 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: 'No hay ninguna propiedad con Estado = "Activa" en este momento.' });
     }
 
-    // Devuelve los campos planos + el ID del registro
     return res.status(200).json({
       id: registro.id,
       ...registro.fields

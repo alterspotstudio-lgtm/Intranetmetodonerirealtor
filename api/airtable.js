@@ -1,26 +1,19 @@
 // /api/airtable.js  —  Proxy seguro Intranet → Airtable (Método NERI)
 // Vercel Serverless Function (Node.js).
 //
-// El frontend (index_intranet.html) llama así:
+// El frontend llama así:
 //   GET    /api/airtable?path=<tablaId>?maxRecords=100
 //   POST   /api/airtable?path=<tablaId>            (body: {fields, typecast})
 //   PATCH  /api/airtable?path=<tablaId>/<recordId> (body: {fields, typecast})
 //
-// Este archivo añade la base y el token del lado del servidor para que
-// el token NUNCA quede expuesto en el HTML.
-//
-// REQUISITO — en Vercel → Settings → Environment Variables, agrega:
-//   AIRTABLE_TOKEN    =  pat...   (Personal Access Token de Airtable)
+// REQUISITO — en Vercel → Settings → Environment Variables:
+//   AIRTABLE_TOKEN    =  pat...
 //   AIRTABLE_BASE_ID  =  appRh791vGXRdOJs3
-//
-// El token debe tener permisos: data.records:read y data.records:write
-// sobre la base "Metodo Neri".
 
 const BASE_ID = process.env.AIRTABLE_BASE_ID || process.env.AIRTABLE_BASE || 'appRh791vGXRdOJs3';
 const TOKEN   = process.env.AIRTABLE_TOKEN;
 
 export default async function handler(req, res) {
-  // CORS (por si la intranet vive en otro dominio)
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PATCH,DELETE,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -37,7 +30,6 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Falta el parámetro ?path=' });
   }
 
-  // Construir la URL real de Airtable
   const url = `https://api.airtable.com/v0/${BASE_ID}/${path}`;
 
   try {
@@ -47,7 +39,6 @@ export default async function handler(req, res) {
         Authorization: `Bearer ${TOKEN}`,
         'Content-Type': 'application/json',
       },
-      // Reenviar el body en POST/PATCH/DELETE
       ...(req.method !== 'GET' && req.body
         ? { body: typeof req.body === 'string' ? req.body : JSON.stringify(req.body) }
         : {}),
