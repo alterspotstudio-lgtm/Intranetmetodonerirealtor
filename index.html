@@ -826,6 +826,60 @@ select.form-input option{background:#111;color:#fff}
 }
 .row-check:checked{background:var(--gold);border-color:var(--gold)}
 
+/* ─── EXPEDIENTE DOCUMENTAL (dentro de la ficha de propiedad) ─── */
+.exp-link-card{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:13px 15px;border-radius:3px;
+  background:linear-gradient(135deg,rgba(201,169,110,.09),rgba(201,169,110,.03));
+  border:1px solid var(--goldbdr);margin-bottom:14px;
+}
+.exp-link-info{min-width:0}
+.exp-link-lbl{font-size:7px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);font-weight:800;margin-bottom:4px}
+.exp-link-folio{font-family:var(--mono);font-size:12px;color:var(--w80,#cfcfcf);letter-spacing:1px;word-break:break-all}
+.exp-clock{font-size:11px;color:var(--w50);margin:0 0 12px;line-height:1.6}
+.exp-clock b{color:var(--gold);font-weight:700}
+.exp-doc-row{
+  display:grid;grid-template-columns:1fr 210px;gap:12px;align-items:start;
+  padding:11px 0;border-bottom:1px solid var(--border);
+}
+.exp-doc-name{font-size:12px;color:var(--w80,#d8d8d8);line-height:1.4}
+.exp-doc-name em{display:block;font-style:normal;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--w30);margin-top:3px}
+.exp-doc-crit{color:var(--gold);font-weight:800}
+.exp-doc-ctl{display:flex;flex-direction:column;gap:6px}
+.exp-doc-file{display:flex;align-items:center;gap:10px}
+.exp-up{position:relative;display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+.exp-up input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.exp-up span{
+  display:inline-block;width:100%;text-align:center;padding:8px 10px;border-radius:2px;
+  font-size:8px;letter-spacing:1.5px;text-transform:uppercase;font-weight:800;
+  color:var(--gold);background:rgba(201,169,110,.06);border:1px dashed var(--goldbdr);transition:all .15s;
+}
+.exp-up:hover span{background:rgba(201,169,110,.12);border-style:solid}
+.exp-doc-see{font-size:11px;color:var(--gold);text-decoration:none}
+.exp-doc-see:hover{text-decoration:underline}
+.exp-doc-rm{background:none;border:none;color:var(--w30);font-size:10px;cursor:pointer;text-decoration:underline;padding:0}
+.exp-doc-rm:hover{color:var(--red)}
+.exp-doc-ctl select.form-inp{font-size:11px;padding:7px 10px}
+.exp-msg{font-size:10px;color:var(--w50);min-height:0;line-height:1.4}
+.exp-msg.bad{color:var(--red)}
+.exp-st{font-style:normal;font-weight:800;letter-spacing:.5px}
+.exp-st.pend{color:var(--w30)}
+.exp-st.rec{color:var(--gold)}
+.exp-st.val{color:#4ade80}
+.exp-alerts{margin-top:16px;display:flex;flex-direction:column;gap:8px}
+.exp-alert{display:flex;gap:11px;align-items:flex-start;padding:11px 13px;border-radius:3px;border:1px solid;line-height:1.5}
+.exp-alert.crit{background:rgba(248,113,113,.06);border-color:rgba(248,113,113,.28)}
+.exp-alert.warn{background:rgba(201,169,110,.06);border-color:var(--goldbdr)}
+.exp-alert.ok{background:rgba(74,222,128,.05);border-color:rgba(74,222,128,.22)}
+.exp-alert-ico{font-size:13px;line-height:1.25;flex-shrink:0}
+.exp-alert.crit .exp-alert-ico{color:var(--red)}
+.exp-alert.warn .exp-alert-ico{color:var(--gold)}
+.exp-alert.ok .exp-alert-ico{color:#4ade80}
+.exp-alert-title{font-size:12px;color:var(--white);font-weight:600;margin-bottom:3px}
+.exp-alert-detail{font-size:11px;color:var(--w50)}
+.exp-alert-money{display:inline-block;font-size:12px;color:var(--red);font-weight:800;letter-spacing:.3px;margin-top:3px}
+.exp-empty{font-size:11px;color:var(--w30);padding:8px 0;line-height:1.6}
+
 /* iframe wrap legacy */
 .at-iframe-wrap{flex:1;overflow:hidden;position:relative}
 .at-iframe-wrap iframe{width:100%;height:100%;border:none;background:#fff}
@@ -2584,7 +2638,10 @@ function landOpenEditor(recId){
       <div class="fk-folio">${folioNeri || '— sin folio aún —'}</div>
     </div>
     ${secs}
+    ${expSection(rec)}
     ${lockBlock}`;
+
+  expInit(rec);
 
   const viewBtn = document.getElementById('crm-landing-view');
   if(linkComp){ viewBtn.style.display=''; viewBtn.onclick = () => window.open(linkComp,'_blank'); }
@@ -2648,6 +2705,255 @@ async function landSave(){
   } finally {
     btn.textContent = 'Guardar cambios'; btn.disabled = false;
   }
+}
+
+/* ─── EXPEDIENTE DOCUMENTAL DEL PROPIETARIO ──────────
+   Vive SOLO en la ficha de Propiedad (post-firma).
+   - Liga al portal index_documentos con el Folio Vendedor (folio base).
+   - Tablero de alertas con valor en dinero (Precio Lista).
+   - El reloj corre desde el día SIGUIENTE a la firma.
+   No tiene nada que ver con el Portal Progreso del cliente.        */
+
+const EXPEDIENTE_BASE = 'https://expediente-neri.vercel.app/'; // Make añade el token seguro al mandar la liga al propietario
+
+// El asesor sube el archivo desde la ficha → va a Vercel Blob (igual que los videos).
+// Requiere el endpoint /api/upload-documento en el MISMO proyecto de intranet, con BLOB_READ_WRITE_TOKEN.
+const EXP_UPLOAD_ENDPOINT = '/api/upload-documento';
+const EXP_MAX_MB = 15;
+const EXP_ALLOWED = ['pdf','jpg','jpeg','png','heic','webp'];
+
+// Documentos para que la venta no se caiga en notaría.
+// crit:true → bloquea la venta; su riesgo = precio de lista completo.
+const EXP_DOCS = [
+  {id:'escritura', n:'Escritura / título de propiedad',              sub:'Acredita la propiedad',                 crit:true},
+  {id:'gravamen',  n:'Libertad de gravamen',                         sub:'Sin hipoteca ni embargo vigente',       crit:true},
+  {id:'fiscal',    n:'Constancia de situación fiscal',               sub:'SAT · revisión y estrategia fiscal',    crit:true},
+  {id:'ine',       n:'INE / CURP del propietario',                   sub:'Identidad y coincidencia de nombres',   crit:true},
+  {id:'infonavit', n:'Constancia de no adeudo (Infonavit / banco)',  sub:'Si hay crédito sobre la propiedad',     crit:true},
+  {id:'predial',   n:'Predial al corriente',                         sub:'Sin adeudo municipal',                  crit:false},
+  {id:'agua',      n:'Agua y servicios al corriente',                sub:'Sin adeudos de servicios',              crit:false},
+  {id:'estado',    n:'Acta de matrimonio / régimen / poderes',       sub:'Según estado civil del propietario',    crit:false},
+];
+const EXP_STATUS = ['Pendiente','Recibido','Validado'];
+
+let expState = { statuses:{}, precio:null, firma:'', folio:'' };
+
+function _expMoney(raw){
+  if(raw==null || raw==='') return null;
+  const n = Number(String(raw).replace(/[^\d.]/g,''));
+  return (!n || isNaN(n)) ? null : n;
+}
+function _expFmt(n){ return '$' + n.toLocaleString('es-MX',{maximumFractionDigits:0}) + ' MXN'; }
+function _expDays(firmaStr){
+  if(!firmaStr) return null;
+  const f = new Date(firmaStr + 'T00:00:00');
+  if(isNaN(f)) return null;
+  const hoy = new Date(); hoy.setHours(0,0,0,0);
+  return Math.floor((hoy - f) / 86400000);
+}
+
+function expSection(rec){
+  const folio  = _fval(rec,'Folio Vendedor') || '';
+  const firma  = (_fval(rec,'Fecha de Firma') || '').slice(0,10);
+  let stRaw = '';
+  try { const r = _fval(rec,'Expediente Documental'); if(r){ JSON.parse(r); stRaw = r; } } catch(e){ stRaw = ''; }
+
+  const head = `<div class="le-sec-title"><span class="le-ico">⚖</span>Expediente documental · venta en regla</div>`;
+
+  if(!folio){
+    return `<div class="le-sec" id="exp-sec">${head}
+      <div class="le-banner">Esta propiedad no proviene de una firma de lead vendedor (sin Folio Vendedor). El expediente documental y sus alertas se activan al firmar.</div>
+    </div>`;
+  }
+
+  const url = EXPEDIENTE_BASE + '?folio=' + encodeURIComponent(folio);
+  return `<div class="le-sec" id="exp-sec">${head}
+    <div class="exp-link-card">
+      <div class="exp-link-info">
+        <div class="exp-link-lbl">Expediente del propietario</div>
+        <div class="exp-link-folio">${_esc(folio)}</div>
+      </div>
+      <a class="btn btn-primary" href="${_escAttr(url)}" target="_blank" rel="noopener">Abrir ↗</a>
+    </div>
+    <div class="form-group" style="margin-bottom:12px">
+      <label class="form-label">Fecha de firma</label>
+      <input class="form-inp" type="date" id="exp-firma"
+             data-field="Fecha de Firma" data-ftype="text" data-orig="${_escAttr(firma)}"
+             value="${_escAttr(firma)}" onchange="expSetFirma(this.value)">
+    </div>
+    <input type="hidden" id="exp-json" data-field="Expediente Documental" data-ftype="text" data-orig="${_escAttr(stRaw)}">
+    <div class="le-banner" style="margin-bottom:12px">Comparte la liga de arriba para que el propietario suba sus documentos. Si no lo hace —los manda por WhatsApp o los entrega en físico— súbelos tú aquí con "Subir documento": el archivo se guarda en el sistema y el checklist se marca solo. Recuerda que hay propietarios que deben a banco o Infonavit y por eso ciertos papeles tardan; las alertas no asumen incumplimiento, te avisan del riesgo y de cuánto está en juego mientras el documento no llega.</div>
+    <div id="exp-dyn"></div>
+  </div>`;
+}
+
+function expInit(rec){
+  const folio  = _fval(rec,'Folio Vendedor') || '';
+  if(!folio){ expState = { statuses:{}, precio:null, firma:'', folio:'' }; return; }
+  const precio = _expMoney(_fval(rec,'Precio Lista'));
+  const firma  = (_fval(rec,'Fecha de Firma') || '').slice(0,10);
+  let statuses = {};
+  try {
+    const r = _fval(rec,'Expediente Documental');
+    if(r){
+      const parsed = JSON.parse(r);
+      // back-compat: si venía como texto plano "Recibido", lo migra a {status,file}
+      Object.keys(parsed).forEach(k => {
+        statuses[k] = (typeof parsed[k] === 'string') ? { status:parsed[k], file:'' } : parsed[k];
+      });
+    }
+  } catch(e){ statuses = {}; }
+  expState = { statuses, precio, firma, folio };
+  expRender();
+}
+
+// Entrada por documento: { status:'Pendiente|Recibido|Validado', file:'url' }
+function _expEntry(id){
+  const e = expState.statuses[id];
+  if(!e) return { status:'Pendiente', file:'' };
+  return { status: e.status || 'Pendiente', file: e.file || '' };
+}
+function _expPersist(){
+  const hid = document.getElementById('exp-json');
+  if(hid) hid.value = JSON.stringify(expState.statuses); // landSave detecta el cambio y lo guarda
+}
+
+function expSetStatus(id, val){
+  const e = _expEntry(id); e.status = val; expState.statuses[id] = e;
+  _expPersist(); expSave(); expRender();
+}
+// El asesor ingresa el documento (liga del archivo en el sistema). Al cargarlo,
+// el checklist se marca solo: Pendiente → Recibido en automático.
+function expSetFile(id, url){
+  const e = _expEntry(id); e.file = (url||'').trim();
+  if(e.file && e.status === 'Pendiente') e.status = 'Recibido';
+  if(!e.file && e.status === 'Recibido') e.status = 'Pendiente'; // si quita la liga y no estaba validado
+  expState.statuses[id] = e;
+  _expPersist(); expRender();
+}
+function expSetFirma(val){ expState.firma = (val||'').slice(0,10); expSave(); expRender(); }
+
+// Guarda el expediente al instante en Propiedades (estado + referencia del archivo en Blob).
+// El archivo NO se guarda en Airtable; aquí solo va la liga de Vercel Blob.
+async function expSave(){
+  const cfg = (typeof CRM_CFG!=='undefined') && CRM_CFG['propiedades'];
+  const id  = crmState && crmState.editId;
+  if(!cfg || !id) return;
+  const fields = { 'Expediente Documental': JSON.stringify(expState.statuses) };
+  if(expState.firma) fields['Fecha de Firma'] = expState.firma;
+  try {
+    await atFetch(`${cfg.tableId}/${id}`, { method:'PATCH', body: JSON.stringify({ fields, typecast:true }) });
+    // sincroniza data-orig para que "Guardar cambios" no lo reenvíe
+    const hid = document.getElementById('exp-json'); if(hid){ hid.value = fields['Expediente Documental']; hid.dataset.orig = fields['Expediente Documental']; }
+    const fch = document.getElementById('exp-firma'); if(fch && expState.firma){ fch.dataset.orig = expState.firma; }
+  } catch(e){ /* el archivo ya está en Blob; el reintento es al volver a abrir */ }
+}
+
+function _expValidate(file){
+  if(!file) return 'Elige un archivo.';
+  if(file.size > EXP_MAX_MB*1024*1024) return `Pesa más de ${EXP_MAX_MB} MB. Súbelo más ligero.`;
+  const ext = (file.name.split('.').pop()||'').toLowerCase();
+  if(!EXP_ALLOWED.includes(ext)) return 'Formato no permitido. PDF, JPG, PNG, HEIC o WEBP.';
+  return '';
+}
+
+// Sube el archivo a Vercel Blob por el endpoint de la intranet y marca el documento como Recibido.
+async function expUpload(id, inputEl){
+  const file = inputEl && inputEl.files && inputEl.files[0];
+  const msg  = document.getElementById('exp-msg-'+id);
+  const err  = _expValidate(file);
+  if(err){ if(msg){ msg.textContent = err; msg.className = 'exp-msg bad'; } inputEl.value=''; return; }
+  if(msg){ msg.textContent = 'Subiendo…'; msg.className = 'exp-msg'; }
+  try {
+    const qs = new URLSearchParams({ folio: expState.folio, doc: id, filename: file.name });
+    const r = await fetch(`${EXP_UPLOAD_ENDPOINT}?${qs.toString()}`, {
+      method:'POST',
+      headers:{ 'x-content-type': file.type || 'application/octet-stream' },
+      body: file
+    });
+    const data = await r.json().catch(()=> ({}));
+    if(!r.ok || !data.url) throw new Error(data.error || 'No se pudo subir.');
+    const e = _expEntry(id); e.file = data.url; if(e.status==='Pendiente') e.status='Recibido';
+    expState.statuses[id] = e;
+    await expSave();
+    expRender();
+  } catch(ex){
+    if(msg){ msg.textContent = ex.message || 'Error al subir.'; msg.className = 'exp-msg bad'; }
+    inputEl.value='';
+  }
+}
+
+function expRender(){
+  const host = document.getElementById('exp-dyn');
+  if(!host) return;
+
+  const dias   = _expDays(expState.firma);
+  const activo = dias != null && dias >= 1; // el reloj corre desde el día siguiente a la firma
+  const money  = expState.precio != null ? _expFmt(expState.precio) : null;
+
+  let clock;
+  if(dias == null)      clock = `<div class="exp-clock">Captura la <b>fecha de firma</b> para que el reloj documental empiece a correr.</div>`;
+  else if(dias <= 0)    clock = `<div class="exp-clock">Firmado hoy. Los documentos deberían estar mañana — el reloj de alertas corre <b>desde el día siguiente</b>.</div>`;
+  else                  clock = `<div class="exp-clock"><b>${dias} día${dias>1?'s':''}</b> desde la firma. La propiedad en regla debió quedar al día siguiente.</div>`;
+
+  const badgeCls = {Pendiente:'pend', Recibido:'rec', Validado:'val'};
+  const rows = EXP_DOCS.map(d => {
+    const e    = _expEntry(d.id);
+    const opts = EXP_STATUS.map(s => `<option${s===e.status?' selected':''}>${s}</option>`).join('');
+    const fileBox = e.file
+      ? `<div class="exp-doc-file"><a class="exp-doc-see" href="${_escAttr(e.file)}" target="_blank" rel="noopener">📎 ver archivo ↗</a>
+           <button type="button" class="exp-doc-rm" onclick="expSetFile('${d.id}','')">quitar</button></div>`
+      : `<label class="exp-up">
+           <input type="file" accept=".pdf,.jpg,.jpeg,.png,.heic,.webp,image/*,application/pdf" onchange="expUpload('${d.id}',this)">
+           <span>⬆ Subir documento</span>
+         </label>`;
+    return `<div class="exp-doc-row">
+      <div class="exp-doc-name">${_esc(d.n)}${d.crit?' <span class="exp-doc-crit">•</span>':''}
+        <em>${_esc(d.sub)} · <span class="exp-st ${badgeCls[e.status]}">${e.status}</span></em></div>
+      <div class="exp-doc-ctl">
+        ${fileBox}
+        <select class="form-inp" onchange="expSetStatus('${d.id}',this.value)">${opts}</select>
+        <div class="exp-msg" id="exp-msg-${d.id}"></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  const alerts = [];
+  EXP_DOCS.forEach(d => {
+    const st = _expEntry(d.id).status;
+    if(st === 'Validado') return;
+    if(st === 'Recibido'){
+      alerts.push({cls:'warn', ico:'◑', title:`${d.n} · recibido, falta validar`,
+        detail:'El gestor debe revisarlo antes de avanzar a publicación o notaría.'});
+      return;
+    }
+    if(!activo) return; // antes del día siguiente no se presiona
+    if(d.crit){
+      const urg = dias>=7 ? 'No avances a notaría. ' : dias>=3 ? 'Riesgo creciente. ' : '';
+      alerts.push({cls:'crit', ico:'▲', title:`Falta: ${d.n}`,
+        detail:`${urg}Sin este documento la venta puede caerse en notaría.`, money});
+    } else {
+      alerts.push({cls:'warn', ico:'•', title:`Pendiente: ${d.n}`,
+        detail:'Solicítalo para dejar la propiedad completamente en regla.'});
+    }
+  });
+
+  let alertsHtml;
+  if(!alerts.length){
+    alertsHtml = activo
+      ? `<div class="exp-alert ok"><div class="exp-alert-ico">✓</div><div><div class="exp-alert-title">Expediente en regla</div><div class="exp-alert-detail">Documentos críticos validados. La venta puede avanzar sin riesgo documental.</div></div></div>`
+      : `<div class="exp-empty">Sin alertas todavía. Empiezan a correr el día siguiente a la firma.</div>`;
+  } else {
+    alertsHtml = alerts.map(a => `<div class="exp-alert ${a.cls}">
+      <div class="exp-alert-ico">${a.ico}</div>
+      <div>
+        <div class="exp-alert-title">${_esc(a.title)}</div>
+        <div class="exp-alert-detail">${_esc(a.detail)}${a.money?`<span class="exp-alert-money">Puedes perder ${_esc(a.money)}</span>`:''}</div>
+      </div>
+    </div>`).join('');
+  }
+
+  host.innerHTML = clock + `<div style="margin-top:4px">${rows}</div>` + `<div class="exp-alerts">${alertsHtml}</div>`;
 }
 
 /* ─── FICHA DE CITA ───────────────────────────────── */
