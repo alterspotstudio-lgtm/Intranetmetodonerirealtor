@@ -1,70 +1,63 @@
-/**
- * Proxy Vercel → Airtable REST API
- * Método NERI · Century 21 Haus
- *
- * Variables de entorno requeridas en Vercel:
- *   AIRTABLE_TOKEN   → tu Personal Access Token  (pat...)
- *   AIRTABLE_BASE    → ID de la base              (appRh791vGXRdOJs3)
- *
- * Uso desde el frontend:
- *   GET  /api/airtable?path=tblXXX?fields[]=...
- *   POST /api/airtable?path=tblXXX          body: {fields:{...}}
- *   PATCH /api/airtable?path=tblXXX/recXXX  body: {fields:{...}}
- */
+// /api/airtable.js  —  Proxy seguro Intranet → Airtable (Método NERI)
+// Vercel Serverless Function (Node.js).
+//
+// El frontend (index_intranet.html) llama así:
+//   GET    /api/airtable?path=<tablaId>?maxRecords=100
+//   POST   /api/airtable?path=<tablaId>            (body: {fields, typecast})
+//   PATCH  /api/airtable?path=<tablaId>/<recordId> (body: {fields, typecast})
+//
+// Este archivo añade la base y el token del lado del servidor para que
+// el token NUNCA quede expuesto en el HTML.
+//
+// REQUISITO — en Vercel → Settings → Environment Variables, agrega:
+//   AIRTABLE_TOKEN    =  pat...   (Personal Access Token de Airtable)
+//   AIRTABLE_BASE_ID  =  appRh791vGXRdOJs3
+//
+// El token debe tener permisos: data.records:read y data.records:write
+// sobre la base "Metodo Neri".
+
+const BASE_ID = process.env.AIRTABLE_BASE_ID || process.env.AIRTABLE_BASE || 'appRh791vGXRdOJs3';
+const TOKEN   = process.env.AIRTABLE_TOKEN;
 
 export default async function handler(req, res) {
-  // CORS — permite llamadas desde el mismo dominio de Vercel
+  // CORS (por si la intranet vive en otro dominio)
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PATCH,DELETE,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  if (req.method === 'OPTIONS') return res.status(200).end();
 
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-
-  const token = process.env.AIRTABLE_TOKEN;
-  const base  = process.env.AIRTABLE_BASE;
-
-  if (!token || !base) {
+  if (!TOKEN) {
     return res.status(500).json({
-      error: 'Variables de entorno faltantes: AIRTABLE_TOKEN y/o AIRTABLE_BASE no están configuradas en Vercel.'
+      error: 'Falta la variable de entorno AIRTABLE_TOKEN en Vercel.',
     });
   }
 
-  // path viene como query param: ?path=tblXXX/recYYY?fields[]=...
-  const rawPath = req.query.path || '';
-  if (!rawPath) {
+  const path = req.query.path;
+  if (!path) {
     return res.status(400).json({ error: 'Falta el parámetro ?path=' });
   }
 
-  // Construir URL final hacia Airtable
-  const airtableUrl = `https://api.airtable.com/v0/${base}/${rawPath}`;
-
-  // Construir opciones del fetch
-  const fetchOptions = {
-    method: req.method,
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
-  };
-
-  // Para POST y PATCH reenviar el body
-  if (['POST', 'PATCH', 'PUT'].includes(req.method)) {
-    fetchOptions.body = JSON.stringify(req.body);
-  }
+  // Construir la URL real de Airtable
+  const url = `https://api.airtable.com/v0/${BASE_ID}/${path}`;
 
   try {
-    const response = await fetch(airtableUrl, fetchOptions);
-    const data     = await response.json();
+    const airtableRes = await fetch(url, {
+      method: req.method,
+      headers: {
+        Authorization: `Bearer ${TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+      // Reenviar el body en POST/PATCH/DELETE
+      ...(req.method !== 'GET' && req.body
+        ? { body: typeof req.body === 'string' ? req.body : JSON.stringify(req.body) }
+        : {}),
+    });
 
-    if (!response.ok) {
-      return res.status(response.status).json(data);
-    }
-
-    return res.status(200).json(data);
-
+    const text = await airtableRes.text();
+    res.status(airtableRes.status);
+    res.setHeader('Content-Type', 'application/json');
+    return res.send(text);
   } catch (err) {
-    return res.status(500).json({ error: 'Error del proxy: ' + err.message });
+    return res.status(502).json({ error: 'Error al contactar Airtable: ' + err.message });
   }
 }
