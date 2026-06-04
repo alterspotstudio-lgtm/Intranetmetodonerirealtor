@@ -1132,11 +1132,11 @@ select.form-inp option{background:#111;color:#fff}
 
 
 /* ══════════════════════════════════════════
-   ADMINISTRACIÓN BASE · CUENTAS → USUARIOS → PERMISOS → ACTIVACIÓN
+   ADMINISTRACIÓN BASE · CUENTAS → USUARIOS → PERMISOS
 ══════════════════════════════════════════ */
 .admin-base-body{flex:1;overflow-y:auto;padding:28px;background:radial-gradient(circle at top right,rgba(201,169,110,.055),transparent 34%),var(--black)}
 .admin-base-note{font-size:11px;color:var(--w50);line-height:1.8;max-width:860px;margin-top:10px;font-weight:300}
-.admin-flow{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin:22px 0 24px}
+.admin-flow{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin:22px 0 24px}
 .admin-flow-step{background:var(--surface);padding:18px 18px;position:relative;min-height:98px;border-top:2px solid transparent;cursor:pointer;transition:background .15s,border-color .15s}
 .admin-flow-step:hover,.admin-flow-step.active{background:var(--surface2);border-top-color:var(--gold)}
 .af-num{font-family:var(--display);font-size:46px;color:rgba(201,169,110,.11);position:absolute;right:12px;bottom:2px;line-height:1;letter-spacing:-1px}
@@ -1190,6 +1190,18 @@ select.form-inp option{background:#111;color:#fff}
 .admin-empty .big{font-size:38px;opacity:.18}
 .admin-warning{border:1px solid rgba(248,113,113,.2);background:rgba(248,113,113,.055);color:rgba(255,255,255,.66);font-size:10px;line-height:1.7;padding:12px 14px;margin-top:14px}
 .admin-mode-pill{display:inline-flex;align-items:center;gap:6px;background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.22);color:var(--green);border-radius:999px;padding:6px 10px;font-size:7px;letter-spacing:1.6px;text-transform:uppercase;font-weight:900}
+
+
+.admin-upload-box{border:1px solid var(--border);background:rgba(255,255,255,.025);border-radius:var(--r);padding:12px;display:grid;grid-template-columns:82px 1fr;gap:12px;align-items:center}
+.admin-upload-preview{width:82px;height:82px;border-radius:14px;border:1px solid var(--border2);background:rgba(255,255,255,.035);display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--gold);font-size:26px;font-weight:900}
+.admin-upload-preview img{width:100%;height:100%;object-fit:cover;display:block}
+.admin-upload-actions{display:flex;flex-direction:column;gap:8px;min-width:0}
+.admin-upload-actions input[type="file"]{font-size:10px;color:var(--w50);border:1px solid var(--border2);border-radius:10px;padding:10px;background:rgba(0,0,0,.2)}
+.admin-upload-actions input[type="file"]::file-selector-button{border:1px solid var(--goldbdr);background:var(--golddim);color:var(--gold);border-radius:999px;padding:7px 10px;margin-right:10px;font-size:8px;text-transform:uppercase;letter-spacing:1.4px;font-weight:900;cursor:pointer}
+.admin-upload-hint{font-size:9px;color:var(--w45);line-height:1.5}
+.admin-upload-remove{align-self:flex-start;background:transparent;border:1px solid var(--border2);color:var(--w45);border-radius:999px;padding:6px 10px;font-size:7px;letter-spacing:1.4px;text-transform:uppercase;font-weight:900;cursor:pointer}
+.admin-upload-remove:hover{border-color:var(--goldbdr);color:var(--gold);background:var(--golddim)}
+@media(max-width:560px){.admin-upload-box{grid-template-columns:1fr}.admin-upload-preview{width:100%;height:140px}}
 
 .admin-conditional-note{border:1px dashed rgba(214,181,118,.35);background:rgba(214,181,118,.07);padding:14px 16px;border-radius:12px;color:var(--w55);font-size:13px;line-height:1.55}
 .admin-check.disabled{opacity:.55;cursor:not-allowed}
@@ -1835,14 +1847,14 @@ function getToolDesc(id){
 
 
 /* ═══════════════════════════════════════════════════
-   ADMINISTRACIÓN BASE — Cuentas → Usuarios → Permisos → Activación
+   ADMINISTRACIÓN BASE — Cuentas → Usuarios → Permisos
    Modo prueba: datos locales en el navegador. No toca CRM ni leads.
 ═══════════════════════════════════════════════════ */
-const ADMIN_STORAGE_KEY = 'neri_admin_base_v3_regla_oro';
+const ADMIN_STORAGE_KEY = 'neri_admin_base_v5_inmobiliaria';
 let adminState = { tab:'cuentas', selectedCuentaId:null, selectedUsuarioId:null, data:null };
 
 const ADMIN_PERMISSION_CATALOG = [
-  { id:'perfil_publico', title:'Perfil público', desc:'Editar nombre, WhatsApp, email, foto, frase, ciudad y Pixel ID Meta.' },
+  { id:'perfil_publico', title:'Perfil público', desc:'Editar nombre, WhatsApp, email, subir foto, frase, ciudad y Pixel ID Meta.' },
   { id:'copiar_link', title:'Copiar Link Captación', desc:'Ver y copiar el link generado por el slug oficial automático.' },
   { id:'landing_compradores', title:'Landing compradores', desc:'Usar herramientas comerciales de compradores.' },
   { id:'landing_vendedores', title:'Landing vendedores', desc:'Usar diagnóstico de captación de propietarios.' },
@@ -1855,12 +1867,21 @@ const ADMIN_PERMISSION_CATALOG = [
 const ADMIN_DEFAULT_PERMS_INDEPENDIENTE = ['perfil_publico','copiar_link','landing_compradores','landing_vendedores','sala_mensajes','panel_citas','reportes_basicos'];
 const ADMIN_DEFAULT_PERMS_ORG = ['perfil_publico','copiar_link','landing_compradores','landing_vendedores','sala_mensajes','panel_citas','reportes_basicos','branding_cuenta'];
 
+function adminPuestoOptions(tipo){
+  if(tipo === 'Inmobiliaria') return ['Director','Gerente','Asesor'];
+  if(tipo === 'Grupo de asesores sin inmobiliaria') return ['Líder de grupo','Asesor'];
+  return ['Asesor independiente'];
+}
+function adminDefaultPuesto(tipo){ return adminPuestoOptions(tipo)[0] || 'Asesor'; }
+function adminIsCuentaIndependiente(c){ return c?.tipo === 'Asesor independiente'; }
+function adminIsCuentaOrganizacion(c){ return c && c.tipo !== 'Asesor independiente'; }
+
 function adminSeedData(){
   return {
     cuentas:[
       { id:'cta-diana-independiente', nombre:'Diana captación inteligente', tipo:'Asesor independiente', estado:'Activo', ciudad:'Cuernavaca', responsable:'Diana Salgado', logo:'CASITA_METODO_NERI', notas:'Ejemplo de asesor independiente. No usa logo inmobiliaria; usa casita automática Método NERI.' },
+      { id:'cta-c21-haus', nombre:'Century 21 Haus · Cuernavaca', tipo:'Inmobiliaria', estado:'Pendiente', ciudad:'Cuernavaca', responsable:'Dirección comercial', logo:'', notas:'Ejemplo de cuenta inmobiliaria. El logo se sube desde administración y se aplica como branding de cuenta.' },
       { id:'cta-metodo-neri', nombre:'Método NERI · Prueba Admin', tipo:'Grupo de asesores sin inmobiliaria', estado:'Activo', ciudad:'Cuernavaca', responsable:'Enrique Neri', logo:'', notas:'Cuenta interna para validar estructura sin bloquear navegación.' },
-      { id:'cta-c21-haus', nombre:'Century 21 Haus · Cuernavaca', tipo:'Inmobiliaria', estado:'Pendiente', ciudad:'Cuernavaca', responsable:'Dirección comercial', logo:'', notas:'Ejemplo de cuenta con branding inmobiliario controlado por administración.' },
     ],
     usuarios:[
       {
@@ -1868,12 +1889,12 @@ function adminSeedData(){
         tipo:'Asesor independiente', estado:'Activo', puesto:'Asesor independiente', slugSugerido:'diana-salgado', slugOficial:'diana-salgado', permisos:[...ADMIN_DEFAULT_PERMS_INDEPENDIENTE]
       },
       {
-        id:'usr-enrique-neri', cuentaId:'cta-metodo-neri', nombre:'Enrique Neri', whatsapp:'527779855687', email:'', foto:'', frase:'El lead es consecuencia de una gestión de calidad.', ciudad:'Cuernavaca', pixel:'1308747473990434',
-        tipo:'Grupo de asesores sin inmobiliaria', estado:'Activo', puesto:'Administrador / Asesor', slugSugerido:'enrique-neri', slugOficial:'enrique-neri', permisos:[...ADMIN_DEFAULT_PERMS_ORG]
+        id:'usr-c21-pendiente', cuentaId:'cta-c21-haus', nombre:'Asesor pendiente', whatsapp:'', email:'', foto:'', frase:'', ciudad:'Cuernavaca', pixel:'',
+        tipo:'Inmobiliaria', estado:'Pendiente', puesto:'Asesor', slugSugerido:'', slugOficial:'', permisos:[...ADMIN_DEFAULT_PERMS_ORG]
       },
       {
-        id:'usr-c21-pendiente', cuentaId:'cta-c21-haus', nombre:'Asesor pendiente', whatsapp:'', email:'', foto:'', frase:'', ciudad:'Cuernavaca', pixel:'',
-        tipo:'Inmobiliaria', estado:'Pendiente', puesto:'Asesor', slugSugerido:'asesor-pendiente', slugOficial:'asesor-pendiente', permisos:[...ADMIN_DEFAULT_PERMS_ORG]
+        id:'usr-enrique-neri', cuentaId:'cta-metodo-neri', nombre:'Enrique Neri', whatsapp:'527779855687', email:'', foto:'', frase:'El lead es consecuencia de una gestión de calidad.', ciudad:'Cuernavaca', pixel:'1308747473990434',
+        tipo:'Grupo de asesores sin inmobiliaria', estado:'Activo', puesto:'Líder de grupo', slugSugerido:'enrique-neri', slugOficial:'enrique-neri', permisos:[...ADMIN_DEFAULT_PERMS_ORG]
       }
     ]
   };
@@ -1907,9 +1928,8 @@ function adminNormalize(){
     if(!Array.isArray(u.permisos)) u.permisos=[];
     if(!u.estado) u.estado='Pendiente';
     if(!u.tipo) u.tipo='Asesor independiente';
-    const base = u.slugOficial || u.slugSugerido || adminSlug(u.nombre||'asesor');
-    u.slugSugerido = adminSlug(base);
-    u.slugOficial = adminUniqueSlug(u.slugSugerido, u.id);
+    if(u.slugOficial) u.slugOficial = adminUniqueSlug(adminSlug(u.slugOficial), u.id);
+    if(u.slugSugerido) u.slugSugerido = adminSlug(u.slugSugerido);
   });
   adminState.data = d;
   adminApplyBusinessRules();
@@ -1925,20 +1945,22 @@ function adminApplyBusinessRules(){
     const c = adminCuenta(u.cuentaId);
     if(c){
       u.tipo = c.tipo;
+      u.estado = c.estado || 'Pendiente';
       if(c.tipo === 'Asesor independiente'){
-        u.estado = c.estado;
         u.puesto = 'Asesor independiente';
         u.permisos = Array.isArray(u.permisos) && u.permisos.length ? u.permisos : [...ADMIN_DEFAULT_PERMS_INDEPENDIENTE];
         u.permisos = u.permisos.filter(p=>p !== 'branding_cuenta');
       }else{
-        u.estado = u.estado || c.estado || 'Pendiente';
-        u.puesto = u.puesto || 'Asesor';
+        const allowed = adminPuestoOptions(c.tipo);
+        if(!allowed.includes(u.puesto)) u.puesto = adminDefaultPuesto(c.tipo);
         u.permisos = Array.isArray(u.permisos) && u.permisos.length ? u.permisos : [...ADMIN_DEFAULT_PERMS_ORG];
+        if(!u.permisos.includes('branding_cuenta')) u.permisos.push('branding_cuenta');
       }
     }
-    const base = u.slugOficial || u.slugSugerido || adminSlug(u.nombre || c?.responsable || c?.nombre || 'asesor');
-    u.slugSugerido = adminSlug(base);
-    u.slugOficial = adminUniqueSlug(u.slugSugerido, u.id);
+    if(u.slugOficial){
+      u.slugOficial = adminUniqueSlug(adminSlug(u.slugOficial), u.id);
+      u.slugSugerido = u.slugOficial;
+    }
   });
 }
 function adminId(prefix){ return prefix+'-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,7); }
@@ -1967,9 +1989,11 @@ function adminBadge(estado){
 function adminCuenta(id){ return adminState.data.cuentas.find(c=>c.id===id) || null; }
 function adminUsuario(id){ return adminState.data.usuarios.find(u=>u.id===id) || null; }
 function adminCuentaName(id){ return adminCuenta(id)?.nombre || 'Sin cuenta asignada'; }
-function adminLink(u){ return u && u.slugOficial ? `https://captacion.vercel.app/?asesor=${encodeURIComponent(u.slugOficial)}` : 'Pendiente de slug automático'; }
-function adminLogoLabel(c){ return c?.tipo === 'Asesor independiente' ? '⌂ Casita Método NERI automática' : (c?.logo || 'Sin logo cargado'); }
-
+function adminLink(u){ return u && u.slugOficial ? `https://captacion.vercel.app/?asesor=${encodeURIComponent(u.slugOficial)}` : 'Pendiente: se genera al guardar nombre'; }
+function adminLogoLabel(c){
+  if(c?.tipo === 'Asesor independiente') return '⌂ Casita Método NERI automática';
+  return c?.logo ? 'Logo cargado desde administración' : 'Sin logo cargado';
+}
 function adminDefaultPermsForType(tipo){ return tipo === 'Asesor independiente' ? [...ADMIN_DEFAULT_PERMS_INDEPENDIENTE] : [...ADMIN_DEFAULT_PERMS_ORG]; }
 function adminEnsureUserForCuenta(c){
   if(!c) return null;
@@ -1979,13 +2003,13 @@ function adminEnsureUserForCuenta(c){
     const slug = adminUniqueSlug(adminSlug(nombreBase), null);
     u = {
       id:adminId('usr'), cuentaId:c.id, nombre:nombreBase, whatsapp:'', email:'', foto:'', frase:'', ciudad:c.ciudad||'', pixel:'',
-      tipo:c.tipo, estado:c.estado, puesto:c.tipo === 'Asesor independiente' ? 'Asesor independiente' : 'Asesor',
+      tipo:c.tipo, estado:c.estado, puesto:c.tipo === 'Asesor independiente' ? 'Asesor independiente' : adminDefaultPuesto(c.tipo),
       slugSugerido:slug, slugOficial:slug, permisos:adminDefaultPermsForType(c.tipo)
     };
     adminState.data.usuarios.unshift(u);
   }else{
     u.tipo = c.tipo;
-    if(c.tipo === 'Asesor independiente') u.estado = c.estado;
+    u.estado = c.estado;
     if(!u.ciudad) u.ciudad = c.ciudad || '';
     if(!u.slugOficial){
       const slug = adminUniqueSlug(adminSlug(u.nombre || c.responsable || c.nombre), u.id);
@@ -2005,17 +2029,16 @@ function buildAdministracionPanel(){
           <div>
             <div class="ph-eyebrow">Administración Método NERI</div>
             <div class="ph-title">ADMINISTRACIÓN <em>BASE</em></div>
-            <div class="admin-base-note">Estructura administrativa antes del CRM: cuentas, usuarios, permisos y activación automática. Este panel no muestra leads, clientes, propiedades, citas, mensajes ni expedientes.</div>
+            <div class="admin-base-note">Estructura administrativa antes del CRM: cuentas, usuarios y permisos. La activación se controla desde el estado de la cuenta. Este panel no muestra leads, clientes, propiedades, citas, mensajes ni expedientes.</div>
           </div>
           <div class="admin-mode-pill">● Modo prueba abierto</div>
         </div>
       </div>
 
       <div class="admin-flow" id="admin-flow">
-        <div class="admin-flow-step active" onclick="adminSwitchTab('cuentas')"><div class="af-k">Paso 01</div><div class="af-v">Cuentas</div><div class="af-d">Administración crea la cuenta y define tipo, estado y responsable.</div><div class="af-num">01</div></div>
-        <div class="admin-flow-step" onclick="adminSwitchTab('usuarios')"><div class="af-k">Paso 02</div><div class="af-v">Perfil usuario</div><div class="af-d">El asesor solo llena datos públicos. Lo administrativo se muestra bloqueado.</div><div class="af-num">02</div></div>
+        <div class="admin-flow-step active" onclick="adminSwitchTab('cuentas')"><div class="af-k">Paso 01</div><div class="af-v">Cuentas</div><div class="af-d">Administración crea la cuenta y define tipo, estado, responsable y logo si aplica.</div><div class="af-num">01</div></div>
+        <div class="admin-flow-step" onclick="adminSwitchTab('usuarios')"><div class="af-k">Paso 02</div><div class="af-v">Usuarios</div><div class="af-d">En inmobiliaria se crean varios asesores bajo la misma cuenta madre.</div><div class="af-num">02</div></div>
         <div class="admin-flow-step" onclick="adminSwitchTab('permisos')"><div class="af-k">Paso 03</div><div class="af-v">Permisos</div><div class="af-d">Qué puede usar cada asesor cuando exista login real.</div><div class="af-num">03</div></div>
-        <div class="admin-flow-step" onclick="adminSwitchTab('activacion')"><div class="af-k">Paso 04</div><div class="af-v">Activación automática</div><div class="af-d">Estado de cuenta + slug automático + Link Captación.</div><div class="af-num">04</div></div>
       </div>
 
       <div class="admin-mini-kpis" id="admin-kpis"></div>
@@ -2024,7 +2047,6 @@ function buildAdministracionPanel(){
         <button class="admin-tab active" id="admin-tab-cuentas" onclick="adminSwitchTab('cuentas')">Cuentas</button>
         <button class="admin-tab" id="admin-tab-usuarios" onclick="adminSwitchTab('usuarios')">Usuarios</button>
         <button class="admin-tab" id="admin-tab-permisos" onclick="adminSwitchTab('permisos')">Permisos</button>
-        <button class="admin-tab" id="admin-tab-activacion" onclick="adminSwitchTab('activacion')">Activación</button>
       </div>
 
       <div id="admin-content"></div>
@@ -2032,20 +2054,15 @@ function buildAdministracionPanel(){
   </div>`;
 }
 
-function onAdministracionPanelActivate(){
-  adminLoad();
-  adminRender();
-}
-function adminSwitchTab(tab){
-  adminState.tab = tab;
-  adminRender();
-}
+function onAdministracionPanelActivate(){ adminLoad(); adminRender(); }
+function adminSwitchTab(tab){ adminState.tab = tab; adminRender(); }
 function adminRender(){
   if(!adminState.data) adminLoad();
   adminApplyBusinessRules();
   document.querySelectorAll('.admin-tab').forEach(b=>b.classList.remove('active'));
   document.getElementById('admin-tab-'+adminState.tab)?.classList.add('active');
-  const flowMap = ['cuentas','usuarios','permisos','activacion'];
+  if(!['cuentas','usuarios','permisos'].includes(adminState.tab)) adminState.tab='cuentas';
+  const flowMap = ['cuentas','usuarios','permisos'];
   document.querySelectorAll('.admin-flow-step').forEach((el,i)=>el.classList.toggle('active', flowMap[i]===adminState.tab));
   adminRenderKpis();
   const el = document.getElementById('admin-content');
@@ -2053,19 +2070,18 @@ function adminRender(){
   if(adminState.tab==='cuentas') el.innerHTML = adminRenderCuentas();
   if(adminState.tab==='usuarios') el.innerHTML = adminRenderUsuarios();
   if(adminState.tab==='permisos') el.innerHTML = adminRenderPermisos();
-  if(adminState.tab==='activacion') el.innerHTML = adminRenderActivacion();
 }
 function adminRenderKpis(){
   const d = adminState.data;
   const el = document.getElementById('admin-kpis'); if(!el) return;
   const activos = d.usuarios.filter(u=>u.estado==='Activo').length;
-  const pendientes = d.usuarios.filter(u=>u.estado==='Pendiente').length;
+  const inmobiliarias = d.cuentas.filter(c=>c.tipo==='Inmobiliaria').length;
   const conSlug = d.usuarios.filter(u=>u.slugOficial).length;
   el.innerHTML = `
     <div class="admin-mini-kpi"><div class="admin-mini-num">${d.cuentas.length}</div><div class="admin-mini-lbl">Cuentas</div></div>
     <div class="admin-mini-kpi"><div class="admin-mini-num">${d.usuarios.length}</div><div class="admin-mini-lbl">Usuarios</div></div>
-    <div class="admin-mini-kpi"><div class="admin-mini-num">${activos}</div><div class="admin-mini-lbl">Activos</div></div>
-    <div class="admin-mini-kpi"><div class="admin-mini-num">${conSlug}/${d.usuarios.length}</div><div class="admin-mini-lbl">Slug automático</div></div>`;
+    <div class="admin-mini-kpi"><div class="admin-mini-num">${inmobiliarias}</div><div class="admin-mini-lbl">Inmobiliarias</div></div>
+    <div class="admin-mini-kpi"><div class="admin-mini-num">${activos}</div><div class="admin-mini-lbl">Usuarios activos</div></div>`;
 }
 
 function adminRenderCuentas(){
@@ -2089,14 +2105,15 @@ function adminCuentaLogoBlock(c){
     return `<div class="form-group full" id="cuenta-logo-wrap"><div class="admin-conditional-note"><b>Identidad visual automática:</b> Asesor independiente no carga logo inmobiliaria. Se usa la casita Método NERI en automático.</div></div>`;
   }
   const label = c.tipo === 'Inmobiliaria' ? 'Logo inmobiliaria' : 'Logo de grupo / cuenta';
-  return `<div id="cuenta-logo-wrap">${adminField(label,'cuenta-logo',c.logo,'URL del logo')}</div>`;
+  return `<div id="cuenta-logo-wrap" class="form-group full">${adminUploadField(label,'cuenta-logo',c.logo,'Sube el logo desde tu computadora. No se pega URL. Este logo se aplicará como branding de la cuenta.')}</div>`;
+}
+function adminCuentaHelp(c){
+  if(c.tipo === 'Asesor independiente') return 'Administración crea la cuenta independiente. El estado de esta cuenta activa o pausa al asesor. No se pide logo inmobiliaria.';
+  if(c.tipo === 'Inmobiliaria') return 'Cuenta madre de inmobiliaria. Administración sube el logo, define el estado y después crea usuarios/asesores dentro de esta misma cuenta.';
+  return 'Grupo de asesores sin inmobiliaria. Puede usar logo de grupo si existe, sin tratarlo como inmobiliaria.';
 }
 function adminCuentaForm(c){
-  const isIndependiente = c.tipo === 'Asesor independiente';
-  const help = isIndependiente
-    ? 'Administración crea la cuenta independiente. El estado de esta cuenta activa o pausa al asesor. No se pide logo inmobiliaria.'
-    : 'Aquí se define la organización. Si es inmobiliaria o grupo, el logo y branding se controlan desde administración, no desde el asesor.';
-  return `<div class="admin-help">${adminEsc(help)}</div>
+  return `<div class="admin-help">${adminEsc(adminCuentaHelp(c))}</div>
   <div class="admin-form-grid">
     ${adminField('Nombre de cuenta','cuenta-nombre',c.nombre)}
     ${adminSelect('Tipo de cuenta','cuenta-tipo',c.tipo,['Asesor independiente','Inmobiliaria','Grupo de asesores sin inmobiliaria'],'onchange="adminHandleCuentaTipoUi(this.value)"')}
@@ -2115,9 +2132,9 @@ function adminHandleCuentaTipoUi(tipo){
     wrap.classList.add('full');
     wrap.innerHTML = `<div class="admin-conditional-note"><b>Identidad visual automática:</b> Asesor independiente no carga logo inmobiliaria. Se usa la casita Método NERI en automático.</div>`;
   }else{
-    wrap.classList.remove('full');
+    wrap.classList.add('full');
     const label = tipo === 'Inmobiliaria' ? 'Logo inmobiliaria' : 'Logo de grupo / cuenta';
-    if(!document.getElementById('cuenta-logo')) wrap.innerHTML = `${adminField(label,'cuenta-logo','','URL del logo')}`;
+    if(!document.getElementById('cuenta-logo')) wrap.innerHTML = `${adminUploadField(label,'cuenta-logo','','Sube el logo desde tu computadora. No se pega URL. Este logo se aplicará como branding de la cuenta.')}`;
     const lbl = wrap.querySelector('label'); if(lbl) lbl.textContent = label;
   }
 }
@@ -2132,14 +2149,14 @@ function adminSaveCuenta(){
   if(c.tipo === 'Asesor independiente') adminEnsureUserForCuenta(c);
   adminState.data.usuarios.filter(u=>u.cuentaId===c.id).forEach(u=>{
     u.tipo=c.tipo;
+    u.estado=c.estado;
     if(c.tipo === 'Asesor independiente'){
-      u.estado=c.estado;
       u.puesto='Asesor independiente';
       u.permisos=(u.permisos||adminDefaultPermsForType(c.tipo)).filter(p=>p!=='branding_cuenta');
-    }
-    if(!u.slugOficial){
-      const slug = adminUniqueSlug(adminSlug(u.nombre || c.responsable || c.nombre), u.id);
-      u.slugSugerido=slug; u.slugOficial=slug;
+    }else{
+      if(!adminPuestoOptions(c.tipo).includes(u.puesto)) u.puesto=adminDefaultPuesto(c.tipo);
+      u.permisos=(u.permisos && u.permisos.length ? u.permisos : adminDefaultPermsForType(c.tipo));
+      if(!u.permisos.includes('branding_cuenta')) u.permisos.push('branding_cuenta');
     }
   });
   adminSave(); adminRender();
@@ -2152,6 +2169,8 @@ function adminDeleteCuenta(){
 
 function adminRenderUsuarios(){
   const d=adminState.data;
+  const selectedCuenta = adminCuenta(adminState.selectedCuentaId) || d.cuentas[0] || null;
+  if(selectedCuenta) adminState.selectedCuentaId = selectedCuenta.id;
   const selected = adminUsuario(adminState.selectedUsuarioId) || d.usuarios[0] || null;
   if(selected) adminState.selectedUsuarioId = selected.id;
   const list = d.usuarios.map(u=>`
@@ -2160,52 +2179,92 @@ function adminRenderUsuarios(){
       <div class="ar-meta">Tipo: ${adminEsc(u.tipo)} · Puesto: ${adminEsc(u.puesto||'Sin puesto')}</div>
       <div class="ar-link">${adminEsc(adminLink(u))}</div>
     </div>`).join('') || `<div class="admin-empty"><div class="big">◎</div>Sin perfiles creados</div>`;
-  const form = selected ? adminUsuarioForm(selected) : `<div class="admin-empty"><div class="big">◎</div>Primero guarda una cuenta independiente o crea un perfil interno.</div>`;
+  const cuentaInfo = selectedCuenta ? `<div class="admin-help"><b>Cuenta seleccionada para crear usuario:</b> ${adminEsc(selectedCuenta.nombre)} · ${adminEsc(selectedCuenta.tipo)} · ${adminEsc(selectedCuenta.estado)}. Si es inmobiliaria, puedes crear varios asesores bajo esta misma cuenta madre.</div>` : '';
+  const form = selected ? adminUsuarioForm(selected) : `<div class="admin-empty"><div class="big">◎</div>Primero guarda una cuenta y después crea usuarios.</div>`;
   return `<div class="admin-grid">
-    <div class="admin-card"><div class="admin-card-head"><div><div class="admin-card-title">LISTA DE <em>USUARIOS</em></div><div class="admin-card-sub">Perfiles asignados</div></div><button class="btn btn-primary" onclick="adminNewUsuario()">+ Perfil interno</button></div><div class="admin-card-body"><div class="admin-list">${list}</div></div></div>
-    <div class="admin-card"><div class="admin-card-head"><div><div class="admin-card-title">PERFIL DE <em>USUARIO</em></div><div class="admin-card-sub">El asesor solo llena datos públicos</div></div></div><div class="admin-card-body">${form}</div></div>
+    <div class="admin-card"><div class="admin-card-head"><div><div class="admin-card-title">LISTA DE <em>USUARIOS</em></div><div class="admin-card-sub">Perfiles asignados</div></div><button class="btn btn-primary" onclick="adminNewUsuario()">+ Usuario en cuenta</button></div><div class="admin-card-body">${cuentaInfo}<div class="admin-list">${list}</div></div></div>
+    <div class="admin-card"><div class="admin-card-head"><div><div class="admin-card-title">PERFIL DE <em>USUARIO</em></div><div class="admin-card-sub">Datos públicos + datos bloqueados</div></div></div><div class="admin-card-body">${form}</div></div>
   </div>`;
+}
+function adminBrandingPreview(c){
+  if(!c) return '';
+  if(c.tipo === 'Asesor independiente') return `<div class="admin-conditional-note"><b>Branding:</b> usa casita Método NERI automática. No hay logo inmobiliaria.</div>`;
+  if(c.logo) return `<div class="admin-upload-box"><div class="admin-upload-preview"><img src="${adminEsc(c.logo)}" alt="Logo de cuenta"></div><div class="admin-upload-actions"><div class="admin-upload-hint"><b>Branding de cuenta activo.</b><br>Este logo lo controla administración y se aplicará a los usuarios de la cuenta.</div></div></div>`;
+  return `<div class="admin-conditional-note"><b>Branding pendiente:</b> esta cuenta puede usar logo, pero todavía no se ha subido desde Cuentas.</div>`;
+}
+function adminUserAdminBlock(u, cuenta){
+  if(!cuenta) return `<div class="form-group full"><div class="admin-conditional-note">Usuario sin cuenta asignada.</div></div>`;
+  if(cuenta.tipo === 'Asesor independiente'){
+    return `<div class="form-group full"><div class="admin-conditional-note"><b>Asesor independiente:</b> la cuenta, estado, puesto, slug y link se generan desde la cuenta. El asesor solo llena su perfil público.</div></div>`;
+  }
+  const orgAccounts = adminState.data.cuentas.filter(c=>c.tipo !== 'Asesor independiente').map(c=>({value:c.id,label:`${c.nombre} · ${c.tipo}`}));
+  return `<div class="form-group full"><div class="admin-conditional-note"><b>Control administrativo:</b> en inmobiliaria, administración asigna la cuenta madre y el puesto. El asesor no debe editar estos campos cuando exista login real.</div></div>
+    ${adminSelectObjects('Cuenta asignada','user-cuenta',u.cuentaId,orgAccounts,'onchange="adminHandleUserCuentaUi(this.value)"')}
+    ${adminSelect('Puesto','user-puesto',u.puesto,adminPuestoOptions(cuenta.tipo))}`;
 }
 function adminUsuarioForm(u){
   const cuenta = adminCuenta(u.cuentaId);
-  return `<div class="admin-help">El asesor edita solo su perfil público. Cuenta, tipo, estado, puesto, slug y Link Captación se muestran, pero no se pueden mover aquí.</div>
+  return `<div class="admin-help">La foto se sube como archivo, no se pega URL. En inmobiliaria, el logo viene de la cuenta madre; el asesor no lo carga en su perfil.</div>
   <div class="admin-form-grid">
+    ${adminUserAdminBlock(u, cuenta)}
+    <div class="form-group full">${adminBrandingPreview(cuenta)}</div>
     ${adminField('Nombre','user-nombre',u.nombre)}
     ${adminField('WhatsApp','user-whatsapp',u.whatsapp)}
     ${adminField('Email','user-email',u.email)}
     ${adminField('Ciudad','user-ciudad',u.ciudad)}
-    ${adminField('Foto','user-foto',u.foto,'URL de foto')}
+    ${adminUploadField('Foto del asesor','user-foto',u.foto,'Sube la foto desde tu computadora o celular. No se pega URL.')}
     ${adminField('Frase','user-frase',u.frase)}
     ${adminField('Pixel ID Meta','user-pixel',u.pixel)}
-    <div class="form-group full"><div class="admin-conditional-note"><b>Datos administrativos bloqueados:</b> estos campos se generan o se controlan desde Administración Base, no desde el perfil del asesor.</div></div>
+    <div class="form-group full"><div class="admin-conditional-note"><b>Datos bloqueados para el asesor:</b> tipo, estado, slug y Link Captación se generan o se controlan desde Administración Base.</div></div>
   </div>
-  <div class="admin-lock"><div class="admin-lock-k">Cuenta asignada</div><div class="admin-lock-v">${adminEsc(adminCuentaName(u.cuentaId))}</div></div>
-  <div class="admin-lock"><div class="admin-lock-k">Tipo</div><div class="admin-lock-v">${adminEsc(u.tipo)}</div></div>
-  <div class="admin-lock"><div class="admin-lock-k">Estado</div><div class="admin-lock-v">${adminEsc(u.estado)}</div></div>
-  <div class="admin-lock"><div class="admin-lock-k">Puesto</div><div class="admin-lock-v">${adminEsc(u.puesto||'Asesor')}</div></div>
-  <div class="admin-lock"><div class="admin-lock-k">Slug automático oficial</div><div class="admin-lock-v gold">${adminEsc(u.slugOficial||u.slugSugerido||'Se generará al guardar')}</div></div>
+  <div class="admin-lock"><div class="admin-lock-k">Cuenta asignada</div><div class="admin-lock-v" id="user-cuenta-preview">${adminEsc(adminCuentaName(u.cuentaId))}</div></div>
+  <div class="admin-lock"><div class="admin-lock-k">Tipo</div><div class="admin-lock-v" id="user-tipo-preview">${adminEsc(u.tipo)}</div></div>
+  <div class="admin-lock"><div class="admin-lock-k">Estado</div><div class="admin-lock-v" id="user-estado-preview">${adminEsc(u.estado)}</div></div>
+  <div class="admin-lock"><div class="admin-lock-k">Puesto</div><div class="admin-lock-v">${adminEsc(u.puesto||adminDefaultPuesto(u.tipo))}</div></div>
+  <div class="admin-lock"><div class="admin-lock-k">Slug automático oficial</div><div class="admin-lock-v gold">${adminEsc(u.slugOficial||'Se generará al guardar nombre')}</div></div>
   <div class="admin-lock"><div class="admin-lock-k">Link Captación generado</div><div class="admin-lock-v gold">${adminEsc(adminLink(u))}</div></div>
   <div class="admin-actions"><button class="btn btn-ghost" onclick="adminDeleteUsuario()">Eliminar perfil</button><button class="btn btn-primary" onclick="adminSaveUsuario()">Guardar perfil público</button></div>`;
+}
+function adminHandleUserCuentaUi(id){
+  const c=adminCuenta(id); if(!c) return;
+  const cuentaPrev=document.getElementById('user-cuenta-preview'); if(cuentaPrev) cuentaPrev.textContent=c.nombre;
+  const tipoPrev=document.getElementById('user-tipo-preview'); if(tipoPrev) tipoPrev.textContent=c.tipo;
+  const estadoPrev=document.getElementById('user-estado-preview'); if(estadoPrev) estadoPrev.textContent=c.estado;
+  const puesto=document.getElementById('user-puesto');
+  if(puesto){ puesto.innerHTML = adminPuestoOptions(c.tipo).map(o=>`<option value="${adminEsc(o)}">${adminEsc(o)}</option>`).join(''); }
 }
 function adminSelectUsuario(id){ adminState.selectedUsuarioId=id; adminRender(); }
 function adminNewUsuario(){
   const cuentaId = adminState.selectedCuentaId || adminState.data.cuentas[0]?.id || '';
   const c = adminCuenta(cuentaId);
-  const nombreBase = c?.responsable || 'Nuevo asesor';
-  const slug = adminUniqueSlug(adminSlug(nombreBase), null);
-  const u={id:adminId('usr'), cuentaId, nombre:nombreBase, whatsapp:'', email:'', foto:'', frase:'', ciudad:c?.ciudad||'', pixel:'', tipo:c?.tipo||'Asesor independiente', estado:c?.estado||'Pendiente', puesto:c?.tipo==='Asesor independiente'?'Asesor independiente':'Asesor', slugSugerido:slug, slugOficial:slug, permisos:adminDefaultPermsForType(c?.tipo||'Asesor independiente')};
+  if(!c){ showToast('Primero crea una cuenta'); return; }
+  if(c.tipo === 'Asesor independiente'){
+    adminEnsureUserForCuenta(c);
+    adminState.tab='usuarios';
+    adminSave(); adminRender();
+    showToast('La cuenta independiente usa un solo perfil automático');
+    return;
+  }
+  const nombreBase = c.tipo === 'Inmobiliaria' ? 'Nuevo asesor inmobiliaria' : 'Nuevo asesor de grupo';
+  const u={id:adminId('usr'), cuentaId, nombre:nombreBase, whatsapp:'', email:'', foto:'', frase:'', ciudad:c?.ciudad||'', pixel:'', tipo:c?.tipo||'Inmobiliaria', estado:c?.estado||'Pendiente', puesto:adminDefaultPuesto(c?.tipo||'Inmobiliaria'), slugSugerido:'', slugOficial:'', permisos:adminDefaultPermsForType(c?.tipo||'Inmobiliaria')};
   adminState.data.usuarios.unshift(u); adminState.selectedUsuarioId=u.id; adminSave(); adminRender();
 }
 function adminSaveUsuario(){
   const u=adminUsuario(adminState.selectedUsuarioId); if(!u) return;
-  const c=adminCuenta(u.cuentaId);
+  const cuentaFromForm = val('user-cuenta');
+  if(cuentaFromForm) u.cuentaId = cuentaFromForm;
+  let c=adminCuenta(u.cuentaId);
   u.nombre=val('user-nombre'); u.whatsapp=val('user-whatsapp').replace(/\D/g,''); u.email=val('user-email'); u.ciudad=val('user-ciudad'); u.foto=val('user-foto'); u.frase=val('user-frase'); u.pixel=val('user-pixel');
   if(c){
     u.tipo=c.tipo;
+    u.estado=c.estado;
     if(c.tipo === 'Asesor independiente'){
-      u.estado=c.estado;
       u.puesto='Asesor independiente';
       u.permisos=(u.permisos||adminDefaultPermsForType(c.tipo)).filter(p=>p!=='branding_cuenta');
+    }else{
+      u.puesto=val('user-puesto') || adminDefaultPuesto(c.tipo);
+      u.permisos=(u.permisos && u.permisos.length ? u.permisos : adminDefaultPermsForType(c.tipo));
+      if(!u.permisos.includes('branding_cuenta')) u.permisos.push('branding_cuenta');
     }
   }
   if(!u.slugOficial){
@@ -2228,13 +2287,13 @@ function adminRenderPermisos(){
   const list = d.usuarios.map(u=>`
     <div class="admin-row ${u.id===adminState.selectedUsuarioId?'active':''}" onclick="adminSelectUsuario('${u.id}')">
       <div class="ar-top"><div><div class="ar-name">${adminEsc(u.nombre)}</div><div class="ar-meta">${adminEsc(adminCuentaName(u.cuentaId))}</div></div>${adminBadge(u.estado)}</div>
-      <div class="ar-meta">${u.permisos.length} permisos asignados</div>
+      <div class="ar-meta">${u.permisos.length} permisos asignados · ${adminEsc(u.tipo)}</div>
     </div>`).join('');
   const checks = selected ? ADMIN_PERMISSION_CATALOG.map(p=>{
     const blockedBranding = selected.tipo === 'Asesor independiente' && p.id === 'branding_cuenta';
     return `<label class="admin-check ${blockedBranding?'disabled':''}"><input type="checkbox" data-perm="${p.id}" ${selected.permisos.includes(p.id)&&!blockedBranding?'checked':''} ${blockedBranding?'disabled':''}><div><b>${adminEsc(p.title)}</b><span>${adminEsc(p.desc)}</span>${blockedBranding?'<small>No aplica para asesor independiente. Se usa casita Método NERI automática.</small>':''}</div></label>`;
   }).join('') : '';
-  const form = selected ? `<div class="admin-help">Permisos base para ${adminEsc(selected.nombre)}. Todavía no bloquean navegación en esta prueba; quedan preparados para el login real.</div><div class="admin-checks">${checks}</div><div class="admin-actions"><button class="btn btn-primary" onclick="adminSavePermisos()">Guardar permisos</button></div>` : `<div class="admin-empty"><div class="big">◫</div>Selecciona un usuario</div>`;
+  const form = selected ? `<div class="admin-help">Permisos base para ${adminEsc(selected.nombre)}. Todavía no bloquean navegación en esta prueba; quedan preparados para el login real. En inmobiliaria, Branding de cuenta permite usar el logo cargado por administración.</div><div class="admin-checks">${checks}</div><div class="admin-actions"><button class="btn btn-primary" onclick="adminSavePermisos()">Guardar permisos</button></div>` : `<div class="admin-empty"><div class="big">◫</div>Selecciona un usuario</div>`;
   return `<div class="admin-grid">
     <div class="admin-card"><div class="admin-card-head"><div><div class="admin-card-title">USUARIO PARA <em>PERMISOS</em></div><div class="admin-card-sub">Selección administrativa</div></div></div><div class="admin-card-body"><div class="admin-list">${list}</div></div></div>
     <div class="admin-card"><div class="admin-card-head"><div><div class="admin-card-title">PERMISOS <em>BASE</em></div><div class="admin-card-sub">Preparado para etapa con login real</div></div></div><div class="admin-card-body">${form}</div></div>
@@ -2244,38 +2303,65 @@ function adminSavePermisos(){
   const u=adminUsuario(adminState.selectedUsuarioId); if(!u) return;
   u.permisos = Array.from(document.querySelectorAll('[data-perm]:checked')).map(x=>x.dataset.perm);
   if(u.tipo === 'Asesor independiente') u.permisos = u.permisos.filter(p=>p !== 'branding_cuenta');
+  if(u.tipo !== 'Asesor independiente' && !u.permisos.includes('branding_cuenta')) u.permisos.push('branding_cuenta');
   adminSave(); adminRender();
-}
-
-function adminRenderActivacion(){
-  const d=adminState.data;
-  const selected = adminUsuario(adminState.selectedUsuarioId) || d.usuarios[0] || null;
-  if(selected) adminState.selectedUsuarioId = selected.id;
-  const pendientes = d.usuarios.filter(u=>u.estado!=='Activo');
-  const list = d.usuarios.map(u=>`
-    <div class="admin-row ${u.id===adminState.selectedUsuarioId?'active':''}" onclick="adminSelectUsuario('${u.id}')">
-      <div class="ar-top"><div><div class="ar-name">${adminEsc(u.nombre)}</div><div class="ar-meta">Slug automático: ${adminEsc(u.slugOficial||'—')}</div></div>${adminBadge(u.estado)}</div>
-      <div class="ar-link">${adminEsc(adminLink(u))}</div>
-    </div>`).join('');
-  const cuenta = selected ? adminCuenta(selected.cuentaId) : null;
-  const form = selected ? `<div class="admin-help">No hay aprobación manual de slug. El slug sugerido es el slug oficial. El Link Captación se genera automático. Para asesor independiente, el estado viene de la cuenta.</div>
-    <div class="admin-lock"><div class="admin-lock-k">Usuario</div><div class="admin-lock-v">${adminEsc(selected.nombre)}</div></div>
-    <div class="admin-lock"><div class="admin-lock-k">Cuenta</div><div class="admin-lock-v">${adminEsc(adminCuentaName(selected.cuentaId))}</div></div>
-    <div class="admin-lock"><div class="admin-lock-k">Tipo de cuenta</div><div class="admin-lock-v">${adminEsc(cuenta?.tipo||selected.tipo)}</div></div>
-    <div class="admin-lock"><div class="admin-lock-k">Estado</div><div class="admin-lock-v">${adminEsc(selected.estado)}</div></div>
-    <div class="admin-lock"><div class="admin-lock-k">Slug automático oficial</div><div class="admin-lock-v gold">${adminEsc(selected.slugOficial||'—')}</div></div>
-    <div class="admin-lock"><div class="admin-lock-k">Link Captación final</div><div class="admin-lock-v gold">${adminEsc(adminLink(selected))}</div></div>
-    <div class="admin-warning">Regla aplicada: el perfil no edita cuenta, tipo, estado, puesto, slug ni Link Captación. Solo muestra esos datos para evitar errores.</div>
-    <div class="admin-actions"><button class="btn btn-ghost" onclick="adminCopyLink()">Copiar link</button></div>` : `<div class="admin-empty"><div class="big">◎</div>Selecciona un usuario</div>`;
-  return `<div class="admin-grid">
-    <div class="admin-card"><div class="admin-card-head"><div><div class="admin-card-title">RESUMEN DE <em>ACTIVACIÓN</em></div><div class="admin-card-sub">${pendientes.length} pendiente(s) por estado de cuenta</div></div></div><div class="admin-card-body"><div class="admin-list">${list}</div></div></div>
-    <div class="admin-card"><div class="admin-card-head"><div><div class="admin-card-title">ACTIVACIÓN <em>AUTOMÁTICA</em></div><div class="admin-card-sub">Estado + slug + link</div></div></div><div class="admin-card-body">${form}</div></div>
-  </div>`;
 }
 function adminCopyLink(){
   const u=adminUsuario(adminState.selectedUsuarioId); if(!u || !u.slugOficial){ showToast('Aún no hay slug automático'); return; }
   navigator.clipboard?.writeText(adminLink(u));
   showToast('Link Captación copiado');
+}
+
+function adminUploadField(label,id,value='',hint=''){
+  const hasFile = value && value !== 'CASITA_METODO_NERI';
+  const preview = hasFile
+    ? `<img src="${adminEsc(value)}" alt="${adminEsc(label)}">`
+    : `<span>＋</span>`;
+  return `<label>${adminEsc(label)}</label>
+    <div class="admin-upload-box" id="${id}-box">
+      <div class="admin-upload-preview" id="${id}-preview">${preview}</div>
+      <div class="admin-upload-actions">
+        <input id="${id}" type="hidden" value="${adminEsc(value || '')}">
+        <input type="file" id="${id}-file" accept="image/*" onchange="adminReadUpload(event,'${id}')">
+        <div class="admin-upload-hint">${adminEsc(hint || 'Sube una imagen. El sistema la guarda en esta prueba sin pegar URL.')}</div>
+        ${hasFile ? `<button type="button" class="admin-upload-remove" onclick="adminClearUpload('${id}')">Quitar archivo</button>` : ''}
+      </div>
+    </div>`;
+}
+function adminClearUpload(id){
+  const hidden = document.getElementById(id); if(hidden) hidden.value='';
+  const preview = document.getElementById(id+'-preview'); if(preview) preview.innerHTML='<span>＋</span>';
+  const file = document.getElementById(id+'-file'); if(file) file.value='';
+}
+function adminReadUpload(ev,id){
+  const file = ev?.target?.files?.[0];
+  if(!file) return;
+  if(!file.type.startsWith('image/')){ showToast('Solo se aceptan imágenes en esta sección'); ev.target.value=''; return; }
+  if(file.size > 6 * 1024 * 1024){ showToast('La imagen pesa mucho. Usa una menor a 6 MB.'); ev.target.value=''; return; }
+  const reader = new FileReader();
+  reader.onload = () => {
+    const img = new Image();
+    img.onload = () => {
+      const max = 1200;
+      let w = img.width, h = img.height;
+      if(w > max || h > max){
+        const ratio = Math.min(max / w, max / h);
+        w = Math.round(w * ratio); h = Math.round(h * ratio);
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img,0,0,w,h);
+      const type = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
+      const dataUrl = canvas.toDataURL(type, .84);
+      const hidden = document.getElementById(id); if(hidden) hidden.value = dataUrl;
+      const preview = document.getElementById(id+'-preview'); if(preview) preview.innerHTML = `<img src="${dataUrl}" alt="Vista previa">`;
+      showToast('✓ Imagen cargada');
+    };
+    img.onerror = () => showToast('No se pudo leer la imagen');
+    img.src = reader.result;
+  };
+  reader.readAsDataURL(file);
 }
 
 function adminField(label,id,value='',placeholder=''){
@@ -2287,8 +2373,8 @@ function adminArea(label,id,value='',cls=''){
 function adminSelect(label,id,value,opts,extra=''){
   return `<div class="form-group"><label>${adminEsc(label)}</label><select class="form-inp" id="${id}" ${extra}>${opts.map(o=>`<option value="${adminEsc(o)}" ${o===value?'selected':''}>${adminEsc(o)}</option>`).join('')}</select></div>`;
 }
-function adminSelectObjects(label,id,value,opts){
-  return `<div class="form-group"><label>${adminEsc(label)}</label><select class="form-inp" id="${id}">${opts.map(o=>`<option value="${adminEsc(o.value)}" ${o.value===value?'selected':''}>${adminEsc(o.label)}</option>`).join('')}</select></div>`;
+function adminSelectObjects(label,id,value,opts,extra=''){
+  return `<div class="form-group"><label>${adminEsc(label)}</label><select class="form-inp" id="${id}" ${extra}>${opts.map(o=>`<option value="${adminEsc(o.value)}" ${o.value===value?'selected':''}>${adminEsc(o.label)}</option>`).join('')}</select></div>`;
 }
 function val(id){ return document.getElementById(id)?.value?.trim() || ''; }
 
