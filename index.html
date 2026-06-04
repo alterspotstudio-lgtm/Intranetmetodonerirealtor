@@ -643,7 +643,10 @@ select.form-input option{background:#111;color:#fff}
 }
 .at-table tbody td.folio{
   font-family:var(--mono);font-size:10px;
-  color:var(--gold);letter-spacing:1px;
+  color:var(--gold);letter-spacing:.5px;white-space:nowrap;
+}
+.at-table tbody td.clip{
+  max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
 
 /* Filas alternas muy sutil */
@@ -666,6 +669,9 @@ select.form-input option{background:#111;color:#fff}
 .badge-lost{background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);color:#f87171}
 .badge-active{background:rgba(201,169,110,.08);border:1px solid var(--goldbdr);color:var(--gold)}
 .badge-sold{background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);color:#34d399}
+.badge-hot{background:rgba(248,113,113,.12);border:1px solid rgba(248,113,113,.32);color:#f87171}
+.badge-warm{background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.28);color:#fbbf24}
+.badge-cold{background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.24);color:#60a5fa}
 
 /* Estado vacío */
 .crm-empty{
@@ -1888,6 +1894,10 @@ const CRM_CFG = {
 };
 
 const STATUS_BADGE = {
+  'HOT':'badge-hot','WARM':'badge-warm','COLD':'badge-cold','Frío':'badge-cold','Frio':'badge-cold',
+  'Listo para Banco':'badge-close','Comparar Antes de Firmar':'badge-contact',
+  'Preparación Inteligente':'badge-warm','Solo explorando':'badge-visit','No viable por ahora':'badge-lost',
+  'Cita':'badge-new',
   'Nuevo':'badge-new','Contactado':'badge-contact','Cita agendada':'badge-visit',
   'Visita realizada':'badge-visit','Oferta presentada':'badge-offer',
   'Apartado':'badge-offer','Cerrado':'badge-close','Perdido':'badge-lost',
@@ -1960,17 +1970,24 @@ function crmRender(tab, records){
     i===0 ? `<th style="width:44px"></th>` : `<th>${c}</th>`
   ).join('');
 
+  const FOLIO_FIELDS = ['Folio','Folio Cita'];
+  const NAME_FIELDS  = ['nombre completo','nombre','comprador','nombre propiedad'];
+
   const trs = records.map(rec => {
-    const cells = cfg.fields.map((fname, i) => {
+    const cells = cfg.fields.map((fname) => {
       let val = rec.fields?.[fname] ?? '';
-      if(typeof val === 'object') val = val?.name ?? JSON.stringify(val);
+      if(typeof val === 'object') val = Array.isArray(val) ? val.map(v=>v?.name||v).join(', ') : (val?.name ?? JSON.stringify(val));
       val = String(val);
-      const badge = STATUS_BADGE[val]
+      const isBadge = !!STATUS_BADGE[val];
+      const inner = isBadge
         ? `<span class="badge ${STATUS_BADGE[val]}">${val}</span>`
-        : (val ? val : '<span style="color:var(--w20)">—</span>');
-      // Primera col = nombre, segunda = folio
-      const cls = i===0 ? 'name' : (i===1 ? 'folio' : '');
-      return `<td ${cls ? `class="${cls}"` : ''}>${badge}</td>`;
+        : (val ? _esc(val) : '<span style="color:var(--w20)">—</span>');
+      let cls = '';
+      if(FOLIO_FIELDS.includes(fname)) cls = 'folio';
+      else if(NAME_FIELDS.includes(fname.toLowerCase())) cls = 'name';
+      else if(!isBadge && val.length > 22) cls = 'clip';
+      const title = cls==='clip' ? ` title="${_escAttr(val)}"` : '';
+      return `<td${cls?` class="${cls}"`:''}${title}>${inner}</td>`;
     }).join('');
     return `<tr onclick="crmOpenRow('${rec.id}')" title="Clic para abrir expediente">
       <td>◎</td>${cells}</tr>`;
