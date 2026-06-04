@@ -23,7 +23,11 @@ export const config = {
   },
 };
 
-const MAX_MB = 50;
+const MAX_MB = 4;
+
+// Esta ruta queda como respaldo. Para fotos/videos/documentos grandes,
+// la intranet usa /api/upload con client upload directo a Blob.
+// Mantener el tope en 4 MB evita el error 413 de Vercel Functions.
 const MAX_BYTES = MAX_MB * 1024 * 1024;
 
 export default async function handler(req, res) {
