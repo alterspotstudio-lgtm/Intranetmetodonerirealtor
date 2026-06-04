@@ -657,6 +657,23 @@ select.form-inp option{background:#111;color:#fff}
 .form-group{display:flex;flex-direction:column;gap:5px}
 .form-group label{font-size:7px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);font-weight:800}
 
+/* ══════════ Bloque DATOS AUTOMÁTICOS (solo lectura) ══════════ */
+.ro-block{margin-top:6px;padding:12px 14px;background:rgba(255,255,255,.02);
+  border:1px solid var(--border2);border-left:2px solid var(--gold);border-radius:var(--r)}
+.ro-head{font-size:8px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);font-weight:800;margin-bottom:10px}
+.ro-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.ro-row:last-of-type{border-bottom:none}
+.ro-label{flex:0 0 130px;font-size:9px;letter-spacing:.5px;text-transform:uppercase;color:var(--w50);font-weight:700}
+.ro-field{flex:1;display:flex;align-items:center;gap:8px;min-width:0}
+.ro-val{font-size:11px;color:var(--w80);word-break:break-word}
+.ro-link{font-size:11px;color:var(--gold);text-decoration:none;word-break:break-all;flex:1}
+.ro-link:hover{text-decoration:underline}
+.ro-empty{font-size:10px;color:var(--w30);font-style:italic}
+.ro-copy{flex:0 0 auto;cursor:pointer;background:var(--surface2);border:1px solid var(--border2);
+  color:var(--w80);border-radius:6px;width:26px;height:24px;font-size:12px;line-height:1;transition:all .2s var(--ease)}
+.ro-copy:hover{border-color:var(--goldbdr);color:var(--gold);background:var(--golddim)}
+.ro-note{margin-top:9px;font-size:9px;color:var(--w30);line-height:1.5}
+
 /* ══════════════════════════════════════════
    NOTIFICACIÓN TOAST
 ══════════════════════════════════════════ */
@@ -1114,6 +1131,11 @@ const CRM_CFG = {
       {f:'Próximo paso',                     type:'textarea'},
       {f:'Pendientes visibles',              type:'textarea'},
       {f:'Mensaje WhatsApp Actualización',   type:'textarea'},
+    ],
+    readonly: [
+      {f:'Link Portal',  link:true},   // link que se comparte con el cliente apartado
+      {f:'Folio Lead Origen'},
+      {f:'Fecha de Conversión'},
     ]
   },
   propiedades: {
@@ -1150,6 +1172,17 @@ const CRM_CFG = {
       {f:'Plusvalia Texto',     type:'textarea'},
       {f:'Link Tour Virtual',   type:'text'},
       {f:'Notas Internas',      type:'textarea'},
+    ],
+    /* Campos AUTOMÁTICOS (fórmulas / Make). El asesor los VE y COPIA, no los edita.
+       Esto es lo que nos diferencia: el asesor tiene todo a la mano sin brincar de app. */
+    readonly: [
+      {f:'Folio NERI'},                  // folio maestro de la propiedad
+      {f:'Link Comprador', link:true},   // landing de la casa → va en la pauta
+      {f:'Link Portal',    link:true},   // portal del cliente apartado
+      {f:'Resumen Propiedad'},           // se arma solo (nombre · zona · rec · baños)
+      {f:'Precio Formateado'},
+      {f:'Folio Siguiente'},             // folio del próximo lead comprador
+      {f:'Contador Leads'},              // cuántos leads han entrado por esta propiedad
     ]
   }
 };
@@ -1200,7 +1233,13 @@ async function crmLoad(tab, force=false){
   errEl.style.display = 'none';
 
   try {
-    const fieldsParam = cfg.fields.map(f => 'fields[]=' + encodeURIComponent(f)).join('&');
+    // Traemos TODO lo que necesita la ficha: columnas + editables + campos automáticos (de solo lectura)
+    const wanted = new Set([
+      ...cfg.fields,
+      ...(cfg.editable || []).map(e => e.f),
+      ...(cfg.readonly || []).map(r => r.f),
+    ]);
+    const fieldsParam = [...wanted].map(f => 'fields[]=' + encodeURIComponent(f)).join('&');
     const data = await atFetch(`${cfg.tableId}?${fieldsParam}&maxRecords=100&view=Grid%20view`);
     crmState.records = data.records || [];
     crmRender(tab, crmState.records);
@@ -1309,8 +1348,42 @@ function crmBuildModal(title, editable, values){
       <input class="form-inp" type="text" data-field="${f}" value="${val.replace(/"/g,'&quot;')}"></div>`;
   }).join('');
 
-  document.getElementById('crm-modal-fields').innerHTML = html;
+  // ─── Bloque de SOLO LECTURA (campos automáticos: fórmulas / Make) ───
+  const ro = CRM_CFG[crmState.tab]?.readonly || [];
+  let roHtml = '';
+  if(ro.length && !crmState.isNew){
+    const rows = ro.map(({f, link}) => {
+      let v = values[f] ?? '';
+      if(typeof v === 'object') v = v?.name ?? '';
+      v = String(v).trim();
+      const safe = v.replace(/"/g,'&quot;');
+      const empty = !v;
+      const btn = empty ? '' :
+        `<button type="button" class="ro-copy" title="Copiar" onclick="crmCopy(this, '${safe.replace(/'/g,"\\'")}')">⧉</button>`;
+      const shown = empty ? '<span class="ro-empty">— se llena solo —</span>'
+                          : (link ? `<a href="${safe}" target="_blank" class="ro-link">${safe}</a>` : `<span class="ro-val">${safe}</span>`);
+      return `<div class="ro-row"><span class="ro-label">${f}</span><div class="ro-field">${shown}${btn}</div></div>`;
+    }).join('');
+    roHtml = `<div class="form-group full ro-block">
+      <div class="ro-head">DATOS AUTOMÁTICOS · solo lectura</div>
+      ${rows}
+      <div class="ro-note">Estos se generan solos (fórmulas / Make). El asesor los copia, no los edita.</div>
+    </div>`;
+  }
+
+  document.getElementById('crm-modal-fields').innerHTML = html + roHtml;
   document.getElementById('crm-modal').style.display = 'flex';
+}
+
+/* Copiar al portapapeles con feedback */
+function crmCopy(btn, text){
+  const done = () => { const o = btn.textContent; btn.textContent='✓'; showToast('Copiado'); setTimeout(()=>btn.textContent=o, 1200); };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(done).catch(()=>done());
+  } else {
+    const t=document.createElement('textarea'); t.value=text; document.body.appendChild(t); t.select();
+    try{ document.execCommand('copy'); }catch(e){} t.remove(); done();
+  }
 }
 
 function crmCloseModal(){
