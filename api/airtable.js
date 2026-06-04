@@ -16,7 +16,7 @@
 // El token debe tener permisos: data.records:read y data.records:write
 // sobre la base "Metodo Neri".
 
-const BASE_ID = process.env.AIRTABLE_BASE_ID || 'appRh791vGXRdOJs3';
+const BASE_ID = process.env.AIRTABLE_BASE_ID || process.env.AIRTABLE_BASE || 'appRh791vGXRdOJs3';
 const TOKEN   = process.env.AIRTABLE_TOKEN;
 
 export default async function handler(req, res) {

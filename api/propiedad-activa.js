@@ -35,7 +35,7 @@ const CAMPOS = [
   'Link Tour Virtual',
   'Google Maps URL',
   'Resumen Propiedad',
-  'Fotos',
+  'Foto de portada',
 ].map(f => 'fields[]=' + encodeURIComponent(f)).join('&');
 
 export default async function handler(req, res) {
@@ -45,7 +45,7 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   const token = process.env.AIRTABLE_TOKEN;
-  const base  = process.env.AIRTABLE_BASE;
+  const base  = process.env.AIRTABLE_BASE_ID || process.env.AIRTABLE_BASE || 'appRh791vGXRdOJs3';
 
   if (!token || !base) {
     return res.status(500).json({ error: 'Variables de entorno faltantes: AIRTABLE_TOKEN y/o AIRTABLE_BASE.' });
