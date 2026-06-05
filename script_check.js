@@ -1,1329 +1,4 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>NERI · Sistema Operativo</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
-:root {
-  --black:    #080808;
-  --surface:  #0f0f0f;
-  --surface2: #161616;
-  --surface3: #1e1e1e;
-  --border:   rgba(255,255,255,.07);
-  --border2:  rgba(255,255,255,.13);
-  --gold:     #C9A96E;
-  --gold2:    #E5CC9A;
-  --golddim:  rgba(201,169,110,.08);
-  --goldbdr:  rgba(201,169,110,.22);
-  --white:    #FFFFFF;
-  --w80:      rgba(255,255,255,.80);
-  --w50:      rgba(255,255,255,.50);
-  --w30:      rgba(255,255,255,.30);
-  --w15:      rgba(255,255,255,.15);
-  --w08:      rgba(255,255,255,.08);
-  --w04:      rgba(255,255,255,.04);
-  --green:    #4ade80;
-  --greendim: rgba(74,222,128,.1);
-  --red:      #f87171;
-  --sidebar:  220px;
-  --topbar:   48px;
-  --r:        2px;
-  --ease:     cubic-bezier(.22,1,.36,1);
-  --display:  'Bebas Neue', sans-serif;
-  --mono:     'DM Mono', monospace;
-}
 
-*{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;background:var(--black);color:var(--white);font-family:'Montserrat',sans-serif;overflow:hidden}
-a{color:inherit;text-decoration:none}
-button,input,select{font-family:inherit}
-.hidden{display:none!important}
-::-webkit-scrollbar{width:3px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--w15);border-radius:3px}
-
-@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
-@keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
-@keyframes spin{to{transform:rotate(360deg)}}
-@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
-
-/* ─ GRAIN ─ */
-body::after{
-  content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:.022;
-  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-size:128px;
-}
-
-/* ══════════════════════════════════════════
-   LOGIN SCREEN
-══════════════════════════════════════════ */
-#screen-login{
-  position:fixed;inset:0;z-index:500;background:var(--black);
-  display:grid;grid-template-columns:1fr 1fr;
-}
-
-.login-left{
-  display:flex;flex-direction:column;justify-content:center;
-  padding:60px 52px;border-right:1px solid var(--border);
-  position:relative;overflow:hidden;
-}
-.login-left::before{
-  content:'N';font-family:var(--display);font-size:480px;
-  color:rgba(201,169,110,.028);position:absolute;right:-60px;bottom:-100px;
-  line-height:1;pointer-events:none;user-select:none;letter-spacing:-8px;
-}
-.ll-tag{
-  font-size:7px;letter-spacing:5px;text-transform:uppercase;
-  color:var(--gold);font-weight:800;margin-bottom:22px;
-  display:flex;align-items:center;gap:12px;
-}
-.ll-tag::before{content:'';width:30px;height:1px;background:var(--gold);display:block}
-.ll-headline{
-  font-family:var(--display);font-size:clamp(64px,8vw,108px);
-  letter-spacing:6px;line-height:.83;margin-bottom:24px;position:relative;z-index:1;
-}
-.ll-headline em{color:var(--gold);font-style:normal}
-.ll-desc{
-  font-size:12px;color:var(--w50);font-weight:300;line-height:1.9;
-  max-width:340px;border-left:2px solid var(--goldbdr);
-  padding-left:16px;position:relative;z-index:1;
-}
-.ll-pillars{
-  display:flex;gap:36px;margin-top:44px;position:relative;z-index:1;
-}
-.ll-pillar{font-size:8px;letter-spacing:1.5px;color:var(--w30);font-weight:700}
-.ll-pillar b{display:block;color:var(--w50);margin-bottom:4px;font-size:10px;letter-spacing:0}
-
-.login-right{
-  display:flex;align-items:center;justify-content:center;
-  padding:40px;background:#060606;overflow-y:auto;
-}
-.login-card{width:min(400px,100%);animation:fadeUp .5s var(--ease)}
-
-.lc-brand{
-  font-family:var(--display);font-size:36px;letter-spacing:6px;
-  color:var(--gold);margin-bottom:4px;
-}
-.lc-sub{font-size:7px;letter-spacing:3.5px;text-transform:uppercase;color:var(--w30);font-weight:700;margin-bottom:32px}
-.lc-sep{width:40px;height:1px;background:var(--goldbdr);margin:0 0 28px}
-
-.form-label{
-  display:block;font-size:7px;letter-spacing:2.5px;
-  text-transform:uppercase;color:var(--gold);font-weight:800;margin-bottom:6px;
-}
-.form-input{
-  width:100%;padding:11px 14px;
-  background:rgba(255,255,255,.03);
-  border:1px solid var(--border2);border-radius:var(--r);
-  color:var(--white);font-size:13px;outline:none;
-  transition:border-color .18s,background .18s;margin-bottom:12px;
-}
-.form-input:focus{border-color:var(--goldbdr);background:var(--golddim)}
-.form-input::placeholder{color:var(--w30)}
-select.form-input{cursor:pointer;color:var(--w80);-webkit-appearance:none;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='rgba(201,169,110,.5)'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;background-position:right 14px center;
-}
-select.form-input option{background:#111;color:#fff}
-
-.login-btn{
-  width:100%;margin-top:8px;
-  background:var(--gold);color:#050505;border:none;
-  border-radius:var(--r);padding:14px;
-  font-size:8px;letter-spacing:4px;text-transform:uppercase;
-  font-weight:800;cursor:pointer;transition:background .15s,transform .1s;
-  display:flex;align-items:center;justify-content:center;gap:10px;
-}
-.login-btn:hover{background:var(--gold2)}
-.login-btn:active{transform:scale(.99)}
-
-.login-err{
-  font-size:11px;color:var(--red);min-height:14px;
-  margin-top:8px;text-align:center;
-}
-.login-footer{
-  margin-top:28px;padding-top:20px;border-top:1px solid var(--border);
-  font-size:8px;color:var(--w30);letter-spacing:1px;text-transform:uppercase;text-align:center;
-  line-height:1.9;
-}
-
-/* quick-login chips */
-.quick-logins{margin-bottom:20px}
-.ql-label{font-size:7px;letter-spacing:2px;text-transform:uppercase;color:var(--w30);font-weight:700;margin-bottom:8px}
-.ql-chips{display:flex;flex-wrap:wrap;gap:6px}
-.ql-chip{
-  padding:5px 12px;border:1px solid var(--border2);border-radius:999px;
-  font-size:9px;font-weight:700;color:var(--w50);cursor:pointer;
-  transition:all .15s;background:transparent;letter-spacing:.5px;
-}
-.ql-chip:hover{border-color:var(--goldbdr);color:var(--gold);background:var(--golddim)}
-
-/* ══════════════════════════════════════════
-   APP LAYOUT
-══════════════════════════════════════════ */
-#screen-app{
-  position:fixed;inset:0;display:grid;
-  grid-template-columns:var(--sidebar) 1fr;
-  grid-template-rows:var(--topbar) 1fr;
-}
-
-/* ─ SIDEBAR ─ */
-.sidebar{
-  grid-row:1/3;background:var(--surface);
-  border-right:1px solid var(--border);
-  display:flex;flex-direction:column;overflow:hidden;
-}
-
-.sb-header{padding:16px 16px 12px;border-bottom:1px solid var(--border);flex-shrink:0}
-.sb-logo{
-  font-family:var(--display);font-size:26px;letter-spacing:6px;
-  color:var(--gold);line-height:1;
-}
-.sb-sys{font-size:6px;letter-spacing:3px;text-transform:uppercase;color:var(--w30);font-weight:700;margin-top:1px}
-
-.sb-user{
-  margin-top:12px;padding:10px 12px;
-  background:var(--golddim);border:1px solid var(--goldbdr);
-  border-radius:var(--r);border-left:2px solid var(--gold);
-  position:relative;cursor:pointer;
-}
-.sb-user-name{font-size:11px;font-weight:700;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.sb-user-role{font-size:7px;letter-spacing:1.5px;text-transform:uppercase;color:var(--w50);margin-top:2px;font-weight:700}
-.sb-user-dot{
-  position:absolute;right:10px;top:50%;transform:translateY(-50%);
-  width:6px;height:6px;border-radius:50%;background:var(--green);
-  box-shadow:0 0 6px rgba(74,222,128,.5);animation:pulse 2.2s infinite;
-}
-
-.sb-nav{flex:1;overflow-y:auto;padding:10px 10px;overflow-x:hidden}
-.sb-nav::-webkit-scrollbar{width:0}
-
-.sb-section{
-  font-size:6px;letter-spacing:3px;text-transform:uppercase;
-  color:var(--w30);font-weight:800;
-  margin:14px 4px 6px;display:flex;align-items:center;gap:8px;
-}
-.sb-section:first-child{margin-top:4px}
-.sb-section::after{content:'';flex:1;height:1px;background:var(--border)}
-
-.sb-btn{
-  width:100%;display:flex;align-items:center;gap:8px;
-  padding:9px 10px;background:transparent;border:1px solid transparent;
-  color:var(--w50);border-radius:var(--r);cursor:pointer;text-align:left;
-  transition:all .13s;margin-bottom:1px;
-}
-.sb-btn:hover{background:var(--w04);color:var(--w80)}
-.sb-btn.active{
-  background:var(--golddim);border-color:var(--goldbdr);color:var(--white);
-}
-.sb-btn.active::before{
-  content:'';position:absolute;left:0;
-  width:2px;height:22px;background:var(--gold);border-radius:0 2px 2px 0;
-  margin-top:-1px;
-}
-.sb-btn{position:relative}
-.sb-icon{font-size:13px;min-width:16px;text-align:center;opacity:.6;flex-shrink:0}
-.sb-btn.active .sb-icon{opacity:1;color:var(--gold)}
-.sb-lbl{font-size:8px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;flex:1;line-height:1.2}
-
-.sb-footer{padding:12px 10px;border-top:1px solid var(--border);flex-shrink:0}
-.sb-logout{
-  width:100%;padding:9px;background:transparent;
-  border:1px solid var(--border2);color:var(--w30);border-radius:var(--r);
-  font-size:6px;letter-spacing:3px;text-transform:uppercase;font-weight:800;
-  cursor:pointer;transition:all .15s;
-}
-.sb-logout:hover{border-color:var(--red);color:var(--red)}
-
-/* ─ TOPBAR ─ */
-.topbar{
-  background:rgba(8,8,8,.96);border-bottom:1px solid var(--border);
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 24px;backdrop-filter:blur(16px);z-index:20;
-}
-.tb-left{display:flex;align-items:center;gap:10px}
-.tb-crumb{font-family:var(--display);font-size:15px;letter-spacing:3px;color:var(--gold)}
-.tb-sep{width:1px;height:12px;background:var(--border2)}
-.tb-label{font-size:7px;letter-spacing:3px;text-transform:uppercase;color:var(--w50);font-weight:600}
-.tb-right{display:flex;align-items:center;gap:14px}
-.tb-clock{font-family:var(--mono);font-size:12px;color:var(--w30);letter-spacing:1px}
-.tb-status{display:flex;align-items:center;gap:6px;font-size:8px;color:var(--w50);letter-spacing:.5px;font-weight:600}
-.tb-dot{width:5px;height:5px;border-radius:50%;background:var(--green);box-shadow:0 0 6px rgba(74,222,128,.5)}
-
-/* ─ CONTENT ─ */
-.content{overflow:hidden;background:var(--black);display:flex;flex-direction:column}
-
-/* ─ PANELS ─ */
-.panel{display:none;flex:1;overflow:hidden;animation:fadeIn .25s var(--ease)}
-.panel.active{display:flex;flex-direction:column}
-
-/* IFRAME PANEL */
-.iframe-toolbar{
-  height:40px;flex-shrink:0;
-  background:var(--surface);border-bottom:1px solid var(--border);
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 16px;gap:12px;
-}
-.it-left{display:flex;align-items:center;gap:10px}
-.it-dots{display:flex;gap:5px}
-.it-dot{width:8px;height:8px;border-radius:50%}
-.it-dot.r{background:#ff5f57}
-.it-dot.y{background:#febc2e}
-.it-dot.g{background:#28c840}
-.it-name{font-size:7px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);font-weight:800}
-.it-url{font-family:var(--mono);font-size:10px;color:var(--w30);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:320px}
-.it-actions{display:flex;gap:6px;flex-shrink:0}
-.it-btn{
-  padding:5px 10px;background:transparent;border:1px solid var(--border2);
-  border-radius:var(--r);font-size:7px;letter-spacing:1.5px;
-  text-transform:uppercase;font-weight:700;color:var(--w50);cursor:pointer;
-  transition:all .13s;
-}
-.it-btn:hover{border-color:var(--goldbdr);color:var(--gold)}
-.it-btn.primary{background:var(--golddim);border-color:var(--goldbdr);color:var(--gold)}
-.it-btn.primary:hover{background:rgba(201,169,110,.18)}
-
-.iframe-wrap{flex:1;overflow:hidden;position:relative}
-.iframe-wrap iframe{
-  width:100%;height:100%;border:none;
-  background:var(--surface);display:block;
-}
-.iframe-placeholder{
-  position:absolute;inset:0;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;gap:16px;
-  background:var(--black);
-}
-.ip-icon{font-size:40px;opacity:.15}
-.ip-title{font-family:var(--display);font-size:28px;letter-spacing:3px;color:var(--w30)}
-.ip-sub{font-size:11px;color:var(--w30);font-weight:300;text-align:center;max-width:280px;line-height:1.8}
-.ip-btn{
-  margin-top:8px;padding:11px 22px;
-  background:var(--gold);color:#050505;border:none;border-radius:var(--r);
-  font-size:7px;letter-spacing:3px;text-transform:uppercase;font-weight:800;
-  cursor:pointer;transition:background .15s;
-}
-.ip-btn:hover{background:var(--gold2)}
-
-/* ══════════════════════════════════════════
-   PANEL HOY (dashboard)
-══════════════════════════════════════════ */
-.hoy-body{flex:1;overflow-y:auto;padding:28px}
-
-.ph-head{margin-bottom:28px}
-.ph-eyebrow{font-size:6px;letter-spacing:5px;text-transform:uppercase;color:var(--gold);font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:10px}
-.ph-eyebrow::before{content:'';width:20px;height:1px;background:var(--gold);display:block;flex-shrink:0}
-.ph-title{font-family:var(--display);font-size:clamp(40px,5vw,68px);letter-spacing:3px;line-height:.86;margin-bottom:8px}
-.ph-title em{color:var(--gold);font-style:normal}
-
-.hoy-banner{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:16px 20px;background:var(--golddim);
-  border:1px solid var(--goldbdr);border-left:3px solid var(--gold);
-  border-radius:var(--r);margin-bottom:24px;
-}
-.hoy-name{font-family:var(--display);font-size:22px;letter-spacing:2px}
-.hoy-role{font-size:10px;color:var(--w50);margin-top:3px;font-weight:300}
-.pill{display:inline-block;font-size:6px;letter-spacing:1.5px;text-transform:uppercase;padding:3px 10px;border-radius:999px;font-weight:800}
-.pill-green{background:var(--greendim);border:1px solid rgba(74,222,128,.25);color:var(--green)}
-.pill-gold{background:var(--golddim);border:1px solid var(--goldbdr);color:var(--gold)}
-
-.hoy-tools-grid{
-  display:grid;grid-template-columns:repeat(4,1fr);gap:1px;
-  border:1px solid var(--border);border-radius:var(--r);
-  overflow:hidden;background:var(--border);
-}
-.tool-card{
-  background:var(--surface);padding:20px 18px;
-  cursor:pointer;border:none;text-align:left;color:inherit;
-  transition:background .15s;position:relative;overflow:hidden;
-}
-.tool-card:hover{background:var(--surface2)}
-.tool-card:hover .tc-arrow{transform:translateX(4px)}
-.tc-num{
-  font-family:var(--display);font-size:64px;color:rgba(201,169,110,.05);
-  position:absolute;right:-2px;bottom:-12px;line-height:1;pointer-events:none;letter-spacing:-2px;
-}
-.tc-tag{font-size:6px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);font-weight:800;margin-bottom:7px}
-.tc-title{font-family:var(--display);font-size:18px;letter-spacing:1.5px;line-height:1.1;margin-bottom:6px}
-.tc-desc{font-size:10px;color:var(--w50);font-weight:300;line-height:1.7}
-.tc-action{
-  margin-top:14px;display:flex;align-items:center;gap:6px;
-  font-size:6px;letter-spacing:2.5px;text-transform:uppercase;
-  color:var(--gold);font-weight:800;
-}
-.tc-arrow{transition:transform .15s;font-size:13px}
-
-/* ─ Dashboard Hoy: refresh, KPIs, inteligencia ─ */
-.hoy-banner-right{display:flex;align-items:center;gap:12px}
-.hoy-refresh{
-  width:30px;height:30px;border-radius:50%;border:1px solid var(--border2);
-  background:transparent;color:var(--gold);font-size:14px;cursor:pointer;
-  transition:all .15s;display:flex;align-items:center;justify-content:center;flex-shrink:0;
-}
-.hoy-refresh:hover{border-color:var(--goldbdr);background:var(--golddim)}
-.hoy-refresh.spin{animation:hoyspin .8s linear infinite}
-@keyframes hoyspin{to{transform:rotate(360deg)}}
-
-.kpi-strip{
-  display:grid;grid-template-columns:repeat(4,1fr);gap:1px;
-  background:var(--border);border:1px solid var(--border);border-radius:var(--r);
-  overflow:hidden;margin-bottom:24px;
-}
-.kpi{background:var(--surface);padding:18px 20px}
-.kpi-num{font-family:var(--display);font-size:42px;letter-spacing:1px;line-height:.9;color:var(--gold)}
-.kpi-lbl{font-size:7px;letter-spacing:2.5px;text-transform:uppercase;color:var(--w50);font-weight:700;margin-top:8px}
-
-.hoy-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px}
-.hoy-col{border:1px solid var(--border);border-radius:var(--r);background:var(--surface);overflow:hidden}
-.hoy-col-head{
-  display:flex;align-items:center;gap:9px;padding:14px 18px;
-  font-size:8px;letter-spacing:3px;text-transform:uppercase;font-weight:800;color:var(--w80);
-  border-bottom:1px solid var(--border);background:var(--surface2);
-}
-.hoy-col-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;background:var(--gold)}
-.hoy-col-dot.red{background:var(--red)}
-.hoy-col-count{margin-left:auto;color:var(--gold);font-family:var(--mono);font-size:11px;letter-spacing:0}
-.hoy-list{max-height:340px;overflow-y:auto}
-
-.hoy-item{
-  display:flex;align-items:center;justify-content:space-between;gap:12px;
-  padding:13px 18px;border-bottom:1px solid var(--border);width:100%;text-align:left;
-  background:transparent;color:inherit;border-left:none;border-right:none;border-top:none;
-}
-.hoy-item:last-child{border-bottom:none}
-.hoy-item.act{cursor:pointer;transition:background .15s}
-.hoy-item.act:hover{background:var(--surface2)}
-.hoy-item.act:hover .hi-go{transform:translateX(3px);color:var(--gold)}
-.hoy-item.is-today{background:var(--golddim);border-left:2px solid var(--gold)}
-.hi-main{min-width:0;flex:1}
-.hi-title{font-size:12px;font-weight:600;color:var(--white);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.hi-sub{font-size:10px;color:var(--w50);font-weight:300;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:240px}
-.hi-meta{text-align:right;flex-shrink:0}
-.hi-when{font-family:var(--mono);font-size:10px;color:var(--w50);margin-bottom:5px;white-space:nowrap}
-.hi-today{font-size:6px;letter-spacing:1.5px;background:var(--gold);color:#060606;padding:2px 6px;border-radius:999px;font-weight:800}
-.hi-pill{font-size:6px;letter-spacing:1.5px;text-transform:uppercase;padding:3px 8px;border-radius:999px;font-weight:800;white-space:nowrap}
-.hi-pill.gold{background:var(--golddim);border:1px solid var(--goldbdr);color:var(--gold)}
-.hi-pill.green{background:var(--greendim);border:1px solid rgba(74,222,128,.25);color:var(--green)}
-.hi-pill.red{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3);color:var(--red)}
-.hi-go{font-size:15px;color:var(--w30);transition:all .15s;flex-shrink:0}
-.hi-actions{display:flex;align-items:center;gap:10px;flex-shrink:0}
-.hi-wa{
-  font-size:7px;letter-spacing:1.5px;text-transform:uppercase;font-weight:800;
-  padding:6px 11px;border-radius:999px;text-decoration:none;white-space:nowrap;
-  background:var(--greendim);border:1px solid rgba(74,222,128,.3);color:var(--green);
-  transition:all .15s;
-}
-.hi-wa:hover{background:rgba(74,222,128,.2)}
-.hi-pill.amber{background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.35);color:#fbbf24}
-
-/* Briefing cálido */
-.hoy-brief{
-  padding:14px 18px;margin-bottom:22px;border-radius:var(--r);
-  background:linear-gradient(90deg,var(--golddim),transparent);
-  border:1px solid var(--border);border-left:2px solid var(--gold);
-  font-size:13px;color:var(--w80);font-weight:300;line-height:1.6;
-}
-.hoy-brief b{color:var(--gold);font-weight:700}
-
-/* Operaciones — encabezado */
-.hoy-ops-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin:30px 0 14px;flex-wrap:wrap}
-.hoy-ops-eyebrow{font-size:7px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);font-weight:800}
-.hoy-ops-title{font-family:var(--display);font-size:24px;letter-spacing:2px;margin-top:4px}
-.hoy-ops-hint{font-size:10px;color:var(--w50);font-weight:300;max-width:280px;text-align:right}
-
-/* Tarjeta de operación */
-.op-card{
-  background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
-  padding:20px 22px;margin-bottom:14px;
-}
-.op-top{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:18px}
-.op-name{font-family:var(--display);font-size:20px;letter-spacing:1.5px}
-.op-prop{font-size:11px;color:var(--w50);font-weight:300;margin-top:3px}
-.op-link{color:var(--gold);text-decoration:none}
-.op-link:hover{text-decoration:underline}
-.op-pct{text-align:right;flex-shrink:0}
-.op-pct span{font-family:var(--display);font-size:30px;color:var(--gold);line-height:1}
-.op-pct small{display:block;font-size:7px;letter-spacing:2px;text-transform:uppercase;color:var(--w50);font-weight:700;margin-top:3px}
-
-/* Stepper estilo Amazon */
-.op-steps{display:flex;align-items:flex-start;gap:0;margin-bottom:14px}
-.step{display:flex;flex-direction:column;align-items:center;gap:7px;text-align:center;flex:0 0 auto;width:46px}
-.step-dot{width:13px;height:13px;border-radius:50%;border:2px solid var(--w15);background:var(--surface);transition:all .2s}
-.step-lbl{font-size:6px;letter-spacing:.3px;color:var(--w30);line-height:1.25;text-transform:uppercase;font-weight:700}
-.step-bar{flex:1;height:2px;background:var(--w08);margin-top:6px;border-radius:2px;min-width:8px}
-.step.done .step-dot{background:var(--gold);border-color:var(--gold)}
-.step.done .step-lbl{color:var(--w50)}
-.step.now .step-dot{background:var(--green);border-color:var(--green);box-shadow:0 0 0 4px var(--greendim);animation:oppulse 1.8s ease-in-out infinite}
-.step.now .step-lbl{color:var(--green);font-weight:800}
-@keyframes oppulse{0%,100%{box-shadow:0 0 0 3px var(--greendim)}50%{box-shadow:0 0 0 6px rgba(74,222,128,.05)}}
-
-.op-progress{height:4px;background:var(--w08);border-radius:4px;overflow:hidden;margin-bottom:16px}
-.op-progress-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--green));border-radius:4px;transition:width .5s var(--ease)}
-
-.op-foot{display:grid;gap:12px}
-.op-next,.op-docs,.op-pend{font-size:11px;color:var(--w80);font-weight:300;line-height:1.55;padding-left:12px;border-left:2px solid var(--border2)}
-.op-next{border-left-color:var(--green)}
-.op-docs{border-left-color:var(--gold)}
-.op-pend{border-left-color:#fbbf24}
-.op-next-lbl,.op-docs-lbl,.op-pend-lbl{display:block;font-size:7px;letter-spacing:2px;text-transform:uppercase;font-weight:800;color:var(--w50);margin-bottom:4px}
-.op-next-lbl{color:var(--green)}
-.op-docs-lbl{color:var(--gold)}
-.op-pend-lbl{color:#fbbf24}
-.hoy-empty{padding:22px 18px;font-size:11px;color:var(--w30);font-weight:300;text-align:center}
-.hoy-empty.err{color:var(--red)}
-
-.hoy-launch-label{
-  font-size:8px;letter-spacing:3px;text-transform:uppercase;font-weight:800;
-  color:var(--w50);margin-bottom:12px;display:flex;align-items:center;gap:10px;
-}
-.hoy-launch-label::before{content:'';width:20px;height:1px;background:var(--goldbdr);display:block}
-
-/* ══════════════════════════════════════════
-   CRM PANEL — diseño premium
-══════════════════════════════════════════ */
-
-/* Layout */
-.airtable-layout{display:flex;flex-direction:column;flex:1;overflow:hidden;background:var(--black)}
-
-/* Header superior */
-.airtable-header{
-  background:linear-gradient(180deg,#111111 0%,#0d0d0d 100%);
-  border-bottom:1px solid var(--border);
-  padding:20px 28px 0;flex-shrink:0;
-  position:relative;
-}
-.airtable-header::after{
-  content:'';position:absolute;left:0;right:0;bottom:-1px;height:1px;
-  background:linear-gradient(90deg,var(--gold),transparent 60%);
-  opacity:.35;
-}
-.airtable-title-row{
-  display:flex;align-items:center;justify-content:space-between;
-  margin-bottom:18px;
-}
-.at-title{
-  font-family:var(--display);font-size:28px;letter-spacing:4px;
-  color:var(--white);line-height:1;display:flex;align-items:baseline;gap:8px;
-}
-.at-title em{color:var(--gold);font-style:normal}
-.at-title-sub{
-  font-size:7px;letter-spacing:3px;text-transform:uppercase;
-  color:var(--w30);font-weight:700;font-family:'Montserrat',sans-serif;
-  margin-left:4px;align-self:center;
-}
-.at-right{display:flex;align-items:center;gap:8px}
-
-/* Botones header */
-.at-btn{
-  padding:8px 16px;border:1px solid var(--border2);background:transparent;
-  border-radius:2px;font-size:7px;letter-spacing:2.5px;text-transform:uppercase;
-  font-weight:700;color:var(--w50);cursor:pointer;transition:all .15s;
-  display:flex;align-items:center;gap:6px;
-}
-.at-btn:hover{border-color:var(--goldbdr);color:var(--gold);background:var(--golddim)}
-.at-btn svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2}
-.at-btn.primary{
-  background:var(--gold);border-color:var(--gold);color:#060606;font-weight:800;
-}
-.at-btn.primary:hover{background:var(--gold2);border-color:var(--gold2)}
-
-/* Tabs */
-.at-tabs{display:flex;gap:0;margin-top:2px}
-.at-tab{
-  padding:11px 20px 12px;background:transparent;border:none;
-  font-size:7px;letter-spacing:2.5px;text-transform:uppercase;
-  font-weight:700;color:var(--w30);cursor:pointer;
-  border-bottom:2px solid transparent;transition:all .15s;
-  display:flex;align-items:center;gap:8px;position:relative;
-  white-space:nowrap;
-}
-.at-tab::after{
-  content:'';position:absolute;bottom:-1px;left:0;right:0;height:2px;
-  background:var(--gold);transform:scaleX(0);transition:transform .2s var(--ease);
-  border-radius:2px 2px 0 0;
-}
-.at-tab:hover{color:var(--w70)}
-.at-tab.active{color:var(--white)}
-.at-tab.active::after{transform:scaleX(1)}
-.at-tab-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;position:relative}
-.at-tab-dot::after{
-  content:'';position:absolute;inset:-2px;border-radius:50%;
-  background:inherit;opacity:.25;
-}
-.at-tab-dot.compradores{background:#60a5fa}
-.at-tab-dot.vendedores{background:#4ade80}
-.at-tab-dot.progreso{background:#f59e0b}
-.at-tab-dot.propiedades{background:#c084fc}
-.at-tab .tab-count{
-  font-family:var(--mono);font-size:9px;color:var(--w30);
-  background:var(--w08);padding:1px 6px;border-radius:999px;
-}
-.at-tab.active .tab-count{background:var(--golddim);color:var(--gold)}
-
-/* Contenido */
-.airtable-content{flex:1;overflow:hidden;position:relative;display:flex;flex-direction:column}
-
-/* Barra de búsqueda */
-.at-table-bar{
-  height:44px;flex-shrink:0;
-  background:#0a0a0a;border-bottom:1px solid var(--border);
-  display:flex;align-items:center;padding:0 20px;gap:12px;
-}
-.at-search-wrap{
-  display:flex;align-items:center;gap:8px;flex:1;max-width:280px;
-  background:var(--surface2);border:1px solid var(--border2);
-  border-radius:2px;padding:6px 12px;transition:border-color .15s;
-}
-.at-search-wrap:focus-within{border-color:var(--goldbdr)}
-.at-search-icon{color:var(--w30);font-size:12px;flex-shrink:0}
-.at-search{
-  flex:1;background:transparent;border:none;
-  color:var(--w80);font-size:12px;outline:none;
-}
-.at-search::placeholder{color:var(--w30)}
-.at-count{
-  font-family:var(--mono);font-size:10px;color:var(--w30);
-  margin-left:auto;background:var(--w04);
-  padding:3px 10px;border-radius:999px;border:1px solid var(--border);
-}
-.at-divider{width:1px;height:20px;background:var(--border2)}
-
-/* Tabla */
-.at-table-wrap{flex:1;overflow:auto;position:relative}
-.at-table-wrap::-webkit-scrollbar{width:4px;height:4px}
-.at-table-wrap::-webkit-scrollbar-thumb{background:var(--w15)}
-
-.at-table{width:100%;border-collapse:collapse;font-size:12px}
-
-.at-table thead{position:sticky;top:0;z-index:5}
-.at-table thead tr{background:#0c0c0c}
-.at-table thead th{
-  padding:11px 16px;text-align:left;
-  font-size:6px;letter-spacing:3px;text-transform:uppercase;
-  font-weight:800;color:var(--w30);white-space:nowrap;
-  border-bottom:1px solid var(--border2);
-  background:#0c0c0c;
-}
-.at-table thead th:first-child{width:44px;padding-left:20px}
-.at-table thead th::after{
-  content:'';display:block;width:0;height:1px;
-  background:var(--gold);margin-top:3px;transition:width .2s;
-}
-.at-table thead th:hover::after{width:100%}
-
-/* Filas */
-.at-table tbody tr{
-  border-bottom:1px solid rgba(255,255,255,.04);
-  transition:background .1s;
-  position:relative;
-}
-.at-table tbody tr::before{
-  content:'';position:absolute;left:0;top:0;bottom:0;width:0;
-  background:var(--gold);transition:width .15s;border-radius:0;
-}
-.at-table tbody tr:hover{background:rgba(255,255,255,.03)}
-.at-table tbody tr:hover::before{width:2px}
-.at-table tbody td{
-  padding:12px 16px;color:var(--w80);
-  vertical-align:middle;
-}
-.at-table tbody td:first-child{
-  padding-left:20px;width:44px;
-  color:var(--w30);font-size:14px;
-  opacity:0;transition:opacity .1s;
-}
-.at-table tbody tr:hover td:first-child{opacity:1}
-.at-table tbody td.name{
-  font-weight:600;color:var(--white);
-  font-size:12px;
-}
-.at-table tbody td.folio{
-  font-family:var(--mono);font-size:10px;
-  color:var(--gold);letter-spacing:.5px;white-space:nowrap;
-}
-.at-table tbody td.clip{
-  max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-}
-
-/* Filas alternas muy sutil */
-.at-table tbody tr:nth-child(even){background:rgba(255,255,255,.012)}
-.at-table tbody tr:nth-child(even):hover{background:rgba(255,255,255,.03)}
-
-/* Badges */
-.badge{
-  display:inline-flex;align-items:center;gap:4px;
-  padding:3px 10px;border-radius:3px;
-  font-size:7px;letter-spacing:1.5px;text-transform:uppercase;font-weight:800;
-  white-space:nowrap;
-}
-.badge::before{content:'';width:4px;height:4px;border-radius:50%;background:currentColor;flex-shrink:0}
-.badge-new{background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.2);color:#60a5fa}
-.badge-contact{background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.2);color:#fbbf24}
-.badge-visit{background:rgba(167,139,250,.08);border:1px solid rgba(167,139,250,.2);color:#a78bfa}
-.badge-offer{background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);color:#34d399}
-.badge-close{background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.25);color:#4ade80}
-.badge-lost{background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);color:#f87171}
-.badge-active{background:rgba(201,169,110,.08);border:1px solid var(--goldbdr);color:var(--gold)}
-.badge-sold{background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);color:#34d399}
-.badge-hot{background:rgba(248,113,113,.12);border:1px solid rgba(248,113,113,.32);color:#f87171}
-.badge-warm{background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.28);color:#fbbf24}
-.badge-cold{background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.24);color:#60a5fa}
-
-/* Estado vacío */
-.crm-empty{
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  height:240px;gap:12px;
-}
-.crm-empty-icon{font-size:32px;opacity:.15}
-.crm-empty-text{font-size:11px;color:var(--w30);letter-spacing:2px;text-transform:uppercase;font-weight:700}
-
-/* Skeleton loader */
-.crm-skeleton-row td{padding:12px 16px}
-.crm-skeleton-cell{
-  height:12px;border-radius:2px;
-  background:linear-gradient(90deg,var(--w04) 25%,var(--w08) 50%,var(--w04) 75%);
-  background-size:200% 100%;
-  animation:shimmer 1.4s infinite;
-}
-
-/* Modal editar */
-#crm-modal{
-  display:none;position:fixed;inset:0;z-index:900;
-  background:rgba(0,0,0,.9);backdrop-filter:blur(12px);
-  align-items:center;justify-content:center;padding:20px;
-}
-.crm-modal-box{
-  width:min(560px,100%);
-  background:linear-gradient(180deg,#141414 0%,#0f0f0f 100%);
-  border:1px solid var(--goldbdr);border-top:2px solid var(--gold);
-  border-radius:3px;max-height:90vh;overflow-y:auto;
-  padding:32px;
-  scrollbar-width:thin;
-  box-shadow:0 32px 80px rgba(0,0,0,.7), 0 0 0 1px rgba(201,169,110,.05);
-}
-.crm-modal-head{
-  display:flex;align-items:flex-start;justify-content:space-between;
-  margin-bottom:24px;padding-bottom:20px;
-  border-bottom:1px solid var(--border);
-}
-.crm-modal-title{
-  font-family:var(--display);font-size:30px;letter-spacing:3px;
-  color:var(--white);line-height:1;
-}
-.crm-modal-title em{color:var(--gold);font-style:normal}
-.crm-modal-close{
-  background:transparent;border:1px solid var(--border2);
-  color:var(--w50);font-size:14px;cursor:pointer;
-  width:28px;height:28px;border-radius:2px;
-  display:flex;align-items:center;justify-content:center;
-  transition:all .13s;flex-shrink:0;
-}
-.crm-modal-close:hover{border-color:var(--goldbdr);color:var(--gold)}
-.crm-modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.crm-modal-grid .form-group.full{grid-column:1/-1}
-.crm-modal-actions{
-  display:flex;gap:8px;justify-content:flex-end;
-  margin-top:24px;padding-top:20px;border-top:1px solid var(--border);
-}
-
-/* ─── FICHA PREMIUM ─── */
-#crm-ficha{
-  display:none;position:fixed;inset:0;z-index:910;
-  background:rgba(0,0,0,.9);backdrop-filter:blur(12px);
-  align-items:center;justify-content:center;padding:20px;
-}
-.fk-box{width:min(600px,100%)}
-.fk-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
-.fk-name{font-family:var(--display);font-size:24px;letter-spacing:1px;color:var(--white);line-height:1.1}
-.fk-folio{font-size:11px;color:var(--gold);letter-spacing:2px;margin-top:6px;font-family:monospace}
-.fk-op{font-size:10px;color:var(--w30);letter-spacing:1px;margin-top:3px;font-family:monospace}
-.fk-tags{display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex-shrink:0}
-.fk-sub{font-size:12px;color:var(--w50);margin-top:10px}
-.fk-diag{
-  margin-top:18px;padding:14px 16px;border-radius:3px;
-  border:1px solid var(--border2);background:rgba(255,255,255,.02);
-  display:flex;flex-direction:column;gap:4px;
-}
-.fk-diag.on{border-color:var(--goldbdr);background:rgba(201,169,110,.06)}
-.fk-diag-lbl{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--w30)}
-.fk-diag-val{font-size:15px;color:var(--white)}
-.fk-grid{margin-top:14px;display:flex;flex-direction:column;gap:2px}
-.fk-row{display:grid;grid-template-columns:150px 1fr;gap:12px;padding:11px 4px;border-bottom:1px solid var(--border)}
-.fk-k{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--w30);padding-top:2px}
-.fk-v{font-size:13px;color:var(--w80,#cfcfcf);line-height:1.4}
-.fk-empty{color:var(--w20);font-style:italic}
-.fk-msg-wrap{margin-top:16px}
-.fk-msg-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
-.fk-msg-head span{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--w30)}
-.fk-copy{
-  background:transparent;border:1px solid var(--border2);color:var(--w50);
-  font-size:10px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;
-  padding:4px 10px;border-radius:2px;transition:all .13s;
-}
-.fk-copy:hover{border-color:var(--goldbdr);color:var(--gold)}
-.fk-msg{
-  font-size:13px;color:var(--w80,#cfcfcf);line-height:1.5;white-space:pre-wrap;
-  padding:14px 16px;border-radius:3px;background:rgba(255,255,255,.02);
-  border:1px solid var(--border);
-}
-
-/* ─── EDITOR DE LANDING (Ficha de Propiedad) ─── */
-#crm-landing{
-  display:none;position:fixed;inset:0;z-index:912;
-  background:rgba(0,0,0,.9);backdrop-filter:blur(12px);
-  align-items:center;justify-content:center;padding:20px;
-}
-.le-box{width:min(680px,100%)}
-.le-sec{margin-top:22px}
-.le-sec:first-child{margin-top:4px}
-.le-sec-title{
-  font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);
-  font-weight:800;padding-bottom:8px;margin-bottom:14px;border-bottom:1px solid var(--border);
-  display:flex;align-items:center;gap:8px;
-}
-.le-sec-title .le-ico{opacity:.65;font-style:normal}
-.le-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.le-grid .full{grid-column:1/-1}
-.le-vrow{
-  display:grid;grid-template-columns:96px 1fr auto;gap:10px;align-items:center;
-  padding:9px 0;border-bottom:1px solid var(--border);
-}
-.le-upload{margin-top:7px}
-.le-upload input[type="file"]{font-size:10px;color:var(--w50);padding:8px 10px}
-.le-upload input[type="file"]::file-selector-button{
-  margin-right:10px;padding:6px 10px;border:1px solid var(--goldbdr);
-  background:var(--golddim);color:var(--gold);border-radius:2px;
-  font-size:7px;letter-spacing:1.5px;text-transform:uppercase;font-weight:800;cursor:pointer;
-}
-.le-upload input[type="file"]::file-selector-button:hover{background:rgba(201,169,110,.18)}
-.le-vroom{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--w50)}
-.le-vstatus{font-size:8px;letter-spacing:1.5px;text-transform:uppercase;white-space:nowrap;font-weight:700}
-.le-vstatus.on{color:var(--gold)}
-.le-vstatus.off{color:var(--w20)}
-.le-attach{display:flex;align-items:center;gap:10px;margin-bottom:7px}
-.le-thumb{
-  width:42px;height:42px;border-radius:3px;object-fit:cover;border:1px solid var(--border2);
-  background:#0a0a0a;flex-shrink:0;
-}
-.le-thumb-empty{
-  width:42px;height:42px;border-radius:3px;border:1px dashed var(--border2);
-  display:flex;align-items:center;justify-content:center;color:var(--w20);
-  font-size:16px;flex-shrink:0;
-}
-.le-note{font-size:10px;color:var(--w30);margin-top:4px;line-height:1.5}
-.le-lock{
-  display:flex;flex-direction:column;gap:2px;padding:11px 13px;border-radius:3px;
-  background:rgba(255,255,255,.02);border:1px solid var(--border);margin-bottom:8px;
-}
-.le-lock-k{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--w30);display:flex;gap:6px;align-items:center}
-.le-lock-v{font-size:12px;color:var(--w80,#cfcfcf);font-family:monospace;word-break:break-all;margin-top:2px}
-.le-banner{
-  font-size:10px;color:var(--w50);background:rgba(201,169,110,.06);
-  border:1px solid var(--goldbdr);border-radius:3px;padding:9px 12px;line-height:1.5;
-}
-
-/* row-check */
-.row-check{
-  width:14px;height:14px;border-radius:2px;border:1px solid var(--border2);
-  background:transparent;cursor:pointer;appearance:none;-webkit-appearance:none;
-  transition:all .12s;
-}
-.row-check:checked{background:var(--gold);border-color:var(--gold)}
-
-/* iframe wrap legacy */
-.at-iframe-wrap{flex:1;overflow:hidden;position:relative}
-.at-iframe-wrap iframe{width:100%;height:100%;border:none;background:#fff}
-
-/* LOADING estado */
-.at-loading{
-  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-  background:var(--black);flex-direction:column;gap:12px;z-index:2;
-  transition:opacity .3s;
-}
-.at-loading-spinner{
-  width:28px;height:28px;border:2px solid var(--border);
-  border-top-color:var(--gold);border-radius:50%;
-  animation:spin .8s linear infinite;
-}
-.at-loading-text{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--w30);font-weight:700}
-
-/* ── Botones del modal ── */
-.btn{
-  padding:10px 20px;border-radius:2px;font-size:7px;letter-spacing:2.5px;
-  text-transform:uppercase;font-weight:800;cursor:pointer;
-  transition:all .15s;border:1px solid transparent;
-}
-.btn-primary{background:var(--gold);border-color:var(--gold);color:#060606}
-.btn-primary:hover{background:var(--gold2);border-color:var(--gold2)}
-.btn-primary:disabled{opacity:.5;cursor:not-allowed}
-.btn-ghost{background:transparent;border-color:var(--border2);color:var(--w50)}
-.btn-ghost:hover{border-color:var(--goldbdr);color:var(--gold)}
-.btn-cita{background:transparent;border-color:#3b82f6;color:#3b82f6}
-.btn-cita:hover{background:rgba(59,130,246,.12);border-color:#60a5fa;color:#60a5fa}
-
-/* ── Inputs del modal ── */
-.form-inp{
-  width:100%;padding:9px 12px;
-  background:rgba(255,255,255,.03);
-  border:1px solid var(--border2);border-radius:var(--r);
-  color:var(--white);font-size:12px;outline:none;
-  transition:border-color .18s,background .18s;
-  font-family:inherit;resize:vertical;
-}
-.form-inp:focus{border-color:var(--goldbdr);background:var(--golddim)}
-.form-inp::placeholder{color:var(--w30)}
-select.form-inp{
-  cursor:pointer;-webkit-appearance:none;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='rgba(201,169,110,.5)'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;background-position:right 12px center;
-  background-color:rgba(255,255,255,.03);
-}
-select.form-inp option{background:#111;color:#fff}
-.form-group{display:flex;flex-direction:column;gap:5px}
-.form-group label{font-size:7px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);font-weight:800}
-
-/* ══════════════════════════════════════════
-   NOTIFICACIÓN TOAST
-══════════════════════════════════════════ */
-#toast{
-  position:fixed;bottom:24px;right:24px;z-index:9998;
-  padding:12px 18px;background:var(--surface2);border:1px solid var(--border2);
-  border-left:2px solid var(--gold);border-radius:var(--r);
-  font-size:11px;color:var(--w80);letter-spacing:.3px;
-  transition:all .3s var(--ease);transform:translateY(12px);opacity:0;
-  pointer-events:none;max-width:280px;
-}
-#toast.show{transform:translateY(0);opacity:1}
-
-/* ─── MODAL DE CITA ─── */
-#crm-cita{
-  display:none;position:fixed;inset:0;z-index:915;
-  background:rgba(0,0,0,.92);backdrop-filter:blur(14px);
-  align-items:center;justify-content:center;padding:20px;
-}
-.cita-box{width:min(640px,100%)}
-
-/* Cabecera tipo ticket */
-.cita-ticket{
-  background:linear-gradient(135deg,rgba(201,169,110,.09) 0%,rgba(201,169,110,.03) 100%);
-  border:1px solid var(--goldbdr);border-radius:3px;
-  padding:20px 24px;margin-bottom:20px;
-  display:grid;grid-template-columns:1fr auto;gap:12px;align-items:start;
-}
-.cita-folio-tag{font-size:7px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);font-weight:800;margin-bottom:6px}
-.cita-nombre{font-family:var(--display);font-size:26px;letter-spacing:2px;color:var(--white);line-height:1.1}
-.cita-propiedad{font-size:11px;color:var(--w50);margin-top:5px;display:flex;align-items:center;gap:6px}
-.cita-folio-code{font-family:var(--mono);font-size:11px;color:var(--gold);letter-spacing:1.5px;
-  padding:5px 12px;border:1px solid var(--goldbdr);border-radius:2px;white-space:nowrap;background:rgba(201,169,110,.06)}
-
-/* Secciones del formulario */
-.cita-sec-title{
-  font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--w30);
-  font-weight:800;padding-bottom:7px;margin:18px 0 12px;
-  border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;
-}
-.cita-sec-title span{color:var(--gold);font-size:11px}
-.cita-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.cita-grid .full{grid-column:1/-1}
-
-/* Bloque de confirmación (solo lectura) */
-.cita-confirm-block{
-  background:rgba(74,222,128,.06);border:1px solid rgba(74,222,128,.22);
-  border-left:3px solid var(--green);border-radius:3px;
-  padding:16px 18px;margin-top:14px;
-}
-.cita-confirm-title{
-  font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--green);
-  font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:8px;
-}
-.cita-confirm-row{
-  display:grid;grid-template-columns:130px 1fr;gap:8px;
-  padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06);
-}
-.cita-confirm-row:last-child{border-bottom:none}
-.cita-ck{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--w30)}
-.cita-cv{font-size:12px;color:var(--w80);font-family:inherit;line-height:1.4}
-
-/* Botón de link de cita */
-.cita-link-chip{
-  display:inline-flex;align-items:center;gap:6px;
-  padding:6px 14px;border:1px solid var(--goldbdr);border-radius:999px;
-  font-size:8px;letter-spacing:1.5px;text-transform:uppercase;
-  color:var(--gold);background:var(--golddim);cursor:pointer;
-  transition:all .13s;font-weight:700;margin-top:10px;
-}
-.cita-link-chip:hover{background:rgba(201,169,110,.18)}
-
-/* Badge estado cita */
-.badge-cita-pend{background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.2);color:#fbbf24}
-.badge-cita-conf{background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.25);color:#4ade80}
-.badge-cita-real{background:rgba(201,169,110,.08);border:1px solid var(--goldbdr);color:var(--gold)}
-.badge-cita-canc{background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);color:#f87171}
-
-/* Tab dot citas */
-.at-tab-dot.citas{background:#f59e0b}
-
-
-/* ══════════════════════════════════════════
-   FICHA VENDEDOR — premium
-══════════════════════════════════════════ */
-#crm-ficha-vendedor{
-  display:none;position:fixed;inset:0;z-index:911;
-  background:rgba(0,0,0,.92);backdrop-filter:blur(14px);
-  align-items:flex-start;justify-content:center;
-  padding:20px;overflow-y:auto;
-}
-.fv-box{
-  width:min(680px,100%);margin:auto;
-  animation:fadeUp .25s var(--ease);
-}
-/* Header de la ficha */
-.fv-header{
-  background:linear-gradient(135deg,rgba(201,169,110,.1) 0%,rgba(201,169,110,.03) 100%);
-  border:1px solid var(--goldbdr);border-top:2px solid var(--gold);
-  border-radius:3px 3px 0 0;padding:24px 28px 20px;
-  display:grid;grid-template-columns:1fr auto;gap:16px;align-items:start;
-  position:relative;overflow:hidden;
-}
-.fv-header::before{
-  content:'LEAD';font-family:var(--display);font-size:140px;
-  color:rgba(201,169,110,.04);position:absolute;right:-10px;bottom:-28px;
-  line-height:1;pointer-events:none;letter-spacing:-4px;
-}
-.fv-nombre{font-family:var(--display);font-size:32px;letter-spacing:2px;color:var(--white);line-height:1}
-.fv-wa{
-  margin-top:8px;display:flex;align-items:center;gap:8px;
-  font-family:var(--mono);font-size:13px;color:var(--w80);
-}
-.fv-wa-btn{
-  display:inline-flex;align-items:center;gap:5px;
-  padding:4px 10px;border:1px solid rgba(74,222,128,.3);
-  border-radius:999px;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;
-  font-weight:700;color:var(--green);background:rgba(74,222,128,.06);
-  cursor:pointer;transition:all .13s;text-decoration:none;
-}
-.fv-wa-btn:hover{background:rgba(74,222,128,.14);border-color:rgba(74,222,128,.5)}
-.fv-folio{
-  font-family:var(--mono);font-size:11px;color:var(--gold);letter-spacing:1.5px;
-  padding:6px 14px;border:1px solid var(--goldbdr);border-radius:2px;
-  background:rgba(201,169,110,.06);white-space:nowrap;text-align:center;
-}
-.fv-folio-lbl{font-size:7px;letter-spacing:2px;text-transform:uppercase;color:var(--w30);margin-bottom:4px;font-weight:700}
-.fv-meta{
-  margin-top:8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
-}
-.fv-meta-chip{
-  font-size:7px;letter-spacing:1.5px;text-transform:uppercase;
-  color:var(--w30);font-weight:700;
-  display:flex;align-items:center;gap:5px;
-}
-.fv-meta-chip em{font-style:normal;color:var(--w50)}
-
-/* Body scrollable */
-.fv-body{
-  background:linear-gradient(180deg,#141414 0%,#0f0f0f 100%);
-  border:1px solid var(--goldbdr);border-top:none;border-radius:0 0 3px 3px;
-  padding:0 28px 28px;
-  max-height:calc(90vh - 120px);overflow-y:auto;
-  scrollbar-width:thin;
-}
-.fv-body::-webkit-scrollbar{width:3px}
-.fv-body::-webkit-scrollbar-thumb{background:var(--w15)}
-
-/* Secciones */
-.fv-sec{margin-top:24px}
-.fv-sec-title{
-  font-size:8px;letter-spacing:3px;text-transform:uppercase;
-  color:var(--w30);font-weight:800;
-  padding-bottom:8px;margin-bottom:14px;
-  border-bottom:1px solid var(--border);
-  display:flex;align-items:center;gap:8px;
-}
-.fv-sec-title em{font-style:normal;color:var(--gold);font-size:12px}
-
-/* Grid de datos */
-.fv-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px}
-.fv-row{
-  display:flex;flex-direction:column;gap:3px;
-  padding:10px 12px;background:rgba(255,255,255,.018);
-  border-radius:2px;
-}
-.fv-row.full{grid-column:1/-1}
-.fv-row-k{font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--w30);font-weight:700}
-.fv-row-v{font-size:13px;color:var(--w80);line-height:1.5}
-.fv-row-v.empty{color:var(--w20);font-style:italic;font-size:11px}
-.fv-row-v.long{font-size:12px;white-space:pre-wrap}
-
-/* Grid numérico de la propiedad */
-.fv-nums{
-  display:grid;grid-template-columns:repeat(4,1fr);gap:2px;
-  margin-top:2px;
-}
-.fv-num{
-  display:flex;flex-direction:column;align-items:center;
-  padding:12px 8px;background:rgba(255,255,255,.018);border-radius:2px;
-  gap:3px;
-}
-.fv-num-val{font-family:var(--display);font-size:28px;color:var(--gold);letter-spacing:1px;line-height:1}
-.fv-num-lbl{font-size:7px;letter-spacing:1.5px;text-transform:uppercase;color:var(--w30);font-weight:700;text-align:center}
-.fv-num.empty .fv-num-val{color:var(--w20);font-size:18px}
-
-/* Bloque de conversión (highlight) */
-.fv-conversion{
-  margin-top:14px;padding:14px 16px;border-radius:3px;
-  display:flex;align-items:center;justify-content:space-between;gap:12px;
-  border:1px solid var(--border2);background:rgba(255,255,255,.02);
-}
-.fv-conversion.firma-exc{border-color:rgba(251,191,36,.3);background:rgba(251,191,36,.06)}
-.fv-conversion.firma-dir{border-color:rgba(52,211,153,.3);background:rgba(52,211,153,.05)}
-.fv-conversion.seguimiento{border-color:rgba(167,139,250,.3);background:rgba(167,139,250,.05)}
-.fv-conversion.no-cal{border-color:rgba(248,113,113,.2);background:rgba(248,113,113,.04)}
-.fv-conv-lbl{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--w30)}
-.fv-conv-val{font-family:var(--display);font-size:20px;letter-spacing:1px;color:var(--white);margin-top:2px}
-.fv-conv-desc{font-size:10px;color:var(--w30);margin-top:2px;line-height:1.5}
-
-/* Candado sistema */
-.fv-lock{
-  margin-top:4px;padding:9px 12px;border-radius:2px;
-  background:rgba(255,255,255,.015);border:1px solid var(--border);
-  display:flex;align-items:center;justify-content:space-between;gap:12px;
-}
-.fv-lock-k{font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--w30);display:flex;align-items:center;gap:6px}
-.fv-lock-v{font-size:11px;font-family:var(--mono);color:var(--w50)}
-.fv-lock-badge{
-  display:inline-flex;align-items:center;gap:4px;
-  padding:2px 8px;border-radius:999px;font-size:7px;letter-spacing:1px;
-  font-weight:700;text-transform:uppercase;
-}
-.fv-lock-badge.on{background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.3);color:#34d399}
-.fv-lock-badge.off{background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--w30)}
-
-/* Actions footer */
-.fv-actions{
-  display:flex;gap:8px;justify-content:flex-end;
-  padding:16px 28px;
-  border-top:1px solid var(--border);
-  background:rgba(8,8,8,.6);
-  border-radius:0 0 3px 3px;
-  position:sticky;bottom:0;
-}
-
-/* ══════════════════════════════════════════
-   RESPONSIVE
-══════════════════════════════════════════ */
-@media(max-width:960px){
-  :root{--sidebar:52px}
-  .sb-header .sb-sys,.sb-user,.sb-section,.sb-lbl,.sb-footer{display:none}
-  .sb-btn{padding:14px;justify-content:center}
-  .sb-icon{font-size:17px}
-  #screen-login{grid-template-columns:1fr}
-  .login-left{display:none}
-  .hoy-tools-grid{grid-template-columns:1fr 1fr}
-  .hoy-grid{grid-template-columns:1fr}
-  .kpi-strip{grid-template-columns:1fr 1fr}
-  .hi-sub{max-width:160px}
-  .op-steps{overflow-x:auto;padding-bottom:6px}
-  .hoy-ops-hint{text-align:left;max-width:none}
-}
-
-
-/* ══════════════════════════════════════════
-   ADMINISTRACIÓN BASE · CUENTAS → USUARIOS → PERMISOS
-══════════════════════════════════════════ */
-.admin-base-body{flex:1;overflow-y:auto;padding:28px;background:radial-gradient(circle at top right,rgba(201,169,110,.055),transparent 34%),var(--black)}
-.admin-base-note{font-size:11px;color:var(--w50);line-height:1.8;max-width:860px;margin-top:10px;font-weight:300}
-.admin-flow{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin:22px 0 24px}
-.admin-flow-step{background:var(--surface);padding:18px 18px;position:relative;min-height:98px;border-top:2px solid transparent;cursor:pointer;transition:background .15s,border-color .15s}
-.admin-flow-step:hover,.admin-flow-step.active{background:var(--surface2);border-top-color:var(--gold)}
-.af-num{font-family:var(--display);font-size:46px;color:rgba(201,169,110,.11);position:absolute;right:12px;bottom:2px;line-height:1;letter-spacing:-1px}
-.af-k{font-size:6px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);font-weight:800;margin-bottom:8px}
-.af-v{font-family:var(--display);font-size:22px;letter-spacing:1.7px;line-height:1;color:var(--white)}
-.af-d{font-size:10px;line-height:1.65;color:var(--w50);margin-top:8px;max-width:210px}
-.admin-grid{display:grid;grid-template-columns:360px 1fr;gap:18px;align-items:start}
-.admin-card{background:linear-gradient(180deg,var(--surface2),var(--surface));border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
-.admin-card-head{padding:18px 18px 14px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
-.admin-card-title{font-family:var(--display);font-size:25px;letter-spacing:2px;line-height:1;color:var(--white)}
-.admin-card-title em{color:var(--gold);font-style:normal}
-.admin-card-sub{font-size:9px;color:var(--w30);letter-spacing:1.6px;text-transform:uppercase;margin-top:6px;line-height:1.6}
-.admin-card-body{padding:18px}
-.admin-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
-.admin-tab{background:transparent;border:1px solid var(--border2);color:var(--w50);border-radius:999px;padding:7px 12px;font-size:7px;letter-spacing:2px;text-transform:uppercase;font-weight:800;cursor:pointer;transition:all .14s}
-.admin-tab:hover,.admin-tab.active{border-color:var(--goldbdr);background:var(--golddim);color:var(--gold)}
-.admin-list{display:flex;flex-direction:column;gap:8px;max-height:560px;overflow:auto;padding-right:2px}
-.admin-row{border:1px solid var(--border);background:rgba(255,255,255,.025);border-radius:var(--r);padding:12px;cursor:pointer;transition:all .14s;position:relative;overflow:hidden}
-.admin-row::before{content:'';position:absolute;left:0;top:0;bottom:0;width:0;background:var(--gold);transition:width .14s}
-.admin-row:hover,.admin-row.active{border-color:var(--goldbdr);background:rgba(201,169,110,.055)}
-.admin-row:hover::before,.admin-row.active::before{width:2px}
-.ar-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
-.ar-name{font-size:12px;font-weight:800;color:var(--white);line-height:1.3}
-.ar-meta{font-size:9px;color:var(--w50);margin-top:5px;line-height:1.6}
-.ar-link{font-family:var(--mono);font-size:9px;color:var(--gold);margin-top:7px;word-break:break-all;opacity:.9}
-.admin-badge{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:4px 8px;font-size:6px;letter-spacing:1.4px;text-transform:uppercase;font-weight:900;white-space:nowrap}
-.admin-badge::before{content:'';width:4px;height:4px;border-radius:50%;background:currentColor}
-.ab-pendiente{background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.24);color:#fbbf24}
-.ab-activo{background:rgba(74,222,128,.09);border:1px solid rgba(74,222,128,.25);color:var(--green)}
-.ab-inactivo{background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);color:var(--red)}
-.admin-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.admin-form-grid .full{grid-column:1/-1}
-.admin-divider{height:1px;background:var(--border);margin:18px 0}
-.admin-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:18px;padding-top:18px;border-top:1px solid var(--border)}
-.admin-checks{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.admin-check{display:flex;align-items:flex-start;gap:9px;border:1px solid var(--border);background:rgba(255,255,255,.02);padding:10px;border-radius:var(--r);cursor:pointer;transition:all .12s}
-.admin-check:hover{border-color:var(--goldbdr);background:var(--golddim)}
-.admin-check input{margin-top:2px;accent-color:var(--gold)}
-.admin-check b{font-size:10px;color:var(--white);display:block;margin-bottom:3px}
-.admin-check span{font-size:9px;color:var(--w50);line-height:1.45}
-.admin-help{padding:12px 14px;background:var(--golddim);border:1px solid var(--goldbdr);border-left:3px solid var(--gold);font-size:10px;color:var(--w50);line-height:1.7;margin-bottom:14px}
-.admin-lock{display:grid;grid-template-columns:180px 1fr;gap:10px;border-bottom:1px solid var(--border);padding:10px 0;align-items:start}
-.admin-lock-k{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--w30);font-weight:800}
-.admin-lock-v{font-size:12px;color:var(--w80);line-height:1.55;word-break:break-word}
-.admin-lock-v.gold{color:var(--gold);font-family:var(--mono);font-size:11px}
-.admin-mini-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:18px}
-.admin-mini-kpi{background:var(--surface);padding:14px}
-.admin-mini-num{font-family:var(--display);font-size:34px;line-height:1;color:var(--gold)}
-.admin-mini-lbl{font-size:6px;letter-spacing:1.9px;text-transform:uppercase;color:var(--w50);font-weight:800;margin-top:5px}
-.admin-empty{height:190px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;color:var(--w30);font-size:10px;letter-spacing:2px;text-transform:uppercase;font-weight:800;text-align:center}
-.admin-empty .big{font-size:38px;opacity:.18}
-.admin-warning{border:1px solid rgba(248,113,113,.2);background:rgba(248,113,113,.055);color:rgba(255,255,255,.66);font-size:10px;line-height:1.7;padding:12px 14px;margin-top:14px}
-.admin-mode-pill{display:inline-flex;align-items:center;gap:6px;background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.22);color:var(--green);border-radius:999px;padding:6px 10px;font-size:7px;letter-spacing:1.6px;text-transform:uppercase;font-weight:900}
-
-
-.admin-upload-box{border:1px solid var(--border);background:rgba(255,255,255,.025);border-radius:var(--r);padding:12px;display:grid;grid-template-columns:82px 1fr;gap:12px;align-items:center}
-.admin-upload-preview{width:82px;height:82px;border-radius:14px;border:1px solid var(--border2);background:rgba(255,255,255,.035);display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--gold);font-size:26px;font-weight:900}
-.admin-upload-preview img{width:100%;height:100%;object-fit:cover;display:block}
-.admin-upload-actions{display:flex;flex-direction:column;gap:8px;min-width:0}
-.admin-upload-actions input[type="file"]{font-size:10px;color:var(--w50);border:1px solid var(--border2);border-radius:10px;padding:10px;background:rgba(0,0,0,.2)}
-.admin-upload-actions input[type="file"]::file-selector-button{border:1px solid var(--goldbdr);background:var(--golddim);color:var(--gold);border-radius:999px;padding:7px 10px;margin-right:10px;font-size:8px;text-transform:uppercase;letter-spacing:1.4px;font-weight:900;cursor:pointer}
-.admin-upload-hint{font-size:9px;color:var(--w45);line-height:1.5}
-.admin-upload-remove{align-self:flex-start;background:transparent;border:1px solid var(--border2);color:var(--w45);border-radius:999px;padding:6px 10px;font-size:7px;letter-spacing:1.4px;text-transform:uppercase;font-weight:900;cursor:pointer}
-.admin-upload-remove:hover{border-color:var(--goldbdr);color:var(--gold);background:var(--golddim)}
-@media(max-width:560px){.admin-upload-box{grid-template-columns:1fr}.admin-upload-preview{width:100%;height:140px}}
-
-.admin-conditional-note{border:1px dashed rgba(214,181,118,.35);background:rgba(214,181,118,.07);padding:14px 16px;border-radius:12px;color:var(--w55);font-size:13px;line-height:1.55}
-.admin-check.disabled{opacity:.55;cursor:not-allowed}
-.admin-check.disabled input{cursor:not-allowed}
-.admin-check small{display:block;margin-top:5px;color:var(--gold);font-size:11px;letter-spacing:.6px;text-transform:uppercase}
-@media(max-width:980px){.admin-grid{grid-template-columns:1fr}.admin-flow,.admin-mini-kpis{grid-template-columns:1fr 1fr}.admin-form-grid,.admin-checks{grid-template-columns:1fr}.admin-lock{grid-template-columns:1fr}}
-
-</style>
-</head>
-<body>
-
-<!-- ══════════════════════════════════════
-     LOGIN
-══════════════════════════════════════ -->
-<div id="screen-login">
-  <div class="login-left">
-    <div class="ll-tag">Sistema Operativo Inmobiliario</div>
-    <div class="ll-headline">MÉTODO<br><em>NERI</em></div>
-    <div class="ll-desc">El lead es consecuencia de una gestión de calidad.</div>
-    <div class="ll-pillars">
-      <div class="ll-pillar"><b>CRM</b>Airtable</div>
-      <div class="ll-pillar"><b>Flujos</b>Make</div>
-      <div class="ll-pillar"><b>Landings</b>Vercel</div>
-    </div>
-  </div>
-
-  <div class="login-right">
-    <div class="login-card">
-      <div class="lc-brand">NERI</div>
-      <div class="lc-sub">Sistema Operativo · Modo prueba abierto</div>
-      <div class="lc-sep"></div>
-
-      <!-- Quick login chips para demo -->
-      <div class="quick-logins">
-        <div class="ql-label">Acceso rápido (demo)</div>
-        <div class="ql-chips">
-          <button class="ql-chip" onclick="quickLogin('asesor')">Asesor</button>
-          <button class="ql-chip" onclick="quickLogin('gerente')">Gerente</button>
-          <button class="ql-chip" onclick="quickLogin('director')">Director</button>
-          <button class="ql-chip" onclick="quickLogin('admin')">Admin</button>
-        </div>
-      </div>
-
-      <label class="form-label">Usuario</label>
-      <input class="form-input" id="l-user" type="text" placeholder="usuario@metodo.neri" autocomplete="off">
-      
-      <label class="form-label">Contraseña</label>
-      <input class="form-input" id="l-pass" type="password" placeholder="••••••••">
-      
-      <label class="form-label">Rol</label>
-      <select class="form-input" id="l-rol">
-        <option value="">Seleccionar rol...</option>
-        <option value="asesor">Asesor</option>
-        <option value="gerente">Gerente</option>
-        <option value="director">Director</option>
-        <option value="admin">Admin</option>
-      </select>
-
-      <div id="login-err" class="login-err"></div>
-      <button class="login-btn" onclick="doLogin()">Entrar al sistema →</button>
-      
-      <div class="login-footer">
-        Modo administrador abierto · Sin login real todavía<br>
-        Método NERI · Century 21 Haus · Cuernavaca
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ══════════════════════════════════════
-     APP
-══════════════════════════════════════ -->
-<div id="screen-app" class="hidden">
-
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
-    <div class="sb-header">
-      <div class="sb-logo">NERI</div>
-      <div class="sb-sys">Sistema Operativo</div>
-      <div class="sb-user">
-        <div class="sb-user-name" id="sb-name">—</div>
-        <div class="sb-user-role" id="sb-role">—</div>
-        <div class="sb-user-dot"></div>
-      </div>
-    </div>
-
-    <nav class="sb-nav" id="sb-nav">
-      <!-- Se llena según el rol -->
-    </nav>
-
-    <div class="sb-footer">
-      <button class="sb-logout" onclick="doLogout()">↩ Cerrar sesión</button>
-    </div>
-  </aside>
-
-  <!-- TOPBAR -->
-  <div class="topbar">
-    <div class="tb-left">
-      <span class="tb-crumb">NERI</span>
-      <span class="tb-sep"></span>
-      <span class="tb-label" id="tb-label">Sistema Operativo</span>
-    </div>
-    <div class="tb-right">
-      <span class="tb-clock" id="tb-clock">—</span>
-      <div class="tb-status">
-        <div class="tb-dot"></div>
-        <span id="tb-user">—</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- CONTENT -->
-  <div class="content" id="content-area">
-    <!-- Panels se crean dinámicamente -->
-  </div>
-
-</div>
-
-<!-- TOAST -->
-<div id="toast"></div>
-
-<script>
 /* ═══════════════════════════════════════════════════
    ESTADO
 ═══════════════════════════════════════════════════ */
@@ -1832,7 +507,7 @@ function getSectionForId(id, rol){
 
 function getToolDesc(id){
   const descs = {
-    administracion: 'Cuentas, usuarios, servicios y activación. No es CRM.',
+    administracion: 'Cuentas, usuarios, permisos y activación. No es CRM.',
     airtable:    'Registros reales · edita directo desde aquí.',
     sala:        'Mensajes y comunicación con el equipo.',
     compradores: 'Landing personalizada para captar compradores.',
@@ -1992,6 +667,7 @@ function adminApplyBusinessRules(){
         const allowed = adminPuestoOptions(c.tipo);
         if(!allowed.includes(u.puesto)) u.puesto = adminDefaultPuesto(c.tipo);
         u.permisos = Array.isArray(u.permisos) && u.permisos.length ? u.permisos : [...ADMIN_DEFAULT_PERMS_ORG];
+        if(!u.permisos.includes('branding_cuenta')) u.permisos.push('branding_cuenta');
       }
     }
     if(u.slugOficial){
@@ -2256,6 +932,7 @@ function adminSaveCuenta(){
     }else{
       if(!adminPuestoOptions(c.tipo).includes(u.puesto)) u.puesto=adminDefaultPuesto(c.tipo);
       u.permisos=(u.permisos && u.permisos.length ? u.permisos : adminDefaultPermsForType(c.tipo));
+      if(!u.permisos.includes('branding_cuenta')) u.permisos.push('branding_cuenta');
     }
   });
   adminSave(); adminRender();
@@ -2324,16 +1001,7 @@ function adminUsuarioForm(u){
   <div class="admin-lock"><div class="admin-lock-k">Puesto</div><div class="admin-lock-v">${adminEsc(u.puesto||adminDefaultPuesto(u.tipo))}</div></div>
   <div class="admin-lock"><div class="admin-lock-k">Slug automático oficial</div><div class="admin-lock-v gold">${adminEsc(u.slugOficial||'Se generará al guardar nombre')}</div></div>
   <div class="admin-lock"><div class="admin-lock-k">Link Captación generado</div><div class="admin-lock-v gold">${adminEsc(adminLink(u))}</div></div>
-  ${adminUserServiciosBlock(u)}
-  <div class="admin-actions"><button class="btn btn-ghost" onclick="adminDeleteUsuario()">Eliminar subcuenta</button><button class="btn btn-primary" onclick="adminSaveUsuario()">Guardar perfil y servicios</button></div>`;
-}
-
-function adminUserServiciosBlock(u){
-  const checks = ADMIN_PERMISSION_CATALOG.map(p=>{
-    const blockedBranding = u.tipo === 'Asesor independiente' && p.id === 'branding_cuenta';
-    return `<label class="admin-check ${blockedBranding?'disabled':''}"><input type="checkbox" data-perm="${p.id}" ${u.permisos.includes(p.id)&&!blockedBranding?'checked':''} ${blockedBranding?'disabled':''}><div><b>${adminEsc(p.title)}</b><span>${adminEsc(p.desc)}</span>${blockedBranding?'<small>No aplica para asesor independiente. Se usa casita Método NERI automática.</small>':''}</div></label>`;
-  }).join('');
-  return `<div id="user-servicios" class="admin-v7-card" style="margin-top:14px"><div class="admin-v7-card-head"><div><div class="admin-v7-card-title">SERVICIOS <em>DEL USUARIO</em></div><div class="admin-card-sub">Se editan desde la ficha de la cuenta, no desde una pestaña separada.</div></div></div><div class="admin-v7-card-body"><div class="admin-checks">${checks}</div></div></div>`;
+  <div class="admin-actions"><button class="btn btn-ghost" onclick="adminDeleteUsuario()">Eliminar subcuenta</button><button class="btn btn-primary" onclick="adminSaveUsuario()">Guardar perfil público</button></div>`;
 }
 function adminSelectUsuario(id){ adminState.selectedUsuarioId=id; adminRender(); }
 function adminNewUsuario(){
@@ -2351,8 +1019,6 @@ function adminSaveUsuario(){
   const u=adminUsuario(adminState.selectedUsuarioId); if(!u) return;
   let c=adminCuenta(u.cuentaId);
   u.nombre=val('user-nombre'); u.whatsapp=val('user-whatsapp').replace(/\D/g,''); u.email=val('user-email'); u.ciudad=val('user-ciudad'); u.foto=val('user-foto'); u.frase=val('user-frase'); u.pixel=val('user-pixel');
-  const permChecks = Array.from(document.querySelectorAll('#user-servicios [data-perm]'));
-  if(permChecks.length){ u.permisos = permChecks.filter(x=>x.checked).map(x=>x.dataset.perm); }
   if(c){
     u.tipo=c.tipo;
     u.estado=c.estado;
@@ -2362,6 +1028,7 @@ function adminSaveUsuario(){
     }else{
       if(!adminPuestoOptions(c.tipo).includes(u.puesto)) u.puesto=adminDefaultPuesto(c.tipo);
       u.permisos=(u.permisos && u.permisos.length ? u.permisos : adminDefaultPermsForType(c.tipo));
+      if(!u.permisos.includes('branding_cuenta')) u.permisos.push('branding_cuenta');
     }
   }
   const slug = adminUniqueSlug(adminSlug(u.nombre || c?.responsable || c?.nombre), u.id);
@@ -2396,6 +1063,7 @@ function adminSavePermisos(){
   const u=adminUsuario(adminState.selectedUsuarioId); if(!u) return;
   u.permisos = Array.from(document.querySelectorAll('[data-perm]:checked')).map(x=>x.dataset.perm);
   if(u.tipo === 'Asesor independiente') u.permisos = u.permisos.filter(p=>p !== 'branding_cuenta');
+  if(u.tipo !== 'Asesor independiente' && !u.permisos.includes('branding_cuenta')) u.permisos.push('branding_cuenta');
   adminSave(); adminRender();
 }
 function adminCopyLink(){
@@ -4004,10 +2672,10 @@ function showToast(msg){
 
 
 /* ═══════════════════════════════════════════════════
-   ADMINISTRACIÓN BASE V8 — Directorios puros, servicios y creación única
+   ADMINISTRACIÓN BASE V7 — Panel ejecutivo, directorios separados y creación única
    Regla de oro: no se mezclan inmobiliarias, independientes y grupos.
 ═══════════════════════════════════════════════════ */
-const ADMIN_V7_STORAGE_KEY = 'neri_admin_base_v8_directorios_servicios';
+const ADMIN_V7_STORAGE_KEY = 'neri_admin_base_v7_panel_ejecutivo';
 const ADMIN_V7_PLANES_INMOBILIARIA = [
   {value:'Inmobiliaria 10 asesores', label:'Inmobiliaria · 10 asesores', limite:10},
   {value:'Inmobiliaria 15 asesores', label:'Inmobiliaria · 15 asesores', limite:15},
@@ -4048,16 +2716,12 @@ function adminV7Css(){ return `<style id="admin-v7-style">
 function adminSeedData(){
   return {
     cuentas:[
-      { id:'cta-c21-haus-v8', nombre:'Century 21 Haus · Cuernavaca', tipo:'Inmobiliaria', estado:'Activo', ciudad:'Cuernavaca', responsable:'Dirección comercial', director:'Director pendiente', whatsappDirector:'', emailDirector:'', logo:'', limiteAsesores:10, plan:'Inmobiliaria 10 asesores', notas:'Ejemplo inmobiliaria. Aquí se controla estado, cupo, branding, usuarios y soporte.' },
-      { id:'cta-inmo-norte-v8', nombre:'Inmobiliaria Norte · Prueba', tipo:'Inmobiliaria', estado:'Pendiente', ciudad:'Cuernavaca', responsable:'Responsable pendiente', director:'Director por registrar', whatsappDirector:'', emailDirector:'', logo:'', limiteAsesores:15, plan:'Inmobiliaria 15 asesores', notas:'Ejemplo pendiente para validar alertas y activación desde ficha.' },
-      { id:'cta-inmo-del-sol-v8', nombre:'Inmobiliaria del Sol · Prueba', tipo:'Inmobiliaria', estado:'Activo', ciudad:'Jiutepec', responsable:'Administración', director:'Gerencia comercial', whatsappDirector:'', emailDirector:'', logo:'', limiteAsesores:20, plan:'Inmobiliaria 20 asesores', notas:'Ejemplo activo para validar directorio puro de inmobiliarias.' },
-      { id:'cta-diana-independiente-v8', nombre:'Diana captación inteligente', tipo:'Asesor independiente', estado:'Activo', ciudad:'Cuernavaca', responsable:'Diana Salgado', director:'', whatsappDirector:'', emailDirector:'', logo:'CASITA_METODO_NERI', limiteAsesores:1, plan:'Independiente · 1 asesor', notas:'Ejemplo independiente. Sin logo inmobiliaria; usa casita Método NERI.' }
+      { id:'cta-c21-haus-v7', nombre:'Century 21 Haus · Cuernavaca', tipo:'Inmobiliaria', estado:'Activo', ciudad:'Cuernavaca', responsable:'Dirección comercial', director:'Director pendiente', whatsappDirector:'', emailDirector:'', logo:'', limiteAsesores:10, plan:'Inmobiliaria 10 asesores', notas:'Cuenta inmobiliaria de prueba. Aquí se controla estado, cupo, branding y soporte.' },
+      { id:'cta-diana-independiente-v7', nombre:'Diana captación inteligente', tipo:'Asesor independiente', estado:'Activo', ciudad:'Cuernavaca', responsable:'Diana Salgado', director:'', whatsappDirector:'', emailDirector:'', logo:'CASITA_METODO_NERI', limiteAsesores:1, plan:'Independiente · 1 asesor', notas:'Ejemplo independiente. Sin logo inmobiliaria; usa casita Método NERI.' }
     ],
     usuarios:[
-      { id:'usr-c21-director-v8', cuentaId:'cta-c21-haus-v8', nombre:'Director pendiente', whatsapp:'', email:'', foto:'', frase:'', ciudad:'Cuernavaca', pixel:'', tipo:'Inmobiliaria', estado:'Activo', puesto:'Director', slugSugerido:'director-pendiente', slugOficial:'director-pendiente', permisos:[...ADMIN_DEFAULT_PERMS_ORG] },
-      { id:'usr-inmo-norte-director-v8', cuentaId:'cta-inmo-norte-v8', nombre:'Director por registrar', whatsapp:'', email:'', foto:'', frase:'', ciudad:'Cuernavaca', pixel:'', tipo:'Inmobiliaria', estado:'Pendiente', puesto:'Director', slugSugerido:'director-por-registrar', slugOficial:'director-por-registrar', permisos:[...ADMIN_DEFAULT_PERMS_ORG] },
-      { id:'usr-sol-gerencia-v8', cuentaId:'cta-inmo-del-sol-v8', nombre:'Gerencia comercial', whatsapp:'', email:'', foto:'', frase:'', ciudad:'Jiutepec', pixel:'', tipo:'Inmobiliaria', estado:'Activo', puesto:'Gerente', slugSugerido:'gerencia-comercial', slugOficial:'gerencia-comercial', permisos:[...ADMIN_DEFAULT_PERMS_ORG] },
-      { id:'usr-diana-v8', cuentaId:'cta-diana-independiente-v8', nombre:'Diana Salgado', whatsapp:'', email:'', foto:'', frase:'Te ayudo a preparar tu venta con orden.', ciudad:'Cuernavaca', pixel:'', tipo:'Asesor independiente', estado:'Activo', puesto:'Asesor independiente', slugSugerido:'diana-salgado', slugOficial:'diana-salgado', permisos:[...ADMIN_DEFAULT_PERMS_INDEPENDIENTE] }
+      { id:'usr-c21-director-v7', cuentaId:'cta-c21-haus-v7', nombre:'Director pendiente', whatsapp:'', email:'', foto:'', frase:'', ciudad:'Cuernavaca', pixel:'', tipo:'Inmobiliaria', estado:'Activo', puesto:'Director', slugSugerido:'director-pendiente', slugOficial:'director-pendiente', permisos:[...ADMIN_DEFAULT_PERMS_ORG] },
+      { id:'usr-diana-v7', cuentaId:'cta-diana-independiente-v7', nombre:'Diana Salgado', whatsapp:'', email:'', foto:'', frase:'Te ayudo a preparar tu venta con orden.', ciudad:'Cuernavaca', pixel:'', tipo:'Asesor independiente', estado:'Activo', puesto:'Asesor independiente', slugSugerido:'diana-salgado', slugOficial:'diana-salgado', permisos:[...ADMIN_DEFAULT_PERMS_INDEPENDIENTE] }
     ]
   };
 }
@@ -4129,6 +2793,7 @@ function adminApplyBusinessRules(){
         const allowed = adminPuestoOptions(c.tipo);
         if(!allowed.includes(u.puesto)) u.puesto = adminDefaultPuesto(c.tipo);
         u.permisos = Array.isArray(u.permisos) && u.permisos.length ? u.permisos : [...ADMIN_DEFAULT_PERMS_ORG];
+        if(!u.permisos.includes('branding_cuenta')) u.permisos.push('branding_cuenta');
       }
     }
     if(u.slugOficial){
@@ -4182,7 +2847,7 @@ function buildAdministracionPanel(){
             <div>
               <div class="ph-eyebrow">Administración Método NERI</div>
               <div class="admin-v7-title">PANEL <em>EJECUTIVO</em></div>
-              <div class="admin-v7-sub">Control ejecutivo de intranets activas, directorios separados, paquetes disponibles y soporte por cuenta. Este panel no muestra CRM, leads, clientes, propiedades, citas, mensajes ni expedientes.</div>
+              <div class="admin-v7-sub">Control de intranets activas, cuentas, paquetes, usuarios y soporte. Este panel no muestra CRM, leads, clientes, propiedades, citas, mensajes ni expedientes.</div>
             </div>
             <button class="admin-v7-create" onclick="adminGoCrear()">+ Crear nueva intranet</button>
           </div>
@@ -4194,7 +2859,7 @@ function buildAdministracionPanel(){
           ${adminV7NavButton('inmobiliarias','Inmobiliarias')}
           ${adminV7NavButton('independientes','Independientes')}
           ${adminV7NavButton('grupos','Grupos sin inmobiliaria')}
-          ${adminV7NavButton('servicios','Servicios')}
+          ${adminV7NavButton('permisos','Permisos')}
           <button class="admin-v7-reset" onclick="adminV7ResetDemo()">Reiniciar prueba</button>
         </div>
         <div id="admin-content"></div>
@@ -4213,7 +2878,7 @@ function adminGoCrear(tipo=''){
 function adminRender(){
   if(!adminState.data) adminLoad();
   adminV7Normalize();
-  const allowed = ['dashboard','inmobiliarias','independientes','grupos','cuenta','crear','servicios'];
+  const allowed = ['dashboard','inmobiliarias','independientes','grupos','cuenta','crear','permisos'];
   if(!allowed.includes(adminState.tab)) adminState.tab = 'dashboard';
   document.querySelectorAll('.admin-v7-nav button').forEach(b=>b.classList.remove('active'));
   const activeMap = { cuenta: adminV7TabForCuenta(adminCuenta(adminState.selectedCuentaId)), crear:'dashboard' };
@@ -4227,7 +2892,7 @@ function adminRender(){
   if(adminState.tab==='grupos') el.innerHTML = adminRenderDirectory('Grupo de asesores sin inmobiliaria');
   if(adminState.tab==='cuenta') el.innerHTML = adminRenderCuentaDetalle();
   if(adminState.tab==='crear') el.innerHTML = adminRenderCrear();
-  if(adminState.tab==='servicios') el.innerHTML = adminRenderServiciosV8();
+  if(adminState.tab==='permisos') el.innerHTML = adminRenderPermisosV7();
 }
 function adminV7TabForCuenta(c){
   if(!c) return 'dashboard';
@@ -4255,7 +2920,7 @@ function adminRenderDashboard(){
   return `<div class="admin-v7-section">
     <div class="admin-v7-sec-head"><div><div class="admin-v7-sec-title">DIRECTORIOS <em>SEPARADOS</em></div><div class="admin-v7-sec-sub">Cada tipo vive en su lugar. Nada mezclado.</div></div></div>
     <div class="admin-v7-directory-grid">
-      <div class="admin-v7-dir-card" onclick="adminSetView('inmobiliarias')"><div class="num">${adminState.data.cuentas.filter(c=>c.tipo==='Inmobiliaria').length}</div><div class="name">Inmobiliarias</div><div class="desc">Entrar, seleccionar cuenta, revisar cupo, usuarios, servicios, logo, soporte y estado.</div></div>
+      <div class="admin-v7-dir-card" onclick="adminSetView('inmobiliarias')"><div class="num">${adminState.data.cuentas.filter(c=>c.tipo==='Inmobiliaria').length}</div><div class="name">Inmobiliarias</div><div class="desc">Entrar, seleccionar cuenta, revisar cupo, usuarios, permisos, logo, soporte y estado.</div></div>
       <div class="admin-v7-dir-card" onclick="adminSetView('independientes')"><div class="num">${adminState.data.cuentas.filter(c=>c.tipo==='Asesor independiente').length}</div><div class="name">Asesores independientes</div><div class="desc">Cuentas individuales con casita Método NERI, perfil público y link de captación automático.</div></div>
       <div class="admin-v7-dir-card" onclick="adminSetView('grupos')"><div class="num">${adminState.data.cuentas.filter(c=>c.tipo==='Grupo de asesores sin inmobiliaria').length}</div><div class="name">Grupos sin inmobiliaria</div><div class="desc">Cuenta chica con cupo fijo de 5 asesores, sin lenguaje de inmobiliaria.</div></div>
     </div>
@@ -4265,15 +2930,15 @@ function adminRenderDashboard(){
     <div class="admin-v7-packages">
       <div class="admin-v7-package"><b>Independiente</b><span>Para un asesor con una sola cuenta, casita Método NERI y link de captación automático.</span><small>1 asesor</small></div>
       <div class="admin-v7-package"><b>Grupo sin inmobiliaria</b><span>Para equipos chicos que no quieren estructura de inmobiliaria.</span><small>5 asesores</small></div>
-      <div class="admin-v7-package"><b>Inmobiliaria</b><span>Cuenta madre con logo, director, gerente, asesores, servicios y soporte por cuenta.</span><small>10 · 15 · 20 · 30 asesores</small></div>
+      <div class="admin-v7-package"><b>Inmobiliaria</b><span>Cuenta madre con logo, director, gerente, asesores, permisos y soporte por cuenta.</span><small>10 · 15 · 20 · 30 asesores</small></div>
     </div>
   </div>
   <div class="admin-v7-section">
     <div class="admin-v7-sec-head"><div><div class="admin-v7-sec-title">RUTA PARA <em>RESOLVER</em></div><div class="admin-v7-sec-sub">Cuando alguien llame con un problema técnico.</div></div></div>
     <div class="admin-v7-support-grid">
       <div class="admin-v7-support"><b>1. Ir al directorio correcto</b>Inmobiliaria, independiente o grupo. No buscar entre cuentas mezcladas.</div>
-      <div class="admin-v7-support"><b>2. Seleccionar la cuenta</b>Abre la ficha completa con estado, paquete, branding, usuarios y servicios.</div>
-      <div class="admin-v7-support"><b>3. Resolver desde la ficha</b>Activar/desactivar, revisar cupo, copiar link, ajustar servicios o dar soporte.</div>
+      <div class="admin-v7-support"><b>2. Seleccionar la cuenta</b>Abre la ficha completa con estado, paquete, branding, usuarios y permisos.</div>
+      <div class="admin-v7-support"><b>3. Resolver desde la ficha</b>Activar/desactivar, revisar cupo, copiar link, ver permisos o dar soporte.</div>
     </div>
   </div>`;
 }
@@ -4282,7 +2947,7 @@ function adminRenderDirectory(tipo){
   const title = adminV7TypeLabel(tipo);
   const desc = tipo==='Inmobiliaria' ? 'Solo cuentas inmobiliarias. Aquí no aparecen independientes ni grupos.' : tipo==='Asesor independiente' ? 'Solo cuentas individuales de asesor independiente.' : 'Solo grupos chicos sin inmobiliaria. Si no tienes grupos, queda vacío.';
   const list = cuentas.length ? `<div class="admin-v7-list">${cuentas.map(c=>adminAccountCard(c)).join('')}</div>` : `<div class="admin-v7-empty"><b>Sin registros</b>${adminEsc(adminV7TypeEmpty(tipo))}</div>`;
-  return `<div class="admin-v7-section"><div class="admin-v7-sec-head"><div><div class="admin-v7-sec-title">${adminEsc(title).toUpperCase()}</div><div class="admin-v7-sec-sub">${adminEsc(desc)} Para crear una cuenta nueva usa el botón principal: + Crear nueva intranet.</div></div></div>${list}</div>`;
+  return `<div class="admin-v7-section"><div class="admin-v7-sec-head"><div><div class="admin-v7-sec-title">${adminEsc(title).toUpperCase()} <em>ACTIVAS</em></div><div class="admin-v7-sec-sub">${adminEsc(desc)}</div></div><button class="admin-v7-create" onclick="adminGoCrear()">+ Crear nueva intranet</button></div>${list}</div>`;
 }
 function adminAccountCard(c){
   const users = adminCuentaUsers(c.id);
@@ -4331,7 +2996,7 @@ function adminRenderCuentaDetalle(){
         ${adminUsuariosCuentaListV7(c)}
       </div></div>
       <div class="admin-v7-card"><div class="admin-v7-card-head"><div><div class="admin-v7-card-title">CENTRO DE <em>SOPORTE</em></div><div class="admin-card-sub">Acciones rápidas de resolución</div></div></div><div class="admin-v7-card-body"><div class="admin-v7-support-grid">
-        <div class="admin-v7-support"><b>Servicios</b>Selecciona un usuario y ajusta sus servicios desde esta ficha.</div>
+        <div class="admin-v7-support"><b>Permisos</b>Selecciona un usuario y revisa qué puede usar.</div>
         <div class="admin-v7-support"><b>Branding</b>${c.tipo==='Asesor independiente'?'Casita Método NERI automática.':'Logo controlado desde esta ficha.'}</div>
         <div class="admin-v7-support"><b>Link Captación</b>En cada usuario puedes copiar o revisar el link generado.</div>
       </div></div></div>
@@ -4465,20 +3130,21 @@ function adminCreateCuentaV7(){
   adminState.tab='cuenta';
   adminSave(); adminRender();
 }
-function adminRenderServiciosV8(){
-  const serviceCards = ADMIN_PERMISSION_CATALOG.map(p=>`<div class="admin-v7-package"><b>${adminEsc(p.title)}</b><span>${adminEsc(p.desc)}</span><small>Servicio del sistema</small></div>`).join('');
-  return `<div class="admin-v7-section">
-    <div class="admin-v7-sec-head"><div><div class="admin-v7-sec-title">SERVICIOS <em>DEL SISTEMA</em></div><div class="admin-v7-sec-sub">Catálogo de lo que existe en Método NERI. Aquí no se edita una cuenta; los servicios reales se asignan dentro de la ficha de cada inmobiliaria, independiente o grupo.</div></div></div>
-    <div class="admin-v7-packages">${serviceCards}</div>
-  </div>
-  <div class="admin-v7-section">
-    <div class="admin-v7-sec-head"><div><div class="admin-v7-sec-title">REGLA DE <em>ORDEN</em></div><div class="admin-v7-sec-sub">Los servicios no viven revueltos. Se consultan aquí y se administran dentro de cada ficha.</div></div></div>
-    <div class="admin-v7-support-grid">
-      <div class="admin-v7-support"><b>Inmobiliaria</b>Entra a Inmobiliarias, selecciona la cuenta y modifica servicios de director, gerente o asesor.</div>
-      <div class="admin-v7-support"><b>Independiente</b>Entra a Independientes, selecciona al asesor y modifica su perfil o servicios desde su ficha.</div>
-      <div class="admin-v7-support"><b>Grupo sin inmobiliaria</b>Entra a Grupos, selecciona el grupo y modifica usuarios o servicios desde su ficha.</div>
-    </div>
-  </div>`;
+function adminRenderPermisosV7(){
+  const d=adminState.data;
+  const selected = adminUsuario(adminState.selectedUsuarioId) || d.usuarios[0] || null;
+  if(selected) adminState.selectedUsuarioId = selected.id;
+  const grouped = ADMIN_TIPOS_CUENTA.map(tipo=>{
+    const users = d.usuarios.filter(u=>u.tipo===tipo);
+    if(!users.length) return '';
+    return `<div class="admin-card-sub" style="margin:12px 0 6px;color:var(--gold)">${adminEsc(adminV7TypeLabel(tipo))}</div>` + users.map(u=>`<div class="admin-row ${u.id===adminState.selectedUsuarioId?'active':''}" onclick="adminSelectUsuario('${u.id}')"><div class="ar-top"><div><div class="ar-name">${adminEsc(u.nombre)}</div><div class="ar-meta">${adminEsc(adminCuentaName(u.cuentaId))}</div></div>${adminBadge(u.estado)}</div><div class="ar-meta">${u.permisos.length} permisos · ${adminEsc(u.puesto||'Sin puesto')}</div></div>`).join('');
+  }).join('');
+  const checks = selected ? ADMIN_PERMISSION_CATALOG.map(p=>{
+    const blockedBranding = selected.tipo === 'Asesor independiente' && p.id === 'branding_cuenta';
+    return `<label class="admin-check ${blockedBranding?'disabled':''}"><input type="checkbox" data-perm="${p.id}" ${selected.permisos.includes(p.id)&&!blockedBranding?'checked':''} ${blockedBranding?'disabled':''}><div><b>${adminEsc(p.title)}</b><span>${adminEsc(p.desc)}</span>${blockedBranding?'<small>No aplica para asesor independiente. Se usa casita Método NERI automática.</small>':''}</div></label>`;
+  }).join('') : '';
+  const form = selected ? `<div class="admin-v7-form-note">Permisos base para ${adminEsc(selected.nombre)}. En esta prueba todavía no bloquean navegación; quedan listos para login real.</div><div class="admin-checks">${checks}</div><div class="admin-actions"><button class="btn btn-primary" onclick="adminSavePermisos()">Guardar permisos</button></div>` : `<div class="admin-v7-empty"><b>Sin usuarios</b>Crea primero una intranet.</div>`;
+  return `<div class="admin-grid"><div class="admin-card"><div class="admin-card-head"><div><div class="admin-card-title">USUARIOS PARA <em>PERMISOS</em></div><div class="admin-card-sub">Separados por tipo de cuenta</div></div></div><div class="admin-card-body"><div class="admin-list">${grouped}</div></div></div><div class="admin-card"><div class="admin-card-head"><div><div class="admin-card-title">PERMISOS <em>BASE</em></div><div class="admin-card-sub">Preparado para etapa real</div></div></div><div class="admin-card-body">${form}</div></div></div>`;
 }
 function adminSelectUsuario(id){ adminState.selectedUsuarioId=id; adminRender(); }
 function adminNewUsuario(){
@@ -4516,6 +3182,3 @@ window.addEventListener('DOMContentLoaded', () => {
   bootApp();
   setTimeout(()=>goTo('administracion'), 80);
 });
-</script>
-</body>
-</html>
