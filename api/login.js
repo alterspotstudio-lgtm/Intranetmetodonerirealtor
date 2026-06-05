@@ -22,9 +22,9 @@ export default async function handler(req, res){
     const user = clean(body.user || body.slug || '');
     const pass = String(body.pass || '');
     const rolSolicitado = clean(body.rol || 'asesor');
-    const modo = clean(body.mode || 'real');
+    const modo = 'real';
     if(!user || !pass) return res.status(400).json({ error:'Usuario y contraseña son obligatorios.' });
-    if(modo === 'demo') return loginDemo({ user, pass, rolSolicitado, res });
+    // Modo demo eliminado: toda entrada se valida contra administrador o Airtable.
     if(['admin','administrador'].includes(user)){
       const adminCode = process.env.NERI_ADMIN_CODE;
       if(!adminCode || pass !== adminCode) return res.status(401).json({ error:'Credenciales administrativas incorrectas.' });
@@ -54,15 +54,6 @@ export default async function handler(req, res){
     });
     return res.status(200).json({ token: sign(payload), user: payload });
   }catch(err){ return res.status(500).json({ error:'Error al iniciar sesión: '+(err?.message || err) }); }
-}
-async function loginDemo({ user, pass, rolSolicitado, res }){
-  const enabled = process.env.NERI_INTERNAL_DEMO === 'true';
-  const demoCode = process.env.NERI_INTERNAL_DEMO_CODE;
-  if(!enabled) return res.status(403).json({ error:'El modo demo interno no está habilitado en servidor.' });
-  if(!demoCode || pass !== demoCode) return res.status(401).json({ error:'Código demo interno incorrecto.' });
-  const rol = ['admin','director','gerente','asesor'].includes(rolSolicitado) ? rolSolicitado : 'asesor';
-  const payload = basePayload({ user:'demo-'+user, slug:user || 'demo', rol, nombre: rol === 'admin' ? 'Demo Interno · Administrador' : 'Demo Interno · Asesor', whatsapp:'', empresa:'Modo interno Método NERI', cuenta:'DEMO INTERNO', tipo:'Demo interno', estado:'Demo', pixel:'', demo:true });
-  return res.status(200).json({ token: sign(payload), user: payload });
 }
 function sign(payload){ const header=b64url(JSON.stringify({ alg:'HS256', typ:'JWT-NERI' })); const body=b64url(JSON.stringify(payload)); const sig=crypto.createHmac('sha256', SESSION_SECRET).update(header+'.'+body).digest('base64url'); return header+'.'+body+'.'+sig; }
 function b64url(s){ return Buffer.from(s).toString('base64url'); }
