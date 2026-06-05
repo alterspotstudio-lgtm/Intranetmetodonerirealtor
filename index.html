@@ -4155,18 +4155,14 @@ function adminAsesorFields(u,c,extra={}){
   const fields = {
     'Nombre': u.nombre || '',
     'Teléfono WhatsApp': adminCleanPhone(u.whatsapp),
-    'Email': u.email || '',
-    'Ciudad': u.ciudad || c?.ciudad || '',
+    'Email': u.email || undefined,
+    'Ciudad': (u.ciudad || c?.ciudad) || undefined,
     'Frase': u.frase || '',
     'Pixel ID Meta': u.pixel || '',
     'Slug': slug,
     'Puesto': u.puesto || adminDefaultPuesto(u.tipo || c?.tipo),
     'Activo': adminIsActivo(estado),
-    'Independiente': (u.tipo || c?.tipo) === 'Asesor independiente',
-    'Tipo': adminPublicTipo(u.tipo || c?.tipo),
-    'Estado': estado,
-    'Cuenta': c?.nombre || '',
-    'Código CRM / Cuenta': adminCuentaCodigo(c)
+    'Independiente': (u.tipo || c?.tipo) === 'Asesor independiente'
   };
   const fotoUrl = extra.fotoUrl || (String(u.foto||'').startsWith('http') ? u.foto : '');
   if(fotoUrl) fields['Foto'] = [{ url: fotoUrl }];
