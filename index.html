@@ -4074,7 +4074,7 @@ function adminUsuarioSoporteDetalle(u){
         <div class="admin-v12-user-name">${adminEsc(u.nombre || 'Usuario pendiente')}</div>
         <div class="admin-v12-user-folio">${adminEsc(u.slugOficial || 'slug-pendiente')}</div>
       </div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">${adminBadge(u.estado)}<span class="badge badge-active">${adminEsc(u.puesto || adminDefaultPuesto(u.tipo))}</span></div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">${adminBadge(u.estado)}<span class="badge badge-active">${adminEsc(u.puesto || adminDefaultPuesto(u.tipo))}</span>${adminAirtableStatus(u)}</div>
     </div>
     <div class="admin-v12-user-sub">${adminEsc(c?.nombre || 'Cuenta sin nombre')} · ${adminEsc(u.tipo || 'Tipo pendiente')} · ${adminEsc(u.email || 'Sin email')} · ${adminEsc(u.whatsapp || 'Sin WhatsApp')}</div>
     <div class="admin-v12-band"><span class="admin-v12-band-lbl">Regla administrativa</span><span class="admin-v12-band-val">Director, gerente y asesor cuentan igual como usuario del paquete. El puesto solo cambia sus privilegios dentro de la intranet.</span></div>
@@ -4097,6 +4097,7 @@ function adminUsuarioSoporteDetalle(u){
         <div class="admin-v12-lock"><span class="admin-v12-lock-k">Tipo</span><span class="admin-v12-lock-v">${adminEsc(u.tipo || 'Pendiente')}</span></div>
         <div class="admin-v12-lock"><span class="admin-v12-lock-k">Slug automático oficial</span><span class="admin-v12-lock-v">${adminEsc(u.slugOficial||'Pendiente')}</span></div>
         <div class="admin-v12-lock"><span class="admin-v12-lock-k">Link Captación generado</span><span class="admin-v12-lock-v">${adminEsc(adminLink(u))}</span></div>
+        <div class="admin-v12-lock"><span class="admin-v12-lock-k">Registro real Airtable</span><span class="admin-v12-lock-v">${adminEsc(u.airtableRecId || 'Se crea al guardar')}</span></div>
       </div>
     </div>
     <div class="admin-v12-sec"><div class="admin-v12-sec-title">Servicios / permisos de este usuario</div><div class="admin-v9-checks">${checks}</div></div>
@@ -4125,7 +4126,114 @@ function adminCloseUsuarioV11(){
   if(modal) modal.style.display = 'none';
   adminState.selectedUsuarioId = null;
 }
-function adminSaveCuentaV9(id){
+
+
+/* ─── Administración → Airtable real
+   La ficha administrativa conserva su estado local, pero el usuario se crea/actualiza
+   en la tabla real de asesores. No crea bases nuevas ni toca CRM_CFG. */
+const ADMIN_ASESOR_TABLE = 'tblIRPmLIyj8sWyEk';
+function adminPublicTipo(tipo){
+  if(tipo === 'Asesor independiente') return 'Independiente';
+  if(tipo === 'Inmobiliaria') return 'Inmobiliaria';
+  if(tipo === 'Grupo de asesores sin inmobiliaria') return 'Grupo sin inmobiliaria';
+  return tipo || 'Independiente';
+}
+function adminIsActivo(estado){ return String(estado||'').toLowerCase() === 'activo'; }
+function adminCleanPhone(v){ return String(v||'').replace(/\D/g,''); }
+function adminCuentaCodigo(c){ return String(c?.crmCodigo || c?.id || adminSlug(c?.nombre || 'cuenta')).trim(); }
+function adminAirtableSafeSlug(slug){ return String(slug||'').toLowerCase().replace(/'/g,"\\'"); }
+async function adminUploadIfFile(fieldId, slug, label){
+  const fileEl = document.getElementById(fieldId + '-file');
+  const file = fileEl?.files?.[0];
+  if(!file) return '';
+  const folio = (slug || 'usuario') + '-' + String(label||'archivo').toLowerCase().replace(/\s+/g,'-');
+  return await uploadBlobFile(file, folio, label || 'Foto');
+}
+function adminAsesorFields(u,c,extra={}){
+  const slug = u.slugOficial || u.slugSugerido || adminUniqueSlug(adminSlug(u.nombre || 'usuario'), u.id);
+  const estado = u.estado || c?.estado || 'Pendiente';
+  const fields = {
+    'Nombre': u.nombre || '',
+    'Teléfono WhatsApp': adminCleanPhone(u.whatsapp),
+    'Email': u.email || '',
+    'Ciudad': u.ciudad || c?.ciudad || '',
+    'Frase': u.frase || '',
+    'Pixel ID Meta': u.pixel || '',
+    'Slug': slug,
+    'Puesto': u.puesto || adminDefaultPuesto(u.tipo || c?.tipo),
+    'Activo': adminIsActivo(estado),
+    'Independiente': (u.tipo || c?.tipo) === 'Asesor independiente',
+    'Tipo': adminPublicTipo(u.tipo || c?.tipo),
+    'Estado': estado,
+    'Cuenta': c?.nombre || '',
+    'Código CRM / Cuenta': adminCuentaCodigo(c)
+  };
+  const fotoUrl = extra.fotoUrl || (String(u.foto||'').startsWith('http') ? u.foto : '');
+  if(fotoUrl) fields['Foto'] = [{ url: fotoUrl }];
+  Object.keys(fields).forEach(k=>{ if(fields[k] === undefined) delete fields[k]; });
+  return fields;
+}
+function adminParseBadField(errorMessage){
+  const msg = String(errorMessage || '');
+  const m1 = msg.match(/Unknown field name:?\s*\\?"([^"\\]+)\\?"/i);
+  if(m1) return m1[1];
+  const m2 = msg.match(/Field\s+\\?"([^"\\]+)\\?"\s+cannot (?:be|accept)/i);
+  if(m2) return m2[1];
+  return '';
+}
+async function adminAtWriteSafe(path, method, fields){
+  let clean = {...fields};
+  let lastError = null;
+  for(let i=0;i<6;i++){
+    try{
+      return await atFetch(path, { method, body: JSON.stringify({ fields: clean, typecast:true }) });
+    }catch(e){
+      lastError = e;
+      const bad = adminParseBadField(e.message);
+      if(bad && Object.prototype.hasOwnProperty.call(clean,bad)){
+        delete clean[bad];
+        continue;
+      }
+      throw e;
+    }
+  }
+  throw lastError || new Error('No se pudo escribir en Airtable');
+}
+async function adminFindAsesorBySlug(slug){
+  if(!slug) return null;
+  const formula = encodeURIComponent(`LOWER({Slug})='${adminAirtableSafeSlug(slug)}'`);
+  const data = await atFetch(`${ADMIN_ASESOR_TABLE}?filterByFormula=${formula}&maxRecords=1`);
+  return (data.records||[])[0] || null;
+}
+async function adminSyncUsuarioAirtable(u, opts={}){
+  const c = adminCuenta(u.cuentaId);
+  if(!u || !c) return null;
+  if(!u.slugOficial) u.slugOficial = adminUniqueSlug(adminSlug(u.nombre || 'usuario'), u.id);
+  u.slugSugerido = u.slugOficial;
+  let fotoUrl = '';
+  if(opts.fotoFieldId){
+    fotoUrl = await adminUploadIfFile(opts.fotoFieldId, u.slugOficial, 'Foto');
+    if(fotoUrl) u.foto = fotoUrl;
+  }
+  const fields = adminAsesorFields(u,c,{fotoUrl});
+  let rec = u.airtableRecId ? { id:u.airtableRecId } : await adminFindAsesorBySlug(u.slugOficial);
+  let saved;
+  if(rec?.id){
+    saved = await adminAtWriteSafe(`${ADMIN_ASESOR_TABLE}/${rec.id}`, 'PATCH', fields);
+  }else{
+    saved = await adminAtWriteSafe(`${ADMIN_ASESOR_TABLE}`, 'POST', fields);
+  }
+  u.airtableRecId = saved?.id || rec?.id || u.airtableRecId || '';
+  u.airtableSyncedAt = new Date().toISOString();
+  u.airtableSyncError = '';
+  return saved;
+}
+function adminAirtableStatus(u){
+  if(u?.airtableRecId) return `<span class="badge badge-active">Airtable conectado</span>`;
+  if(u?.airtableSyncError) return `<span class="badge badge-lost">Airtable pendiente</span>`;
+  return `<span class="badge badge-contact">Sin alta real</span>`;
+}
+async function adminSaveCuentaV9(id){
   const c = adminCuenta(id); if(!c) return;
   c.estado = val('cuenta-estado-v9'); c.nombre = val('cuenta-nombre-v9'); c.ciudad = val('cuenta-ciudad-v9'); c.responsable = val('cuenta-responsable-v9'); c.notas = val('cuenta-notas-v9');
   c.makeUrl = val('cuenta-make-v10'); c.airtableUrl = val('cuenta-airtable-v10'); c.intranetUrl = val('cuenta-intranet-v10'); c.crmCodigo = val('cuenta-crm-codigo-v13') || adminSlug(c.nombre); c.soporteNotas = val('cuenta-soporte-notas-v10');
@@ -4135,6 +4243,9 @@ function adminSaveCuentaV9(id){
   c.servicios = Array.from(document.querySelectorAll('[data-cuenta-servicio]:checked')).map(x=>x.dataset.cuentaServicio);
   if(c.tipo === 'Asesor independiente') c.servicios = c.servicios.filter(x=>x!=='branding_cuenta');
   adminCuentaUsers(c.id).forEach(u=>{ u.tipo = c.tipo; if(!u.estado) u.estado = c.estado; });
+  try{
+    for(const u of adminCuentaUsers(c.id)){ if(u.airtableRecId) await adminSyncUsuarioAirtable(u); }
+  }catch(e){ showToast('Cuenta guardada, pero Airtable no sincronizó: '+(e.message||e)); }
   adminSave(); adminRender();
 }
 function adminSaveUsuarioServiciosV9(id){
@@ -4143,7 +4254,7 @@ function adminSaveUsuarioServiciosV9(id){
   if(u.tipo === 'Asesor independiente') u.permisos = u.permisos.filter(x=>x!=='branding_cuenta');
   adminSave(); adminRender();
 }
-function adminSaveUsuarioFichaV10(id){
+async function adminSaveUsuarioFichaV10(id){
   const u = adminUsuario(id); if(!u) return;
   u.estado = val('user-estado-v10') || u.estado;
   if(u.tipo !== 'Asesor independiente') u.puesto = val('user-puesto-v10') || u.puesto;
@@ -4158,7 +4269,13 @@ function adminSaveUsuarioFichaV10(id){
   u.slugSugerido = u.slugOficial;
   u.permisos = Array.from(document.querySelectorAll('[data-user-servicio]:checked')).map(x=>x.dataset.userServicio);
   if(u.tipo === 'Asesor independiente') u.permisos = u.permisos.filter(x=>x!=='branding_cuenta');
-  adminSave(); adminCloseUsuarioV11(); adminRender(); showToast('Ficha de usuario guardada');
+  try{
+    await adminSyncUsuarioAirtable(u,{fotoFieldId:'user-foto-v10'});
+    adminSave(); adminCloseUsuarioV11(); adminRender(); showToast('✓ Usuario guardado en Airtable');
+  }catch(e){
+    u.airtableSyncError = e.message || String(e);
+    adminSave(); adminRender(); showToast('No se pudo guardar en Airtable: '+u.airtableSyncError);
+  }
 }
 function adminOpenTechV10(cuentaId,key){
   const c = adminCuenta(cuentaId); if(!c) return;
@@ -4181,7 +4298,7 @@ function adminV9AddUser(cuentaId){
   const u = { id:adminId('usr'), cuentaId:c.id, nombre, whatsapp:'', email:'', foto:'', frase:'', ciudad:c.ciudad, pixel:'', tipo:c.tipo, estado:c.estado, puesto:'Asesor', slugSugerido:slug, slugOficial:slug, permisos:adminV9PermsOrg() };
   adminState.data.usuarios.push(u); adminState.selectedUsuarioId = null; adminSave(); adminRender();
 }
-function adminV9ToggleUser(id){ const u = adminUsuario(id); if(!u) return; u.estado = u.estado === 'Inactivo' ? 'Activo' : 'Inactivo'; adminSave(); adminCloseUsuarioV11(); adminRender(); }
+async function adminV9ToggleUser(id){ const u = adminUsuario(id); if(!u) return; u.estado = u.estado === 'Inactivo' ? 'Activo' : 'Inactivo'; try{ await adminSyncUsuarioAirtable(u); showToast('Estado actualizado en Airtable'); }catch(e){ u.airtableSyncError=e.message||String(e); showToast('Estado local guardado; Airtable pendiente'); } adminSave(); adminCloseUsuarioV11(); adminRender(); }
 function adminV9DeleteUser(id){ const u = adminUsuario(id); if(!u) return; const c = adminCuenta(u.cuentaId); if(c?.tipo === 'Asesor independiente'){ showToast('La cuenta independiente requiere su perfil único'); return; } adminState.data.usuarios = adminState.data.usuarios.filter(x=>x.id!==id); adminState.selectedUsuarioId = null; adminSave(); adminCloseUsuarioV11(); adminRender(); }
 function adminV9CopyUserLink(id){ const u = adminUsuario(id); if(!u || !u.slugOficial){ showToast('Aún no hay link generado'); return; } navigator.clipboard?.writeText(adminLink(u)); showToast('Link Captación copiado'); }
 function adminV9EnterSystem(id){ const c = adminCuenta(id); showToast(`Entrada de soporte preparada: ${c?.nombre || 'cuenta'}`); }
@@ -4199,7 +4316,7 @@ function adminRenderCrear(){
   const logo = isInd ? `<div class="form-group full"><div class="admin-v9-form-note"><b>Asesor independiente:</b> usa casita Método NERI automática. No se carga logo inmobiliaria.</div></div>` : `<div class="form-group full">${adminUploadField(isInmo?'Logo inmobiliaria':'Logo de grupo','new-logo','','Sube logo como archivo. No se pega URL.')}</div>`;
   const publicFields = isInd ? `${adminUploadField('Foto del asesor','new-foto','','Sube foto como archivo.')} ${adminField('Frase pública','new-frase','')} ${adminField('Pixel ID Meta','new-pixel','')}` : '';
   return `<div class="admin-v9-section"><div class="admin-v9-sec-head"><div><div class="admin-v9-sec-title">NUEVA INTRANET · <em>${adminEsc(adminTipoCorto(tipo))}</em></div><div class="admin-v9-sec-sub">Creación controlada por administración</div></div><button class="admin-v9-create" onclick="adminGoCrear()">Cambiar tipo</button></div>
-  <div class="admin-v9-ficha"><div class="admin-v9-panel-body"><div class="admin-v9-form-note">Al guardar, la cuenta se va automáticamente a su directorio: inmobiliaria, independiente o grupo.</div><div class="admin-form-grid">
+  <div class="admin-v9-ficha"><div class="admin-v9-panel-body"><div class="admin-v9-form-note">Al guardar, la cuenta se va a su directorio y el primer usuario se escribe en la tabla real de asesores de Airtable.</div><div class="admin-form-grid">
     <div class="form-group"><label>Tipo</label><input class="form-inp" id="new-tipo" value="${adminEsc(tipo)}" disabled></div>
     ${adminSelect('Estado / activación','new-estado','Pendiente',['Pendiente','Activo','Inactivo'])}
     ${adminField(isInd?'Nombre del asesor':'Nombre de cuenta','new-nombre','')}
@@ -4215,7 +4332,7 @@ function adminRenderCrear(){
     ${adminArea('Notas administrativas','new-notas','','full')}
   </div><div class="admin-actions"><button class="btn btn-ghost" onclick="adminGoCrear()">Cancelar</button><button class="btn btn-primary" onclick="adminCreateCuentaV9()">Crear intranet</button></div></div></div></div>`;
 }
-function adminCreateCuentaV9(){
+async function adminCreateCuentaV9(){
   const tipo = adminState.createTipo; if(!ADMIN_TIPOS_CUENTA.includes(tipo)){ showToast('Selecciona tipo de cuenta'); return; }
   const nombre = val('new-nombre') || (tipo==='Inmobiliaria'?'Nueva inmobiliaria':tipo==='Asesor independiente'?'Nuevo asesor independiente':'Nuevo grupo sin inmobiliaria');
   const c = { id:adminId('cta'), nombre, tipo, estado:val('new-estado')||'Pendiente', ciudad:val('new-ciudad'), responsable:val('new-responsable'), director:val('new-director'), whatsappDirector:val('new-whatsapp-director').replace(/\D/g,''), emailDirector:val('new-email-director'), logo:'', limiteAsesores:adminDefaultLimit(tipo), plan:'', notas:val('new-notas'), servicios:adminV9DefaultServices(tipo), makeUrl:'', airtableUrl:'', intranetUrl:'', soporteNotas:'', crmCodigo:val('new-crm-codigo') || adminSlug(nombre), crmModo:'CRM compartido Método NERI · filtro por Cuenta/Slug' };
@@ -4223,12 +4340,24 @@ function adminCreateCuentaV9(){
   if(tipo === 'Grupo de asesores sin inmobiliaria'){ c.limiteAsesores = 5; c.plan = ADMIN_V9_PLANES.grupo; c.logo = val('new-logo'); }
   if(tipo === 'Asesor independiente'){ c.limiteAsesores = 1; c.plan = ADMIN_V9_PLANES.independiente; c.logo = 'CASITA_METODO_NERI'; }
   adminState.data.cuentas.unshift(c);
+  let createdUser = null;
   if(tipo === 'Asesor independiente'){
     const slug = adminUniqueSlug(adminSlug(nombre), null);
-    adminState.data.usuarios.unshift({ id:adminId('usr'), cuentaId:c.id, nombre:nombre, whatsapp:val('new-whatsapp').replace(/\D/g,''), email:val('new-email'), foto:val('new-foto'), frase:val('new-frase'), ciudad:c.ciudad, pixel:val('new-pixel'), tipo, estado:c.estado, puesto:'Asesor independiente', slugSugerido:slug, slugOficial:slug, permisos:adminV9PermsInd() });
+    createdUser = { id:adminId('usr'), cuentaId:c.id, nombre:nombre, whatsapp:val('new-whatsapp').replace(/\D/g,''), email:val('new-email'), foto:val('new-foto'), frase:val('new-frase'), ciudad:c.ciudad, pixel:val('new-pixel'), tipo, estado:c.estado, puesto:'Asesor independiente', slugSugerido:slug, slugOficial:slug, permisos:adminV9PermsInd() };
+    adminState.data.usuarios.unshift(createdUser);
   }else if(c.director){
     const slug = adminUniqueSlug(adminSlug(c.director), null);
-    adminState.data.usuarios.unshift({ id:adminId('usr'), cuentaId:c.id, nombre:c.director, whatsapp:c.whatsappDirector, email:c.emailDirector, foto:'', frase:'', ciudad:c.ciudad, pixel:'', tipo, estado:c.estado, puesto:tipo==='Inmobiliaria'?'Director':'Líder de grupo', slugSugerido:slug, slugOficial:slug, permisos:adminV9PermsOrg() });
+    createdUser = { id:adminId('usr'), cuentaId:c.id, nombre:c.director, whatsapp:c.whatsappDirector, email:c.emailDirector, foto:'', frase:'', ciudad:c.ciudad, pixel:'', tipo, estado:c.estado, puesto:tipo==='Inmobiliaria'?'Director':'Líder de grupo', slugSugerido:slug, slugOficial:slug, permisos:adminV9PermsOrg() };
+    adminState.data.usuarios.unshift(createdUser);
+  }
+  if(createdUser){
+    try{
+      await adminSyncUsuarioAirtable(createdUser,{fotoFieldId: tipo === 'Asesor independiente' ? 'new-foto' : ''});
+      showToast('✓ Intranet creada y usuario escrito en Airtable');
+    }catch(e){
+      createdUser.airtableSyncError = e.message || String(e);
+      showToast('Intranet creada localmente; falta sincronizar Airtable: '+createdUser.airtableSyncError);
+    }
   }
   adminState.selectedCuentaId = c.id; adminState.selectedUsuarioId = null; adminState.tab='cuenta'; adminSave(); adminRender();
 }
