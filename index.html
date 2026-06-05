@@ -151,16 +151,6 @@ select.form-input option{background:#111;color:#fff}
   line-height:1.9;
 }
 
-/* quick-login chips */
-.quick-logins{margin-bottom:20px}
-.ql-label{font-size:7px;letter-spacing:2px;text-transform:uppercase;color:var(--w30);font-weight:700;margin-bottom:8px}
-.ql-chips{display:flex;flex-wrap:wrap;gap:6px}
-.ql-chip{
-  padding:5px 12px;border:1px solid var(--border2);border-radius:999px;
-  font-size:9px;font-weight:700;color:var(--w50);cursor:pointer;
-  transition:all .15s;background:transparent;letter-spacing:.5px;
-}
-.ql-chip:hover{border-color:var(--goldbdr);color:var(--gold);background:var(--golddim)}
 
 /* ══════════════════════════════════════════
    APP LAYOUT
@@ -1200,6 +1190,26 @@ select.form-inp option{background:#111;color:#fff}
 
 @media(max-width:980px){.asesor-hero,.asesor-two{grid-template-columns:1fr}.asesor-action-grid,.asesor-manual-grid{grid-template-columns:1fr}.asesor-form{grid-template-columns:1fr}.demo-role-switch{display:none}}
 
+
+/* CONTROL MAESTRO V14 — ficha limpia con diseño premium */
+.admin-v14-ficha{width:100%;max-width:1280px;margin:0 auto 28px}
+.admin-v14-box{width:100%;max-width:none;margin:0 auto 24px}
+.admin-v14-ficha .fv-header::before{content:'CUENTA';font-size:150px;right:-18px;bottom:-32px;letter-spacing:2px}
+.admin-v14-header{grid-template-columns:1fr auto;border-radius:4px 4px 0 0}
+.admin-v14-body{max-height:none;overflow:visible;padding:0 28px 0;border-radius:0 0 4px 4px}
+.admin-v14-actions{margin-left:-28px;margin-right:-28px;margin-top:22px;border-radius:0 0 4px 4px}
+.admin-v14-summary{grid-template-columns:repeat(4,1fr);gap:2px}
+.admin-v14-summary .fv-row{min-height:64px;justify-content:center}
+.admin-v14-package-list{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.admin-v14-package-item{border:1px solid var(--border);background:rgba(255,255,255,.018);border-radius:3px;padding:12px}
+.admin-v14-package-item b{display:block;color:#fff;font-size:12px;margin-bottom:5px}
+.admin-v14-package-item span{display:block;color:var(--w45);font-size:10px;line-height:1.55}
+.admin-v14-user-link{font-family:var(--mono);font-size:9px;color:var(--gold);margin-top:5px;word-break:break-all}
+.admin-v14-support-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.admin-v14-support-actions .admin-v9-smallbtn{background:rgba(255,255,255,.015)}
+@media(max-width:1100px){.admin-v14-summary{grid-template-columns:repeat(2,1fr)}.admin-v14-package-list{grid-template-columns:1fr}}
+@media(max-width:760px){.admin-v14-header{grid-template-columns:1fr}.admin-v14-summary{grid-template-columns:1fr}.admin-v14-body{padding:0 18px 0}.admin-v14-actions{margin-left:-18px;margin-right:-18px}.admin-v14-ficha .fv-header::before{font-size:104px}}
+
 </style>
 </head>
 <body>
@@ -1224,17 +1234,6 @@ select.form-inp option{background:#111;color:#fff}
       <div class="lc-brand">NERI</div>
       <div class="lc-sub">Sistema Operativo · Modo prueba abierto</div>
       <div class="lc-sep"></div>
-
-      <!-- Quick login chips para demo -->
-      <div class="quick-logins">
-        <div class="ql-label">Acceso rápido (demo)</div>
-        <div class="ql-chips">
-          <button class="ql-chip" onclick="quickLogin('asesor')">Asesor</button>
-          <button class="ql-chip" onclick="quickLogin('gerente')">Gerente</button>
-          <button class="ql-chip" onclick="quickLogin('director')">Director</button>
-          <button class="ql-chip" onclick="quickLogin('admin')">Admin</button>
-        </div>
-      </div>
 
       <label class="form-label">Usuario</label>
       <input class="form-input" id="l-user" type="text" placeholder="usuario@metodo.neri" autocomplete="off">
@@ -1336,17 +1335,20 @@ const USERS = {
 ═══════════════════════════════════════════════════ */
 const NAV_ROL = {
   asesor: [
-    { section:'Principal' },
-    { id:'hoy',         label:'Hoy',               icon:'⬡' },
-    { id:'airtable',    label:'Mi CRM',       icon:'◈', highlight:true },
-    { section:'Captación' },
-    { id:'sala',        label:'Sala de Mensajes',   icon:'⚡' },
-    { id:'compradores', label:'Landing Compradores',icon:'⊕' },
-    { id:'vendedores',  label:'Landing Vendedores', icon:'🏠' },
-    { section:'Seguimiento' },
-    { id:'citas',       label:'Panel de Citas',     icon:'📋' },
-    { id:'progreso',    label:'Portal Progreso',     icon:'◎' },
-    { id:'opciones',    label:'Opciones de Compra', icon:'⊞' },
+    { section:'Centro de Mando' },
+    { id:'hoy', label:'Hoy', icon:'⬡', highlight:true },
+    { id:'perfil_asesor', label:'Mi Perfil del Asesor', icon:'◉' },
+    { id:'airtable', label:'Mis Leads / CRM', icon:'◈' },
+    { id:'propiedades_asesor', label:'Mis Propiedades', icon:'⌂' },
+    { id:'documentos_asesor', label:'Documentos', icon:'▤' },
+    { section:'Herramientas' },
+    { id:'sala', label:'Sala de Mensajes', icon:'⚡' },
+    { id:'citas', label:'Citas', icon:'📋' },
+    { id:'compradores', label:'Landing Compradores', icon:'⊕' },
+    { id:'vendedores', label:'Landing Vendedores', icon:'🏠' },
+    { id:'progreso', label:'Portal Progreso', icon:'◎' },
+    { id:'reportes_asesor', label:'Reportes', icon:'◫' },
+    { id:'manuales_asesor', label:'Manuales', icon:'☰' },
   ],
   gerente: [
     { section:'Principal' },
@@ -1403,11 +1405,6 @@ const TOOLS = {
 /* ═══════════════════════════════════════════════════
    LOGIN
 ═══════════════════════════════════════════════════ */
-function quickLogin(rol){
-  document.getElementById('l-user').value = rol;
-  document.getElementById('l-pass').value = 'neri2024';
-  document.getElementById('l-rol').value = rol;
-}
 
 function doLogin(){
   const user = document.getElementById('l-user').value.trim().toLowerCase();
@@ -3421,13 +3418,24 @@ function openExternal(id){
    NAVEGACIÓN
 ═══════════════════════════════════════════════════ */
 const LABELS = {
-  hoy:'Inicio', administracion:'Control Maestro', airtable:'Mi CRM', sala:'Sala de Mensajes',
-  compradores:'Landing Compradores', vendedores:'Landing Vendedores',
-  citas:'Panel de Citas', progreso:'Portal Progreso',
-  opciones:'Opciones de Compra', reportes:'Reportes'
+  hoy:'Inicio',
+  administracion:'Control Maestro',
+  airtable:'Mi CRM',
+  sala:'Sala de Mensajes',
+  compradores:'Landing Compradores',
+  vendedores:'Landing Vendedores',
+  citas:'Panel de Citas',
+  progreso:'Portal Progreso',
+  opciones:'Opciones de Compra',
+  reportes:'Reportes',
+  perfil_asesor:'Mi Perfil del Asesor',
+  propiedades_asesor:'Mis Propiedades',
+  documentos_asesor:'Documentos',
+  reportes_asesor:'Reportes del Asesor',
+  manuales_asesor:'Manuales del Asesor',
 };
 
-/* goTo final se define al final del archivo para incluir Perfil del Asesor y selector de prueba. */
+/* goTo se define al final para incluir Perfil del Asesor y selector de prueba. */
 
 
 /* ═══════════════════════════════════════════════════
@@ -3457,9 +3465,9 @@ function showToast(msg){
 
 
 /* ═══════════════════════════════════════════════════
-   ADMINISTRACIÓN BASE V12 — Fichas cerradas + modal elegante estilo CRM
-   Regla de oro: al entrar a Inmobiliarias solo se ven inmobiliarias.
-   La creación solo vive en + Crear nueva intranet.
+   ADMINISTRACIÓN / CONTROL MAESTRO
+   Cuentas, usuarios, servicios y activación comercial.
+   No toca Airtable, Make ni Vercel: por ahora guarda en localStorage.
 ═══════════════════════════════════════════════════ */
 const ADMIN_V9_STORAGE_KEY = 'neri_admin_base_v13_real_1_ejemplo';
 const ADMIN_V9_PLANES_INMOBILIARIA = [
@@ -3509,6 +3517,26 @@ function adminV9Css(){ return `<style id="admin-v9-style">
   .admin-v9-ficha-body-clean{display:block}.admin-v13-clean-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}.admin-v13-card{border:1px solid var(--border);background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(0,0,0,.16));border-radius:3px;padding:16px;min-height:214px;display:flex;flex-direction:column;justify-content:space-between;gap:14px}.admin-v13-card-title{font-family:var(--display);font-size:26px;letter-spacing:1.7px;line-height:1}.admin-v13-card-title em{font-style:normal;color:var(--gold)}.admin-v13-card-sub{font-size:10px;color:var(--w45);line-height:1.65;margin-top:7px}.admin-v13-read-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.admin-v13-read{border:1px solid var(--border);background:rgba(255,255,255,.018);border-radius:3px;padding:10px}.admin-v13-read kbd{display:block;font-size:7px;letter-spacing:1.5px;text-transform:uppercase;color:var(--w30);font-weight:900;margin-bottom:6px}.admin-v13-read strong{font-size:12px;color:#fff;word-break:break-word}.admin-v13-open{align-self:flex-start;border:1px solid var(--goldbdr);background:var(--golddim);color:var(--gold);border-radius:3px;padding:9px 12px;font-size:8px;letter-spacing:1.7px;text-transform:uppercase;font-weight:900;cursor:pointer}.admin-v13-open:hover{background:rgba(201,169,110,.12)}.admin-v13-muted{font-size:9px;color:var(--w40);line-height:1.55}.admin-v13-service-list{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.admin-v13-service{border:1px solid var(--border);background:rgba(255,255,255,.018);border-radius:3px;padding:10px}.admin-v13-service b{display:block;font-size:10px;color:#fff;margin-bottom:4px}.admin-v13-service span{font-size:9px;color:var(--w45);line-height:1.45}.admin-v13-account-modal .admin-v12-modal-box{width:min(980px,100%)}.admin-v13-card-full{margin-bottom:12px}.admin-v13-read-grid-wide{grid-template-columns:repeat(5,1fr)}.admin-v13-package-block{border-top:1px solid var(--border);padding-top:12px}
   @media(max-width:1180px){.admin-v9-kpis,.admin-v9-packages,.admin-v9-directory-grid,.admin-v9-list,.admin-v9-create-types,.admin-v9-support-grid,.admin-v13-clean-grid{grid-template-columns:1fr 1fr}.admin-v9-ficha-body{grid-template-columns:1fr}.admin-v9-info-grid{grid-template-columns:1fr 1fr}.admin-v13-service-list,.admin-v13-read-grid-wide{grid-template-columns:1fr 1fr}}
   @media(max-width:700px){.admin-v9-wrap{padding:18px}.admin-v9-kpis,.admin-v9-packages,.admin-v9-directory-grid,.admin-v9-list,.admin-v9-create-types,.admin-v9-support-grid,.admin-v9-info-grid,.admin-v13-clean-grid,.admin-v13-read-grid,.admin-v13-service-list,.admin-v13-read-grid-wide{grid-template-columns:1fr}.admin-v9-title{font-size:38px}.admin-v9-create{width:100%}.admin-v9-user-row{grid-template-columns:1fr}.admin-v9-user-actions{justify-content:flex-start}}
+
+/* CONTROL MAESTRO V14 — ficha limpia con diseño premium */
+.admin-v14-ficha{width:100%;max-width:1280px;margin:0 auto 28px}
+.admin-v14-box{width:100%;max-width:none;margin:0 auto 24px}
+.admin-v14-ficha .fv-header::before{content:'CUENTA';font-size:150px;right:-18px;bottom:-32px;letter-spacing:2px}
+.admin-v14-header{grid-template-columns:1fr auto;border-radius:4px 4px 0 0}
+.admin-v14-body{max-height:none;overflow:visible;padding:0 28px 0;border-radius:0 0 4px 4px}
+.admin-v14-actions{margin-left:-28px;margin-right:-28px;margin-top:22px;border-radius:0 0 4px 4px}
+.admin-v14-summary{grid-template-columns:repeat(4,1fr);gap:2px}
+.admin-v14-summary .fv-row{min-height:64px;justify-content:center}
+.admin-v14-package-list{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.admin-v14-package-item{border:1px solid var(--border);background:rgba(255,255,255,.018);border-radius:3px;padding:12px}
+.admin-v14-package-item b{display:block;color:#fff;font-size:12px;margin-bottom:5px}
+.admin-v14-package-item span{display:block;color:var(--w45);font-size:10px;line-height:1.55}
+.admin-v14-user-link{font-family:var(--mono);font-size:9px;color:var(--gold);margin-top:5px;word-break:break-all}
+.admin-v14-support-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.admin-v14-support-actions .admin-v9-smallbtn{background:rgba(255,255,255,.015)}
+@media(max-width:1100px){.admin-v14-summary{grid-template-columns:repeat(2,1fr)}.admin-v14-package-list{grid-template-columns:1fr}}
+@media(max-width:760px){.admin-v14-header{grid-template-columns:1fr}.admin-v14-summary{grid-template-columns:1fr}.admin-v14-body{padding:0 18px 0}.admin-v14-actions{margin-left:-18px;margin-right:-18px}.admin-v14-ficha .fv-header::before{font-size:104px}}
+
 </style>`; }
 
 function adminV9PermsOrg(){ return ['perfil_publico','copiar_link','landing_compradores','landing_vendedores','sala_mensajes','panel_citas','reportes_basicos','branding_cuenta']; }
@@ -3590,7 +3618,6 @@ function adminV9ActiveCuentas(tipo){ return adminState.data.cuentas.filter(c=>c.
 function adminV9ActiveUsers(){ return adminState.data.usuarios.filter(u=>u.estado==='Activo').length; }
 function adminV9TypeLabel(tipo){ if(tipo==='Inmobiliaria') return 'Cuentas inmobiliarias'; if(tipo==='Asesor independiente') return 'Asesores independientes'; return 'Grupos comerciales'; }
 function adminV9ViewForTipo(tipo){ if(tipo==='Inmobiliaria') return 'inmobiliarias'; if(tipo==='Asesor independiente') return 'independientes'; return 'grupos'; }
-function adminV9TipoForView(view){ if(view==='inmobiliarias') return 'Inmobiliaria'; if(view==='independientes') return 'Asesor independiente'; if(view==='grupos') return 'Grupo de asesores sin inmobiliaria'; return null; }
 function adminV9PlanFromLimit(limit){ const p = ADMIN_V9_PLANES_INMOBILIARIA.find(x=>x.limite===Number(limit)) || ADMIN_V9_PLANES_INMOBILIARIA[0]; return p.value; }
 function adminV9PlanLabel(c){ if(!c) return 'Sin paquete'; if(c.tipo==='Inmobiliaria') return c.plan || adminV9PlanFromLimit(c.limiteAsesores); if(c.tipo==='Grupo de asesores sin inmobiliaria') return ADMIN_V9_PLANES.grupo; return ADMIN_V9_PLANES.independiente; }
 function adminV9NavButton(id,label){ return `<button id="admin-v9-nav-${id}" onclick="adminSetView('${id}')">${label}</button>`; }
@@ -3638,7 +3665,6 @@ function buildAdministracionPanel(){
 }
 function onAdministracionPanelActivate(){ adminLoad(); adminRender(); }
 function adminSetView(view){ adminState.tab = view; adminRender(); }
-function adminSwitchTab(tab){ adminSetView(tab === 'cuentas' ? 'dashboard' : tab); }
 function adminGoCrear(tipo=''){ adminState.tab='crear'; adminState.createTipo = tipo || ''; adminRender(); }
 function adminRender(){
   if(!adminState.data) adminLoad();
@@ -3720,60 +3746,73 @@ function adminServicioTituloV13(id){
 function adminServicioDescV13(id){
   return (ADMIN_V9_SERVICIOS_CUENTA.find(s=>s.id===id)||{}).desc || 'Servicio activo en la cuenta.';
 }
-function adminRenderCuentaResumenV13(c, users, usage, limit){
-  const activos = users.filter(u=>u.estado==='Activo').length;
-  const branding = c.tipo==='Asesor independiente' ? 'Casita Método NERI automática' : (c.logo ? 'Logo configurado' : 'Logo pendiente');
-  const lider = c.director || c.responsable || users[0]?.nombre || 'Pendiente';
-  const link = c.intranetUrl || 'Pendiente de configurar';
-  const crm = c.codigoCrm || 'CRM compartido Método NERI';
-  const servicios = (c.servicios||[]).map(id=>`<div class="admin-v13-service"><b>${adminEsc(adminServicioTituloV13(id))}</b><span>${adminEsc(adminServicioDescV13(id))}</span></div>`).join('') || `<div class="admin-v9-empty"><b>Sin servicios</b>Esta cuenta no tiene servicios activos configurados.</div>`;
-  return `<div class="admin-v13-card admin-v13-card-full">
-    <div>
-      <div class="admin-v13-card-title">RESUMEN <em>DE CUENTA</em></div>
-      <div class="admin-v13-card-sub">Datos reales de la cuenta y contenido del paquete. No se edita directo para evitar errores de dedo.</div>
-    </div>
-    <div class="admin-v13-read-grid admin-v13-read-grid-wide">
-      <div class="admin-v13-read"><kbd>Estado</kbd><strong>${adminEsc(c.estado || 'Pendiente')}</strong></div>
-      <div class="admin-v13-read"><kbd>Tipo</kbd><strong>${adminEsc(c.tipo)}</strong></div>
-      <div class="admin-v13-read"><kbd>Paquete</kbd><strong>${adminEsc(adminV9PlanLabel(c))}</strong></div>
-      <div class="admin-v13-read"><kbd>Usuarios</kbd><strong>${usage} / ${limit}</strong></div>
-      <div class="admin-v13-read"><kbd>Usuarios activos</kbd><strong>${activos} / ${users.length}</strong></div>
-      <div class="admin-v13-read"><kbd>Ciudad</kbd><strong>${adminEsc(c.ciudad || 'Pendiente')}</strong></div>
-      <div class="admin-v13-read"><kbd>Responsable</kbd><strong>${adminEsc(lider)}</strong></div>
-      <div class="admin-v13-read"><kbd>Branding</kbd><strong>${adminEsc(branding)}</strong></div>
-      <div class="admin-v13-read"><kbd>CRM / cuenta</kbd><strong>${adminEsc(crm)}</strong></div>
-      <div class="admin-v13-read"><kbd>Intranet</kbd><strong>${adminEsc(link)}</strong></div>
-    </div>
-    <div class="admin-v13-package-block">
-      <div class="admin-card-sub" style="margin-bottom:8px">Qué incluye este paquete</div>
-      <div class="admin-v13-service-list">${servicios}</div>
-    </div>
-  </div>`;
-}
-function adminRenderContenidoPaqueteV13(c){
-  const servicios = (c.servicios||[]).map(id=>`<div class="admin-v13-service"><b>${adminEsc(adminServicioTituloV13(id))}</b><span>${adminEsc(adminServicioDescV13(id))}</span></div>`).join('') || `<div class="admin-v9-empty"><b>Sin servicios</b>Esta cuenta no tiene servicios activos configurados.</div>`;
-  return `<div class="admin-v13-service-list">${servicios}</div>`;
+function adminRenderContenidoPaqueteV14(c){
+  const servicios = (c.servicios||[]).map(id=>`<div class="admin-v14-package-item"><b>${adminEsc(adminServicioTituloV13(id))}</b><span>${adminEsc(adminServicioDescV13(id))}</span></div>`).join('') || `<div class="admin-v9-empty"><b>Sin servicios</b>Esta cuenta no tiene servicios activos configurados.</div>`;
+  return `<div class="admin-v14-package-list">${servicios}</div>`;
 }
 function adminRenderCuentaDetalle(){
   const c = adminCuenta(adminState.selectedCuentaId);
   if(!c) return `<div class="admin-v9-empty"><b>Sin cuenta seleccionada</b>Selecciona una cuenta desde su directorio.</div>`;
   const users = adminCuentaUsers(c.id);
   const usage = adminCuentaUsage(c), limit = adminCuentaMaxUsers(c), canAdd = adminCanAddUser(c);
-  return `<div class="admin-v9-ficha">
-    <div class="admin-v9-ficha-head"><div><div class="admin-v9-ficha-title">${adminEsc(adminCuentaTipoTituloV13(c))} · <em>${adminEsc(c.nombre)}</em></div><div class="admin-v9-ficha-sub">Vista de lectura: aquí se entiende la cuenta, el paquete y sus usuarios. Para cambiar algo usa Editar cuenta o Editar usuario.</div></div><div class="admin-v9-ficha-actions"><button class="admin-v13-open" onclick="adminOpenCuentaEditorV13('${c.id}')">Editar cuenta</button><button class="admin-v9-ghost" onclick="adminSetView('${adminV9ViewForTipo(c.tipo)}')">← Volver</button></div></div>
-    <div class="admin-v9-ficha-body admin-v9-ficha-body-clean">
-      ${adminRenderCuentaResumenV13(c, users, usage, limit)}
-      <div class="admin-v9-panel" style="margin-bottom:12px"><div class="admin-v9-panel-head"><div><div class="admin-v9-panel-title">USUARIOS <em>Y ACCESOS</em></div><div class="admin-card-sub">Personas que usan esta cuenta. Cada usuario se edita desde su fila.</div></div>${c.tipo==='Asesor independiente'?'':`<button class="btn btn-primary" onclick="adminV9AddUser('${c.id}')" ${!canAdd?'disabled':''}>+ Preparar usuario</button>`}</div><div class="admin-v9-panel-body">
-        <div class="admin-v9-info-grid">
-          <div class="admin-v9-info"><kbd>Cupo contratado</kbd><strong class="gold">${usage} / ${limit}</strong></div>
-          <div class="admin-v9-info"><kbd>Usuarios activos</kbd><strong>${users.filter(u=>u.estado==='Activo').length} / ${users.length}</strong></div>
-          <div class="admin-v9-info"><kbd>Regla</kbd><strong>Director, gerente y asesor cuentan como usuario</strong></div>
+  const activos = users.filter(u=>u.estado==='Activo').length;
+  const lider = c.director || c.responsable || users[0]?.nombre || 'Pendiente';
+  const branding = c.tipo==='Asesor independiente' ? 'Casita Método NERI automática' : (c.logo ? 'Logo configurado' : 'Logo pendiente');
+  const crm = c.codigoCrm || 'CRM compartido Método NERI';
+  const intranet = c.intranetUrl || 'Pendiente de configurar';
+  const paquete = adminRenderContenidoPaqueteV14(c);
+  return `<div class="admin-v14-ficha">
+    <div class="fv-box admin-v14-box">
+      <div class="fv-header admin-v14-header">
+        <div>
+          <div class="fv-nombre">${adminEsc(c.nombre)}</div>
+          <div class="fv-wa"><span>${adminEsc(adminCuentaTipoTituloV13(c))}</span> ${adminBadge(c.estado)}</div>
+          <div class="fv-meta">
+            <div class="fv-meta-chip">Ciudad <em>${adminEsc(c.ciudad || 'Pendiente')}</em></div>
+            <div class="fv-meta-chip">Responsable <em>${adminEsc(lider)}</em></div>
+            <div class="fv-meta-chip">Usuarios <em>${usage}/${limit}</em></div>
+          </div>
         </div>
-        <div style="height:16px"></div>
-        ${!canAdd && c.tipo!=='Asesor independiente' ? `<div class="admin-v9-form-note">Cupo lleno: esta cuenta tiene ${usage} de ${limit} usuarios autorizados. Director y gerente también cuentan.</div>` : ''}
-        ${adminUsuariosCuentaListV9(c)}
-      </div></div>
-      <div class="admin-v9-panel"><div class="admin-v9-panel-head"><div><div class="admin-v9-panel-title">CONEXIONES <em>TÉCNICAS</em></div><div class="admin-card-sub">Solo lectura. Se modifican desde Editar cuenta.</div></div></div><div class="admin-v9-panel-body">${adminSoporteTecnicoCuentaV10(c)}</div></div>
+        <div style="text-align:right;position:relative;z-index:1">
+          <div class="fv-folio-lbl">Paquete</div>
+          <div class="fv-folio">${adminEsc(adminV9PlanLabel(c))}</div>
+        </div>
+      </div>
+      <div class="fv-body admin-v14-body">
+        <div class="fv-sec">
+          <div class="fv-sec-title"><em>◇</em> Resumen de cuenta</div>
+          <div class="fv-grid admin-v14-summary">
+            <div class="fv-row"><div class="fv-row-k">Estado</div><div class="fv-row-v">${adminEsc(c.estado || 'Pendiente')}</div></div>
+            <div class="fv-row"><div class="fv-row-k">Tipo</div><div class="fv-row-v">${adminEsc(c.tipo)}</div></div>
+            <div class="fv-row"><div class="fv-row-k">Paquete</div><div class="fv-row-v">${adminEsc(adminV9PlanLabel(c))}</div></div>
+            <div class="fv-row"><div class="fv-row-k">Usuarios activos</div><div class="fv-row-v">${activos} / ${users.length}</div></div>
+            <div class="fv-row"><div class="fv-row-k">Cupo contratado</div><div class="fv-row-v">${usage} / ${limit}</div></div>
+            <div class="fv-row"><div class="fv-row-k">Ciudad</div><div class="fv-row-v">${adminEsc(c.ciudad || 'Pendiente')}</div></div>
+            <div class="fv-row"><div class="fv-row-k">Branding</div><div class="fv-row-v">${adminEsc(branding)}</div></div>
+            <div class="fv-row"><div class="fv-row-k">CRM / cuenta</div><div class="fv-row-v">${adminEsc(crm)}</div></div>
+            <div class="fv-row full"><div class="fv-row-k">Intranet de la cuenta</div><div class="fv-row-v long">${adminEsc(intranet)}</div></div>
+          </div>
+        </div>
+        <div class="fv-sec">
+          <div class="fv-sec-title"><em>⊞</em> Qué contiene este paquete</div>
+          ${paquete}
+        </div>
+        <div class="fv-sec">
+          <div class="fv-sec-title"><em>◉</em> Usuarios y accesos</div>
+          <div class="admin-v9-form-note" style="margin-bottom:12px"><b>Regla:</b> director, gerente y asesor cuentan como usuarios del paquete. Desde aquí puedes copiar el link, entrar como usuario o editar su perfil.</div>
+          ${!canAdd && c.tipo!=='Asesor independiente' ? `<div class="admin-v9-form-note">Cupo lleno: esta cuenta tiene ${usage} de ${limit} usuarios autorizados.</div>` : ''}
+          ${c.tipo==='Asesor independiente'?'':`<div style="display:flex;justify-content:flex-end;margin-bottom:10px"><button class="btn btn-primary" onclick="adminV9AddUser('${c.id}')" ${!canAdd?'disabled':''}>+ Preparar usuario</button></div>`}
+          ${adminUsuariosCuentaListV9(c)}
+        </div>
+        <div class="fv-sec">
+          <div class="fv-sec-title"><em>⌁</em> Conexiones técnicas</div>
+          ${adminSoporteTecnicoCuentaV10(c)}
+        </div>
+        <div class="fv-actions admin-v14-actions">
+          <button class="btn btn-ghost" onclick="adminSetView('${adminV9ViewForTipo(c.tipo)}')">← Volver</button>
+          <button class="btn btn-primary" onclick="adminOpenCuentaEditorV13('${c.id}')">Editar cuenta</button>
+        </div>
+      </div>
     </div>
   </div>`;
 }
@@ -3810,11 +3849,7 @@ function adminCuentaControlForm(c){
 function adminUsuariosCuentaListV9(c){
   const users = adminCuentaUsers(c.id);
   if(!users.length) return `<div class="admin-v9-empty"><b>Sin usuarios</b>Esta cuenta todavía no tiene perfiles preparados.</div>`;
-  return `<div class="admin-card-sub" style="margin-bottom:8px">Lista de usuarios y accesos</div><div class="admin-v9-users">${users.map((u,i)=>`<div class="admin-v9-user-row ${u.id===adminState.selectedUsuarioId?'active':''}" onclick="adminOpenUsuarioV9('${u.id}')"><div><div class="admin-v9-user-name">${String(i+1).padStart(2,'0')} · ${adminEsc(u.nombre)}</div><div class="admin-v9-user-meta">${adminEsc(u.puesto||'Sin puesto')} · ${adminEsc(u.email||'Sin email')} · ${adminEsc(u.whatsapp||'Sin WhatsApp')}</div></div><div class="admin-v9-user-actions">${adminBadge(u.estado)}<button class="admin-v9-smallbtn" onclick="event.stopPropagation();adminOpenUsuarioV9('${u.id}')">Editar usuario</button></div></div>`).join('')}</div>`;
-}
-function adminUsuarioClosedNoticeV11(c){
-  const label = c?.tipo === 'Asesor independiente' ? 'el perfil del asesor independiente' : 'un usuario del paquete';
-  return `<div class="admin-v9-user-detail closed"><h4>USUARIO <em>CERRADO</em></h4><div class="admin-v9-form-note">Selecciona ${adminEsc(label)} en la lista para abrir su editor. Así el administrador revisa una sola cosa a la vez.</div></div>`;
+  return `<div class="admin-v9-users">${users.map((u,i)=>`<div class="admin-v9-user-row ${u.id===adminState.selectedUsuarioId?'active':''}" onclick="adminOpenUsuarioV9('${u.id}')"><div><div class="admin-v9-user-name">${String(i+1).padStart(2,'0')} · ${adminEsc(u.nombre)}</div><div class="admin-v9-user-meta">${adminEsc(u.puesto||'Sin puesto')} · ${adminEsc(u.email||'Sin email')} · ${adminEsc(u.whatsapp||'Sin WhatsApp')}</div><div class="admin-v14-user-link">${adminEsc(adminLink(u))}</div></div><div class="admin-v9-user-actions">${adminBadge(u.estado)}<button class="admin-v9-smallbtn" onclick="event.stopPropagation();adminV9CopyUserLink('${u.id}')">Copiar link</button><button class="admin-v9-smallbtn" onclick="event.stopPropagation();adminV14EnterAsUser('${u.id}')">Entrar como</button><button class="admin-v9-smallbtn" onclick="event.stopPropagation();adminOpenUsuarioV9('${u.id}')">Editar usuario</button></div></div>`).join('')}</div>`;
 }
 function adminUsuarioSoporteDetalle(u){
   const c = adminCuenta(u.cuentaId);
@@ -3858,11 +3893,11 @@ function adminUsuarioSoporteDetalle(u){
     <div class="admin-v12-actions"><button class="btn btn-ghost" onclick="adminV9ToggleUser('${u.id}')">${u.estado==='Inactivo'?'Activar usuario':'Desactivar usuario'}</button><button class="btn btn-ghost" onclick="adminV9DeleteUser('${u.id}')">Dar de baja usuario</button><button class="btn btn-primary" onclick="adminSaveUsuarioFichaV10('${u.id}')">Guardar usuario</button></div>`;
 }
 function adminSoporteTecnicoCuentaV10(c){
-  const card = (title, desc, url) => `<div class="admin-v9-support"><b>${adminEsc(title)}</b>${adminEsc(desc)}<br><span class="ar-meta">${url ? adminEsc(url) : 'Pendiente de configurar'}</span></div>`;
+  const card = (key, title, desc, url) => `<div class="admin-v9-support"><b>${adminEsc(title)}</b>${adminEsc(desc)}<br><span class="ar-meta">${url ? adminEsc(url) : 'Pendiente de configurar'}</span><div class="admin-v14-support-actions">${url?`<button class="admin-v9-smallbtn" onclick="event.stopPropagation();adminOpenTechV10('${c.id}','${key}')">Abrir conexión</button>`:`<button class="admin-v9-smallbtn" onclick="event.stopPropagation();adminOpenCuentaEditorV13('${c.id}')">Configurar</button>`}</div></div>`;
   return `<div class="admin-card-sub" style="margin-bottom:8px">Estado de conexiones de esta cuenta</div><div class="admin-v9-support-grid">
-    ${card('Make','Escenarios, webhooks y automatizaciones de esta cuenta.',c.makeUrl)}
-    ${card('Airtable','Base, tablas, campos y registros conectados.',c.airtableUrl)}
-    ${card('Intranet','Intranet real de esta cuenta para revisar configuración.',c.intranetUrl)}
+    ${card('make','Make','Escenarios, webhooks y automatizaciones de esta cuenta.',c.makeUrl)}
+    ${card('airtable','Airtable','Base, tablas, campos y registros conectados.',c.airtableUrl)}
+    ${card('intranet','Intranet','Intranet real de esta cuenta para revisar configuración.',c.intranetUrl)}
   </div>${c.soporteNotas?`<div style="height:10px"></div><div class="admin-v9-form-note"><b>Notas de soporte:</b> ${adminEsc(c.soporteNotas)}</div>`:''}`;
 }
 function adminOpenCuentaEditorV13(id){
@@ -3908,12 +3943,6 @@ function adminSaveCuentaV9(id){
   adminCuentaUsers(c.id).forEach(u=>{ u.tipo = c.tipo; if(!u.estado) u.estado = c.estado; });
   adminSave(false); adminCloseCuentaEditorV13(); adminRender(); showToast('Datos de cuenta guardados');
 }
-function adminSaveUsuarioServiciosV9(id){
-  const u = adminUsuario(id); if(!u) return;
-  u.permisos = Array.from(document.querySelectorAll('[data-user-servicio]:checked')).map(x=>x.dataset.userServicio);
-  if(u.tipo === 'Asesor independiente') u.permisos = u.permisos.filter(x=>x!=='branding_cuenta');
-  adminSave(); adminRender();
-}
 function adminSaveUsuarioFichaV10(id){
   const u = adminUsuario(id); if(!u) return;
   u.estado = val('user-estado-v10') || u.estado;
@@ -3955,7 +3984,39 @@ function adminV9AddUser(cuentaId){
 function adminV9ToggleUser(id){ const u = adminUsuario(id); if(!u) return; u.estado = u.estado === 'Inactivo' ? 'Activo' : 'Inactivo'; adminSave(); adminCloseUsuarioV11(); adminRender(); }
 function adminV9DeleteUser(id){ const u = adminUsuario(id); if(!u) return; const c = adminCuenta(u.cuentaId); if(c?.tipo === 'Asesor independiente'){ showToast('La cuenta independiente requiere su perfil único'); return; } adminState.data.usuarios = adminState.data.usuarios.filter(x=>x.id!==id); adminState.selectedUsuarioId = null; adminSave(); adminCloseUsuarioV11(); adminRender(); }
 function adminV9CopyUserLink(id){ const u = adminUsuario(id); if(!u || !u.slugOficial){ showToast('Aún no hay link generado'); return; } navigator.clipboard?.writeText(adminLink(u)); showToast('Link Captación copiado'); }
-function adminV9EnterSystem(id){ const c = adminCuenta(id); showToast(`Entrada de soporte preparada: ${c?.nombre || 'cuenta'}`); }
+function adminV14RoleFromUser(u){
+  const p = String(u?.puesto || '').toLowerCase();
+  if(p.includes('director') || p.includes('líder') || p.includes('lider')) return 'director';
+  if(p.includes('gerente')) return 'gerente';
+  return 'asesor';
+}
+function adminV14EnterAsUser(id){
+  const u = adminUsuario(id); if(!u) return;
+  const c = adminCuenta(u.cuentaId);
+  if(u.estado === 'Inactivo'){ showToast('Usuario inactivo. Actívalo antes de entrar.'); return; }
+  const rol = adminV14RoleFromUser(u);
+  const empresa = c?.tipo === 'Asesor independiente'
+    ? `${u.puesto || 'Asesor independiente'} · ${u.ciudad || c?.ciudad || 'Método NERI'}`
+    : `${u.puesto || 'Usuario'} · ${c?.nombre || 'Cuenta'}${c?.ciudad ? ' · '+c.ciudad : ''}`;
+  SESSION = {
+    nombre: u.nombre || 'Usuario',
+    rol,
+    slug: u.slugOficial || u.slugSugerido || adminSlug(u.nombre || 'usuario'),
+    whatsapp: u.whatsapp || c?.whatsappDirector || '527779855687',
+    empresa,
+    pixel: u.pixel || '',
+    user: u.slugOficial || u.id,
+    foto: u.foto || '',
+    cuentaId: u.cuentaId
+  };
+  buildNav();
+  buildPanels();
+  refreshChrome();
+  if(typeof ensureDemoRoleSwitch === 'function') ensureDemoRoleSwitch();
+  if(typeof syncDemoRoleSwitch === 'function') syncDemoRoleSwitch();
+  goTo(rol === 'asesor' ? 'perfil_asesor' : 'hoy');
+  showToast('Entraste como '+(u.nombre || 'usuario'));
+}
 function adminRenderCrear(){
   const tipo = adminState.createTipo || '';
   if(!tipo){
@@ -4011,16 +4072,14 @@ function adminRenderServiciosV9(){
   ].map(s=>`<div class="admin-v9-package"><b>${adminEsc(s[0])}</b><span>${adminEsc(s[1])}</span><small>Servicio existente</small></div>`).join('');
   return `<div class="admin-v9-section"><div class="admin-v9-sec-head"><div><div class="admin-v9-sec-title">CATÁLOGO <em>COMERCIAL</em></div><div class="admin-v9-sec-sub">Catálogo general. Aquí no se editan cuentas; se editan desde cada cuenta.</div></div></div><div class="admin-v9-packages">${cards}</div></div>`;
 }
-function adminSelectUsuario(id){ adminState.selectedUsuarioId=id; adminRender(); }
-function adminNewUsuario(){ const c = adminCuenta(adminState.selectedCuentaId); if(!c){ showToast('Primero selecciona una cuenta'); return; } adminV9AddUser(c.id); }
 function adminV9ResetDemo(){ localStorage.removeItem(ADMIN_V9_STORAGE_KEY); adminState.data = adminSeedData(); adminState.tab='dashboard'; adminState.selectedCuentaId=null; adminState.selectedUsuarioId=null; adminState.createTipo=''; adminSave(false); adminRender(); showToast('Prueba reiniciada'); }
 
 
 
 
 /* ═══════════════════════════════════════════════════
-   ASESOR V1 — Centro de Mando Diario
-   Conserva Administración Base. Agrega la vista operativa del asesor.
+   ASESOR — CENTRO DE MANDO DIARIO
+   Vista operativa del asesor: acciones, perfil, leads y documentos.
 ═══════════════════════════════════════════════════ */
 const ASESOR_SAMPLE = {
   link:'https://captacion.vercel.app/?asesor=enrique',
@@ -4046,30 +4105,7 @@ const ASESOR_SAMPLE = {
   ]
 };
 
-NAV_ROL.asesor = [
-  { section:'Centro de Mando' },
-  { id:'hoy', label:'Hoy', icon:'⬡', highlight:true },
-  { id:'perfil_asesor', label:'Mi Perfil del Asesor', icon:'◉' },
-  { id:'airtable', label:'Mis Leads / CRM', icon:'◈' },
-  { id:'propiedades_asesor', label:'Mis Propiedades', icon:'⌂' },
-  { id:'documentos_asesor', label:'Documentos', icon:'▤' },
-  { section:'Herramientas' },
-  { id:'sala', label:'Sala de Mensajes', icon:'⚡' },
-  { id:'citas', label:'Citas', icon:'📋' },
-  { id:'compradores', label:'Landing Compradores', icon:'⊕' },
-  { id:'vendedores', label:'Landing Vendedores', icon:'🏠' },
-  { id:'progreso', label:'Portal Progreso', icon:'◎' },
-  { id:'reportes_asesor', label:'Reportes', icon:'◫' },
-  { id:'manuales_asesor', label:'Manuales', icon:'☰' },
-];
 
-Object.assign(LABELS, {
-  perfil_asesor:'Mi Perfil del Asesor',
-  propiedades_asesor:'Mis Propiedades',
-  documentos_asesor:'Documentos',
-  reportes_asesor:'Reportes del Asesor',
-  manuales_asesor:'Manuales del Asesor',
-});
 
 function ensureDemoRoleSwitch(){
   const right = document.querySelector('.tb-right');
