@@ -14,6 +14,7 @@
 // =============================================================
 
 import { put } from '@vercel/blob';
+import crypto from 'node:crypto';
 
 // En proyectos tipo Next/Vercel API evita que el body se convierta en JSON.
 // Si Vercel no usa esta opción, no rompe nada; simplemente se ignora.
@@ -36,6 +37,9 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Método no permitido' });
   }
+
+  const session = verifySession(req);
+  if(!session) return res.status(401).json({ error:'Sesión inválida o vencida.' });
 
   if (!process.env.BLOB_READ_WRITE_TOKEN) {
     return res.status(500).json({
@@ -126,4 +130,23 @@ async function readRawBody(req, limitBytes) {
   }
 
   return Buffer.concat(chunks);
+}
+
+
+function verifySession(req){
+  const secret = process.env.NERI_SESSION_SECRET;
+  if(!secret) return null;
+  const raw = req.headers?.authorization || req.headers?.Authorization || '';
+  const token = raw.startsWith('Bearer ') ? raw.slice(7) : '';
+  const parts = token.split('.');
+  if(parts.length !== 3) return null;
+  const expected = crypto.createHmac('sha256', secret).update(parts[0]+'.'+parts[1]).digest('base64url');
+  const aa = Buffer.from(String(expected));
+  const bb = Buffer.from(String(parts[2]));
+  if(aa.length !== bb.length || !crypto.timingSafeEqual(aa, bb)) return null;
+  try{
+    const payload = JSON.parse(Buffer.from(parts[1], 'base64url').toString('utf8'));
+    if(payload.exp && Date.now() > payload.exp) return null;
+    return payload;
+  }catch(_){ return null; }
 }

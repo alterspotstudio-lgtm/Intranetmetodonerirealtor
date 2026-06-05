@@ -18,6 +18,7 @@
 // ───────────────────────────────────────────────────────────────
 
 import { handleUpload } from '@vercel/blob/client';
+import crypto from 'node:crypto';
 
 // Carpetas/tipos permitidos. Mantén la lista corta y controlada.
 const TIPOS_PERMITIDOS = [
@@ -29,6 +30,12 @@ const MAX_MB = 200; // tope por archivo (videos verticales caben de sobra)
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Método no permitido' });
+  }
+  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+    return res.status(500).json({ error:'Falta BLOB_READ_WRITE_TOKEN en Vercel.' });
+  }
+  if (!verifySession(req)) {
+    return res.status(401).json({ error:'Sesión inválida o vencida.' });
   }
 
   try {
@@ -61,4 +68,23 @@ export default async function handler(req, res) {
   } catch (err) {
     return res.status(400).json({ error: err?.message || 'Error al subir' });
   }
+}
+
+
+function verifySession(req){
+  const secret = process.env.NERI_SESSION_SECRET;
+  if(!secret) return null;
+  const raw = req.headers?.authorization || req.headers?.Authorization || '';
+  const token = raw.startsWith('Bearer ') ? raw.slice(7) : '';
+  const parts = token.split('.');
+  if(parts.length !== 3) return null;
+  const expected = crypto.createHmac('sha256', secret).update(parts[0]+'.'+parts[1]).digest('base64url');
+  const aa = Buffer.from(String(expected));
+  const bb = Buffer.from(String(parts[2]));
+  if(aa.length !== bb.length || !crypto.timingSafeEqual(aa, bb)) return null;
+  try{
+    const payload = JSON.parse(Buffer.from(parts[1], 'base64url').toString('utf8'));
+    if(payload.exp && Date.now() > payload.exp) return null;
+    return payload;
+  }catch(_){ return null; }
 }

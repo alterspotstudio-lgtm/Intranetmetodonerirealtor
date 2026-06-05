@@ -42,7 +42,7 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   const token = process.env.AIRTABLE_TOKEN;
-  const base  = process.env.AIRTABLE_BASE_ID || process.env.AIRTABLE_BASE || 'appRh791vGXRdOJs3';
+  const base  = process.env.AIRTABLE_BASE || process.env.AIRTABLE_BASE_ID;
 
   if (!token || !base) {
     return res.status(500).json({ error: 'Variables de entorno faltantes: AIRTABLE_TOKEN y/o AIRTABLE_BASE.' });
