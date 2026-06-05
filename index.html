@@ -1310,6 +1310,15 @@ select.form-inp option{background:#111;color:#fff}
       <div class="lc-sub">Sistema Operativo · Modo prueba abierto</div>
       <div class="lc-sep"></div>
 
+      <!-- Entrada real del asesor (verificada contra Airtable) -->
+      <div class="quick-logins" style="margin-bottom:16px">
+        <div class="ql-label">Entrar como asesor</div>
+        <input class="form-input" id="l-asesor-slug" type="text" placeholder="tu slug (ej: asesor-prueba-conexion)" autocomplete="off" style="margin:6px 0 8px" onkeydown="if(event.key==='Enter')entrarComoAsesorReal()">
+        <button class="login-btn" onclick="entrarComoAsesorReal()">Entrar a mi intranet →</button>
+        <div id="asesor-login-err" class="login-err"></div>
+      </div>
+      <div class="lc-sep"></div>
+
       <!-- Quick login chips para demo -->
       <div class="quick-logins">
         <div class="ql-label">Acceso rápido (demo)</div>
@@ -1488,6 +1497,44 @@ const TOOLS = {
 /* ═══════════════════════════════════════════════════
    LOGIN
 ═══════════════════════════════════════════════════ */
+/* Entrada REAL del asesor: valida el slug contra la tabla Asesor captación.
+   Solo entra si el asesor existe y está Activo. Lo mete con privilegios de
+   asesor (NAV propio + CRM filtrado por su slug). No toca el login de admin. */
+async function entrarComoAsesorReal(){
+  const errEl = document.getElementById('asesor-login-err');
+  const slug  = (document.getElementById('l-asesor-slug').value || '').trim().toLowerCase();
+  if(!slug){ errEl.style.color='var(--red)'; errEl.textContent='Escribe tu slug.'; return; }
+  errEl.style.color='var(--w50)'; errEl.textContent='Verificando en Airtable...';
+  try{
+    const formula = encodeURIComponent(`LOWER({Slug})='${slug.replace(/'/g,"\\'")}'`);
+    const data = await atFetch(`tblIRPmLIyj8sWyEk?filterByFormula=${formula}&maxRecords=1`);
+    const rec = (data.records || [])[0];
+    if(!rec){ errEl.style.color='var(--red)'; errEl.textContent='Ese asesor no existe en la tabla. Pídele al administrador que te dé de alta.'; return; }
+    const f = rec.fields || {};
+    if(!f['Activo']){ errEl.style.color='var(--red)'; errEl.textContent='Tu acceso aún no está activo. El administrador debe marcarte como Activo.'; return; }
+    SESSION = {
+      user: slug,
+      slug: slug,
+      rol: 'asesor',
+      nombre:   f['Nombre'] || slug,
+      whatsapp: String(f['Teléfono WhatsApp'] || '').replace(/\D/g,''),
+      pixel:    f['Pixel ID Meta'] || '',
+      empresa:  [f['Puesto'] || 'Asesor Inmobiliario', f['Ciudad'] || ''].filter(Boolean).join(' · ') || 'Método NERI',
+      perfilRecId: rec.id,
+      realAsesor: true
+    };
+    errEl.textContent = '';
+    document.getElementById('screen-login').classList.add('hidden');
+    document.getElementById('screen-app').classList.remove('hidden');
+    bootApp();
+    refreshChrome();
+    showToast('Bienvenido, ' + SESSION.nombre);
+  }catch(e){
+    errEl.style.color='var(--red)';
+    errEl.textContent='Error de conexión: ' + e.message;
+  }
+}
+
 function quickLogin(rol){
   document.getElementById('l-user').value = rol;
   document.getElementById('l-pass').value = 'neri2024';
@@ -1576,7 +1623,7 @@ function bootApp(){
   buildPanels();
   goTo(s.rol === 'asesor' ? 'perfil_asesor' : 'hoy');   // el asesor configura su perfil primero
   updateClock();
-  if(typeof ensureDemoRoleSwitch === 'function') ensureDemoRoleSwitch();
+  if(typeof ensureDemoRoleSwitch === 'function' && !SESSION.realAsesor) ensureDemoRoleSwitch();
 }
 
 /* ── NAV ── */
