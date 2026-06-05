@@ -681,6 +681,75 @@ select.form-input option{background:#111;color:#fff}
 .crm-empty-icon{font-size:32px;opacity:.15}
 .crm-empty-text{font-size:11px;color:var(--w30);letter-spacing:2px;text-transform:uppercase;font-weight:700}
 
+/* ─── PORTAL PROGRESO VISUAL — experiencia tipo seguimiento ─── */
+.prog-shell{display:grid;grid-template-columns:320px 1fr;gap:0;min-height:100%;background:#080808}
+.prog-shell.empty-only{display:block;background:transparent}
+.prog-list{border-right:1px solid var(--border);background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,.005));overflow:auto}
+.prog-list-head{position:sticky;top:0;z-index:2;background:#0b0b0b;border-bottom:1px solid var(--border);padding:18px 18px 14px;display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+.prog-list-head span{display:block;font-size:7px;letter-spacing:2.8px;text-transform:uppercase;color:var(--gold);font-weight:800;margin-bottom:6px}
+.prog-list-head strong{font-family:var(--display);font-size:32px;color:var(--white);letter-spacing:2px;line-height:1}
+.prog-list-head small{font-size:9px;color:var(--w35);letter-spacing:1px;text-align:right;text-transform:uppercase}
+.prog-client-list{padding:10px;display:flex;flex-direction:column;gap:8px}
+.prog-client-card{width:100%;border:1px solid var(--border);background:rgba(255,255,255,.018);border-radius:5px;padding:12px;display:grid;grid-template-columns:48px 1fr auto;gap:12px;align-items:center;text-align:left;cursor:pointer;color:inherit;transition:all .16s var(--ease);position:relative;overflow:hidden}
+.prog-client-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:transparent;transition:background .16s}
+.prog-client-card:hover{border-color:var(--goldbdr);background:rgba(201,169,110,.045)}
+.prog-client-card.active{border-color:var(--goldbdr);background:rgba(201,169,110,.08)}
+.prog-client-card.active::before{background:var(--gold)}
+.prog-mini-ring{--pct:0;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--gold) calc(var(--pct)*1%),rgba(255,255,255,.08) 0);position:relative;flex-shrink:0}
+.prog-mini-ring::after{content:'';position:absolute;inset:5px;border-radius:50%;background:#0a0a0a;border:1px solid rgba(255,255,255,.05)}
+.prog-mini-ring b{position:relative;z-index:1;font-family:var(--mono);font-size:9px;color:var(--gold)}
+.prog-client-main{display:flex;flex-direction:column;gap:3px;min-width:0}
+.prog-client-name{font-size:13px;color:var(--white);font-weight:750;line-height:1.15}
+.prog-client-sub{font-size:11px;color:var(--w55);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prog-client-meta{font-size:9px;color:var(--gold);letter-spacing:.7px;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prog-client-go{font-size:16px;color:var(--w25)}
+.prog-detail{overflow:auto;padding:26px;background:radial-gradient(circle at 70% 0%,rgba(201,169,110,.08),transparent 42%)}
+.prog-detail-card{max-width:980px;margin:0 auto;border:1px solid var(--border);background:rgba(8,8,8,.78);box-shadow:0 24px 80px rgba(0,0,0,.3);border-radius:6px;overflow:hidden}
+.prog-detail-top{display:grid;grid-template-columns:220px 1fr;gap:26px;padding:30px;border-bottom:1px solid var(--border);align-items:center;background:linear-gradient(135deg,rgba(255,255,255,.035),rgba(255,255,255,.006))}
+.prog-ring-wrap{display:flex;align-items:center;justify-content:center}
+.prog-ring{--pct:0;width:176px;height:176px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--gold) calc(var(--pct)*1%),rgba(255,255,255,.075) 0);position:relative;box-shadow:0 0 60px rgba(201,169,110,.06)}
+.prog-ring::before{content:'';position:absolute;inset:10px;border-radius:50%;background:#080808;border:1px solid var(--goldbdr)}
+.prog-ring-core{position:relative;z-index:1;width:126px;height:126px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(circle,rgba(201,169,110,.07),rgba(255,255,255,.015));text-align:center;padding:8px}
+.prog-ring-core strong{font-family:var(--display);font-size:42px;color:var(--white);line-height:.9;letter-spacing:1px}
+.prog-ring-core span{margin-top:8px;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);font-weight:800;line-height:1.35}
+.prog-eyebrow{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);font-weight:800;margin-bottom:10px}
+.prog-name{font-family:var(--display);font-size:38px;letter-spacing:2px;color:var(--white);line-height:.95}
+.prog-prop{font-size:14px;color:var(--w70);margin-top:10px;line-height:1.4}
+.prog-prop span{color:var(--gold)}
+.prog-folio{font-family:var(--mono);font-size:11px;color:var(--gold);letter-spacing:1px;margin-top:8px;display:flex;gap:12px;flex-wrap:wrap}
+.prog-folio span{color:var(--w35)}
+.prog-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px}
+.prog-next-panel{display:grid;grid-template-columns:1.1fr 1fr;gap:1px;background:var(--border);border-bottom:1px solid var(--border)}
+.prog-next-panel>div{background:#0b0b0b;padding:18px 22px;min-height:86px}
+.prog-next-panel span{display:block;font-size:7px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);font-weight:800;margin-bottom:7px}
+.prog-next-panel strong{font-size:13px;color:var(--w85);font-weight:500;line-height:1.55}
+.prog-body-grid{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.prog-track{padding:24px;border-right:1px solid var(--border);display:flex;flex-direction:column;gap:10px}
+.prog-step{display:grid;grid-template-columns:34px 1fr;gap:12px;align-items:center;padding:10px;border:1px solid var(--border);background:rgba(255,255,255,.012);border-radius:4px;position:relative}
+.prog-step-dot{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-family:var(--mono);font-size:10px;border:1px solid var(--border2);color:var(--w35);background:#080808}
+.prog-step-name{font-size:11px;color:var(--w45);letter-spacing:.7px;text-transform:uppercase;font-weight:750}
+.prog-step.done .prog-step-dot{background:rgba(74,222,128,.12);border-color:rgba(74,222,128,.28);color:#4ade80}
+.prog-step.done .prog-step-name{color:var(--w65)}
+.prog-step.now{border-color:var(--goldbdr);background:rgba(201,169,110,.06)}
+.prog-step.now .prog-step-dot{background:var(--gold);border-color:var(--gold);color:#050505;font-weight:900}
+.prog-step.now .prog-step-name{color:var(--gold)}
+.prog-info{padding:24px;display:flex;flex-direction:column;gap:16px}
+.prog-info-title{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);font-weight:800;border-bottom:1px solid var(--border);padding-bottom:10px}
+.prog-pending-list{list-style:none;display:flex;flex-direction:column;gap:8px;margin:0;padding:0}
+.prog-pending-list li{font-size:12px;color:var(--w80);line-height:1.45;padding:10px 12px 10px 30px;border:1px solid var(--border);background:rgba(255,255,255,.016);border-radius:4px;position:relative}
+.prog-pending-list li::before{content:'!';position:absolute;left:11px;top:10px;width:12px;height:12px;border-radius:50%;display:grid;place-items:center;background:rgba(251,191,36,.12);color:#fbbf24;font-size:8px;font-weight:900}
+.prog-no-pending{font-size:12px;color:var(--w45);padding:14px;border:1px solid var(--border);background:rgba(255,255,255,.012);border-radius:4px}
+.prog-fields{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:auto}
+.prog-fields>div{border:1px solid var(--border);background:rgba(255,255,255,.012);padding:11px 12px;border-radius:4px;min-width:0}
+.prog-fields>div.full{grid-column:1/-1}
+.prog-fields span{display:block;font-size:7px;letter-spacing:2px;text-transform:uppercase;color:var(--w30);font-weight:800;margin-bottom:5px}
+.prog-fields b{display:block;font-size:12px;color:var(--w75);font-weight:500;line-height:1.45;word-break:break-word}
+.prog-detail-empty{height:100%;min-height:420px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:var(--w45)}
+.prog-empty-icon{font-size:38px;opacity:.25;margin-bottom:14px}
+.prog-empty-title{font-family:var(--display);font-size:28px;color:var(--white);letter-spacing:2px}
+.prog-empty-copy{font-size:12px;color:var(--w45);margin-top:6px}
+@media(max-width:980px){.prog-shell{grid-template-columns:1fr}.prog-list{max-height:330px;border-right:none;border-bottom:1px solid var(--border)}.prog-detail-top,.prog-body-grid,.prog-next-panel{grid-template-columns:1fr}.prog-track{border-right:none;border-bottom:1px solid var(--border)}.prog-detail{padding:16px}.prog-name{font-size:30px}.prog-ring{width:150px;height:150px}}
+
 /* Skeleton loader */
 .crm-skeleton-row td{padding:12px 16px}
 .crm-skeleton-cell{
@@ -1534,6 +1603,8 @@ function buildPanels(){
   ca.innerHTML = '';
   _crmLoaded = false; // reset para nueva sesión
   _perfilLoaded = false; // reset perfil del asesor para nueva sesión
+  if(typeof _asesorPropiedadesLoaded !== 'undefined') _asesorPropiedadesLoaded = false;
+  if(typeof _asesorDocumentosLoaded !== 'undefined') _asesorDocumentosLoaded = false;
 
   ca.insertAdjacentHTML('beforeend', buildHoyPanel());
   ca.insertAdjacentHTML('beforeend', buildAdministracionPanel());
@@ -2036,13 +2107,14 @@ const CRM_CFG = {
     tableId: 'tblyC9VjjtoRKJPQL',
     label: 'Portal Progreso',
     dot: 'progreso',
+    progresoVisual: true,
     cols: ['Folio','Comprador','Propiedad','Precio','Fase Actual','Asesor','WhatsApp Asesor','Próximo paso'],
     fields: ['Folio','Comprador','Propiedad','Precio','Fase Actual','Asesor','WhatsApp Asesor','Próximo paso'],
     editable: [
       {f:'Comprador',                        type:'text'},
       {f:'Propiedad',                        type:'text'},
       {f:'Precio',                           type:'text'},
-      {f:'Fase Actual',                      type:'select', asText:true, opts:['Apartado','Expediente','Valuación','Crédito','Escrituración','Firma','Entrega','Completado']},
+      {f:'Fase Actual',                      type:'select', asText:true, opts:['Apartado','Revisión de compra','Preparando documentos','Acuerdo de compra','Revisión en notaría','Últimas confirmaciones','Día de firma','Entrega de llaves']},
       {f:'Asesor',                           type:'text'},
       {f:'WhatsApp Asesor',                  type:'text'},
       {f:'Etiqueta WhatsApp',                type:'text'},
@@ -2110,7 +2182,7 @@ const STATUS_BADGE = {
   'Realizada':'badge-cita-real','Cancelada':'badge-cita-canc','Reagendada':'badge-visit',
 };
 
-let crmState = { tab:'compradores', records:[], editId:null, isNew:false, citaFromLead:null };
+let crmState = { tab:'compradores', records:[], editId:null, isNew:false, citaFromLead:null, progresoSelectedId:null };
 // citaFromLead: { folioClienteOrigen, comprador, propiedad, asesor } — se limpia después del POST
 
 /* ─── API helpers — usa el proxy de Vercel ─────────── */
@@ -2199,6 +2271,10 @@ async function crmLoad(tab, force=false){
 /* ─── RENDER TABLE ─────────────────────────────────── */
 function crmRender(tab, records){
   const cfg = CRM_CFG[tab];
+  if(cfg?.progresoVisual){
+    crmRenderProgreso(records);
+    return;
+  }
   document.getElementById('crm-count').textContent = records.length + ' registros';
 
   const ths = ['', ...cfg.cols].map((c,i) =>
@@ -2235,7 +2311,161 @@ function crmRender(tab, records){
     `<table class="at-table" id="crm-main-table"><thead><tr>${ths}</tr></thead><tbody>${trs}</tbody></table>`;
 }
 
+function crmSplitLines(v){
+  return String(v||'')
+    .split(/\n|,|•|\u2022/g)
+    .map(x=>x.trim())
+    .filter(Boolean);
+}
+function crmPctForFase(fase){
+  const idx = _faseIndex(fase || 'Apartado');
+  return Math.round(((idx + 1) / FASES_PROGRESO.length) * 100);
+}
+function crmShortDate(v){
+  if(!v) return '—';
+  const d = new Date(v);
+  if(isNaN(d)) return String(v);
+  return d.toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric'});
+}
+function crmProgresoRecordHtml(rec, selectedId){
+  const fase = _fval(rec,'Fase Actual') || 'Apartado';
+  const pct = crmPctForFase(fase);
+  const pend = crmSplitLines(_fval(rec,'Pendientes visibles'));
+  const active = rec.id === selectedId ? ' active' : '';
+  return `<button class="prog-client-card${active}" data-progreso-card="1" data-rec-id="${_escAttr(rec.id)}" onclick="crmSelectProgreso('${rec.id}')" type="button">
+    <span class="prog-mini-ring" style="--pct:${pct}"><b>${pct}</b></span>
+    <span class="prog-client-main">
+      <span class="prog-client-name">${_esc(_fval(rec,'Comprador') || 'Sin comprador')}</span>
+      <span class="prog-client-sub">${_esc(_fval(rec,'Propiedad') || 'Sin propiedad')}</span>
+      <span class="prog-client-meta">${_esc(fase)}${pend.length ? ` · ${pend.length} pendiente${pend.length===1?'':'s'}` : ''}</span>
+    </span>
+    <span class="prog-client-go">→</span>
+  </button>`;
+}
+function crmProgresoDetailHtml(rec){
+  if(!rec){
+    return `<div class="prog-detail-empty">
+      <div class="prog-empty-icon">◎</div>
+      <div class="prog-empty-title">Selecciona una operación</div>
+      <div class="prog-empty-copy">Aquí verás el avance tipo portal, no una tabla.</div>
+    </div>`;
+  }
+  const fase = _fval(rec,'Fase Actual') || 'Apartado';
+  const idx = _faseIndex(fase);
+  const pct = crmPctForFase(fase);
+  const next = FASES_PROGRESO[Math.min(idx+1, FASES_PROGRESO.length-1)]?.n || 'Operación completada';
+  const paso = _fval(rec,'Próximo paso') || (idx >= FASES_PROGRESO.length-1 ? 'Entrega final completada.' : `Continuar con: ${next}`);
+  const pend = crmSplitLines(_fval(rec,'Pendientes visibles'));
+  const docsAhora = FASES_PROGRESO[idx]?.listo || '';
+  const link = _fval(rec,'Link Portal');
+  const wa = _waLink(_fval(rec,'WhatsApp Asesor'), _fval(rec,'Mensaje WhatsApp Actualización'));
+  const steps = FASES_PROGRESO.map((step,i)=>{
+    const cls = i < idx ? 'done' : (i === idx ? 'now' : 'next');
+    return `<div class="prog-step ${cls}">
+      <span class="prog-step-dot">${i<idx?'✓':(i+1)}</span>
+      <span class="prog-step-name">${_esc(step.n)}</span>
+    </div>`;
+  }).join('');
+  return `<div class="prog-detail-card">
+    <div class="prog-detail-top">
+      <div class="prog-ring-wrap">
+        <div class="prog-ring" style="--pct:${pct}">
+          <div class="prog-ring-core"><strong>${pct}%</strong><span>${_esc(fase)}</span></div>
+        </div>
+      </div>
+      <div class="prog-hero-copy">
+        <div class="prog-eyebrow">Experiencia progreso</div>
+        <div class="prog-name">${_esc(_fval(rec,'Comprador') || 'Sin comprador')}</div>
+        <div class="prog-prop">${_esc(_fval(rec,'Propiedad') || 'Sin propiedad')} ${_fval(rec,'Precio') ? `<span>· ${_esc(_fval(rec,'Precio'))}</span>` : ''}</div>
+        <div class="prog-folio">${_esc(_fval(rec,'Folio') || 'Sin folio')} ${_fval(rec,'Folio Lead Origen') ? `<span>Origen: ${_esc(_fval(rec,'Folio Lead Origen'))}</span>` : ''}</div>
+        <div class="prog-actions">
+          ${link ? `<a class="at-btn primary" href="${_escAttr(link)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Ver portal ↗</a>` : ''}
+          ${wa ? `<a class="at-btn" href="${_escAttr(wa)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">WhatsApp</a>` : ''}
+          <button class="at-btn" onclick="crmOpenEdit('${rec.id}')">Editar operación</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="prog-next-panel">
+      <div><span>Próximo paso</span><strong>${_esc(paso)}</strong></div>
+      <div><span>Debe estar listo</span><strong>${_esc(docsAhora)}</strong></div>
+    </div>
+
+    <div class="prog-body-grid">
+      <div class="prog-track">
+        ${steps}
+      </div>
+      <div class="prog-info">
+        <div class="prog-info-title">Pendientes visibles para el cliente</div>
+        ${pend.length ? `<ul class="prog-pending-list">${pend.map(x=>`<li>${_esc(x)}</li>`).join('')}</ul>` : `<div class="prog-no-pending">Sin pendientes visibles registrados.</div>`}
+        <div class="prog-fields">
+          <div><span>Asesor</span><b>${_esc(_fval(rec,'Asesor') || '—')}</b></div>
+          <div><span>WhatsApp asesor</span><b>${_esc(_fval(rec,'WhatsApp Asesor') || '—')}</b></div>
+          <div><span>Fecha conversión</span><b>${_esc(crmShortDate(_fval(rec,'Fecha de Conversión')))}</b></div>
+          <div><span>Canal origen</span><b>${_esc(_fval(rec,'Canal de Origen') || '—')}</b></div>
+          <div class="full"><span>Mensaje actualización</span><b>${_esc(_fval(rec,'Mensaje WhatsApp Actualización') || '—')}</b></div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+function crmSelectProgreso(recId){
+  crmState.progresoSelectedId = recId;
+  const detail = document.getElementById('progreso-detail');
+  const rec = crmState.records.find(r=>r.id===recId);
+  if(detail) detail.innerHTML = crmProgresoDetailHtml(rec);
+  document.querySelectorAll('.prog-client-card').forEach(card=>{
+    card.classList.toggle('active', card.dataset.recId === recId);
+  });
+}
+function crmRenderProgreso(records){
+  document.getElementById('crm-count').textContent = records.length + ' operaciones';
+  if(!records.length){
+    document.getElementById('crm-table-wrap').innerHTML = `<div class="prog-shell empty-only">
+      <div class="crm-empty" style="padding:56px 20px">
+        <div class="crm-empty-icon">◎</div>
+        <div class="crm-empty-text">Sin operaciones en Portal Progreso</div>
+        <div style="font-size:12px;color:var(--w45);max-width:520px;margin:12px auto 0;line-height:1.7;text-align:center">
+          Aquí no deben aparecer ejemplos. En cuanto una operación nazca desde Apartado y Make cree el registro en Portal Progreso Clientes, aparecerá su recorrido visual.
+        </div>
+      </div>
+    </div>`;
+    return;
+  }
+  const sorted = [...records].sort((a,b)=>_faseIndex(_fval(a,'Fase Actual')) - _faseIndex(_fval(b,'Fase Actual')));
+  const selected = sorted.find(r=>r.id===crmState.progresoSelectedId) || sorted[0];
+  crmState.progresoSelectedId = selected.id;
+  document.getElementById('crm-table-wrap').innerHTML = `<div class="prog-shell">
+    <aside class="prog-list">
+      <div class="prog-list-head">
+        <div>
+          <span>Clientes en proceso</span>
+          <strong>${records.length}</strong>
+        </div>
+        <small>No es tabla: es recorrido</small>
+      </div>
+      <div class="prog-client-list" id="progreso-list">
+        ${sorted.map(r=>crmProgresoRecordHtml(r, selected.id)).join('')}
+      </div>
+    </aside>
+    <main class="prog-detail" id="progreso-detail">
+      ${crmProgresoDetailHtml(selected)}
+    </main>
+  </div>`;
+}
+
 function crmFilter(q){
+  const cards = document.querySelectorAll('[data-progreso-card]');
+  if(cards.length){
+    let v = 0;
+    cards.forEach(card => {
+      const m = card.textContent.toLowerCase().includes(q.toLowerCase());
+      card.style.display = m ? '' : 'none';
+      if(m) v++;
+    });
+    document.getElementById('crm-count').textContent = v + ' operaciones';
+    return;
+  }
   const tbl = document.getElementById('crm-main-table');
   if(!tbl) return;
   let v = 0;
@@ -2251,6 +2481,7 @@ function crmSwitchTab(tab){
   document.querySelectorAll('.at-tab').forEach(t => t.classList.remove('active'));
   document.getElementById('crm-tab-' + tab)?.classList.add('active');
   document.getElementById('crm-search').value = '';
+  if(tab !== 'progreso') crmState.progresoSelectedId = null;
   crmLoad(tab, true);
 }
 
@@ -2283,7 +2514,8 @@ function crmOpenNew(){
 /* ─── FICHA PREMIUM (solo lectura) ─────────────────── */
 function crmOpenRow(recId){
   const cfg = CRM_CFG[crmState.tab];
-  if(cfg && cfg.landing) landOpenEditor(recId);
+  if(cfg && cfg.progresoVisual) crmSelectProgreso(recId);
+  else if(cfg && cfg.landing) landOpenEditor(recId);
   else if(cfg && cfg.cita) citaOpenFicha(recId);
   else if(cfg && cfg.ficha === 'vendedor') vendedorOpenFicha(recId);
   else if(cfg && cfg.ficha) crmOpenFicha(recId);
@@ -4023,27 +4255,11 @@ function adminV9ResetDemo(){ localStorage.removeItem(ADMIN_V9_STORAGE_KEY); admi
    Conserva Administración Base. Agrega la vista operativa del asesor.
 ═══════════════════════════════════════════════════ */
 const ASESOR_SAMPLE = {
-  link:'https://captacion.vercel.app/?asesor=enrique',
-  acciones:[
-    {tag:'Lead nuevo', titulo:'Llamar a Patricia Gómez', texto:'Llegó por captación vendedora. No tiene primer contacto registrado.', destino:'airtable'},
-    {tag:'Documento pendiente', titulo:'Casa Jacarandas · predial', texto:'Falta revisar predial y agua para avanzar expediente.', destino:'documentos_asesor'},
-    {tag:'Cita próxima', titulo:'Confirmar visita Lomas de Ahuatlán', texto:'Enviar confirmación por WhatsApp y preparar mensaje de llegada.', destino:'citas'},
-  ],
-  leads:[
-    {nombre:'Patricia Gómez', tipo:'Vendedora', estado:'Nuevo', detalle:'Casa en zona norte · documentos parciales · posible tema fiscal'},
-    {nombre:'Laura Méndez', tipo:'Compradora', estado:'HOT', detalle:'Interesada en Lomas de Ahuatlán · quiere visitar esta semana'},
-    {nombre:'Roberto Salinas', tipo:'Crédito bancario', estado:'WARM', detalle:'Tiene ahorro inicial, necesita claridad de gastos y banco'},
-  ],
-  propiedades:[
-    {nombre:'Casa Jacarandas', folio:'CVA-2026-4496', estado:'Captación activa', pendiente:'Falta predial actualizado y revisión fiscal'},
-    {nombre:'Casa Lomas de Ahuatlán', folio:'MLS-608766', estado:'Publicada', pendiente:'Confirmar disponibilidad de citas'},
-    {nombre:'Depto Paseo del Conquistador', folio:'CVA-2026-3000', estado:'Promoción', pendiente:'Actualizar video corto de recámaras'},
-  ],
-  docs:[
-    {doc:'Escritura', estado:'Recibida', nota:'Validar titulares y régimen matrimonial'},
-    {doc:'Predial', estado:'Pendiente', nota:'Solicitar año vigente'},
-    {doc:'Situación fiscal', estado:'Atención', nota:'Revisar posible exención y estrategia antes de prometer'},
-  ]
+  link:'',
+  acciones:[],
+  leads:[],
+  propiedades:[],
+  docs:[]
 };
 
 NAV_ROL.asesor = [
@@ -4449,41 +4665,117 @@ async function perfilSave(){
   }
 }
 
+let _asesorPropiedadesLoaded = false;
+let _asesorDocumentosLoaded = false;
+
+function asesorGateRealProfileHtml(vista){
+  return `<div class="asesor-hoy-empty">Para ver ${asesorEsc(vista)}, primero debe existir el <b>perfil real del asesor</b> en Airtable.<br><br><span style="color:var(--w50);font-size:11px;line-height:1.7">El slug <b>${asesorEsc(SESSION?.slug||'')}</b> debe existir en la tabla de asesores <b>tblIRPmLIyj8sWyEk</b>. Sin ese alta, no se muestran propiedades ni documentos de prueba.</span></div>`;
+}
+function asesorEmptyRealHtml(texto){
+  return `<div class="asesor-hoy-empty">${asesorEsc(texto)}</div>`;
+}
+function asesorRecordBelongs(rec){
+  return typeof crmRecordBelongsToCurrentAsesor === 'function' ? crmRecordBelongsToCurrentAsesor(rec) : true;
+}
+function asesorStatusBadge(estado){
+  const e = String(estado || 'Sin estado');
+  const cls = STATUS_BADGE[e] || (e.toLowerCase().includes('pend') ? 'badge-lost' : e.toLowerCase().includes('recib') ? 'badge-close' : 'badge-contact');
+  return `<span class="badge ${cls}">${asesorEsc(e)}</span>`;
+}
 function buildAsesorPropiedadesPanel(){
-  const rows = ASESOR_SAMPLE.propiedades.map(p=>`
-    <div class="fv-row full">
-      <div class="fv-row-k">${asesorEsc(p.estado)}</div>
-      <div class="fv-row-v">
-        <strong style="color:var(--white)">${asesorEsc(p.nombre)}</strong><br>
-        <span style="color:var(--gold);font-family:var(--mono);font-size:11px">${asesorEsc(p.folio)}</span><br>
-        <span style="color:var(--w50)">${asesorEsc(p.pendiente)}</span>
-      </div>
-    </div>`).join('');
   return `<div class="panel" id="panel-propiedades_asesor"><div class="asesor-body asesor-perfil-page">
     <div class="fv-box perfil-fv-box">
       <div class="fv-header"><div><div class="fv-nombre">MIS PROPIEDADES</div><div class="fv-wa"><span>Operaciones vivas · folio · siguiente pendiente</span></div></div><div><div class="fv-folio-lbl">Vista asesor</div><div class="fv-folio">PROPIEDADES</div></div></div>
       <div class="fv-body perfil-fv-body">
-        <div class="fv-sec"><div class="fv-sec-title"><em>⌂</em> Propiedades activas</div><div class="fv-grid">${rows}</div></div>
-        <div class="fv-sec"><div class="le-banner">Esta vista debe decirle al asesor qué propiedad mover y qué pendiente resolver. No es administración de cuentas.</div></div>
+        <div class="fv-sec"><div class="fv-sec-title"><em>⌂</em> Propiedades activas</div><div class="fv-grid" id="asesor-propiedades-list"><div class="asesor-hoy-empty">Cargando propiedades reales…</div></div></div>
+        <div class="fv-sec"><div class="le-banner">Esta vista solo muestra propiedades reales asignadas al asesor por Slug/Cuenta. Si no hay registros, queda vacía; no usa ejemplos.</div></div>
       </div>
+      <div class="fv-actions perfil-fv-actions"><button class="btn btn-ghost" onclick="asesorPropiedadesLoad(true)">Actualizar propiedades</button><button class="btn btn-primary" onclick="goTo('airtable')">Abrir CRM completo</button></div>
     </div>
   </div></div>`;
 }
+async function asesorPropiedadesLoad(force=false){
+  if(_asesorPropiedadesLoaded && !force) return;
+  _asesorPropiedadesLoaded = true;
+  const box = document.getElementById('asesor-propiedades-list');
+  if(!box) return;
+  box.innerHTML = '<div class="asesor-hoy-empty">Cargando propiedades reales…</div>';
+  try{
+    if(!SESSION?.perfilRecId) await enrichIdentity(SESSION?.slug);
+    if(!SESSION?.perfilRecId){ box.innerHTML = asesorGateRealProfileHtml('Mis Propiedades'); return; }
+    const data = await atFetch(`${CRM_CFG.propiedades.tableId}?maxRecords=100`);
+    const records = (data.records || []).filter(asesorRecordBelongs);
+    if(!records.length){ box.innerHTML = asesorEmptyRealHtml('No hay propiedades asignadas a este asesor todavía. Cuando una propiedad real tenga su Slug, nombre o cuenta, aparecerá aquí.'); return; }
+    box.innerHTML = records.map(rec=>{
+      const nombre = _fval(rec,'Nombre Propiedad') || 'Propiedad sin nombre';
+      const folio = _fval(rec,'Folio NERI') || _fval(rec,'Folio Vendedor') || _fval(rec,'Folio') || 'Sin folio';
+      const estado = _fval(rec,'Estado Propiedad') || 'Sin estado';
+      const detalle = [_fval(rec,'Zona / Colonia'), _fval(rec,'Municipio'), _fval(rec,'Precio Lista')].filter(Boolean).join(' · ') || 'Sin datos comerciales todavía';
+      return `<div class="fv-row full">
+        <div class="fv-row-k">${asesorStatusBadge(estado)}</div>
+        <div class="fv-row-v"><strong style="color:var(--white)">${asesorEsc(nombre)}</strong><br><span style="color:var(--gold);font-family:var(--mono);font-size:11px">${asesorEsc(folio)}</span><br><span style="color:var(--w50)">${asesorEsc(detalle)}</span></div>
+      </div>`;
+    }).join('');
+  }catch(e){
+    box.innerHTML = `<div class="asesor-hoy-empty">No se pudieron cargar propiedades desde Airtable.<br><span style="color:var(--red)">${asesorEsc(e.message||e)}</span></div>`;
+  }
+}
 function buildAsesorDocumentosPanel(){
-  const rows = ASESOR_SAMPLE.docs.map(d=>`
-    <div class="fv-lock">
-      <div class="fv-lock-k">${asesorEsc(d.doc)}</div>
-      <div class="fv-lock-v"><span class="badge ${d.estado==='Pendiente'?'badge-lost':d.estado==='Recibida'?'badge-close':'badge-contact'}">${asesorEsc(d.estado)}</span><br><span style="color:var(--w50);font-family:Montserrat,sans-serif">${asesorEsc(d.nota)}</span></div>
-    </div>`).join('');
   return `<div class="panel" id="panel-documentos_asesor"><div class="asesor-body asesor-perfil-page">
     <div class="fv-box perfil-fv-box">
       <div class="fv-header"><div><div class="fv-nombre">DOCUMENTOS Y EXPEDIENTES</div><div class="fv-wa"><span>Qué falta para avanzar, no solo archivos guardados</span></div></div><div><div class="fv-folio-lbl">Vista asesor</div><div class="fv-folio">DOCUMENTOS</div></div></div>
       <div class="fv-body perfil-fv-body">
-        <div class="fv-sec"><div class="fv-sec-title"><em>▤</em> Revisión documental</div><div class="perfil-fv-locks">${rows}</div></div>
-        <div class="fv-sec"><div class="le-banner">La parte fiscal y documental debe mostrarse con claridad: qué falta, qué ya llegó y qué requiere atención antes de avanzar.</div></div>
+        <div class="fv-sec"><div class="fv-sec-title"><em>▤</em> Revisión documental</div><div class="perfil-fv-locks" id="asesor-documentos-list"><div class="asesor-hoy-empty">Cargando expedientes reales…</div></div></div>
+        <div class="fv-sec"><div class="le-banner">Documentos se alimenta de registros reales de Leads Vendedores y Portal Progreso. Si no hay documentos en Airtable, no se inventan pendientes.</div></div>
       </div>
+      <div class="fv-actions perfil-fv-actions"><button class="btn btn-ghost" onclick="asesorDocumentosLoad(true)">Actualizar documentos</button><button class="btn btn-primary" onclick="goTo('airtable')">Abrir CRM completo</button></div>
     </div>
   </div></div>`;
+}
+function asesorDocEstado(texto){
+  const t = String(texto||'').toLowerCase();
+  if(t.includes('pend') || t.includes('falta') || t.includes('solicitar')) return 'Pendiente';
+  if(t.includes('recib') || t.includes('completo') || t.includes('listo')) return 'Recibida';
+  return 'Revisión';
+}
+async function asesorDocumentosLoad(force=false){
+  if(_asesorDocumentosLoaded && !force) return;
+  _asesorDocumentosLoaded = true;
+  const box = document.getElementById('asesor-documentos-list');
+  if(!box) return;
+  box.innerHTML = '<div class="asesor-hoy-empty">Cargando expedientes reales…</div>';
+  try{
+    if(!SESSION?.perfilRecId) await enrichIdentity(SESSION?.slug);
+    if(!SESSION?.perfilRecId){ box.innerHTML = asesorGateRealProfileHtml('Documentos'); return; }
+    const reqs = await Promise.allSettled([
+      atFetch(`${CRM_CFG.vendedores.tableId}?maxRecords=100`),
+      atFetch(`${CRM_CFG.progreso.tableId}?maxRecords=100`)
+    ]);
+    const vendedores = reqs[0].status === 'fulfilled' ? (reqs[0].value.records || []).filter(asesorRecordBelongs) : [];
+    const progreso = reqs[1].status === 'fulfilled' ? (reqs[1].value.records || []).filter(asesorRecordBelongs) : [];
+    const items = [];
+    vendedores.forEach(rec=>{
+      const nombre = _fval(rec,'Nombre Completo') || _fval(rec,'Folio') || 'Lead vendedor';
+      const docs = _fval(rec,'Documentos');
+      const expediente = _fval(rec,'Progreso Expediente');
+      const fiscal = [_fval(rec,'Diagnóstico Fiscal'), _fval(rec,'Detalle Fiscal')].filter(Boolean).join(' · ');
+      const texto = [docs, expediente, fiscal].filter(Boolean).join(' · ');
+      if(texto) items.push({origen:nombre, estado:asesorDocEstado(texto), nota:texto});
+    });
+    progreso.forEach(rec=>{
+      const nombre = _fval(rec,'Propiedad') || _fval(rec,'Comprador') || _fval(rec,'Folio') || 'Operación en progreso';
+      const texto = [_fval(rec,'Pendientes visibles'), _fval(rec,'Próximo paso')].filter(Boolean).join(' · ');
+      if(texto) items.push({origen:nombre, estado:asesorDocEstado(texto), nota:texto});
+    });
+    if(!items.length){ box.innerHTML = asesorEmptyRealHtml('No hay documentos o pendientes documentales registrados para este asesor todavía. Cuando Airtable tenga documentos, pendientes o progreso ligados a su Slug/Cuenta, aparecerán aquí.'); return; }
+    box.innerHTML = items.slice(0,12).map(d=>`
+      <div class="fv-lock">
+        <div class="fv-lock-k">${asesorEsc(d.origen)}</div>
+        <div class="fv-lock-v">${asesorStatusBadge(d.estado)}<br><span style="color:var(--w50);font-family:Montserrat,sans-serif">${asesorEsc(d.nota)}</span></div>
+      </div>`).join('');
+  }catch(e){
+    box.innerHTML = `<div class="asesor-hoy-empty">No se pudieron cargar documentos desde Airtable.<br><span style="color:var(--red)">${asesorEsc(e.message||e)}</span></div>`;
+  }
 }
 function buildAsesorReportesPanel(){
   const nums = [['12','Leads recibidos'],['8','Contactados'],['3','Citas generadas'],['1','Expediente activo']].map(n=>`<div class="fv-num"><div class="fv-num-val">${n[0]}</div><div class="fv-num-lbl">${n[1]}</div></div>`).join('');
@@ -4527,6 +4819,8 @@ function goTo(id){
   if(id === 'administracion') setTimeout(onAdministracionPanelActivate, 60);
   if(id === 'airtable') setTimeout(onAirtablePanelActivate, 60);
   if(id === 'perfil_asesor') setTimeout(()=>perfilLoad(false), 60);
+  if(id === 'propiedades_asesor') setTimeout(()=>asesorPropiedadesLoad(false), 60);
+  if(id === 'documentos_asesor') setTimeout(()=>asesorDocumentosLoad(false), 60);
   if(id === 'hoy' && SESSION?.rol === 'asesor') setTimeout(()=>asesorHoyLoad(false), 60);
   if(id === 'hoy' && SESSION?.rol !== 'asesor') setTimeout(()=>loadHoyData(false), 60);
   syncDemoRoleSwitch();
