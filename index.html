@@ -1500,18 +1500,19 @@ const TOOLS = {
 /* Entrada REAL del asesor: valida el slug contra la tabla Asesor captación.
    Solo entra si el asesor existe y está Activo. Lo mete con privilegios de
    asesor (NAV propio + CRM filtrado por su slug). No toca el login de admin. */
-async function entrarComoAsesorReal(){
+async function entrarComoAsesorReal(slugArg){
   const errEl = document.getElementById('asesor-login-err');
-  const slug  = (document.getElementById('l-asesor-slug').value || '').trim().toLowerCase();
-  if(!slug){ errEl.style.color='var(--red)'; errEl.textContent='Escribe tu slug.'; return; }
-  errEl.style.color='var(--w50)'; errEl.textContent='Verificando en Airtable...';
+  const say = (msg, bad)=>{ if(errEl){ errEl.style.color = bad ? 'var(--red)' : 'var(--w50)'; errEl.textContent = msg; } else if(bad){ showToast(msg); } };
+  const slug = (slugArg || (document.getElementById('l-asesor-slug')?.value) || '').trim().toLowerCase();
+  if(!slug){ say('Escribe tu slug.', true); return; }
+  say('Verificando en Airtable...', false);
   try{
     const formula = encodeURIComponent(`LOWER({Slug})='${slug.replace(/'/g,"\\'")}'`);
     const data = await atFetch(`tblIRPmLIyj8sWyEk?filterByFormula=${formula}&maxRecords=1`);
     const rec = (data.records || [])[0];
-    if(!rec){ errEl.style.color='var(--red)'; errEl.textContent='Ese asesor no existe en la tabla. Pídele al administrador que te dé de alta.'; return; }
+    if(!rec){ say('Ese asesor no existe en la tabla (slug: ' + slug + '). Revisa el slug en la ficha del asesor.', true); return; }
     const f = rec.fields || {};
-    if(!f['Activo']){ errEl.style.color='var(--red)'; errEl.textContent='Tu acceso aún no está activo. El administrador debe marcarte como Activo.'; return; }
+    if(!f['Activo']){ say('Ese asesor existe pero no está Activo. Márcalo Activo en su ficha.', true); return; }
     SESSION = {
       user: slug,
       slug: slug,
@@ -1523,15 +1524,14 @@ async function entrarComoAsesorReal(){
       perfilRecId: rec.id,
       realAsesor: true
     };
-    errEl.textContent = '';
+    say('', false);
     document.getElementById('screen-login').classList.add('hidden');
     document.getElementById('screen-app').classList.remove('hidden');
     bootApp();
     refreshChrome();
-    showToast('Bienvenido, ' + SESSION.nombre);
+    showToast('Entraste como ' + SESSION.nombre);
   }catch(e){
-    errEl.style.color='var(--red)';
-    errEl.textContent='Error de conexión: ' + e.message;
+    say('Error de conexión: ' + e.message, true);
   }
 }
 
@@ -4099,10 +4099,17 @@ function adminCuentaControlForm(c){
     <div class="admin-actions"><button class="btn btn-ghost" onclick="adminDeleteCuentaV9('${c.id}')">Eliminar cuenta</button><button class="btn btn-primary" onclick="adminSaveCuentaV9('${c.id}')">Guardar ficha</button></div>
   </div>`;
 }
+function adminCopyText(text, msg){ try{ navigator.clipboard?.writeText(String(text||'')); showToast(msg || 'Copiado'); }catch(e){ showToast('No se pudo copiar'); } }
 function adminUsuariosCuentaListV9(c){
   const users = adminCuentaUsers(c.id);
   if(!users.length) return `<div class="admin-v9-empty"><b>Sin usuarios</b>Esta cuenta todavía no tiene perfiles preparados.</div>`;
-  return `<div class="admin-card-sub" style="margin-bottom:8px">Lista de usuarios del paquete</div><div class="admin-v9-users">${users.map((u,i)=>`<div class="admin-v9-user-row ${u.id===adminState.selectedUsuarioId?'active':''}" onclick="adminOpenUsuarioV9('${u.id}')"><div><div class="admin-v9-user-name">${String(i+1).padStart(2,'0')} · ${adminEsc(u.nombre)}</div><div class="admin-v9-user-meta">${adminEsc(u.puesto||'Sin puesto')} · ${adminEsc(u.email||'Sin email')} · ${adminEsc(u.whatsapp||'Sin WhatsApp')}</div></div><div class="admin-v9-user-actions">${adminBadge(u.estado)}<button class="admin-v9-smallbtn" onclick="event.stopPropagation();adminOpenUsuarioV9('${u.id}')">Editar ficha</button></div></div>`).join('')}</div>`;
+  return `<div class="admin-card-sub" style="margin-bottom:8px">Lista de usuarios del paquete</div><div class="admin-v9-users">${users.map((u,i)=>{
+    const slug = u.slugOficial || u.slugSugerido || '';
+    const acceso = slug ? `<div class="admin-v9-user-meta" style="color:var(--gold)">Acceso (slug): <b>${adminEsc(slug)}</b></div>` : `<div class="admin-v9-user-meta" style="color:var(--red)">Acceso: se genera al guardar nombre</div>`;
+    const btnCopiar = slug ? `<button class="admin-v9-smallbtn" onclick="event.stopPropagation();adminCopyText('${adminEsc(slug)}','Slug copiado: ${adminEsc(slug)}')">Copiar slug</button>` : '';
+    const btnEntrar = slug ? `<button class="admin-v9-smallbtn" onclick="event.stopPropagation();entrarComoAsesorReal('${adminEsc(slug)}')">Entrar como →</button>` : '';
+    return `<div class="admin-v9-user-row ${u.id===adminState.selectedUsuarioId?'active':''}" onclick="adminOpenUsuarioV9('${u.id}')"><div><div class="admin-v9-user-name">${String(i+1).padStart(2,'0')} · ${adminEsc(u.nombre)}</div><div class="admin-v9-user-meta">${adminEsc(u.puesto||'Sin puesto')} · ${adminEsc(u.whatsapp||'Sin WhatsApp')}</div>${acceso}</div><div class="admin-v9-user-actions">${adminBadge(u.estado)}${btnCopiar}${btnEntrar}<button class="admin-v9-smallbtn" onclick="event.stopPropagation();adminOpenUsuarioV9('${u.id}')">Editar ficha</button></div></div>`;
+  }).join('')}</div>`;
 }
 function adminUsuarioClosedNoticeV11(c){
   const label = c?.tipo === 'Asesor independiente' ? 'el perfil del asesor independiente' : 'un usuario del paquete';
