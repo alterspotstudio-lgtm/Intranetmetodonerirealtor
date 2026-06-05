@@ -1181,6 +1181,22 @@ select.form-inp option{background:#111;color:#fff}
 .asesor-list{display:grid;gap:8px}.asesor-row{border:1px solid var(--border);background:rgba(255,255,255,.022);border-radius:14px;padding:13px 14px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}.asesor-row b{font-size:12px;color:var(--white)}.asesor-row p{font-size:10px;color:var(--w50);line-height:1.55;margin-top:4px}.asesor-row .meta{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end}.asesor-pill{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--border2);background:rgba(255,255,255,.035);border-radius:999px;padding:6px 9px;font-size:7px;letter-spacing:1.4px;text-transform:uppercase;font-weight:900;color:var(--w55);white-space:nowrap}.asesor-pill.gold{border-color:var(--goldbdr);background:var(--golddim);color:var(--gold)}.asesor-pill.green{border-color:rgba(74,222,128,.25);background:rgba(74,222,128,.08);color:var(--green)}.asesor-pill.red{border-color:rgba(248,113,113,.25);background:rgba(248,113,113,.08);color:var(--red)}
 .asesor-two{display:grid;grid-template-columns:1fr 1fr;gap:14px}.asesor-form{display:grid;grid-template-columns:1fr 1fr;gap:12px}.asesor-form .full{grid-column:1/-1}.asesor-inp,.asesor-textarea{width:100%;background:rgba(0,0,0,.22);border:1px solid var(--border2);border-radius:12px;color:var(--white);padding:12px;font-size:12px;outline:none}.asesor-textarea{min-height:90px;resize:vertical}.asesor-label{font-size:7px;letter-spacing:1.6px;text-transform:uppercase;color:var(--w40);font-weight:900;margin-bottom:6px;display:block}.asesor-lock{border:1px dashed var(--border2);background:rgba(255,255,255,.018);border-radius:12px;padding:12px}.asesor-lock small{font-size:7px;letter-spacing:1.6px;text-transform:uppercase;color:var(--w35);font-weight:900;display:block;margin-bottom:5px}.asesor-lock b{font-family:var(--mono);font-size:11px;color:var(--gold);word-break:break-word}
 .asesor-manual-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.asesor-manual{border:1px solid var(--border);background:rgba(255,255,255,.025);border-radius:14px;padding:14px}.asesor-manual b{font-size:12px;display:block;color:var(--white);margin-bottom:7px}.asesor-manual span{font-size:10px;color:var(--w50);line-height:1.55}.asesor-note{border:1px solid var(--goldbdr);background:var(--golddim);border-radius:14px;padding:14px;font-size:11px;color:var(--w70);line-height:1.7}
+.asesor-hoy-premium{max-width:1180px;margin:0 auto;width:100%}
+.asesor-hoy-box{width:100%;max-width:none;margin:0 0 16px}
+.asesor-hoy-header{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.asesor-hoy-sub{font-size:11px;color:var(--w50);line-height:1.7;margin-top:7px;max-width:720px}
+.asesor-hoy-line{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;margin-top:12px;border:1px solid var(--border);background:rgba(255,255,255,.018);border-radius:3px;overflow:hidden}
+.asesor-hoy-stage{padding:14px 13px;background:rgba(0,0,0,.18);position:relative;min-height:82px}
+.asesor-hoy-stage:before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--gold);opacity:.5}
+.asesor-hoy-stage b{font-family:var(--display);font-size:34px;line-height:1;color:var(--gold);display:block;letter-spacing:1px}
+.asesor-hoy-stage span{display:block;font-size:7px;letter-spacing:1.6px;text-transform:uppercase;color:var(--w45);font-weight:900;margin-top:6px;line-height:1.45}
+.asesor-hoy-stage small{display:block;font-size:10px;color:var(--w35);line-height:1.45;margin-top:6px}
+.asesor-hoy-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:14px}
+.asesor-hoy-leads{display:grid;gap:2px}
+.asesor-hoy-row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:13px 2px;border-bottom:1px solid var(--border)}
+.asesor-hoy-row:last-child{border-bottom:none}.asesor-hoy-row b{font-size:13px;color:#fff}.asesor-hoy-row p{font-size:10px;color:var(--w45);line-height:1.55;margin-top:4px}.asesor-hoy-actions{display:grid;gap:8px}.asesor-hoy-action{border:1px solid var(--border);background:rgba(255,255,255,.02);border-radius:3px;padding:13px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;cursor:pointer}.asesor-hoy-action:hover{border-color:var(--goldbdr);background:var(--golddim)}.asesor-hoy-action b{font-size:12px}.asesor-hoy-action span{font-size:10px;color:var(--w45);display:block;margin-top:4px;line-height:1.5}.asesor-hoy-empty{padding:20px;border:1px dashed var(--border2);background:rgba(255,255,255,.018);border-radius:3px;text-align:center;color:var(--w40);font-size:11px;line-height:1.7}
+.asesor-hoy-mini{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.asesor-hoy-mini .asesor-pill{text-decoration:none}
+@media(max-width:980px){.asesor-hoy-grid,.asesor-hoy-line{grid-template-columns:1fr}.asesor-hoy-row{grid-template-columns:1fr}.asesor-hoy-mini{justify-content:flex-start}}
 
 /* Perfil del asesor con patrón visual de Lead Vendedores */
 .asesor-perfil-page{padding:28px;max-width:1180px;margin:0 auto;width:100%}
@@ -1440,12 +1456,12 @@ function doLogin(){
 /* Trae nombre/whatsapp/empresa/pixel reales del asesor desde Airtable por slug.
    Best-effort: si falla, la sesión sigue con el perfil local. */
 async function enrichIdentity(slug){
-  if(!slug) return;
+  if(!slug) return null;
   try{
     const formula = encodeURIComponent(`LOWER({Slug})='${String(slug).toLowerCase()}'`);
     const data = await atFetch(`tblIRPmLIyj8sWyEk?filterByFormula=${formula}&maxRecords=1`);
     const rec = (data.records||[])[0];
-    if(!rec) return;
+    if(!rec) return null;
     SESSION.perfilRecId = rec.id;   // id real del registro del asesor, para editar su perfil después
     const f = rec.fields || {};
     if(f['Nombre'])            SESSION.nombre   = f['Nombre'];
@@ -1456,7 +1472,8 @@ async function enrichIdentity(slug){
     if(ciudad || puesto) SESSION.empresa = [puesto, ciudad].filter(Boolean).join(' · ') || SESSION.empresa;
     refreshChrome();
     showToast('Identidad: '+SESSION.nombre);
-  }catch(e){ /* sin conexión: se queda el perfil local */ }
+    return rec;
+  }catch(e){ return null; /* sin conexión: se queda el perfil local */ }
 }
 
 function refreshChrome(){
@@ -1905,6 +1922,10 @@ function adminSelect(label,id,value,options,extra=''){
 function adminSelectObjects(label,id,value,options,extra=''){
   return `<div class="form-group"><label>${adminEsc(label)}</label><select class="form-inp" id="${adminEsc(id)}" ${extra}>${options.map(o=>`<option value="${adminEsc(o.value)}" ${String(o.value)===String(value)?'selected':''}>${adminEsc(o.label)}</option>`).join('')}</select></div>`;
 }
+function val(id){
+  const el = document.getElementById(id);
+  return el && typeof el.value !== 'undefined' ? String(el.value).trim() : '';
+}
 function adminUploadField(label,id,value='',hint=''){
   const hasFile = value && value !== 'CASITA_METODO_NERI';
   const preview = hasFile ? `<img src="${adminEsc(value)}" alt="${adminEsc(label)}">` : `<span>＋</span>`;
@@ -2107,6 +2128,37 @@ async function atFetch(path, opts={}){
   return r.json();
 }
 
+function crmTextValue(v){
+  if(v == null) return '';
+  if(Array.isArray(v)) return v.map(x=>crmTextValue(x)).filter(Boolean).join(' ');
+  if(typeof v === 'object') return v.name || v.email || v.id || Object.values(v).map(x=>crmTextValue(x)).join(' ');
+  return String(v);
+}
+function crmRecordBelongsToCurrentAsesor(rec){
+  if(SESSION?.rol !== 'asesor') return true;
+  const f = rec?.fields || {};
+  const tokens = [SESSION.slug, SESSION.user, SESSION.nombre]
+    .filter(Boolean).map(x=>String(x).toLowerCase().trim()).filter(Boolean);
+  const hay = [
+    f['Asesor'], f['Asesor Slug'], f['Slug Asesor'], f['Slug'],
+    f['Asesor asignado'], f['Responsable'], f['WhatsApp Asesor'], f['Email Asesor']
+  ].map(crmTextValue).join(' ').toLowerCase();
+  if(!hay.trim()) return false;
+  return tokens.some(t => t && hay.includes(t));
+}
+function crmGateMissingAdvisorProfile(){
+  const loading = document.getElementById('crm-loading');
+  const body = document.getElementById('crm-body');
+  const errEl = document.getElementById('crm-error');
+  if(loading) loading.style.display = 'none';
+  if(body) body.style.display = 'none';
+  if(errEl) errEl.style.display = 'block';
+  const msg = document.getElementById('crm-error-msg');
+  if(msg) msg.innerHTML = `Primero hay que dar de alta el <b>perfil real del asesor</b> en Airtable.<br><br>
+    <span style="color:var(--w50);font-size:11px;line-height:1.7">El CRM ya no se abre solo por entrar en modo prueba. Para ver Mis Leads / CRM, el slug <b>${_esc(SESSION?.slug||'')}</b> debe existir en la tabla de asesores <b>tblIRPmLIyj8sWyEk</b>.</span><br><br>
+    <button class="at-btn primary" onclick="goTo('perfil_asesor')" style="margin:0 auto">Ir a Mi Perfil</button>`;
+}
+
 /* ─── LOAD RECORDS ─────────────────────────────────── */
 async function crmLoad(tab, force=false){
   crmState.tab = tab;
@@ -2125,7 +2177,8 @@ async function crmLoad(tab, force=false){
     // Robusto: sin fields[] (si un nombre no existe, Airtable rechaza TODO con 422)
     // y sin view fija (falla si la vista fue renombrada). Trae todos los campos.
     const data = await atFetch(`${cfg.tableId}?maxRecords=100`);
-    crmState.records = data.records || [];
+    const allRecords = data.records || [];
+    crmState.records = SESSION?.rol === 'asesor' ? allRecords.filter(crmRecordBelongsToCurrentAsesor) : allRecords;
     crmRender(tab, crmState.records);
     const tabCountEl = document.getElementById('tab-count-' + tab);
     if(tabCountEl) tabCountEl.textContent = crmState.records.length;
@@ -3327,9 +3380,19 @@ function buildAirtablePanel(){
 
 /* ─── AUTO-CARGA al activar el panel ───────────────── */
 let _crmLoaded = false;
-function onAirtablePanelActivate(){
+async function onAirtablePanelActivate(){
   const loading = document.getElementById('crm-loading');
   if(!loading) return;
+
+  // Seguridad de prueba: un asesor no debe ver el CRM si su perfil real no existe.
+  if(SESSION?.rol === 'asesor' && !SESSION.perfilRecId){
+    await enrichIdentity(SESSION.slug);
+    if(!SESSION.perfilRecId){
+      crmGateMissingAdvisorProfile();
+      return;
+    }
+  }
+
   // Primera vez: cargar. Siguientes veces: solo recargar si no hay datos aún.
   if(!_crmLoaded){
     _crmLoaded = true;
@@ -3569,6 +3632,8 @@ function adminV9Normalize(){
     c.airtableUrl = c.airtableUrl || '';
     c.intranetUrl = c.intranetUrl || '';
     c.soporteNotas = c.soporteNotas || '';
+    c.crmCodigo = c.crmCodigo || adminSlug(c.nombre || c.id || 'cuenta');
+    c.crmModo = c.crmModo || 'CRM compartido Método NERI · filtro por Cuenta/Slug';
   });
   adminState.data.usuarios.forEach(u=>{
     const c = adminCuenta(u.cuentaId);
@@ -3745,6 +3810,9 @@ function adminCuentaControlForm(c){
       ${adminField('Link directo Make','cuenta-make-v10',c.makeUrl||'')}
       ${adminField('Link directo Airtable','cuenta-airtable-v10',c.airtableUrl||'')}
       ${adminField('Link directo Intranet de la cuenta','cuenta-intranet-v10',c.intranetUrl||'')}
+      ${adminField('Código CRM / Cuenta','cuenta-crm-codigo-v13',c.crmCodigo||adminSlug(c.nombre))}
+      <div class="form-group"><label>Modo CRM actual</label><input class="form-inp" value="CRM compartido Método NERI · filtra por Slug/Cuenta" disabled></div>
+      <div class="form-group full"><div class="admin-v9-form-note"><b>Lógica CRM:</b> no se crea un CRM nuevo por usuario. Los leads entran a las tablas reales de CRM_CFG y se separan por Slug del asesor / Cuenta CRM.</div></div>
       ${adminArea('Notas soporte técnico','cuenta-soporte-notas-v10',c.soporteNotas||'','full')}
       ${adminArea('Notas administrativas','cuenta-notas-v9',c.notas,'full')}
     </div>
@@ -3828,7 +3896,7 @@ function adminCloseUsuarioV11(){
 function adminSaveCuentaV9(id){
   const c = adminCuenta(id); if(!c) return;
   c.estado = val('cuenta-estado-v9'); c.nombre = val('cuenta-nombre-v9'); c.ciudad = val('cuenta-ciudad-v9'); c.responsable = val('cuenta-responsable-v9'); c.notas = val('cuenta-notas-v9');
-  c.makeUrl = val('cuenta-make-v10'); c.airtableUrl = val('cuenta-airtable-v10'); c.intranetUrl = val('cuenta-intranet-v10'); c.soporteNotas = val('cuenta-soporte-notas-v10');
+  c.makeUrl = val('cuenta-make-v10'); c.airtableUrl = val('cuenta-airtable-v10'); c.intranetUrl = val('cuenta-intranet-v10'); c.crmCodigo = val('cuenta-crm-codigo-v13') || adminSlug(c.nombre); c.soporteNotas = val('cuenta-soporte-notas-v10');
   if(c.tipo === 'Inmobiliaria'){ c.limiteAsesores = Number(val('cuenta-limite-v9')||10); c.plan = adminV9PlanFromLimit(c.limiteAsesores); c.logo = val('cuenta-logo-v9'); c.director = val('cuenta-director-v9'); c.whatsappDirector = val('cuenta-whatsapp-v9').replace(/\D/g,''); c.emailDirector = val('cuenta-email-v9'); }
   else if(c.tipo === 'Grupo de asesores sin inmobiliaria'){ c.limiteAsesores = 5; c.plan = ADMIN_V9_PLANES.grupo; c.logo = val('cuenta-logo-v9'); c.director = val('cuenta-director-v9'); c.whatsappDirector = val('cuenta-whatsapp-v9').replace(/\D/g,''); c.emailDirector = val('cuenta-email-v9'); }
   else { c.limiteAsesores = 1; c.plan = ADMIN_V9_PLANES.independiente; c.logo = 'CASITA_METODO_NERI'; }
@@ -3909,13 +3977,16 @@ function adminRenderCrear(){
     ${isInd ? adminField('WhatsApp','new-whatsapp','') + adminField('Email','new-email','') : adminField(isInmo?'Director':'Líder de grupo','new-director','') + adminField('WhatsApp director / líder','new-whatsapp-director','') + adminField('Email director / líder','new-email-director','')}
     ${logo}
     ${publicFields}
+    ${adminField('Código CRM / Cuenta','new-crm-codigo',adminSlug(tipo==='Asesor independiente'?'asesor-nuevo':'cuenta-nueva'))}
+    <div class="form-group"><label>Modo CRM</label><input class="form-inp" value="CRM compartido Método NERI · filtro por Slug/Cuenta" disabled></div>
+    <div class="form-group full"><div class="admin-v9-form-note"><b>Alta correcta:</b> este código identifica la cuenta; cada usuario tendrá su Slug. Airtable debe guardar ambos para que el asesor vea solo sus leads.</div></div>
     ${adminArea('Notas administrativas','new-notas','','full')}
   </div><div class="admin-actions"><button class="btn btn-ghost" onclick="adminGoCrear()">Cancelar</button><button class="btn btn-primary" onclick="adminCreateCuentaV9()">Crear intranet</button></div></div></div></div>`;
 }
 function adminCreateCuentaV9(){
   const tipo = adminState.createTipo; if(!ADMIN_TIPOS_CUENTA.includes(tipo)){ showToast('Selecciona tipo de cuenta'); return; }
   const nombre = val('new-nombre') || (tipo==='Inmobiliaria'?'Nueva inmobiliaria':tipo==='Asesor independiente'?'Nuevo asesor independiente':'Nuevo grupo sin inmobiliaria');
-  const c = { id:adminId('cta'), nombre, tipo, estado:val('new-estado')||'Pendiente', ciudad:val('new-ciudad'), responsable:val('new-responsable'), director:val('new-director'), whatsappDirector:val('new-whatsapp-director').replace(/\D/g,''), emailDirector:val('new-email-director'), logo:'', limiteAsesores:adminDefaultLimit(tipo), plan:'', notas:val('new-notas'), servicios:adminV9DefaultServices(tipo), makeUrl:'', airtableUrl:'', intranetUrl:'', soporteNotas:'' };
+  const c = { id:adminId('cta'), nombre, tipo, estado:val('new-estado')||'Pendiente', ciudad:val('new-ciudad'), responsable:val('new-responsable'), director:val('new-director'), whatsappDirector:val('new-whatsapp-director').replace(/\D/g,''), emailDirector:val('new-email-director'), logo:'', limiteAsesores:adminDefaultLimit(tipo), plan:'', notas:val('new-notas'), servicios:adminV9DefaultServices(tipo), makeUrl:'', airtableUrl:'', intranetUrl:'', soporteNotas:'', crmCodigo:val('new-crm-codigo') || adminSlug(nombre), crmModo:'CRM compartido Método NERI · filtro por Cuenta/Slug' };
   if(tipo === 'Inmobiliaria'){ c.limiteAsesores = Number(val('new-limite')||10); c.plan = adminV9PlanFromLimit(c.limiteAsesores); c.logo = val('new-logo'); }
   if(tipo === 'Grupo de asesores sin inmobiliaria'){ c.limiteAsesores = 5; c.plan = ADMIN_V9_PLANES.grupo; c.logo = val('new-logo'); }
   if(tipo === 'Asesor independiente'){ c.limiteAsesores = 1; c.plan = ADMIN_V9_PLANES.independiente; c.logo = 'CASITA_METODO_NERI'; }
@@ -4031,25 +4102,136 @@ function asesorEsc(s){ return String(s ?? '').replace(/[&<>"]/g, m=>({ '&':'&amp
 function asesorCopy(text){ navigator.clipboard?.writeText(text); showToast('Copiado'); }
 function asesorWa(num,msg){ return `https://wa.me/${String(num||SESSION?.whatsapp||'').replace(/\D/g,'')}?text=${encodeURIComponent(msg||'Hola, te escribo para dar seguimiento.')}`; }
 
+let _asesorHoyLoaded = false;
+function asesorLinkCaptacion(){
+  const slug = SESSION?.slug || SESSION?.user || 'asesor';
+  return `https://captacion.vercel.app/?asesor=${encodeURIComponent(slug)}`;
+}
+function asesorHoySkeleton(){ return '<div class="asesor-hoy-empty">Cargando Mis Leads / CRM…</div>'; }
 function buildAsesorHoyPanel(){
   const s = SESSION || USERS.asesor;
-  const acciones = ASESOR_SAMPLE.acciones.map(a=>`<button class="asesor-action" onclick="goTo('${a.destino}')"><div><span class="tag">${asesorEsc(a.tag)}</span><b>${asesorEsc(a.titulo)}</b><p>${asesorEsc(a.texto)}</p></div><span class="go">Resolver ahora →</span></button>`).join('');
-  const leads = ASESOR_SAMPLE.leads.map(l=>`<div class="asesor-row"><div><b>${asesorEsc(l.nombre)}</b><p>${asesorEsc(l.tipo)} · ${asesorEsc(l.detalle)}</p></div><div class="meta"><span class="asesor-pill ${l.estado==='HOT'?'gold':l.estado==='Nuevo'?'green':''}">${asesorEsc(l.estado)}</span><a class="asesor-pill gold" href="${asesorWa('', 'Hola '+l.nombre+', te escribo para dar seguimiento a tu registro en Método NERI.')}" target="_blank">WhatsApp</a></div></div>`).join('');
-  return `<div class="panel" id="panel-hoy"><div class="asesor-body">
-    <div class="asesor-hero">
-      <section class="asesor-card">
-        <div class="asesor-eyebrow">Centro de Mando del Asesor</div>
-        <div class="asesor-title">HOY EN TU <em>OPERACIÓN</em></div>
-        <div class="asesor-sub">Hola, ${asesorEsc(s.nombre)}. Esta vista no es administración: es tu tablero diario para saber qué hacer, a quién contactar y qué expediente mover.</div>
-        <div class="asesor-link-box"><div><small>Tu Link Captación</small><code>${asesorEsc(ASESOR_SAMPLE.link)}</code></div><button class="asesor-gold-btn" onclick="asesorCopy('${ASESOR_SAMPLE.link}')">Copiar link</button></div>
-      </section>
-      <section class="asesor-card"><div class="asesor-eyebrow">Resumen útil</div><div class="asesor-kpis"><div class="asesor-kpi"><b>3</b><span>acciones de hoy</span></div><div class="asesor-kpi"><b>2</b><span>leads por contactar</span></div><div class="asesor-kpi"><b>1</b><span>cita próxima</span></div><div class="asesor-kpi"><b>3</b><span>documentos a revisar</span></div></div></section>
+  const link = asesorLinkCaptacion();
+  return `<div class="panel" id="panel-hoy"><div class="asesor-body asesor-hoy-premium">
+    <div class="ph-head" style="margin-bottom:18px">
+      <div class="ph-eyebrow">Centro de mando del asesor</div>
+      <div class="ph-title">HOY EN TU<br><em>OPERACIÓN</em></div>
     </div>
-    <section class="asesor-section"><div class="asesor-sec-head"><div><div class="asesor-sec-title">QUÉ HACER <em>HOY</em></div><div class="asesor-sec-sub">Acciones concretas. No es menú, es guía de trabajo.</div></div></div><div class="asesor-action-grid">${acciones}</div></section>
-    <section class="asesor-section"><div class="asesor-sec-head"><div><div class="asesor-sec-title">LEADS QUE <em>NO DEBES SOLTAR</em></div><div class="asesor-sec-sub">Ejemplos de cómo debe verse tu operación diaria.</div></div><button class="asesor-gold-btn" onclick="goTo('airtable')">Abrir CRM</button></div><div class="asesor-list">${leads}</div></section>
-    <section class="asesor-section"><div class="asesor-note"><b>Regla de esta vista:</b> el asesor no administra cuentas, cupos, paquetes ni soporte técnico. El asesor trabaja leads, citas, propiedades, documentos, mensajes y su perfil público.</div></section>
+
+    <div class="fv-box asesor-hoy-box">
+      <div class="fv-header">
+        <div>
+          <div class="fv-nombre">${asesorEsc(s.nombre || 'Asesor')}</div>
+          <div class="fv-wa"><span>${asesorEsc(s.empresa || 'Método NERI')}</span></div>
+          <div class="asesor-hoy-sub">Esta pantalla ahora se alimenta de <b>Mis Leads / CRM</b>. No es una lista de ejemplo: lee compradores, vendedores, citas y progreso desde las tablas conectadas en <b>CRM_CFG</b>.</div>
+        </div>
+        <div style="text-align:right">
+          <div class="fv-folio-lbl">Link Captación</div>
+          <div class="fv-folio" style="max-width:260px;word-break:break-all">${asesorEsc(link)}</div>
+          <div style="height:10px"></div>
+          <button class="fv-wa-btn" onclick="asesorCopy('${link}')">Copiar link</button>
+        </div>
+      </div>
+      <div class="fv-body perfil-fv-body">
+        <div class="fv-sec">
+          <div class="fv-sec-title"><em>◈</em> Línea directa con Mis Leads / CRM</div>
+          <div class="asesor-hoy-line" id="asesor-hoy-linea">${asesorHoySkeleton()}</div>
+        </div>
+      </div>
+      <div class="fv-actions perfil-fv-actions">
+        <button class="btn btn-ghost" onclick="asesorHoyLoad(true)">Actualizar HOY</button>
+        <button class="btn btn-primary" onclick="goTo('airtable')">Abrir Mis Leads / CRM</button>
+      </div>
+    </div>
+
+    <div class="asesor-hoy-grid">
+      <section class="fv-box asesor-hoy-box">
+        <div class="fv-header"><div><div class="fv-nombre">LEADS QUE NO DEBES SOLTAR</div><div class="fv-wa"><span>Prioridad real del CRM</span></div></div><div><div class="fv-folio-lbl">Vista</div><div class="fv-folio">HOY</div></div></div>
+        <div class="fv-body perfil-fv-body"><div class="asesor-hoy-leads" id="asesor-hoy-leads">${asesorHoySkeleton()}</div></div>
+      </section>
+      <section class="fv-box asesor-hoy-box">
+        <div class="fv-header"><div><div class="fv-nombre">QUÉ HACER HOY</div><div class="fv-wa"><span>Acciones concretas</span></div></div><div><div class="fv-folio-lbl">Guía</div><div class="fv-folio">NERI</div></div></div>
+        <div class="fv-body perfil-fv-body"><div class="asesor-hoy-actions" id="asesor-hoy-acciones">${asesorHoySkeleton()}</div></div>
+      </section>
+    </div>
+
+    <section class="asesor-section"><div class="asesor-note"><b>Regla de esta vista:</b> si el asesor no existe en la tabla real de asesores por Slug, el CRM no debe abrirse. Primero se da de alta el perfil real; después sus leads se filtran por asesor/cuenta.</div></section>
   </div></div>`;
 }
+
+function asesorHoyPriority(rec, tipo){
+  const estado = _fval(rec,'Clasificación') || _fval(rec,'Status del Lead') || _fval(rec,'Conversión') || _fval(rec,'Estado') || 'Nuevo';
+  const s = String(estado).toLowerCase();
+  if(s.includes('hot') || s.includes('nuevo') || s.includes('firma')) return 3;
+  if(s.includes('warm') || s.includes('seguimiento') || s.includes('cita')) return 2;
+  return 1;
+}
+function asesorHoyLeadRow(rec, tipo){
+  const f = rec.fields || {};
+  const nombre = _fval(rec,'Nombre Completo') || _fval(rec,'Comprador') || _fval(rec,'Nombre') || _fval(rec,'Nombre Propiedad') || 'Registro sin nombre';
+  const wa = _fval(rec,'Teléfono WhatsApp') || _fval(rec,'WhatsApp') || _fval(rec,'WhatsApp Asesor') || '';
+  const estado = _fval(rec,'Clasificación') || _fval(rec,'Status del Lead') || _fval(rec,'Conversión') || _fval(rec,'Estado Cita') || _fval(rec,'Fase Actual') || 'Nuevo';
+  const detalle = tipo === 'Vendedor'
+    ? [_fval(rec,'Tipo de Propiedad'), _fval(rec,'Zona'), _fval(rec,'Precio Estimado')].filter(Boolean).join(' · ')
+    : tipo === 'Cita'
+      ? [_fval(rec,'Propiedad'), _fval(rec,'Fecha de la Cita'), _fval(rec,'Hora')].filter(Boolean).join(' · ')
+      : [_fval(rec,'Propiedad de Interés'), _fval(rec,'Riesgo principal'), _fval(rec,'Siguiente jugada')].filter(Boolean).join(' · ');
+  const badge = STATUS_BADGE[estado] ? `<span class="badge ${STATUS_BADGE[estado]}">${_esc(estado)}</span>` : `<span class="asesor-pill gold">${asesorEsc(estado)}</span>`;
+  return `<div class="asesor-hoy-row"><div><b>${asesorEsc(nombre)}</b><p>${asesorEsc(tipo)}${detalle?' · '+asesorEsc(detalle):''}</p></div><div class="asesor-hoy-mini">${badge}${wa?`<a class="asesor-pill gold" href="${asesorWa(wa, 'Hola '+nombre+', te escribo para dar seguimiento a tu registro en Método NERI.')}" target="_blank" rel="noopener">WhatsApp</a>`:''}</div></div>`;
+}
+function asesorHoyStage(num,label,txt){ return `<div class="asesor-hoy-stage"><b>${num}</b><span>${asesorEsc(label)}</span><small>${asesorEsc(txt)}</small></div>`; }
+async function asesorHoyLoad(force=false){
+  if(_asesorHoyLoaded && !force) return;
+  _asesorHoyLoaded = true;
+  const linea = document.getElementById('asesor-hoy-linea');
+  const leads = document.getElementById('asesor-hoy-leads');
+  const acciones = document.getElementById('asesor-hoy-acciones');
+  if(linea) linea.innerHTML = asesorHoySkeleton();
+  if(leads) leads.innerHTML = asesorHoySkeleton();
+  if(acciones) acciones.innerHTML = asesorHoySkeleton();
+  try{
+    if(!SESSION?.perfilRecId) await enrichIdentity(SESSION?.slug);
+    if(!SESSION?.perfilRecId){
+      const msg = '<div class="asesor-hoy-empty">No existe todavía el perfil real de este asesor en Airtable. Entra como administrador, da de alta el usuario real y asegúrate de que el Slug coincida.</div>';
+      if(linea) linea.innerHTML = msg; if(leads) leads.innerHTML = msg; if(acciones) acciones.innerHTML = msg;
+      return;
+    }
+    const reqs = await Promise.allSettled([
+      atFetch(`${CRM_CFG.compradores.tableId}?maxRecords=100`),
+      atFetch(`${CRM_CFG.vendedores.tableId}?maxRecords=100`),
+      atFetch(`${CRM_CFG.citas.tableId}?maxRecords=100`),
+      atFetch(`${CRM_CFG.progreso.tableId}?maxRecords=100`)
+    ]);
+    const pack = reqs.map(r => r.status === 'fulfilled' ? (r.value.records || []) : []);
+    const compradores = pack[0].filter(crmRecordBelongsToCurrentAsesor);
+    const vendedores = pack[1].filter(crmRecordBelongsToCurrentAsesor);
+    const citas = pack[2].filter(crmRecordBelongsToCurrentAsesor);
+    const progreso = pack[3].filter(crmRecordBelongsToCurrentAsesor);
+    const todos = [
+      ...compradores.map(r=>({rec:r,tipo:'Comprador'})),
+      ...vendedores.map(r=>({rec:r,tipo:'Vendedor'})),
+      ...citas.map(r=>({rec:r,tipo:'Cita'}))
+    ].sort((a,b)=>asesorHoyPriority(b.rec,b.tipo)-asesorHoyPriority(a.rec,a.tipo)).slice(0,6);
+    const nuevos = [...compradores, ...vendedores].filter(r => ['Nuevo','HOT','WARM','Firma exclusiva','Firma venta directa','En seguimiento'].some(x => String(_fval(r,'Status del Lead')||_fval(r,'Clasificación')||_fval(r,'Conversión')||'').toLowerCase().includes(x.toLowerCase()))).length;
+    const citasPend = citas.filter(r => !['Cancelada','Realizada'].includes(_fval(r,'Estado Cita'))).length;
+    const operaciones = progreso.filter(r => !['Completado','Cerrado'].includes(_fval(r,'Fase Actual'))).length;
+    if(linea) linea.innerHTML = [
+      asesorHoyStage(compradores.length,'Compradores','Leads comprador asignados a tu slug/nombre'),
+      asesorHoyStage(vendedores.length,'Vendedores','Captaciones de propietarios en tu CRM'),
+      asesorHoyStage(citasPend,'Citas pendientes','Visitas o llamadas que requieren seguimiento'),
+      asesorHoyStage(operaciones,'Operaciones','Portal progreso conectado al asesor')
+    ].join('');
+    if(leads) leads.innerHTML = todos.length ? todos.map(x=>asesorHoyLeadRow(x.rec,x.tipo)).join('') : '<div class="asesor-hoy-empty">No hay leads asignados a este asesor todavía. Cuando un formulario entre con su slug, aparecerá aquí.</div>';
+    if(acciones) acciones.innerHTML = [
+      {t:'Revisar leads nuevos', d:`${nuevos} registro(s) con prioridad de seguimiento`, go:'airtable'},
+      {t:'Confirmar citas', d:`${citasPend} cita(s) pendiente(s) por preparar o confirmar`, go:'citas'},
+      {t:'Mover operaciones', d:`${operaciones} operación(es) en progreso con siguiente paso visible`, go:'progreso'}
+    ].map(a=>`<button class="asesor-hoy-action" onclick="goTo('${a.go}')"><div><b>${asesorEsc(a.t)}</b><span>${asesorEsc(a.d)}</span></div><span class="asesor-pill gold">Abrir →</span></button>`).join('');
+  }catch(e){
+    const msg = `<div class="asesor-hoy-empty">No se pudo cargar HOY desde CRM. Revisa /api/airtable o el slug del asesor.<br><span style="color:var(--red)">${asesorEsc(e.message||e)}</span></div>`;
+    if(linea) linea.innerHTML = msg; if(leads) leads.innerHTML = msg; if(acciones) acciones.innerHTML = msg;
+  }
+}
+
 
 /* ═══════════════════════════════════════════════════
    MI PERFIL DEL ASESOR  (registro real en Asesor captación · tblIRPmLIyj8sWyEk)
@@ -4268,19 +4450,53 @@ async function perfilSave(){
 }
 
 function buildAsesorPropiedadesPanel(){
-  const rows = ASESOR_SAMPLE.propiedades.map(p=>`<div class="asesor-row"><div><b>${asesorEsc(p.nombre)}</b><p>${asesorEsc(p.folio)} · ${asesorEsc(p.pendiente)}</p></div><div class="meta"><span class="asesor-pill gold">${asesorEsc(p.estado)}</span><button class="asesor-pill" onclick="goTo('progreso')">Ver avance</button></div></div>`).join('');
-  return `<div class="panel" id="panel-propiedades_asesor"><div class="asesor-body"><section class="asesor-section"><div class="asesor-sec-head"><div><div class="asesor-sec-title">MIS <em>PROPIEDADES</em></div><div class="asesor-sec-sub">Propiedades activas, folio y siguiente pendiente.</div></div></div><div class="asesor-list">${rows}</div></section></div></div>`;
+  const rows = ASESOR_SAMPLE.propiedades.map(p=>`
+    <div class="fv-row full">
+      <div class="fv-row-k">${asesorEsc(p.estado)}</div>
+      <div class="fv-row-v">
+        <strong style="color:var(--white)">${asesorEsc(p.nombre)}</strong><br>
+        <span style="color:var(--gold);font-family:var(--mono);font-size:11px">${asesorEsc(p.folio)}</span><br>
+        <span style="color:var(--w50)">${asesorEsc(p.pendiente)}</span>
+      </div>
+    </div>`).join('');
+  return `<div class="panel" id="panel-propiedades_asesor"><div class="asesor-body asesor-perfil-page">
+    <div class="fv-box perfil-fv-box">
+      <div class="fv-header"><div><div class="fv-nombre">MIS PROPIEDADES</div><div class="fv-wa"><span>Operaciones vivas · folio · siguiente pendiente</span></div></div><div><div class="fv-folio-lbl">Vista asesor</div><div class="fv-folio">PROPIEDADES</div></div></div>
+      <div class="fv-body perfil-fv-body">
+        <div class="fv-sec"><div class="fv-sec-title"><em>⌂</em> Propiedades activas</div><div class="fv-grid">${rows}</div></div>
+        <div class="fv-sec"><div class="le-banner">Esta vista debe decirle al asesor qué propiedad mover y qué pendiente resolver. No es administración de cuentas.</div></div>
+      </div>
+    </div>
+  </div></div>`;
 }
-
 function buildAsesorDocumentosPanel(){
-  const rows = ASESOR_SAMPLE.docs.map(d=>`<div class="asesor-row"><div><b>${asesorEsc(d.doc)}</b><p>${asesorEsc(d.nota)}</p></div><div class="meta"><span class="asesor-pill ${d.estado==='Pendiente'?'red':d.estado==='Recibida'?'green':'gold'}">${asesorEsc(d.estado)}</span></div></div>`).join('');
-  return `<div class="panel" id="panel-documentos_asesor"><div class="asesor-body"><section class="asesor-section"><div class="asesor-sec-head"><div><div class="asesor-sec-title">DOCUMENTOS Y <em>EXPEDIENTES</em></div><div class="asesor-sec-sub">Aquí el sistema debe decir qué falta para avanzar, no solo guardar archivos.</div></div></div><div class="asesor-list">${rows}</div></section></div></div>`;
+  const rows = ASESOR_SAMPLE.docs.map(d=>`
+    <div class="fv-lock">
+      <div class="fv-lock-k">${asesorEsc(d.doc)}</div>
+      <div class="fv-lock-v"><span class="badge ${d.estado==='Pendiente'?'badge-lost':d.estado==='Recibida'?'badge-close':'badge-contact'}">${asesorEsc(d.estado)}</span><br><span style="color:var(--w50);font-family:Montserrat,sans-serif">${asesorEsc(d.nota)}</span></div>
+    </div>`).join('');
+  return `<div class="panel" id="panel-documentos_asesor"><div class="asesor-body asesor-perfil-page">
+    <div class="fv-box perfil-fv-box">
+      <div class="fv-header"><div><div class="fv-nombre">DOCUMENTOS Y EXPEDIENTES</div><div class="fv-wa"><span>Qué falta para avanzar, no solo archivos guardados</span></div></div><div><div class="fv-folio-lbl">Vista asesor</div><div class="fv-folio">DOCUMENTOS</div></div></div>
+      <div class="fv-body perfil-fv-body">
+        <div class="fv-sec"><div class="fv-sec-title"><em>▤</em> Revisión documental</div><div class="perfil-fv-locks">${rows}</div></div>
+        <div class="fv-sec"><div class="le-banner">La parte fiscal y documental debe mostrarse con claridad: qué falta, qué ya llegó y qué requiere atención antes de avanzar.</div></div>
+      </div>
+    </div>
+  </div></div>`;
 }
-
 function buildAsesorReportesPanel(){
-  return `<div class="panel" id="panel-reportes_asesor"><div class="asesor-body"><section class="asesor-section"><div class="asesor-sec-head"><div><div class="asesor-sec-title">REPORTES <em>ÚTILES</em></div><div class="asesor-sec-sub">Métricas para mejorar, no para confundir.</div></div></div><div class="asesor-kpis"><div class="asesor-kpi"><b>12</b><span>leads recibidos</span></div><div class="asesor-kpi"><b>8</b><span>contactados</span></div><div class="asesor-kpi"><b>3</b><span>citas generadas</span></div><div class="asesor-kpi"><b>1</b><span>expediente activo</span></div></div></section></div></div>`;
+  const nums = [['12','Leads recibidos'],['8','Contactados'],['3','Citas generadas'],['1','Expediente activo']].map(n=>`<div class="fv-num"><div class="fv-num-val">${n[0]}</div><div class="fv-num-lbl">${n[1]}</div></div>`).join('');
+  return `<div class="panel" id="panel-reportes_asesor"><div class="asesor-body asesor-perfil-page">
+    <div class="fv-box perfil-fv-box">
+      <div class="fv-header"><div><div class="fv-nombre">REPORTES ÚTILES</div><div class="fv-wa"><span>Métricas para mejorar, no para confundir</span></div></div><div><div class="fv-folio-lbl">Vista asesor</div><div class="fv-folio">REPORTES</div></div></div>
+      <div class="fv-body perfil-fv-body">
+        <div class="fv-sec"><div class="fv-sec-title"><em>◫</em> Resumen operativo</div><div class="fv-nums">${nums}</div></div>
+        <div class="fv-sec"><div class="le-banner">Cuando se conecte real, estos números deben venir de Airtable por asesor: leads, citas, seguimiento, conversión y pendientes.</div></div>
+      </div>
+    </div>
+  </div></div>`;
 }
-
 function buildAsesorManualesPanel(){
   const manuals = [
     ['Uso de la intranet','Cómo entrar, revisar acciones de hoy y usar tus herramientas.'],
@@ -4289,10 +4505,16 @@ function buildAsesorManualesPanel(){
     ['Captación vendedores','Cómo explicar valor, fiscal y documentación sin sonar complicado.'],
     ['Citas','Cómo confirmar, preparar y dar seguimiento a una visita.'],
     ['Expedientes','Qué documentos pedir y cómo detectar riesgos antes de avanzar.']
-  ].map(m=>`<div class="asesor-manual"><b>${asesorEsc(m[0])}</b><span>${asesorEsc(m[1])}</span></div>`).join('');
-  return `<div class="panel" id="panel-manuales_asesor"><div class="asesor-body"><section class="asesor-section"><div class="asesor-sec-head"><div><div class="asesor-sec-title">MANUALES <em>DEL ASESOR</em></div><div class="asesor-sec-sub">Biblioteca operativa para que el asesor no improvise.</div></div></div><div class="asesor-manual-grid">${manuals}</div></section></div></div>`;
+  ].map(m=>`<div class="fv-row"><div class="fv-row-k">Manual</div><div class="fv-row-v"><strong style="color:var(--white)">${asesorEsc(m[0])}</strong><br><span style="color:var(--w50)">${asesorEsc(m[1])}</span></div></div>`).join('');
+  return `<div class="panel" id="panel-manuales_asesor"><div class="asesor-body asesor-perfil-page">
+    <div class="fv-box perfil-fv-box">
+      <div class="fv-header"><div><div class="fv-nombre">MANUALES DEL ASESOR</div><div class="fv-wa"><span>Biblioteca operativa para no improvisar</span></div></div><div><div class="fv-folio-lbl">Vista asesor</div><div class="fv-folio">MANUALES</div></div></div>
+      <div class="fv-body perfil-fv-body">
+        <div class="fv-sec"><div class="fv-sec-title"><em>☰</em> Guías disponibles</div><div class="fv-grid">${manuals}</div></div>
+      </div>
+    </div>
+  </div></div>`;
 }
-
 function goTo(id){
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.sb-btn').forEach(b=>b.classList.remove('active'));
@@ -4305,6 +4527,7 @@ function goTo(id){
   if(id === 'administracion') setTimeout(onAdministracionPanelActivate, 60);
   if(id === 'airtable') setTimeout(onAirtablePanelActivate, 60);
   if(id === 'perfil_asesor') setTimeout(()=>perfilLoad(false), 60);
+  if(id === 'hoy' && SESSION?.rol === 'asesor') setTimeout(()=>asesorHoyLoad(false), 60);
   if(id === 'hoy' && SESSION?.rol !== 'asesor') setTimeout(()=>loadHoyData(false), 60);
   syncDemoRoleSwitch();
 }
