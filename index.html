@@ -4023,11 +4023,11 @@ function showToast(msg){
 
 
 /* ═══════════════════════════════════════════════════
-   ADMINISTRACIÓN BASE V10 — Directorios puros + ficha única de soporte
+   ADMINISTRACIÓN BASE V11 — Fichas cerradas por defecto + soporte técnico
    Regla de oro: al entrar a Inmobiliarias solo se ven inmobiliarias.
    La creación solo vive en + Crear nueva intranet.
 ═══════════════════════════════════════════════════ */
-const ADMIN_V9_STORAGE_KEY = 'neri_admin_base_v10_usuarios_soporte_tecnico';
+const ADMIN_V9_STORAGE_KEY = 'neri_admin_base_v11_fichas_cerradas';
 const ADMIN_V9_PLANES_INMOBILIARIA = [
   {value:'Inmobiliaria 10 asesores', label:'Inmobiliaria · 10 asesores', limite:10},
   {value:'Inmobiliaria 15 asesores', label:'Inmobiliaria · 15 asesores', limite:15},
@@ -4251,12 +4251,12 @@ function adminAccountCard(c){
     <div class="admin-v9-account-actions"><span class="admin-v9-resolver">Abrir ficha →</span><span class="ar-meta">Responsable: ${adminEsc(c.responsable||'Pendiente')}</span></div>
   </div>`;
 }
-function adminOpenCuenta(id){ adminState.selectedCuentaId = id; const first = adminCuentaUsers(id)[0]; adminState.selectedUsuarioId = first?.id || null; adminState.tab = 'cuenta'; adminRender(); }
+function adminOpenCuenta(id){ adminState.selectedCuentaId = id; adminState.selectedUsuarioId = null; adminState.tab = 'cuenta'; adminRender(); }
 function adminRenderCuentaDetalle(){
   const c = adminCuenta(adminState.selectedCuentaId);
   if(!c) return `<div class="admin-v9-empty"><b>Sin cuenta seleccionada</b>Selecciona una cuenta desde su directorio.</div>`;
   const users = adminCuentaUsers(c.id);
-  const selectedUser = adminUsuario(adminState.selectedUsuarioId) || users[0] || null;
+  const selectedUser = users.some(u=>u.id===adminState.selectedUsuarioId) ? adminUsuario(adminState.selectedUsuarioId) : null;
   const usage = adminCuentaUsage(c), limit = adminCuentaMaxUsers(c), canAdd = adminCanAddUser(c);
   return `<div class="admin-v9-ficha">
     <div class="admin-v9-ficha-head"><div><div class="admin-v9-ficha-title">FICHA ÚNICA · <em>${adminEsc(c.nombre)}</em></div><div class="admin-v9-ficha-sub">Una sola ficha para editar cuenta, servicios, usuarios y soporte técnico. Director, gerente y asesores cuentan como usuarios del paquete.</div></div><div class="admin-v9-ficha-actions"><button class="admin-v9-ghost" onclick="adminSetView('${adminV9ViewForTipo(c.tipo)}')">← Volver</button></div></div>
@@ -4274,7 +4274,7 @@ function adminRenderCuentaDetalle(){
         <div style="height:14px"></div>
         ${!canAdd && c.tipo!=='Asesor independiente' ? `<div class="admin-v9-form-note">Cupo lleno: esta cuenta tiene ${usage} de ${limit} usuarios autorizados. Director y gerente también cuentan.</div>` : ''}
         ${adminUsuariosCuentaListV9(c)}
-        ${selectedUser ? adminUsuarioSoporteDetalle(selectedUser) : ''}
+        ${selectedUser ? adminUsuarioSoporteDetalle(selectedUser) : adminUsuarioClosedNoticeV11(c)}
         <div style="height:14px"></div>
         ${adminSoporteTecnicoCuentaV10(c)}
       </div></div>
@@ -4316,6 +4316,10 @@ function adminUsuariosCuentaListV9(c){
   if(!users.length) return `<div class="admin-v9-empty"><b>Sin usuarios</b>Esta cuenta todavía no tiene perfiles preparados.</div>`;
   return `<div class="admin-card-sub" style="margin-bottom:8px">Lista de usuarios del paquete</div><div class="admin-v9-users">${users.map((u,i)=>`<div class="admin-v9-user-row ${u.id===adminState.selectedUsuarioId?'active':''}" onclick="adminOpenUsuarioV9('${u.id}')"><div><div class="admin-v9-user-name">${String(i+1).padStart(2,'0')} · ${adminEsc(u.nombre)}</div><div class="admin-v9-user-meta">${adminEsc(u.puesto||'Sin puesto')} · ${adminEsc(u.email||'Sin email')} · ${adminEsc(u.whatsapp||'Sin WhatsApp')}</div></div><div class="admin-v9-user-actions">${adminBadge(u.estado)}<button class="admin-v9-smallbtn" onclick="event.stopPropagation();adminOpenUsuarioV9('${u.id}')">Editar ficha</button></div></div>`).join('')}</div>`;
 }
+function adminUsuarioClosedNoticeV11(c){
+  const label = c?.tipo === 'Asesor independiente' ? 'el perfil del asesor independiente' : 'un usuario del paquete';
+  return `<div class="admin-v9-user-detail closed"><h4>FICHA DE USUARIO <em>CERRADA</em></h4><div class="admin-v9-form-note">Selecciona ${adminEsc(label)} en la lista para abrir su ficha editable. Así el administrador revisa una sola cosa a la vez.</div></div>`;
+}
 function adminUsuarioSoporteDetalle(u){
   const c = adminCuenta(u.cuentaId);
   const puestoOptions = adminPuestoOptions(u.tipo);
@@ -4324,7 +4328,7 @@ function adminUsuarioSoporteDetalle(u){
     const checked = (u.permisos||[]).includes(p.id) && !blocked;
     return `<label class="admin-v9-check ${blocked?'disabled':''}"><input type="checkbox" data-user-servicio="${p.id}" ${checked?'checked':''} ${blocked?'disabled':''}><div><b>${adminEsc(p.title)}</b><span>${adminEsc(p.desc)}</span>${blocked?'<small>No aplica para independiente.</small>':''}</div></label>`;
   }).join('');
-  return `<div class="admin-v9-user-detail"><h4>FICHA EDITABLE DE USUARIO · <em>${adminEsc(u.nombre)}</em></h4>
+  return `<div class="admin-v9-user-detail"><div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap"><h4>FICHA EDITABLE DE USUARIO · <em>${adminEsc(u.nombre)}</em></h4><button class="admin-v9-smallbtn" onclick="adminCloseUsuarioV11()">Cerrar ficha</button></div>
     <div class="admin-v9-form-note">Para administración, director, gerente y asesor cuentan igual como usuario del paquete. El puesto solo cambia sus privilegios dentro de la intranet.</div>
     <div class="admin-form-grid">
       ${adminSelect('Estado del usuario','user-estado-v10',u.estado,['Pendiente','Activo','Inactivo'])}
@@ -4354,6 +4358,7 @@ function adminSoporteTecnicoCuentaV10(c){
   </div>${c.soporteNotas?`<div style="height:10px"></div><div class="admin-v9-form-note"><b>Notas de soporte:</b> ${adminEsc(c.soporteNotas)}</div>`:''}`;
 }
 function adminOpenUsuarioV9(id){ adminState.selectedUsuarioId = id; adminRender(); }
+function adminCloseUsuarioV11(){ adminState.selectedUsuarioId = null; adminRender(); }
 function adminSaveCuentaV9(id){
   const c = adminCuenta(id); if(!c) return;
   c.estado = val('cuenta-estado-v9'); c.nombre = val('cuenta-nombre-v9'); c.ciudad = val('cuenta-ciudad-v9'); c.responsable = val('cuenta-responsable-v9'); c.notas = val('cuenta-notas-v9');
@@ -4408,10 +4413,10 @@ function adminV9AddUser(cuentaId){
   const nombre = c.tipo === 'Inmobiliaria' ? 'Usuario pendiente' : 'Usuario de grupo pendiente';
   const slug = adminUniqueSlug(adminSlug(nombre+' '+Date.now().toString().slice(-3)), null);
   const u = { id:adminId('usr'), cuentaId:c.id, nombre, whatsapp:'', email:'', foto:'', frase:'', ciudad:c.ciudad, pixel:'', tipo:c.tipo, estado:c.estado, puesto:'Asesor', slugSugerido:slug, slugOficial:slug, permisos:adminV9PermsOrg() };
-  adminState.data.usuarios.push(u); adminState.selectedUsuarioId = u.id; adminSave(); adminRender();
+  adminState.data.usuarios.push(u); adminState.selectedUsuarioId = null; adminSave(); adminRender();
 }
 function adminV9ToggleUser(id){ const u = adminUsuario(id); if(!u) return; u.estado = u.estado === 'Inactivo' ? 'Activo' : 'Inactivo'; adminSave(); adminRender(); }
-function adminV9DeleteUser(id){ const u = adminUsuario(id); if(!u) return; const c = adminCuenta(u.cuentaId); if(c?.tipo === 'Asesor independiente'){ showToast('La cuenta independiente requiere su perfil único'); return; } adminState.data.usuarios = adminState.data.usuarios.filter(x=>x.id!==id); adminState.selectedUsuarioId = adminCuentaUsers(c?.id || '')[0]?.id || null; adminSave(); adminRender(); }
+function adminV9DeleteUser(id){ const u = adminUsuario(id); if(!u) return; const c = adminCuenta(u.cuentaId); if(c?.tipo === 'Asesor independiente'){ showToast('La cuenta independiente requiere su perfil único'); return; } adminState.data.usuarios = adminState.data.usuarios.filter(x=>x.id!==id); adminState.selectedUsuarioId = null; adminSave(); adminRender(); }
 function adminV9CopyUserLink(id){ const u = adminUsuario(id); if(!u || !u.slugOficial){ showToast('Aún no hay link generado'); return; } navigator.clipboard?.writeText(adminLink(u)); showToast('Link Captación copiado'); }
 function adminV9EnterSystem(id){ const c = adminCuenta(id); showToast(`Entrada de soporte preparada: ${c?.nombre || 'cuenta'}`); }
 function adminRenderCrear(){
@@ -4456,7 +4461,7 @@ function adminCreateCuentaV9(){
     const slug = adminUniqueSlug(adminSlug(c.director), null);
     adminState.data.usuarios.unshift({ id:adminId('usr'), cuentaId:c.id, nombre:c.director, whatsapp:c.whatsappDirector, email:c.emailDirector, foto:'', frase:'', ciudad:c.ciudad, pixel:'', tipo, estado:c.estado, puesto:tipo==='Inmobiliaria'?'Director':'Líder de grupo', slugSugerido:slug, slugOficial:slug, permisos:adminV9PermsOrg() });
   }
-  adminState.selectedCuentaId = c.id; adminState.selectedUsuarioId = adminCuentaUsers(c.id)[0]?.id || null; adminState.tab='cuenta'; adminSave(); adminRender();
+  adminState.selectedCuentaId = c.id; adminState.selectedUsuarioId = null; adminState.tab='cuenta'; adminSave(); adminRender();
 }
 function adminRenderServiciosV9(){
   const cards = [
