@@ -4004,198 +4004,153 @@ function showToast(msg){
 
 
 /* ═══════════════════════════════════════════════════
-   ADMINISTRACIÓN BASE V8 — Directorios puros, servicios y creación única
-   Regla de oro: no se mezclan inmobiliarias, independientes y grupos.
+   ADMINISTRACIÓN BASE V9 — Directorios puros + ficha única de soporte
+   Regla de oro: al entrar a Inmobiliarias solo se ven inmobiliarias.
+   La creación solo vive en + Crear nueva intranet.
 ═══════════════════════════════════════════════════ */
-const ADMIN_V7_STORAGE_KEY = 'neri_admin_base_v8_directorios_servicios';
-const ADMIN_V7_PLANES_INMOBILIARIA = [
+const ADMIN_V9_STORAGE_KEY = 'neri_admin_base_v9_ficha_unica_directorios';
+const ADMIN_V9_PLANES_INMOBILIARIA = [
   {value:'Inmobiliaria 10 asesores', label:'Inmobiliaria · 10 asesores', limite:10},
   {value:'Inmobiliaria 15 asesores', label:'Inmobiliaria · 15 asesores', limite:15},
   {value:'Inmobiliaria 20 asesores', label:'Inmobiliaria · 20 asesores', limite:20},
   {value:'Inmobiliaria 30 asesores', label:'Inmobiliaria · 30 asesores', limite:30},
 ];
-const ADMIN_V7_PLANES = {
+const ADMIN_V9_PLANES = {
   independiente:'Independiente · 1 asesor',
   grupo:'Grupo sin inmobiliaria · 5 asesores'
 };
-function adminV7Css(){ return `<style id="admin-v7-style">
-  .admin-v7-body{padding:0;overflow-y:auto;background:radial-gradient(circle at top right,rgba(201,169,110,.065),transparent 30%),#080808}
-  .admin-v7-wrap{padding:28px;max-width:1540px;margin:0 auto}
-  .admin-v7-hero{border:1px solid var(--goldbdr);background:linear-gradient(135deg,rgba(201,169,110,.11),rgba(255,255,255,.018) 42%,rgba(0,0,0,.12));border-radius:4px;padding:26px;position:relative;overflow:hidden}
-  .admin-v7-hero:after{content:'NERI';position:absolute;right:-18px;bottom:-34px;font-family:var(--display);font-size:126px;letter-spacing:8px;color:rgba(201,169,110,.04);pointer-events:none}
-  .admin-v7-top{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;position:relative;z-index:1;flex-wrap:wrap}
-  .admin-v7-title{font-family:var(--display);font-size:48px;letter-spacing:3px;line-height:.92;color:#fff}.admin-v7-title em{color:var(--gold);font-style:normal}
-  .admin-v7-sub{font-size:12px;color:var(--w50);line-height:1.75;max-width:780px;margin-top:10px}
-  .admin-v7-create{border:1px solid var(--gold);background:linear-gradient(180deg,#e2c88d,#c9a96e);color:#050505;border-radius:3px;padding:15px 22px;font-size:9px;letter-spacing:2.8px;text-transform:uppercase;font-weight:900;cursor:pointer;box-shadow:0 18px 42px rgba(201,169,110,.12);transition:transform .15s,filter .15s;min-width:230px}.admin-v7-create:hover{filter:brightness(1.08);transform:translateY(-1px)}
-  .admin-v7-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:22px;position:relative;z-index:1}.admin-v7-kpi{border:1px solid var(--border);background:rgba(0,0,0,.24);padding:16px;border-radius:3px}.admin-v7-kpi-num{font-family:var(--display);font-size:42px;line-height:1;color:var(--gold);letter-spacing:2px}.admin-v7-kpi-lbl{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--w50);font-weight:800;margin-top:7px;line-height:1.5}
-  .admin-v7-alerts{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap}.admin-v7-alert{border:1px solid rgba(251,191,36,.22);background:rgba(251,191,36,.06);color:#fbbf24;border-radius:999px;padding:7px 12px;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;font-weight:800}.admin-v7-alert.red{border-color:rgba(248,113,113,.24);background:rgba(248,113,113,.06);color:var(--red)}
-  .admin-v7-nav{display:flex;gap:8px;flex-wrap:wrap;margin:20px 0 22px}.admin-v7-nav button{border:1px solid var(--border2);background:rgba(255,255,255,.025);color:var(--w50);border-radius:999px;padding:9px 14px;font-size:8px;letter-spacing:2px;text-transform:uppercase;font-weight:900;cursor:pointer}.admin-v7-nav button.active,.admin-v7-nav button:hover{border-color:var(--goldbdr);background:var(--golddim);color:var(--gold)}
-  .admin-v7-section{margin-top:18px}.admin-v7-sec-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:12px}.admin-v7-sec-title{font-family:var(--display);font-size:31px;letter-spacing:2px;line-height:1}.admin-v7-sec-title em{color:var(--gold);font-style:normal}.admin-v7-sec-sub{font-size:10px;color:var(--w40);letter-spacing:1.4px;text-transform:uppercase;margin-top:5px}
-  .admin-v7-packages{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.admin-v7-package{border:1px solid var(--border);background:linear-gradient(180deg,var(--surface2),var(--surface));padding:17px;border-radius:3px}.admin-v7-package b{font-family:var(--display);font-size:24px;letter-spacing:1.6px}.admin-v7-package span{display:block;color:var(--w50);font-size:10px;line-height:1.7;margin-top:7px}.admin-v7-package small{display:inline-block;margin-top:12px;color:var(--gold);font-size:7px;letter-spacing:1.5px;text-transform:uppercase;font-weight:900}
-  .admin-v7-directory-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.admin-v7-dir-card{border:1px solid var(--border);background:linear-gradient(180deg,var(--surface2),var(--surface));border-radius:3px;padding:18px;cursor:pointer;transition:all .15s}.admin-v7-dir-card:hover{border-color:var(--goldbdr);background:var(--golddim);transform:translateY(-1px)}.admin-v7-dir-card .num{font-family:var(--display);font-size:46px;color:var(--gold);line-height:1}.admin-v7-dir-card .name{font-size:12px;font-weight:900;letter-spacing:.3px;margin-top:6px}.admin-v7-dir-card .desc{font-size:10px;color:var(--w50);line-height:1.6;margin-top:7px}
-  .admin-v7-list{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.admin-v7-account-card{border:1px solid var(--border);background:linear-gradient(180deg,var(--surface2),var(--surface));border-radius:3px;padding:16px;cursor:pointer;transition:all .14s;position:relative}.admin-v7-account-card:hover{border-color:var(--goldbdr);background:rgba(201,169,110,.045)}.admin-v7-account-card:before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--gold);opacity:.45}.admin-v7-account-name{font-size:15px;font-weight:900;line-height:1.3}.admin-v7-account-meta{font-size:10px;color:var(--w50);line-height:1.65;margin-top:8px}.admin-v7-account-actions{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:13px}.admin-v7-resolver{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);font-weight:900}
-  .admin-v7-empty{border:1px dashed var(--border2);background:rgba(255,255,255,.018);border-radius:3px;padding:42px 20px;text-align:center;color:var(--w40);font-size:12px;line-height:1.8}.admin-v7-empty b{color:var(--gold);display:block;font-family:var(--display);font-size:30px;letter-spacing:2px;margin-bottom:6px}
-  .admin-v7-detail-grid{display:grid;grid-template-columns:420px 1fr;gap:16px;align-items:start}.admin-v7-side{display:flex;flex-direction:column;gap:12px}.admin-v7-card{border:1px solid var(--border);background:linear-gradient(180deg,var(--surface2),var(--surface));border-radius:3px;overflow:hidden}.admin-v7-card-head{padding:17px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.admin-v7-card-title{font-family:var(--display);font-size:25px;letter-spacing:1.7px}.admin-v7-card-title em{font-style:normal;color:var(--gold)}.admin-v7-card-body{padding:17px}.admin-v7-mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.admin-v7-mini{border:1px solid var(--border);background:rgba(255,255,255,.02);padding:12px;border-radius:3px}.admin-v7-mini kbd{display:block;font-size:7px;letter-spacing:1.5px;text-transform:uppercase;color:var(--w30);font-weight:900;margin-bottom:6px}.admin-v7-mini strong{font-size:14px;color:#fff}.admin-v7-mini strong.gold{color:var(--gold)}
-  .admin-v7-users{display:flex;flex-direction:column;gap:8px}.admin-v7-user-row{border:1px solid var(--border);background:rgba(255,255,255,.02);padding:11px;border-radius:3px;display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center}.admin-v7-user-name{font-size:12px;font-weight:900}.admin-v7-user-meta{font-size:9px;color:var(--w50);line-height:1.6;margin-top:4px}.admin-v7-user-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.admin-v7-smallbtn{border:1px solid var(--border2);background:transparent;color:var(--w50);border-radius:2px;padding:6px 9px;font-size:7px;letter-spacing:1.4px;text-transform:uppercase;font-weight:900;cursor:pointer}.admin-v7-smallbtn:hover{border-color:var(--goldbdr);color:var(--gold);background:var(--golddim)}.admin-v7-smallbtn.red:hover{border-color:rgba(248,113,113,.25);background:rgba(248,113,113,.06);color:var(--red)}
-  .admin-v7-create-types{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.admin-v7-type-card{border:1px solid var(--border);background:linear-gradient(180deg,var(--surface2),var(--surface));border-radius:3px;padding:22px;cursor:pointer;min-height:180px;transition:all .15s}.admin-v7-type-card:hover{border-color:var(--goldbdr);background:var(--golddim);transform:translateY(-1px)}.admin-v7-type-card .icon{font-size:28px;color:var(--gold);margin-bottom:14px}.admin-v7-type-card b{font-family:var(--display);font-size:28px;letter-spacing:1.6px;line-height:1}.admin-v7-type-card p{font-size:11px;color:var(--w50);line-height:1.7;margin-top:10px}
-  .admin-v7-support-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.admin-v7-support{border:1px solid var(--border);background:rgba(255,255,255,.02);border-radius:3px;padding:12px;font-size:10px;color:var(--w50);line-height:1.55}.admin-v7-support b{display:block;color:var(--white);font-size:11px;margin-bottom:4px}
-  .admin-v7-form-note{padding:12px 14px;background:var(--golddim);border:1px solid var(--goldbdr);border-left:3px solid var(--gold);font-size:10px;color:var(--w50);line-height:1.7;margin-bottom:14px}
+const ADMIN_V9_SERVICIOS_CUENTA = [
+  {id:'landing_vendedores', title:'Landing vendedores', desc:'Captación de propietarios con link por asesor.'},
+  {id:'landing_compradores', title:'Landing compradores', desc:'Filtro comercial para compradores interesados.'},
+  {id:'sala_mensajes', title:'Sala de mensajes', desc:'Biblioteca de mensajes y guías para asesor.'},
+  {id:'panel_citas', title:'Panel de citas', desc:'Seguimiento básico de visitas y recordatorios.'},
+  {id:'reportes_basicos', title:'Reportes básicos', desc:'Métricas permitidas para la cuenta.'},
+  {id:'branding_cuenta', title:'Branding de cuenta', desc:'Logo de inmobiliaria o grupo aplicado a usuarios.'},
+];
+function adminV9Css(){ return `<style id="admin-v9-style">
+  .admin-v9-body{padding:0;overflow-y:auto;background:radial-gradient(circle at top right,rgba(201,169,110,.05),transparent 30%),#080808}
+  .admin-v9-wrap{padding:28px;max-width:1540px;margin:0 auto}
+  .admin-v9-hero{border:1px solid var(--goldbdr);background:linear-gradient(135deg,rgba(201,169,110,.11),rgba(255,255,255,.018) 42%,rgba(0,0,0,.12));border-radius:4px;padding:26px;position:relative;overflow:hidden;margin-bottom:20px}
+  .admin-v9-hero:after{content:'NERI';position:absolute;right:-18px;bottom:-34px;font-family:var(--display);font-size:126px;letter-spacing:8px;color:rgba(201,169,110,.04);pointer-events:none}
+  .admin-v9-top{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;position:relative;z-index:1;flex-wrap:wrap}
+  .admin-v9-title{font-family:var(--display);font-size:48px;letter-spacing:3px;line-height:.92;color:#fff}.admin-v9-title em{color:var(--gold);font-style:normal}
+  .admin-v9-sub{font-size:12px;color:var(--w50);line-height:1.75;max-width:840px;margin-top:10px}
+  .admin-v9-create{border:1px solid var(--gold);background:linear-gradient(180deg,#e2c88d,#c9a96e);color:#050505;border-radius:3px;padding:15px 22px;font-size:9px;letter-spacing:2.8px;text-transform:uppercase;font-weight:900;cursor:pointer;box-shadow:0 18px 42px rgba(201,169,110,.12);transition:transform .15s,filter .15s;min-width:230px}.admin-v9-create:hover{filter:brightness(1.08);transform:translateY(-1px)}
+  .admin-v9-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:22px;position:relative;z-index:1}.admin-v9-kpi{border:1px solid var(--border);background:rgba(0,0,0,.24);padding:16px;border-radius:3px}.admin-v9-kpi-num{font-family:var(--display);font-size:42px;line-height:1;color:var(--gold);letter-spacing:2px}.admin-v9-kpi-lbl{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--w50);font-weight:800;margin-top:7px;line-height:1.5}
+  .admin-v9-alerts{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap}.admin-v9-alert{border:1px solid rgba(251,191,36,.22);background:rgba(251,191,36,.06);color:#fbbf24;border-radius:999px;padding:7px 12px;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;font-weight:800}.admin-v9-alert.red{border-color:rgba(248,113,113,.24);background:rgba(248,113,113,.06);color:var(--red)}
+  .admin-v9-nav{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 22px}.admin-v9-nav button{border:1px solid var(--border2);background:rgba(255,255,255,.025);color:var(--w50);border-radius:999px;padding:9px 14px;font-size:8px;letter-spacing:2px;text-transform:uppercase;font-weight:900;cursor:pointer}.admin-v9-nav button.active,.admin-v9-nav button:hover{border-color:var(--goldbdr);background:var(--golddim);color:var(--gold)}
   .admin-v7-reset{border:1px solid var(--border);background:transparent;color:var(--w30);font-size:7px;letter-spacing:1.5px;text-transform:uppercase;padding:7px 10px;border-radius:999px;cursor:pointer}.admin-v7-reset:hover{color:var(--red);border-color:rgba(248,113,113,.24)}
-  @media(max-width:1100px){.admin-v7-kpis,.admin-v7-packages,.admin-v7-directory-grid,.admin-v7-create-types,.admin-v7-support-grid{grid-template-columns:1fr 1fr}.admin-v7-detail-grid,.admin-v7-list{grid-template-columns:1fr}}
-  @media(max-width:700px){.admin-v7-wrap{padding:18px}.admin-v7-kpis,.admin-v7-packages,.admin-v7-directory-grid,.admin-v7-create-types,.admin-v7-support-grid{grid-template-columns:1fr}.admin-v7-title{font-size:38px}.admin-v7-create{width:100%}}
+  .admin-v9-section{margin-top:18px}.admin-v9-sec-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:14px}.admin-v9-sec-title{font-family:var(--display);font-size:36px;letter-spacing:2px;line-height:1}.admin-v9-sec-title em{color:var(--gold);font-style:normal}.admin-v9-sec-sub{font-size:10px;color:var(--w40);letter-spacing:1.4px;text-transform:uppercase;margin-top:5px;line-height:1.6}
+  .admin-v9-packages{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.admin-v9-package{border:1px solid var(--border);background:linear-gradient(180deg,var(--surface2),var(--surface));padding:17px;border-radius:3px}.admin-v9-package b{font-family:var(--display);font-size:24px;letter-spacing:1.6px}.admin-v9-package span{display:block;color:var(--w50);font-size:10px;line-height:1.7;margin-top:7px}.admin-v9-package small{display:inline-block;margin-top:12px;color:var(--gold);font-size:7px;letter-spacing:1.5px;text-transform:uppercase;font-weight:900}
+  .admin-v9-directory-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.admin-v9-dir-card{border:1px solid var(--border);background:linear-gradient(180deg,var(--surface2),var(--surface));border-radius:3px;padding:18px;cursor:pointer;transition:all .15s}.admin-v9-dir-card:hover{border-color:var(--goldbdr);background:var(--golddim);transform:translateY(-1px)}.admin-v9-dir-card .num{font-family:var(--display);font-size:46px;color:var(--gold);line-height:1}.admin-v9-dir-card .name{font-size:12px;font-weight:900;letter-spacing:.3px;margin-top:6px}.admin-v9-dir-card .desc{font-size:10px;color:var(--w50);line-height:1.6;margin-top:7px}
+  .admin-v9-list{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.admin-v9-account-card{border:1px solid var(--border);background:linear-gradient(180deg,var(--surface2),var(--surface));border-radius:3px;padding:16px;cursor:pointer;transition:all .14s;position:relative;min-height:174px}.admin-v9-account-card:hover{border-color:var(--goldbdr);background:rgba(201,169,110,.045)}.admin-v9-account-card:before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--gold);opacity:.45}.admin-v9-account-name{font-size:15px;font-weight:900;line-height:1.3}.admin-v9-account-meta{font-size:10px;color:var(--w50);line-height:1.65;margin-top:8px}.admin-v9-account-actions{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:13px}.admin-v9-resolver{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);font-weight:900}
+  .admin-v9-empty{border:1px dashed var(--border2);background:rgba(255,255,255,.018);border-radius:3px;padding:42px 20px;text-align:center;color:var(--w40);font-size:12px;line-height:1.8}.admin-v9-empty b{color:var(--gold);display:block;font-family:var(--display);font-size:30px;letter-spacing:2px;margin-bottom:6px}
+  .admin-v9-ficha{border:1px solid var(--goldbdr);background:linear-gradient(180deg,rgba(201,169,110,.055),rgba(255,255,255,.018));border-radius:4px;overflow:hidden}.admin-v9-ficha-head{padding:20px 22px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap}.admin-v9-ficha-title{font-family:var(--display);font-size:36px;letter-spacing:2px;line-height:1}.admin-v9-ficha-title em{color:var(--gold);font-style:normal}.admin-v9-ficha-sub{font-size:10px;color:var(--w45);letter-spacing:1.2px;text-transform:uppercase;line-height:1.6;margin-top:6px}.admin-v9-ficha-actions{display:flex;gap:8px;flex-wrap:wrap}.admin-v9-ghost{border:1px solid var(--border2);background:rgba(255,255,255,.025);color:var(--w60);border-radius:3px;padding:10px 13px;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;font-weight:900;cursor:pointer}.admin-v9-ghost:hover{border-color:var(--goldbdr);color:var(--gold);background:var(--golddim)}
+  .admin-v9-ficha-body{padding:18px;display:grid;grid-template-columns:360px 1fr;gap:16px;align-items:start}.admin-v9-panel{border:1px solid var(--border);background:rgba(0,0,0,.18);border-radius:3px;overflow:hidden}.admin-v9-panel-head{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.admin-v9-panel-title{font-family:var(--display);font-size:24px;letter-spacing:1.6px}.admin-v9-panel-title em{font-style:normal;color:var(--gold)}.admin-v9-panel-body{padding:16px}.admin-v9-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.admin-v9-info{border:1px solid var(--border);background:rgba(255,255,255,.02);padding:11px;border-radius:3px}.admin-v9-info kbd{display:block;font-size:7px;letter-spacing:1.5px;text-transform:uppercase;color:var(--w30);font-weight:900;margin-bottom:6px}.admin-v9-info strong{font-size:13px;color:#fff;word-break:break-word}.admin-v9-info strong.gold{color:var(--gold)}
+  .admin-v9-controls{display:grid;grid-template-columns:1fr;gap:12px}.admin-v9-checks{display:grid;grid-template-columns:1fr;gap:8px}.admin-v9-check{display:flex;gap:9px;align-items:flex-start;border:1px solid var(--border);background:rgba(255,255,255,.02);padding:10px;border-radius:3px;cursor:pointer}.admin-v9-check:hover{border-color:var(--goldbdr);background:var(--golddim)}.admin-v9-check input{margin-top:2px;accent-color:var(--gold)}.admin-v9-check b{display:block;font-size:10px;color:#fff;margin-bottom:3px}.admin-v9-check span{font-size:9px;color:var(--w50);line-height:1.45}.admin-v9-check.disabled{opacity:.55;cursor:not-allowed}.admin-v9-check small{display:block;color:var(--gold);font-size:8px;text-transform:uppercase;margin-top:4px;font-weight:900;letter-spacing:.8px}
+  .admin-v9-users{display:grid;grid-template-columns:1fr;gap:8px}.admin-v9-user-row{border:1px solid var(--border);background:rgba(255,255,255,.02);padding:11px;border-radius:3px;display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;cursor:pointer}.admin-v9-user-row.active,.admin-v9-user-row:hover{border-color:var(--goldbdr);background:var(--golddim)}.admin-v9-user-name{font-size:12px;font-weight:900}.admin-v9-user-meta{font-size:9px;color:var(--w50);line-height:1.6;margin-top:4px}.admin-v9-user-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.admin-v9-smallbtn{border:1px solid var(--border2);background:transparent;color:var(--w50);border-radius:2px;padding:6px 9px;font-size:7px;letter-spacing:1.4px;text-transform:uppercase;font-weight:900;cursor:pointer}.admin-v9-smallbtn:hover{border-color:var(--goldbdr);color:var(--gold);background:var(--golddim)}.admin-v9-smallbtn.red:hover{border-color:rgba(248,113,113,.25);background:rgba(248,113,113,.06);color:var(--red)}
+  .admin-v9-user-detail{margin-top:12px;border:1px solid var(--goldbdr);background:rgba(201,169,110,.045);border-radius:3px;padding:14px}.admin-v9-user-detail h4{font-family:var(--display);font-size:24px;letter-spacing:1.4px;margin-bottom:10px}.admin-v9-user-detail h4 em{font-style:normal;color:var(--gold)}
+  .admin-v9-support-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.admin-v9-support{border:1px solid var(--border);background:rgba(255,255,255,.02);border-radius:3px;padding:12px;font-size:10px;color:var(--w50);line-height:1.55}.admin-v9-support b{display:block;color:var(--white);font-size:11px;margin-bottom:4px}
+  .admin-v9-create-types{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.admin-v9-type-card{border:1px solid var(--border);background:linear-gradient(180deg,var(--surface2),var(--surface));border-radius:3px;padding:22px;cursor:pointer;min-height:180px;transition:all .15s}.admin-v9-type-card:hover{border-color:var(--goldbdr);background:var(--golddim);transform:translateY(-1px)}.admin-v9-type-card .icon{font-size:28px;color:var(--gold);margin-bottom:14px}.admin-v9-type-card b{font-family:var(--display);font-size:28px;letter-spacing:1.6px;line-height:1}.admin-v9-type-card p{font-size:11px;color:var(--w50);line-height:1.7;margin-top:10px}.admin-v9-form-note{padding:12px 14px;background:var(--golddim);border:1px solid var(--goldbdr);border-left:3px solid var(--gold);font-size:10px;color:var(--w50);line-height:1.7;margin-bottom:14px}
+  @media(max-width:1180px){.admin-v9-kpis,.admin-v9-packages,.admin-v9-directory-grid,.admin-v9-list,.admin-v9-create-types,.admin-v9-support-grid{grid-template-columns:1fr 1fr}.admin-v9-ficha-body{grid-template-columns:1fr}.admin-v9-info-grid{grid-template-columns:1fr 1fr}}
+  @media(max-width:700px){.admin-v9-wrap{padding:18px}.admin-v9-kpis,.admin-v9-packages,.admin-v9-directory-grid,.admin-v9-list,.admin-v9-create-types,.admin-v9-support-grid,.admin-v9-info-grid{grid-template-columns:1fr}.admin-v9-title{font-size:38px}.admin-v9-create{width:100%}.admin-v9-user-row{grid-template-columns:1fr}.admin-v9-user-actions{justify-content:flex-start}}
 </style>`; }
 
+function adminV9PermsOrg(){ return ['perfil_publico','copiar_link','landing_compradores','landing_vendedores','sala_mensajes','panel_citas','reportes_basicos','branding_cuenta']; }
+function adminV9PermsInd(){ return ['perfil_publico','copiar_link','landing_compradores','landing_vendedores','sala_mensajes','panel_citas','reportes_basicos']; }
 function adminSeedData(){
   return {
     cuentas:[
-      { id:'cta-c21-haus-v8', nombre:'Century 21 Haus · Cuernavaca', tipo:'Inmobiliaria', estado:'Activo', ciudad:'Cuernavaca', responsable:'Dirección comercial', director:'Director pendiente', whatsappDirector:'', emailDirector:'', logo:'', limiteAsesores:10, plan:'Inmobiliaria 10 asesores', notas:'Ejemplo inmobiliaria. Aquí se controla estado, cupo, branding, usuarios y soporte.' },
-      { id:'cta-inmo-norte-v8', nombre:'Inmobiliaria Norte · Prueba', tipo:'Inmobiliaria', estado:'Pendiente', ciudad:'Cuernavaca', responsable:'Responsable pendiente', director:'Director por registrar', whatsappDirector:'', emailDirector:'', logo:'', limiteAsesores:15, plan:'Inmobiliaria 15 asesores', notas:'Ejemplo pendiente para validar alertas y activación desde ficha.' },
-      { id:'cta-inmo-del-sol-v8', nombre:'Inmobiliaria del Sol · Prueba', tipo:'Inmobiliaria', estado:'Activo', ciudad:'Jiutepec', responsable:'Administración', director:'Gerencia comercial', whatsappDirector:'', emailDirector:'', logo:'', limiteAsesores:20, plan:'Inmobiliaria 20 asesores', notas:'Ejemplo activo para validar directorio puro de inmobiliarias.' },
-      { id:'cta-diana-independiente-v8', nombre:'Diana captación inteligente', tipo:'Asesor independiente', estado:'Activo', ciudad:'Cuernavaca', responsable:'Diana Salgado', director:'', whatsappDirector:'', emailDirector:'', logo:'CASITA_METODO_NERI', limiteAsesores:1, plan:'Independiente · 1 asesor', notas:'Ejemplo independiente. Sin logo inmobiliaria; usa casita Método NERI.' }
+      { id:'cta-c21-haus-v9', nombre:'Century 21 Haus · Cuernavaca', tipo:'Inmobiliaria', estado:'Activo', ciudad:'Cuernavaca', responsable:'Alejandra Dirección Comercial', director:'Diego Dirección', whatsappDirector:'7771110001', emailDirector:'diego@c21haus.mx', logo:'', limiteAsesores:10, plan:'Inmobiliaria 10 asesores', notas:'Ejemplo inmobiliaria activa. Aquí se controla estado, cupo, branding, servicios y soporte.' },
+      { id:'cta-inmo-norte-v9', nombre:'Inmobiliaria Norte · Prueba', tipo:'Inmobiliaria', estado:'Pendiente', ciudad:'Cuernavaca', responsable:'Laura Administración', director:'Laura Montes', whatsappDirector:'7772220002', emailDirector:'laura@inmonorte.mx', logo:'', limiteAsesores:15, plan:'Inmobiliaria 15 asesores', notas:'Ejemplo pendiente para validar alerta y activación desde ficha.' },
+      { id:'cta-inmo-del-sol-v9', nombre:'Inmobiliaria del Sol · Jiutepec', tipo:'Inmobiliaria', estado:'Activo', ciudad:'Jiutepec', responsable:'Gerencia Comercial', director:'Roberto Silva', whatsappDirector:'7773330003', emailDirector:'roberto@inmobiliariadelsol.mx', logo:'', limiteAsesores:20, plan:'Inmobiliaria 20 asesores', notas:'Ejemplo activo con cupo mayor para probar soporte.' },
+      { id:'cta-diana-v9', nombre:'Diana captación inteligente', tipo:'Asesor independiente', estado:'Activo', ciudad:'Cuernavaca', responsable:'Diana Salgado', director:'', whatsappDirector:'7774440004', emailDirector:'diana@correo.com', logo:'CASITA_METODO_NERI', limiteAsesores:1, plan:'Independiente · 1 asesor', notas:'Ejemplo independiente. Usa casita Método NERI automática.' },
+      { id:'cta-mario-v9', nombre:'Mario Broker Independiente', tipo:'Asesor independiente', estado:'Pendiente', ciudad:'Temixco', responsable:'Mario Rivas', director:'', whatsappDirector:'7775550005', emailDirector:'mario@correo.com', logo:'CASITA_METODO_NERI', limiteAsesores:1, plan:'Independiente · 1 asesor', notas:'Ejemplo pendiente.' },
+      { id:'cta-sofia-v9', nombre:'Sofía Bienes Raíces', tipo:'Asesor independiente', estado:'Activo', ciudad:'Cuernavaca', responsable:'Sofía Herrera', director:'', whatsappDirector:'7776660006', emailDirector:'sofia@correo.com', logo:'CASITA_METODO_NERI', limiteAsesores:1, plan:'Independiente · 1 asesor', notas:'Ejemplo activo.' },
+      { id:'cta-grupo-zona-norte-v9', nombre:'Grupo Zona Norte', tipo:'Grupo de asesores sin inmobiliaria', estado:'Activo', ciudad:'Cuernavaca', responsable:'Enrique Neri', director:'Enrique Neri', whatsappDirector:'7779855687', emailDirector:'enrique@metodoneri.com', logo:'', limiteAsesores:5, plan:'Grupo sin inmobiliaria · 5 asesores', notas:'Ejemplo grupo chico máximo 5 asesores.' },
+      { id:'cta-grupo-diamante-v9', nombre:'Grupo Diamante Morelos', tipo:'Grupo de asesores sin inmobiliaria', estado:'Pendiente', ciudad:'Cuernavaca', responsable:'Paola Ruiz', director:'Paola Ruiz', whatsappDirector:'7777770007', emailDirector:'paola@grupo.mx', logo:'', limiteAsesores:5, plan:'Grupo sin inmobiliaria · 5 asesores', notas:'Ejemplo grupo pendiente.' },
+      { id:'cta-grupo-sur-v9', nombre:'Grupo Comercial Sur', tipo:'Grupo de asesores sin inmobiliaria', estado:'Activo', ciudad:'Xochitepec', responsable:'Carlos Medina', director:'Carlos Medina', whatsappDirector:'7778880008', emailDirector:'carlos@grupo.mx', logo:'', limiteAsesores:5, plan:'Grupo sin inmobiliaria · 5 asesores', notas:'Ejemplo grupo activo.' }
     ],
     usuarios:[
-      { id:'usr-c21-director-v8', cuentaId:'cta-c21-haus-v8', nombre:'Director pendiente', whatsapp:'', email:'', foto:'', frase:'', ciudad:'Cuernavaca', pixel:'', tipo:'Inmobiliaria', estado:'Activo', puesto:'Director', slugSugerido:'director-pendiente', slugOficial:'director-pendiente', permisos:[...ADMIN_DEFAULT_PERMS_ORG] },
-      { id:'usr-inmo-norte-director-v8', cuentaId:'cta-inmo-norte-v8', nombre:'Director por registrar', whatsapp:'', email:'', foto:'', frase:'', ciudad:'Cuernavaca', pixel:'', tipo:'Inmobiliaria', estado:'Pendiente', puesto:'Director', slugSugerido:'director-por-registrar', slugOficial:'director-por-registrar', permisos:[...ADMIN_DEFAULT_PERMS_ORG] },
-      { id:'usr-sol-gerencia-v8', cuentaId:'cta-inmo-del-sol-v8', nombre:'Gerencia comercial', whatsapp:'', email:'', foto:'', frase:'', ciudad:'Jiutepec', pixel:'', tipo:'Inmobiliaria', estado:'Activo', puesto:'Gerente', slugSugerido:'gerencia-comercial', slugOficial:'gerencia-comercial', permisos:[...ADMIN_DEFAULT_PERMS_ORG] },
-      { id:'usr-diana-v8', cuentaId:'cta-diana-independiente-v8', nombre:'Diana Salgado', whatsapp:'', email:'', foto:'', frase:'Te ayudo a preparar tu venta con orden.', ciudad:'Cuernavaca', pixel:'', tipo:'Asesor independiente', estado:'Activo', puesto:'Asesor independiente', slugSugerido:'diana-salgado', slugOficial:'diana-salgado', permisos:[...ADMIN_DEFAULT_PERMS_INDEPENDIENTE] }
+      { id:'usr-c21-dir-v9', cuentaId:'cta-c21-haus-v9', nombre:'Diego Dirección', whatsapp:'7771110001', email:'diego@c21haus.mx', foto:'', frase:'Dirección comercial.', ciudad:'Cuernavaca', pixel:'', tipo:'Inmobiliaria', estado:'Activo', puesto:'Director', slugSugerido:'diego-direccion', slugOficial:'diego-direccion', permisos:adminV9PermsOrg() },
+      { id:'usr-c21-ger-v9', cuentaId:'cta-c21-haus-v9', nombre:'Ale Gerencia', whatsapp:'7771110002', email:'ale@c21haus.mx', foto:'', frase:'Gerencia operativa.', ciudad:'Cuernavaca', pixel:'', tipo:'Inmobiliaria', estado:'Activo', puesto:'Gerente', slugSugerido:'ale-gerencia', slugOficial:'ale-gerencia', permisos:adminV9PermsOrg() },
+      { id:'usr-c21-ase-v9', cuentaId:'cta-c21-haus-v9', nombre:'Diana Asesora', whatsapp:'7771110003', email:'diana@c21haus.mx', foto:'', frase:'Te ayudo a vender con orden.', ciudad:'Cuernavaca', pixel:'', tipo:'Inmobiliaria', estado:'Activo', puesto:'Asesor', slugSugerido:'diana-asesora', slugOficial:'diana-asesora', permisos:adminV9PermsOrg() },
+      { id:'usr-norte-dir-v9', cuentaId:'cta-inmo-norte-v9', nombre:'Laura Montes', whatsapp:'7772220002', email:'laura@inmonorte.mx', foto:'', frase:'Dirección.', ciudad:'Cuernavaca', pixel:'', tipo:'Inmobiliaria', estado:'Pendiente', puesto:'Director', slugSugerido:'laura-montes', slugOficial:'laura-montes', permisos:adminV9PermsOrg() },
+      { id:'usr-norte-ase-v9', cuentaId:'cta-inmo-norte-v9', nombre:'Andrés Asesor', whatsapp:'7772220003', email:'andres@inmonorte.mx', foto:'', frase:'Asesoría clara.', ciudad:'Cuernavaca', pixel:'', tipo:'Inmobiliaria', estado:'Pendiente', puesto:'Asesor', slugSugerido:'andres-asesor', slugOficial:'andres-asesor', permisos:adminV9PermsOrg() },
+      { id:'usr-sol-dir-v9', cuentaId:'cta-inmo-del-sol-v9', nombre:'Roberto Silva', whatsapp:'7773330003', email:'roberto@inmobiliariadelsol.mx', foto:'', frase:'Dirección inmobiliaria.', ciudad:'Jiutepec', pixel:'', tipo:'Inmobiliaria', estado:'Activo', puesto:'Director', slugSugerido:'roberto-silva', slugOficial:'roberto-silva', permisos:adminV9PermsOrg() },
+      { id:'usr-sol-ase-v9', cuentaId:'cta-inmo-del-sol-v9', nombre:'Mariana Asesora', whatsapp:'7773330004', email:'mariana@inmobiliariadelsol.mx', foto:'', frase:'Venta con estrategia.', ciudad:'Jiutepec', pixel:'', tipo:'Inmobiliaria', estado:'Activo', puesto:'Asesor', slugSugerido:'mariana-asesora', slugOficial:'mariana-asesora', permisos:adminV9PermsOrg() },
+      { id:'usr-diana-v9', cuentaId:'cta-diana-v9', nombre:'Diana Salgado', whatsapp:'7774440004', email:'diana@correo.com', foto:'', frase:'Te ayudo a preparar tu venta con orden.', ciudad:'Cuernavaca', pixel:'', tipo:'Asesor independiente', estado:'Activo', puesto:'Asesor independiente', slugSugerido:'diana-salgado', slugOficial:'diana-salgado', permisos:adminV9PermsInd() },
+      { id:'usr-mario-v9', cuentaId:'cta-mario-v9', nombre:'Mario Rivas', whatsapp:'7775550005', email:'mario@correo.com', foto:'', frase:'Acompañamiento inmobiliario simple.', ciudad:'Temixco', pixel:'', tipo:'Asesor independiente', estado:'Pendiente', puesto:'Asesor independiente', slugSugerido:'mario-rivas', slugOficial:'mario-rivas', permisos:adminV9PermsInd() },
+      { id:'usr-sofia-v9', cuentaId:'cta-sofia-v9', nombre:'Sofía Herrera', whatsapp:'7776660006', email:'sofia@correo.com', foto:'', frase:'Orden, claridad y seguimiento.', ciudad:'Cuernavaca', pixel:'', tipo:'Asesor independiente', estado:'Activo', puesto:'Asesor independiente', slugSugerido:'sofia-herrera', slugOficial:'sofia-herrera', permisos:adminV9PermsInd() },
+      { id:'usr-grupo-norte-lider-v9', cuentaId:'cta-grupo-zona-norte-v9', nombre:'Enrique Neri', whatsapp:'7779855687', email:'enrique@metodoneri.com', foto:'', frase:'Sistema operativo inmobiliario.', ciudad:'Cuernavaca', pixel:'', tipo:'Grupo de asesores sin inmobiliaria', estado:'Activo', puesto:'Líder de grupo', slugSugerido:'enrique-neri', slugOficial:'enrique-neri', permisos:adminV9PermsOrg() },
+      { id:'usr-grupo-norte-ase-v9', cuentaId:'cta-grupo-zona-norte-v9', nombre:'Valeria Asesora', whatsapp:'7779855688', email:'valeria@grupo.mx', foto:'', frase:'Captación con método.', ciudad:'Cuernavaca', pixel:'', tipo:'Grupo de asesores sin inmobiliaria', estado:'Activo', puesto:'Asesor', slugSugerido:'valeria-asesora', slugOficial:'valeria-asesora', permisos:adminV9PermsOrg() },
+      { id:'usr-grupo-diamante-lider-v9', cuentaId:'cta-grupo-diamante-v9', nombre:'Paola Ruiz', whatsapp:'7777770007', email:'paola@grupo.mx', foto:'', frase:'Equipo comercial.', ciudad:'Cuernavaca', pixel:'', tipo:'Grupo de asesores sin inmobiliaria', estado:'Pendiente', puesto:'Líder de grupo', slugSugerido:'paola-ruiz', slugOficial:'paola-ruiz', permisos:adminV9PermsOrg() },
+      { id:'usr-grupo-sur-lider-v9', cuentaId:'cta-grupo-sur-v9', nombre:'Carlos Medina', whatsapp:'7778880008', email:'carlos@grupo.mx', foto:'', frase:'Zona sur con seguimiento.', ciudad:'Xochitepec', pixel:'', tipo:'Grupo de asesores sin inmobiliaria', estado:'Activo', puesto:'Líder de grupo', slugSugerido:'carlos-medina', slugOficial:'carlos-medina', permisos:adminV9PermsOrg() }
     ]
   };
 }
 function adminLoad(){
-  try{
-    const raw = localStorage.getItem(ADMIN_V7_STORAGE_KEY);
-    adminState.data = raw ? JSON.parse(raw) : adminSeedData();
-  }catch(e){ adminState.data = adminSeedData(); }
-  adminV7Normalize();
-  if(!adminState.tab || ['cuentas','usuarios'].includes(adminState.tab)) adminState.tab='dashboard';
+  try{ const raw = localStorage.getItem(ADMIN_V9_STORAGE_KEY); adminState.data = raw ? JSON.parse(raw) : adminSeedData(); }
+  catch(e){ adminState.data = adminSeedData(); }
+  adminV9Normalize();
+  if(!adminState.tab || ['cuentas','usuarios','permisos'].includes(adminState.tab)) adminState.tab='dashboard';
   if(!adminState.selectedCuentaId && adminState.data.cuentas[0]) adminState.selectedCuentaId = adminState.data.cuentas[0].id;
   if(!adminState.selectedUsuarioId && adminState.data.usuarios[0]) adminState.selectedUsuarioId = adminState.data.usuarios[0].id;
 }
-function adminSave(show=true){
-  adminV7Normalize();
-  localStorage.setItem(ADMIN_V7_STORAGE_KEY, JSON.stringify(adminState.data));
-  if(show) showToast('✓ Administración guardada');
-}
-function adminV7Normalize(){
+function adminSave(show=true){ adminV9Normalize(); localStorage.setItem(ADMIN_V9_STORAGE_KEY, JSON.stringify(adminState.data)); if(show) showToast('✓ Administración guardada'); }
+function adminV9Normalize(){
   if(!adminState.data) adminState.data = adminSeedData();
   if(!Array.isArray(adminState.data.cuentas)) adminState.data.cuentas = [];
   if(!Array.isArray(adminState.data.usuarios)) adminState.data.usuarios = [];
-  adminApplyBusinessRules();
   adminState.data.cuentas.forEach(c=>{
+    if(!c.id) c.id = adminId('cta');
+    if(!c.estado) c.estado = 'Pendiente';
+    if(!ADMIN_TIPOS_CUENTA.includes(c.tipo)) c.tipo = 'Asesor independiente';
     if(c.tipo === 'Inmobiliaria'){
-      const plan = ADMIN_V7_PLANES_INMOBILIARIA.find(p=>p.limite===Number(c.limiteAsesores)) || ADMIN_V7_PLANES_INMOBILIARIA[0];
-      c.limiteAsesores = plan.limite;
-      c.plan = c.plan || plan.value;
-    }
-    if(c.tipo === 'Grupo de asesores sin inmobiliaria'){
-      c.limiteAsesores = 5;
-      c.plan = c.plan || ADMIN_V7_PLANES.grupo;
-    }
-    if(c.tipo === 'Asesor independiente'){
-      c.limiteAsesores = 1;
-      c.logo = 'CASITA_METODO_NERI';
-      c.plan = c.plan || ADMIN_V7_PLANES.independiente;
-    }
-    c.responsable = c.responsable || '';
-    c.director = c.director || '';
-    c.whatsappDirector = c.whatsappDirector || '';
-    c.emailDirector = c.emailDirector || '';
-    c.estado = c.estado || 'Pendiente';
-  });
-}
-function adminApplyBusinessRules(){
-  const d = adminState.data; if(!d) return;
-  d.cuentas.forEach(c=>{
-    if(c.tipo === 'Asesor independiente'){
-      c.logo = 'CASITA_METODO_NERI';
-      c.limiteAsesores = 1;
-      adminEnsureUserForCuenta(c, false);
-    }else if(c.tipo === 'Grupo de asesores sin inmobiliaria'){
-      c.limiteAsesores = 5;
-    }else if(c.tipo === 'Inmobiliaria'){
       c.limiteAsesores = [10,15,20,30].includes(Number(c.limiteAsesores)) ? Number(c.limiteAsesores) : 10;
+      c.plan = c.plan || adminV9PlanFromLimit(c.limiteAsesores);
+    } else if(c.tipo === 'Grupo de asesores sin inmobiliaria'){
+      c.limiteAsesores = 5; c.plan = ADMIN_V9_PLANES.grupo;
+    } else {
+      c.limiteAsesores = 1; c.plan = ADMIN_V9_PLANES.independiente; c.logo = 'CASITA_METODO_NERI';
     }
+    c.servicios = Array.isArray(c.servicios) && c.servicios.length ? c.servicios : adminV9DefaultServices(c.tipo);
   });
-  d.usuarios.forEach(u=>{
+  adminState.data.usuarios.forEach(u=>{
     const c = adminCuenta(u.cuentaId);
-    if(c){
-      u.tipo = c.tipo;
-      if(!u.estado) u.estado = c.estado || 'Pendiente';
-      if(c.tipo === 'Asesor independiente'){
-        u.puesto = 'Asesor independiente';
-        u.permisos = Array.isArray(u.permisos) && u.permisos.length ? u.permisos : [...ADMIN_DEFAULT_PERMS_INDEPENDIENTE];
-        u.permisos = u.permisos.filter(p=>p !== 'branding_cuenta');
-      }else{
-        const allowed = adminPuestoOptions(c.tipo);
-        if(!allowed.includes(u.puesto)) u.puesto = adminDefaultPuesto(c.tipo);
-        u.permisos = Array.isArray(u.permisos) && u.permisos.length ? u.permisos : [...ADMIN_DEFAULT_PERMS_ORG];
-      }
-    }
-    if(u.slugOficial){
-      u.slugOficial = adminUniqueSlug(adminSlug(u.slugOficial), u.id);
-      u.slugSugerido = u.slugOficial;
-    }
+    if(c){ u.tipo = c.tipo; if(!u.estado) u.estado = c.estado; }
+    if(!u.id) u.id = adminId('usr');
+    if(!u.slugOficial) u.slugOficial = adminUniqueSlug(adminSlug(u.nombre || 'asesor'), u.id);
+    u.slugSugerido = u.slugOficial;
+    if(c?.tipo === 'Asesor independiente'){ u.puesto = 'Asesor independiente'; u.permisos = (Array.isArray(u.permisos)&&u.permisos.length ? u.permisos : adminV9PermsInd()).filter(p=>p!=='branding_cuenta'); }
+    else { u.permisos = Array.isArray(u.permisos)&&u.permisos.length ? u.permisos : adminV9PermsOrg(); if(!adminPuestoOptions(u.tipo).includes(u.puesto)) u.puesto = adminDefaultPuesto(u.tipo); }
   });
 }
-function adminCuentaMaxUsers(c){
-  if(!c) return 0;
-  if(c.tipo === 'Inmobiliaria') return [10,15,20,30].includes(Number(c.limiteAsesores)) ? Number(c.limiteAsesores) : 10;
-  if(c.tipo === 'Grupo de asesores sin inmobiliaria') return 5;
-  return 1;
-}
-function adminCuentaUsage(c){
-  if(!c) return 0;
-  if(c.tipo === 'Asesor independiente') return adminCuentaUsers(c.id).length ? 1 : 0;
-  return adminCuentaUsers(c.id).filter(u=>u.puesto === 'Asesor').length;
-}
+function adminV9DefaultServices(tipo){ return tipo === 'Asesor independiente' ? adminV9PermsInd() : adminV9PermsOrg(); }
+function adminCuentaUsers(cuentaId){ return (adminState.data?.usuarios||[]).filter(u=>u.cuentaId===cuentaId); }
+function adminCuentaMaxUsers(c){ if(!c) return 0; if(c.tipo==='Inmobiliaria') return [10,15,20,30].includes(Number(c.limiteAsesores)) ? Number(c.limiteAsesores) : 10; if(c.tipo==='Grupo de asesores sin inmobiliaria') return 5; return 1; }
+function adminCuentaUsage(c){ if(!c) return 0; if(c.tipo==='Asesor independiente') return adminCuentaUsers(c.id).length ? 1 : 0; return adminCuentaUsers(c.id).filter(u=>u.puesto==='Asesor').length; }
 function adminCanAddUser(c){ return adminCuentaUsage(c) < adminCuentaMaxUsers(c); }
-function adminV7ActiveCuentas(tipo){ return adminState.data.cuentas.filter(c=>c.tipo===tipo && c.estado==='Activo').length; }
-function adminV7ActiveUsers(){ return adminState.data.usuarios.filter(u=>u.estado==='Activo').length; }
-function adminV7TypeLabel(tipo){
-  if(tipo === 'Inmobiliaria') return 'Inmobiliarias';
-  if(tipo === 'Asesor independiente') return 'Independientes';
-  return 'Grupos sin inmobiliaria';
-}
-function adminV7TypeEmpty(tipo){
-  if(tipo === 'Grupo de asesores sin inmobiliaria') return 'Aún no tienes grupos registrados. Cuando des de alta un grupo, aparecerá aquí.';
-  if(tipo === 'Asesor independiente') return 'Aún no tienes asesores independientes registrados. Cuando crees una intranet independiente, aparecerá aquí.';
-  return 'Aún no tienes inmobiliarias registradas. Cuando crees una intranet de inmobiliaria, aparecerá aquí.';
-}
-function adminV7PlanLabel(c){
-  if(!c) return 'Sin paquete';
-  if(c.tipo === 'Inmobiliaria') return c.plan || `Inmobiliaria · ${adminCuentaMaxUsers(c)} asesores`;
-  if(c.tipo === 'Grupo de asesores sin inmobiliaria') return ADMIN_V7_PLANES.grupo;
-  return ADMIN_V7_PLANES.independiente;
-}
-function adminV7PlanFromLimit(limit){
-  const p = ADMIN_V7_PLANES_INMOBILIARIA.find(x=>x.limite===Number(limit)) || ADMIN_V7_PLANES_INMOBILIARIA[0];
-  return p.value;
-}
-function adminV7NavButton(id,label){ return `<button id="admin-v7-nav-${id}" onclick="adminSetView('${id}')">${label}</button>`; }
+function adminV9ActiveCuentas(tipo){ return adminState.data.cuentas.filter(c=>c.tipo===tipo && c.estado==='Activo').length; }
+function adminV9ActiveUsers(){ return adminState.data.usuarios.filter(u=>u.estado==='Activo').length; }
+function adminV9TypeLabel(tipo){ if(tipo==='Inmobiliaria') return 'Inmobiliarias'; if(tipo==='Asesor independiente') return 'Independientes'; return 'Grupos sin inmobiliaria'; }
+function adminV9ViewForTipo(tipo){ if(tipo==='Inmobiliaria') return 'inmobiliarias'; if(tipo==='Asesor independiente') return 'independientes'; return 'grupos'; }
+function adminV9TipoForView(view){ if(view==='inmobiliarias') return 'Inmobiliaria'; if(view==='independientes') return 'Asesor independiente'; if(view==='grupos') return 'Grupo de asesores sin inmobiliaria'; return null; }
+function adminV9PlanFromLimit(limit){ const p = ADMIN_V9_PLANES_INMOBILIARIA.find(x=>x.limite===Number(limit)) || ADMIN_V9_PLANES_INMOBILIARIA[0]; return p.value; }
+function adminV9PlanLabel(c){ if(!c) return 'Sin paquete'; if(c.tipo==='Inmobiliaria') return c.plan || adminV9PlanFromLimit(c.limiteAsesores); if(c.tipo==='Grupo de asesores sin inmobiliaria') return ADMIN_V9_PLANES.grupo; return ADMIN_V9_PLANES.independiente; }
+function adminV9NavButton(id,label){ return `<button id="admin-v9-nav-${id}" onclick="adminSetView('${id}')">${label}</button>`; }
 function buildAdministracionPanel(){
   return `<div class="panel" id="panel-administracion">
-    ${adminV7Css()}
-    <div class="admin-base-body admin-v7-body">
-      <div class="admin-v7-wrap">
-        <div class="admin-v7-hero">
-          <div class="admin-v7-top">
-            <div>
-              <div class="ph-eyebrow">Administración Método NERI</div>
-              <div class="admin-v7-title">PANEL <em>EJECUTIVO</em></div>
-              <div class="admin-v7-sub">Control ejecutivo de intranets activas, directorios separados, paquetes disponibles y soporte por cuenta. Este panel no muestra CRM, leads, clientes, propiedades, citas, mensajes ni expedientes.</div>
-            </div>
-            <button class="admin-v7-create" onclick="adminGoCrear()">+ Crear nueva intranet</button>
-          </div>
-          <div class="admin-v7-kpis" id="admin-v7-kpis"></div>
-          <div class="admin-v7-alerts" id="admin-v7-alerts"></div>
-        </div>
-        <div class="admin-v7-nav">
-          ${adminV7NavButton('dashboard','Inicio')}
-          ${adminV7NavButton('inmobiliarias','Inmobiliarias')}
-          ${adminV7NavButton('independientes','Independientes')}
-          ${adminV7NavButton('grupos','Grupos sin inmobiliaria')}
-          ${adminV7NavButton('servicios','Servicios')}
-          <button class="admin-v7-reset" onclick="adminV7ResetDemo()">Reiniciar prueba</button>
+    ${adminV9Css()}
+    <div class="admin-base-body admin-v9-body">
+      <div class="admin-v9-wrap">
+        <div class="admin-v9-nav">
+          ${adminV9NavButton('dashboard','Inicio')}
+          ${adminV9NavButton('inmobiliarias','Inmobiliarias')}
+          ${adminV9NavButton('independientes','Independientes')}
+          ${adminV9NavButton('grupos','Grupos sin inmobiliaria')}
+          ${adminV9NavButton('servicios','Servicios')}
+          <button class="admin-v7-reset" onclick="adminV9ResetDemo()">Reiniciar prueba</button>
         </div>
         <div id="admin-content"></div>
       </div>
@@ -4205,21 +4160,16 @@ function buildAdministracionPanel(){
 function onAdministracionPanelActivate(){ adminLoad(); adminRender(); }
 function adminSetView(view){ adminState.tab = view; adminRender(); }
 function adminSwitchTab(tab){ adminSetView(tab === 'cuentas' ? 'dashboard' : tab); }
-function adminGoCrear(tipo=''){
-  adminState.tab = 'crear';
-  adminState.createTipo = tipo || '';
-  adminRender();
-}
+function adminGoCrear(tipo=''){ adminState.tab='crear'; adminState.createTipo = tipo || ''; adminRender(); }
 function adminRender(){
   if(!adminState.data) adminLoad();
-  adminV7Normalize();
+  adminV9Normalize();
   const allowed = ['dashboard','inmobiliarias','independientes','grupos','cuenta','crear','servicios'];
   if(!allowed.includes(adminState.tab)) adminState.tab = 'dashboard';
-  document.querySelectorAll('.admin-v7-nav button').forEach(b=>b.classList.remove('active'));
-  const activeMap = { cuenta: adminV7TabForCuenta(adminCuenta(adminState.selectedCuentaId)), crear:'dashboard' };
-  const navId = activeMap[adminState.tab] || adminState.tab;
-  document.getElementById('admin-v7-nav-'+navId)?.classList.add('active');
-  adminRenderKpis();
+  document.querySelectorAll('.admin-v9-nav button').forEach(b=>b.classList.remove('active'));
+  const c = adminCuenta(adminState.selectedCuentaId);
+  const navId = adminState.tab === 'cuenta' ? adminV9ViewForTipo(c?.tipo) : (adminState.tab === 'crear' ? 'dashboard' : adminState.tab);
+  document.getElementById('admin-v9-nav-'+navId)?.classList.add('active');
   const el = document.getElementById('admin-content'); if(!el) return;
   if(adminState.tab==='dashboard') el.innerHTML = adminRenderDashboard();
   if(adminState.tab==='inmobiliarias') el.innerHTML = adminRenderDirectory('Inmobiliaria');
@@ -4227,211 +4177,194 @@ function adminRender(){
   if(adminState.tab==='grupos') el.innerHTML = adminRenderDirectory('Grupo de asesores sin inmobiliaria');
   if(adminState.tab==='cuenta') el.innerHTML = adminRenderCuentaDetalle();
   if(adminState.tab==='crear') el.innerHTML = adminRenderCrear();
-  if(adminState.tab==='servicios') el.innerHTML = adminRenderServiciosV8();
+  if(adminState.tab==='servicios') el.innerHTML = adminRenderServiciosV9();
 }
-function adminV7TabForCuenta(c){
-  if(!c) return 'dashboard';
-  if(c.tipo==='Inmobiliaria') return 'inmobiliarias';
-  if(c.tipo==='Asesor independiente') return 'independientes';
-  return 'grupos';
-}
-function adminRenderKpis(){
-  const d = adminState.data || {cuentas:[],usuarios:[]};
-  const kpis = [
-    ['Inmobiliarias activas', adminV7ActiveCuentas('Inmobiliaria')],
-    ['Asesores independientes activos', adminV7ActiveCuentas('Asesor independiente')],
-    ['Grupos activos', adminV7ActiveCuentas('Grupo de asesores sin inmobiliaria')],
-    ['Usuarios activos totales', adminV7ActiveUsers()],
-  ];
-  const el = document.getElementById('admin-v7-kpis'); if(el) el.innerHTML = kpis.map(k=>`<div class="admin-v7-kpi"><div class="admin-v7-kpi-num">${k[1]}</div><div class="admin-v7-kpi-lbl">${k[0]}</div></div>`).join('');
+function adminRenderDashboard(){
+  const d = adminState.data;
   const pendientes = d.cuentas.filter(c=>c.estado==='Pendiente').length;
   const inactivas = d.cuentas.filter(c=>c.estado==='Inactivo').length;
   const alerts = [];
-  if(pendientes) alerts.push(`<div class="admin-v7-alert">${pendientes} cuenta${pendientes===1?'':'s'} pendiente${pendientes===1?'':'s'} por resolver</div>`);
-  if(inactivas) alerts.push(`<div class="admin-v7-alert red">${inactivas} cuenta${inactivas===1?'':'s'} inactiva${inactivas===1?'':'s'}</div>`);
-  const ae = document.getElementById('admin-v7-alerts'); if(ae) ae.innerHTML = alerts.join('');
-}
-function adminRenderDashboard(){
-  return `<div class="admin-v7-section">
-    <div class="admin-v7-sec-head"><div><div class="admin-v7-sec-title">DIRECTORIOS <em>SEPARADOS</em></div><div class="admin-v7-sec-sub">Cada tipo vive en su lugar. Nada mezclado.</div></div></div>
-    <div class="admin-v7-directory-grid">
-      <div class="admin-v7-dir-card" onclick="adminSetView('inmobiliarias')"><div class="num">${adminState.data.cuentas.filter(c=>c.tipo==='Inmobiliaria').length}</div><div class="name">Inmobiliarias</div><div class="desc">Entrar, seleccionar cuenta, revisar cupo, usuarios, servicios, logo, soporte y estado.</div></div>
-      <div class="admin-v7-dir-card" onclick="adminSetView('independientes')"><div class="num">${adminState.data.cuentas.filter(c=>c.tipo==='Asesor independiente').length}</div><div class="name">Asesores independientes</div><div class="desc">Cuentas individuales con casita Método NERI, perfil público y link de captación automático.</div></div>
-      <div class="admin-v7-dir-card" onclick="adminSetView('grupos')"><div class="num">${adminState.data.cuentas.filter(c=>c.tipo==='Grupo de asesores sin inmobiliaria').length}</div><div class="name">Grupos sin inmobiliaria</div><div class="desc">Cuenta chica con cupo fijo de 5 asesores, sin lenguaje de inmobiliaria.</div></div>
+  if(pendientes) alerts.push(`<div class="admin-v9-alert">${pendientes} cuenta${pendientes===1?'':'s'} pendiente${pendientes===1?'':'s'} por resolver</div>`);
+  if(inactivas) alerts.push(`<div class="admin-v9-alert red">${inactivas} cuenta${inactivas===1?'':'s'} inactiva${inactivas===1?'':'s'}</div>`);
+  return `<div class="admin-v9-hero">
+    <div class="admin-v9-top"><div><div class="ph-eyebrow">Administración Método NERI</div><div class="admin-v9-title">PANEL <em>EJECUTIVO</em></div><div class="admin-v9-sub">Entrada limpia para ver tu negocio: cuentas activas, paquetes disponibles y directorios separados. Para crear algo nuevo solo se usa el botón principal.</div></div><button class="admin-v9-create" onclick="adminGoCrear()">+ Crear nueva intranet</button></div>
+    <div class="admin-v9-kpis">
+      <div class="admin-v9-kpi"><div class="admin-v9-kpi-num">${adminV9ActiveCuentas('Inmobiliaria')}</div><div class="admin-v9-kpi-lbl">Inmobiliarias activas</div></div>
+      <div class="admin-v9-kpi"><div class="admin-v9-kpi-num">${adminV9ActiveCuentas('Asesor independiente')}</div><div class="admin-v9-kpi-lbl">Asesores independientes activos</div></div>
+      <div class="admin-v9-kpi"><div class="admin-v9-kpi-num">${adminV9ActiveCuentas('Grupo de asesores sin inmobiliaria')}</div><div class="admin-v9-kpi-lbl">Grupos activos</div></div>
+      <div class="admin-v9-kpi"><div class="admin-v9-kpi-num">${adminV9ActiveUsers()}</div><div class="admin-v9-kpi-lbl">Usuarios activos totales</div></div>
+    </div>
+    <div class="admin-v9-alerts">${alerts.join('')}</div>
+  </div>
+  <div class="admin-v9-section"><div class="admin-v9-sec-head"><div><div class="admin-v9-sec-title">DIRECTORIOS <em>SEPARADOS</em></div><div class="admin-v9-sec-sub">En cada entrada solo aparece lo que corresponde.</div></div></div>
+    <div class="admin-v9-directory-grid">
+      <div class="admin-v9-dir-card" onclick="adminSetView('inmobiliarias')"><div class="num">${d.cuentas.filter(c=>c.tipo==='Inmobiliaria').length}</div><div class="name">Inmobiliarias</div><div class="desc">Solo inmobiliarias. Entrar, seleccionar cuenta y resolver desde su ficha.</div></div>
+      <div class="admin-v9-dir-card" onclick="adminSetView('independientes')"><div class="num">${d.cuentas.filter(c=>c.tipo==='Asesor independiente').length}</div><div class="name">Independientes</div><div class="desc">Solo asesores independientes con casita Método NERI.</div></div>
+      <div class="admin-v9-dir-card" onclick="adminSetView('grupos')"><div class="num">${d.cuentas.filter(c=>c.tipo==='Grupo de asesores sin inmobiliaria').length}</div><div class="name">Grupos sin inmobiliaria</div><div class="desc">Solo grupos chicos de máximo 5 asesores.</div></div>
     </div>
   </div>
-  <div class="admin-v7-section">
-    <div class="admin-v7-sec-head"><div><div class="admin-v7-sec-title">PAQUETES <em>PREPARADOS</em></div><div class="admin-v7-sec-sub">No es reporte de ingresos; es recordatorio comercial de lo que se vende.</div></div></div>
-    <div class="admin-v7-packages">
-      <div class="admin-v7-package"><b>Independiente</b><span>Para un asesor con una sola cuenta, casita Método NERI y link de captación automático.</span><small>1 asesor</small></div>
-      <div class="admin-v7-package"><b>Grupo sin inmobiliaria</b><span>Para equipos chicos que no quieren estructura de inmobiliaria.</span><small>5 asesores</small></div>
-      <div class="admin-v7-package"><b>Inmobiliaria</b><span>Cuenta madre con logo, director, gerente, asesores, servicios y soporte por cuenta.</span><small>10 · 15 · 20 · 30 asesores</small></div>
-    </div>
-  </div>
-  <div class="admin-v7-section">
-    <div class="admin-v7-sec-head"><div><div class="admin-v7-sec-title">RUTA PARA <em>RESOLVER</em></div><div class="admin-v7-sec-sub">Cuando alguien llame con un problema técnico.</div></div></div>
-    <div class="admin-v7-support-grid">
-      <div class="admin-v7-support"><b>1. Ir al directorio correcto</b>Inmobiliaria, independiente o grupo. No buscar entre cuentas mezcladas.</div>
-      <div class="admin-v7-support"><b>2. Seleccionar la cuenta</b>Abre la ficha completa con estado, paquete, branding, usuarios y servicios.</div>
-      <div class="admin-v7-support"><b>3. Resolver desde la ficha</b>Activar/desactivar, revisar cupo, copiar link, ajustar servicios o dar soporte.</div>
+  <div class="admin-v9-section"><div class="admin-v9-sec-head"><div><div class="admin-v9-sec-title">PAQUETES <em>QUE SE VENDEN</em></div><div class="admin-v9-sec-sub">Recordatorio comercial, no reporte de ingresos.</div></div></div>
+    <div class="admin-v9-packages">
+      <div class="admin-v9-package"><b>Independiente</b><span>Cuenta individual para un asesor.</span><small>1 asesor</small></div>
+      <div class="admin-v9-package"><b>Grupo sin inmobiliaria</b><span>Equipo chico sin estructura de inmobiliaria.</span><small>5 asesores</small></div>
+      <div class="admin-v9-package"><b>Inmobiliaria</b><span>Cuenta madre con director, gerente, asesores, servicios y soporte.</span><small>10 · 15 · 20 · 30 asesores</small></div>
     </div>
   </div>`;
 }
 function adminRenderDirectory(tipo){
   const cuentas = adminState.data.cuentas.filter(c=>c.tipo===tipo);
-  const title = adminV7TypeLabel(tipo);
-  const desc = tipo==='Inmobiliaria' ? 'Solo cuentas inmobiliarias. Aquí no aparecen independientes ni grupos.' : tipo==='Asesor independiente' ? 'Solo cuentas individuales de asesor independiente.' : 'Solo grupos chicos sin inmobiliaria. Si no tienes grupos, queda vacío.';
-  const list = cuentas.length ? `<div class="admin-v7-list">${cuentas.map(c=>adminAccountCard(c)).join('')}</div>` : `<div class="admin-v7-empty"><b>Sin registros</b>${adminEsc(adminV7TypeEmpty(tipo))}</div>`;
-  return `<div class="admin-v7-section"><div class="admin-v7-sec-head"><div><div class="admin-v7-sec-title">${adminEsc(title).toUpperCase()}</div><div class="admin-v7-sec-sub">${adminEsc(desc)} Para crear una cuenta nueva usa el botón principal: + Crear nueva intranet.</div></div></div>${list}</div>`;
+  const title = adminV9TypeLabel(tipo);
+  const desc = tipo==='Inmobiliaria' ? 'Solo cuentas inmobiliarias. Aquí no aparecen independientes, grupos ni formularios de creación.' : tipo==='Asesor independiente' ? 'Solo cuentas individuales de asesor independiente. Aquí no aparecen inmobiliarias ni grupos.' : 'Solo grupos sin inmobiliaria. Aquí no aparecen inmobiliarias ni independientes.';
+  const list = cuentas.length ? `<div class="admin-v9-list">${cuentas.map(c=>adminAccountCard(c)).join('')}</div>` : `<div class="admin-v9-empty"><b>Sin registros</b>Aquí no hay cuentas de este tipo todavía.</div>`;
+  return `<div class="admin-v9-section"><div class="admin-v9-sec-head"><div><div class="admin-v9-sec-title">${adminEsc(title).toUpperCase()}</div><div class="admin-v9-sec-sub">${adminEsc(desc)}</div></div></div>${list}</div>`;
 }
 function adminAccountCard(c){
   const users = adminCuentaUsers(c.id);
   const activeUsers = users.filter(u=>u.estado==='Activo').length;
-  const usage = adminCuentaUsage(c);
-  const limit = adminCuentaMaxUsers(c);
-  const detail = c.tipo === 'Asesor independiente'
-    ? `Usuario: ${activeUsers}/1 · ${adminLink(users[0]||{} )}`
-    : `Asesores: ${usage}/${limit} · Usuarios totales: ${users.length}`;
-  return `<div class="admin-v7-account-card" onclick="adminOpenCuenta('${c.id}')">
-    <div class="ar-top"><div><div class="admin-v7-account-name">${adminEsc(c.nombre)}</div><div class="admin-v7-account-meta">${adminEsc(c.ciudad||'Sin ciudad')} · ${adminEsc(adminV7PlanLabel(c))}<br>${adminEsc(detail)}</div></div>${adminBadge(c.estado)}</div>
-    <div class="admin-v7-account-actions"><span class="admin-v7-resolver">Ver / resolver →</span><span class="ar-meta">Responsable: ${adminEsc(c.responsable||'Pendiente')}</span></div>
+  const usage = adminCuentaUsage(c), limit = adminCuentaMaxUsers(c);
+  const detail = c.tipo === 'Asesor independiente' ? `Usuario único · ${adminLink(users[0]||{})}` : `Asesores usados ${usage}/${limit} · Usuarios activos ${activeUsers}/${users.length}`;
+  return `<div class="admin-v9-account-card" onclick="adminOpenCuenta('${c.id}')">
+    <div class="ar-top"><div><div class="admin-v9-account-name">${adminEsc(c.nombre)}</div><div class="admin-v9-account-meta">${adminEsc(c.ciudad||'Sin ciudad')} · ${adminEsc(adminV9PlanLabel(c))}<br>${adminEsc(detail)}</div></div>${adminBadge(c.estado)}</div>
+    <div class="admin-v9-account-actions"><span class="admin-v9-resolver">Abrir ficha →</span><span class="ar-meta">Responsable: ${adminEsc(c.responsable||'Pendiente')}</span></div>
   </div>`;
 }
-function adminOpenCuenta(id){
-  adminState.selectedCuentaId = id;
-  const first = adminCuentaUsers(id)[0];
-  adminState.selectedUsuarioId = first?.id || null;
-  adminState.tab = 'cuenta';
-  adminRender();
-}
+function adminOpenCuenta(id){ adminState.selectedCuentaId = id; const first = adminCuentaUsers(id)[0]; adminState.selectedUsuarioId = first?.id || null; adminState.tab = 'cuenta'; adminRender(); }
 function adminRenderCuentaDetalle(){
   const c = adminCuenta(adminState.selectedCuentaId);
-  if(!c) return `<div class="admin-v7-empty"><b>Sin cuenta seleccionada</b>Selecciona una cuenta desde su directorio.</div>`;
+  if(!c) return `<div class="admin-v9-empty"><b>Sin cuenta seleccionada</b>Selecciona una cuenta desde su directorio.</div>`;
   const users = adminCuentaUsers(c.id);
-  const usage = adminCuentaUsage(c), limit = adminCuentaMaxUsers(c);
-  const selectedUser = adminUsuario(adminState.selectedUsuarioId);
-  const canAdd = adminCanAddUser(c);
-  const userForm = selectedUser ? `<div class="admin-v7-card"><div class="admin-v7-card-head"><div><div class="admin-v7-card-title">EDITAR <em>PERFIL</em></div><div class="admin-card-sub">Solo datos públicos del usuario</div></div></div><div class="admin-v7-card-body">${adminUsuarioForm(selectedUser)}</div></div>` : '';
-  return `<div class="admin-v7-sec-head"><div><div class="admin-v7-sec-title">${adminEsc(c.nombre)} <em>· resolver</em></div><div class="admin-v7-sec-sub">Ficha completa de cuenta. Aquí está todo lo necesario para soporte.</div></div><button class="admin-v7-create" onclick="adminSetView('${adminV7TabForCuenta(c)}')">← Volver al directorio</button></div>
-  <div class="admin-v7-detail-grid">
-    <div class="admin-v7-side">
-      <div class="admin-v7-card"><div class="admin-v7-card-head"><div><div class="admin-v7-card-title">ESTADO DE <em>CUENTA</em></div><div class="admin-card-sub">Activación y paquete</div></div>${adminBadge(c.estado)}</div><div class="admin-v7-card-body">
-        <div class="admin-v7-mini-grid">
-          <div class="admin-v7-mini"><kbd>Tipo</kbd><strong>${adminEsc(adminTipoCorto(c.tipo))}</strong></div>
-          <div class="admin-v7-mini"><kbd>Paquete</kbd><strong>${adminEsc(adminV7PlanLabel(c))}</strong></div>
-          <div class="admin-v7-mini"><kbd>Asesores usados</kbd><strong class="gold">${usage} / ${limit}</strong></div>
-          <div class="admin-v7-mini"><kbd>Usuarios totales</kbd><strong>${users.length}</strong></div>
+  const selectedUser = adminUsuario(adminState.selectedUsuarioId) || users[0] || null;
+  const usage = adminCuentaUsage(c), limit = adminCuentaMaxUsers(c), canAdd = adminCanAddUser(c);
+  return `<div class="admin-v9-ficha">
+    <div class="admin-v9-ficha-head"><div><div class="admin-v9-ficha-title">FICHA ÚNICA · <em>${adminEsc(c.nombre)}</em></div><div class="admin-v9-ficha-sub">Aquí se edita la cuenta, servicios y soporte. Lo demás es informativo para resolver problemas rápido.</div></div><div class="admin-v9-ficha-actions"><button class="admin-v9-ghost" onclick="adminSetView('${adminV9ViewForTipo(c.tipo)}')">← Volver</button><button class="admin-v9-create" onclick="adminV9EnterSystem('${c.id}')">Entrar a su sistema</button></div></div>
+    <div class="admin-v9-ficha-body">
+      <div class="admin-v9-panel"><div class="admin-v9-panel-head"><div><div class="admin-v9-panel-title">CONTROL <em>EDITABLE</em></div><div class="admin-card-sub">Estado, paquete y servicios</div></div>${adminBadge(c.estado)}</div><div class="admin-v9-panel-body">${adminCuentaControlForm(c)}</div></div>
+      <div class="admin-v9-panel"><div class="admin-v9-panel-head"><div><div class="admin-v9-panel-title">CONTENIDO DE <em>LA CUENTA</em></div><div class="admin-card-sub">Usuarios, información y soporte</div></div>${c.tipo==='Asesor independiente'?'':`<button class="btn btn-primary" onclick="adminV9AddUser('${c.id}')" ${!canAdd?'disabled':''}>+ Preparar subcuenta</button>`}</div><div class="admin-v9-panel-body">
+        <div class="admin-v9-info-grid">
+          <div class="admin-v9-info"><kbd>Tipo</kbd><strong>${adminEsc(c.tipo)}</strong></div>
+          <div class="admin-v9-info"><kbd>Paquete</kbd><strong>${adminEsc(adminV9PlanLabel(c))}</strong></div>
+          <div class="admin-v9-info"><kbd>Cupo vista admin</kbd><strong class="gold">${usage} / ${limit}</strong></div>
+          <div class="admin-v9-info"><kbd>Usuarios activos</kbd><strong>${users.filter(u=>u.estado==='Activo').length} / ${users.length}</strong></div>
+          <div class="admin-v9-info"><kbd>Director / líder</kbd><strong>${adminEsc(c.director || c.responsable || 'Pendiente')}</strong></div>
+          <div class="admin-v9-info"><kbd>Ciudad</kbd><strong>${adminEsc(c.ciudad || 'Pendiente')}</strong></div>
+        </div>
+        <div style="height:14px"></div>
+        ${!canAdd && c.tipo!=='Asesor independiente' ? `<div class="admin-v9-form-note">Cupo lleno: esta cuenta tiene ${usage} de ${limit} asesores autorizados.</div>` : ''}
+        ${adminUsuariosCuentaListV9(c)}
+        ${selectedUser ? adminUsuarioSoporteDetalle(selectedUser) : ''}
+        <div style="height:14px"></div>
+        <div class="admin-v9-support-grid">
+          <div class="admin-v9-support"><b>Problema de acceso</b>Selecciona al usuario, revisa estado y restablece acceso en la siguiente etapa real.</div>
+          <div class="admin-v9-support"><b>Problema de link</b>Copia el Link Captación generado desde el slug automático del usuario.</div>
+          <div class="admin-v9-support"><b>Problema de permisos</b>Activa o desactiva servicios desde esta misma ficha.</div>
         </div>
       </div></div>
-      <div class="admin-v7-card"><div class="admin-v7-card-head"><div><div class="admin-v7-card-title">DATOS <em>ADMIN</em></div><div class="admin-card-sub">Solo administración edita</div></div></div><div class="admin-v7-card-body">${adminCuentaFormV7(c)}</div></div>
-    </div>
-    <div class="admin-v7-side">
-      <div class="admin-v7-card"><div class="admin-v7-card-head"><div><div class="admin-v7-card-title">USUARIOS / <em>SUBCUENTAS</em></div><div class="admin-card-sub">Director, gerente y asesores de esta cuenta</div></div>${c.tipo==='Asesor independiente'?'':`<button class="btn btn-primary" onclick="adminV7AddUserPrompt('${c.id}')" ${!canAdd?'disabled':''}>+ Preparar asesor</button>`}</div><div class="admin-v7-card-body">
-        ${!canAdd && c.tipo!=='Asesor independiente' ? `<div class="admin-v7-form-note">Cupo lleno. Esta cuenta tiene ${usage} de ${limit} asesores autorizados.</div>` : ''}
-        ${adminUsuariosCuentaListV7(c)}
-      </div></div>
-      <div class="admin-v7-card"><div class="admin-v7-card-head"><div><div class="admin-v7-card-title">CENTRO DE <em>SOPORTE</em></div><div class="admin-card-sub">Acciones rápidas de resolución</div></div></div><div class="admin-v7-card-body"><div class="admin-v7-support-grid">
-        <div class="admin-v7-support"><b>Servicios</b>Selecciona un usuario y ajusta sus servicios desde esta ficha.</div>
-        <div class="admin-v7-support"><b>Branding</b>${c.tipo==='Asesor independiente'?'Casita Método NERI automática.':'Logo controlado desde esta ficha.'}</div>
-        <div class="admin-v7-support"><b>Link Captación</b>En cada usuario puedes copiar o revisar el link generado.</div>
-      </div></div></div>
-      ${userForm}
     </div>
   </div>`;
 }
-function adminCuentaFormV7(c){
-  const isInd = c.tipo === 'Asesor independiente';
-  const isInmo = c.tipo === 'Inmobiliaria';
-  const planSelect = isInmo ? adminSelectObjects('Paquete / cupo contratado','cuenta-limite-v7',String(adminCuentaMaxUsers(c)),ADMIN_V7_PLANES_INMOBILIARIA.map(p=>({value:String(p.limite),label:p.label}))) : `<div class="form-group"><label>Paquete</label><input class="form-inp" value="${adminEsc(adminV7PlanLabel(c))}" disabled></div>`;
-  const logoField = isInd ? `<div class="form-group full"><div class="admin-v7-form-note"><b>Asesor independiente:</b> no carga logo inmobiliaria. Usa casita Método NERI automática.</div></div>` : `<div class="form-group full">${adminUploadField(isInmo?'Logo inmobiliaria':'Logo de grupo / cuenta','cuenta-logo-v7',c.logo,'Sube logo como archivo. No se pega URL.')}</div>`;
-  return `<div class="admin-form-grid">
-    <div class="form-group"><label>Tipo</label><input class="form-inp" value="${adminEsc(c.tipo)}" disabled></div>
-    ${adminSelect('Estado / activación','cuenta-estado-v7',c.estado,['Pendiente','Activo','Inactivo'])}
-    ${adminField('Nombre de cuenta','cuenta-nombre-v7',c.nombre)}
-    ${adminField('Ciudad','cuenta-ciudad-v7',c.ciudad)}
-    ${adminField('Responsable administrativo','cuenta-responsable-v7',c.responsable)}
-    ${planSelect}
-    ${isInd ? '' : adminField('Director / líder','cuenta-director-v7',c.director||'')}
-    ${isInd ? '' : adminField('WhatsApp director / líder','cuenta-whatsapp-director-v7',c.whatsappDirector||'')}
-    ${isInd ? '' : adminField('Email director / líder','cuenta-email-director-v7',c.emailDirector||'')}
-    ${logoField}
-    ${adminArea('Notas administrativas','cuenta-notas-v7',c.notas,'full')}
-  </div><div class="admin-actions"><button class="btn btn-ghost" onclick="adminDeleteCuentaV7('${c.id}')">Eliminar cuenta</button><button class="btn btn-primary" onclick="adminSaveCuentaV7('${c.id}')">Guardar cuenta</button></div>`;
+function adminCuentaControlForm(c){
+  const isInd = c.tipo === 'Asesor independiente', isInmo = c.tipo === 'Inmobiliaria';
+  const plan = isInmo ? adminSelectObjects('Paquete / cupo contratado','cuenta-limite-v9',String(adminCuentaMaxUsers(c)),ADMIN_V9_PLANES_INMOBILIARIA.map(p=>({value:String(p.limite),label:p.label}))) : `<div class="form-group"><label>Paquete</label><input class="form-inp" value="${adminEsc(adminV9PlanLabel(c))}" disabled></div>`;
+  const logo = isInd ? `<div class="admin-v9-form-note"><b>Asesor independiente:</b> usa casita Método NERI automática. No se carga logo inmobiliaria.</div>` : adminUploadField(isInmo?'Logo inmobiliaria':'Logo de grupo','cuenta-logo-v9',c.logo,'Sube archivo. No pegar URL.');
+  const checks = ADMIN_V9_SERVICIOS_CUENTA.map(p=>{
+    const blocked = isInd && p.id==='branding_cuenta';
+    const checked = (c.servicios||[]).includes(p.id) && !blocked;
+    return `<label class="admin-v9-check ${blocked?'disabled':''}"><input type="checkbox" data-cuenta-servicio="${p.id}" ${checked?'checked':''} ${blocked?'disabled':''}><div><b>${adminEsc(p.title)}</b><span>${adminEsc(p.desc)}</span>${blocked?'<small>No aplica. Usa casita Método NERI.</small>':''}</div></label>`;
+  }).join('');
+  return `<div class="admin-v9-controls">
+    <div class="admin-form-grid">
+      ${adminSelect('Estado / activación','cuenta-estado-v9',c.estado,['Pendiente','Activo','Inactivo'])}
+      ${plan}
+      ${adminField('Nombre de cuenta','cuenta-nombre-v9',c.nombre)}
+      ${adminField('Ciudad','cuenta-ciudad-v9',c.ciudad)}
+      ${adminField('Responsable administrativo','cuenta-responsable-v9',c.responsable)}
+      ${isInd ? '' : adminField('Director / líder','cuenta-director-v9',c.director||'')}
+      ${isInd ? '' : adminField('WhatsApp director / líder','cuenta-whatsapp-v9',c.whatsappDirector||'')}
+      ${isInd ? '' : adminField('Email director / líder','cuenta-email-v9',c.emailDirector||'')}
+      <div class="form-group full">${logo}</div>
+      ${adminArea('Notas administrativas','cuenta-notas-v9',c.notas,'full')}
+    </div>
+    <div><div class="admin-card-sub" style="margin-bottom:8px">Servicios activos de esta cuenta</div><div class="admin-v9-checks">${checks}</div></div>
+    <div class="admin-actions"><button class="btn btn-ghost" onclick="adminDeleteCuentaV9('${c.id}')">Eliminar cuenta</button><button class="btn btn-primary" onclick="adminSaveCuentaV9('${c.id}')">Guardar ficha</button></div>
+  </div>`;
 }
-function adminUsuariosCuentaListV7(c){
+function adminUsuariosCuentaListV9(c){
   const users = adminCuentaUsers(c.id);
-  if(!users.length) return `<div class="admin-v7-empty"><b>Sin usuarios</b>Esta cuenta aún no tiene perfiles preparados.</div>`;
-  return `<div class="admin-v7-users">${users.map(u=>`<div class="admin-v7-user-row"><div><div class="admin-v7-user-name">${adminEsc(u.nombre)}</div><div class="admin-v7-user-meta">${adminEsc(u.puesto||'Sin puesto')} · ${adminEsc(u.email||'Sin email')} · ${adminLink(u)}</div></div><div class="admin-v7-user-actions">${adminBadge(u.estado)}<button class="admin-v7-smallbtn" onclick="adminOpenUsuarioV7('${u.id}')">Editar</button><button class="admin-v7-smallbtn" onclick="adminV7CopyUserLink('${u.id}')">Copiar link</button><button class="admin-v7-smallbtn" onclick="adminV7ToggleUser('${u.id}')">${u.estado==='Inactivo'?'Activar':'Desactivar'}</button><button class="admin-v7-smallbtn red" onclick="adminV7DeleteUser('${u.id}')">Baja</button></div></div>`).join('')}</div>`;
+  if(!users.length) return `<div class="admin-v9-empty"><b>Sin usuarios</b>Esta cuenta todavía no tiene perfiles preparados.</div>`;
+  return `<div class="admin-v9-users">${users.map(u=>`<div class="admin-v9-user-row ${u.id===adminState.selectedUsuarioId?'active':''}" onclick="adminOpenUsuarioV9('${u.id}')"><div><div class="admin-v9-user-name">${adminEsc(u.nombre)}</div><div class="admin-v9-user-meta">${adminEsc(u.puesto||'Sin puesto')} · ${adminEsc(u.email||'Sin email')}<br>${adminEsc(adminLink(u))}</div></div><div class="admin-v9-user-actions">${adminBadge(u.estado)}<button class="admin-v9-smallbtn" onclick="event.stopPropagation();adminV9CopyUserLink('${u.id}')">Copiar link</button><button class="admin-v9-smallbtn" onclick="event.stopPropagation();adminV9ToggleUser('${u.id}')">${u.estado==='Inactivo'?'Activar':'Desactivar'}</button><button class="admin-v9-smallbtn red" onclick="event.stopPropagation();adminV9DeleteUser('${u.id}')">Baja</button></div></div>`).join('')}</div>`;
 }
-function adminOpenUsuarioV7(id){ adminState.selectedUsuarioId = id; adminRender(); }
-function adminSaveCuentaV7(id){
+function adminUsuarioSoporteDetalle(u){
+  const checks = ADMIN_V9_SERVICIOS_CUENTA.map(p=>{
+    const blocked = u.tipo==='Asesor independiente' && p.id==='branding_cuenta';
+    const checked = (u.permisos||[]).includes(p.id) && !blocked;
+    return `<label class="admin-v9-check ${blocked?'disabled':''}"><input type="checkbox" data-user-servicio="${p.id}" ${checked?'checked':''} ${blocked?'disabled':''}><div><b>${adminEsc(p.title)}</b><span>${adminEsc(p.desc)}</span>${blocked?'<small>No aplica para independiente.</small>':''}</div></label>`;
+  }).join('');
+  return `<div class="admin-v9-user-detail"><h4>ASESOR / USUARIO · <em>${adminEsc(u.nombre)}</em></h4>
+    <div class="admin-v9-info-grid">
+      <div class="admin-v9-info"><kbd>Puesto</kbd><strong>${adminEsc(u.puesto||'Pendiente')}</strong></div>
+      <div class="admin-v9-info"><kbd>Estado</kbd><strong>${adminEsc(u.estado)}</strong></div>
+      <div class="admin-v9-info"><kbd>WhatsApp</kbd><strong>${adminEsc(u.whatsapp||'Pendiente')}</strong></div>
+      <div class="admin-v9-info"><kbd>Email</kbd><strong>${adminEsc(u.email||'Pendiente')}</strong></div>
+      <div class="admin-v9-info"><kbd>Slug automático</kbd><strong class="gold">${adminEsc(u.slugOficial||'Pendiente')}</strong></div>
+      <div class="admin-v9-info"><kbd>Link captación</kbd><strong class="gold">${adminEsc(adminLink(u))}</strong></div>
+    </div>
+    <div style="height:12px"></div>
+    <div class="admin-card-sub" style="margin-bottom:8px">Servicios de este usuario</div>
+    <div class="admin-v9-checks">${checks}</div>
+    <div class="admin-actions"><button class="btn btn-ghost" onclick="adminV9ToggleUser('${u.id}')">${u.estado==='Inactivo'?'Activar usuario':'Desactivar usuario'}</button><button class="btn btn-primary" onclick="adminSaveUsuarioServiciosV9('${u.id}')">Guardar servicios del usuario</button></div>
+  </div>`;
+}
+function adminOpenUsuarioV9(id){ adminState.selectedUsuarioId = id; adminRender(); }
+function adminSaveCuentaV9(id){
   const c = adminCuenta(id); if(!c) return;
-  c.estado = val('cuenta-estado-v7');
-  c.nombre = val('cuenta-nombre-v7');
-  c.ciudad = val('cuenta-ciudad-v7');
-  c.responsable = val('cuenta-responsable-v7');
-  c.director = val('cuenta-director-v7');
-  c.whatsappDirector = val('cuenta-whatsapp-director-v7').replace(/\D/g,'');
-  c.emailDirector = val('cuenta-email-director-v7');
-  c.notas = val('cuenta-notas-v7');
-  if(c.tipo === 'Inmobiliaria'){
-    c.limiteAsesores = Number(val('cuenta-limite-v7')||10);
-    c.plan = adminV7PlanFromLimit(c.limiteAsesores);
-    c.logo = val('cuenta-logo-v7');
-  }else if(c.tipo === 'Grupo de asesores sin inmobiliaria'){
-    c.limiteAsesores = 5; c.plan = ADMIN_V7_PLANES.grupo; c.logo = val('cuenta-logo-v7');
-  }else{
-    c.limiteAsesores = 1; c.plan = ADMIN_V7_PLANES.independiente; c.logo = 'CASITA_METODO_NERI'; adminEnsureUserForCuenta(c,false);
-  }
-  adminCuentaUsers(c.id).forEach(u=>{ if(!u.estado) u.estado = c.estado; u.tipo = c.tipo; });
+  c.estado = val('cuenta-estado-v9'); c.nombre = val('cuenta-nombre-v9'); c.ciudad = val('cuenta-ciudad-v9'); c.responsable = val('cuenta-responsable-v9'); c.notas = val('cuenta-notas-v9');
+  if(c.tipo === 'Inmobiliaria'){ c.limiteAsesores = Number(val('cuenta-limite-v9')||10); c.plan = adminV9PlanFromLimit(c.limiteAsesores); c.logo = val('cuenta-logo-v9'); c.director = val('cuenta-director-v9'); c.whatsappDirector = val('cuenta-whatsapp-v9').replace(/\D/g,''); c.emailDirector = val('cuenta-email-v9'); }
+  else if(c.tipo === 'Grupo de asesores sin inmobiliaria'){ c.limiteAsesores = 5; c.plan = ADMIN_V9_PLANES.grupo; c.logo = val('cuenta-logo-v9'); c.director = val('cuenta-director-v9'); c.whatsappDirector = val('cuenta-whatsapp-v9').replace(/\D/g,''); c.emailDirector = val('cuenta-email-v9'); }
+  else { c.limiteAsesores = 1; c.plan = ADMIN_V9_PLANES.independiente; c.logo = 'CASITA_METODO_NERI'; }
+  c.servicios = Array.from(document.querySelectorAll('[data-cuenta-servicio]:checked')).map(x=>x.dataset.cuentaServicio);
+  if(c.tipo === 'Asesor independiente') c.servicios = c.servicios.filter(x=>x!=='branding_cuenta');
+  adminCuentaUsers(c.id).forEach(u=>{ u.tipo = c.tipo; if(!u.estado) u.estado = c.estado; });
   adminSave(); adminRender();
 }
-function adminDeleteCuentaV7(id){
+function adminSaveUsuarioServiciosV9(id){
+  const u = adminUsuario(id); if(!u) return;
+  u.permisos = Array.from(document.querySelectorAll('[data-user-servicio]:checked')).map(x=>x.dataset.userServicio);
+  if(u.tipo === 'Asesor independiente') u.permisos = u.permisos.filter(x=>x!=='branding_cuenta');
+  adminSave(); adminRender();
+}
+function adminDeleteCuentaV9(id){
   const c = adminCuenta(id); if(!c) return;
   if(adminCuentaUsers(id).length){ showToast('No se elimina: primero da de baja o elimina sus usuarios'); return; }
-  adminState.data.cuentas = adminState.data.cuentas.filter(x=>x.id!==id);
-  adminState.selectedCuentaId = null;
-  adminSave(); adminSetView(adminV7TabForCuenta(c));
+  adminState.data.cuentas = adminState.data.cuentas.filter(x=>x.id!==id); adminState.selectedCuentaId = null; adminSave(); adminSetView(adminV9ViewForTipo(c.tipo));
 }
-function adminV7AddUserPrompt(cuentaId){
+function adminV9AddUser(cuentaId){
   const c = adminCuenta(cuentaId); if(!c) return;
+  if(c.tipo==='Asesor independiente'){ showToast('La cuenta independiente usa un solo usuario'); return; }
   if(!adminCanAddUser(c)){ showToast('Cupo lleno: no se pueden preparar más asesores'); return; }
-  adminAddUserToCuenta(cuentaId,'Asesor');
-  adminState.tab='cuenta';
+  const nombre = c.tipo === 'Inmobiliaria' ? 'Asesor pendiente' : 'Asesor de grupo pendiente';
+  const slug = adminUniqueSlug(adminSlug(nombre+' '+Date.now().toString().slice(-3)), null);
+  const u = { id:adminId('usr'), cuentaId:c.id, nombre, whatsapp:'', email:'', foto:'', frase:'', ciudad:c.ciudad, pixel:'', tipo:c.tipo, estado:c.estado, puesto:'Asesor', slugSugerido:slug, slugOficial:slug, permisos:adminV9PermsOrg() };
+  adminState.data.usuarios.push(u); adminState.selectedUsuarioId = u.id; adminSave(); adminRender();
 }
-function adminV7ToggleUser(id){
-  const u = adminUsuario(id); if(!u) return;
-  u.estado = u.estado === 'Inactivo' ? 'Activo' : 'Inactivo';
-  adminSave(); adminRender();
-}
-function adminV7DeleteUser(id){
-  const u = adminUsuario(id); if(!u) return;
-  const c = adminCuenta(u.cuentaId);
-  if(c?.tipo === 'Asesor independiente'){ showToast('La cuenta independiente requiere su perfil único'); return; }
-  adminState.data.usuarios = adminState.data.usuarios.filter(x=>x.id!==id);
-  adminState.selectedUsuarioId = adminCuentaUsers(c?.id || '')[0]?.id || null;
-  adminSave(); adminRender();
-}
-function adminV7CopyUserLink(id){
-  const u = adminUsuario(id); if(!u || !u.slugOficial){ showToast('Aún no hay link generado'); return; }
-  navigator.clipboard?.writeText(adminLink(u));
-  showToast('Link Captación copiado');
-}
+function adminV9ToggleUser(id){ const u = adminUsuario(id); if(!u) return; u.estado = u.estado === 'Inactivo' ? 'Activo' : 'Inactivo'; adminSave(); adminRender(); }
+function adminV9DeleteUser(id){ const u = adminUsuario(id); if(!u) return; const c = adminCuenta(u.cuentaId); if(c?.tipo === 'Asesor independiente'){ showToast('La cuenta independiente requiere su perfil único'); return; } adminState.data.usuarios = adminState.data.usuarios.filter(x=>x.id!==id); adminState.selectedUsuarioId = adminCuentaUsers(c?.id || '')[0]?.id || null; adminSave(); adminRender(); }
+function adminV9CopyUserLink(id){ const u = adminUsuario(id); if(!u || !u.slugOficial){ showToast('Aún no hay link generado'); return; } navigator.clipboard?.writeText(adminLink(u)); showToast('Link Captación copiado'); }
+function adminV9EnterSystem(id){ const c = adminCuenta(id); showToast(`Entrada de soporte preparada: ${c?.nombre || 'cuenta'}`); }
 function adminRenderCrear(){
   const tipo = adminState.createTipo || '';
   if(!tipo){
-    return `<div class="admin-v7-section"><div class="admin-v7-sec-head"><div><div class="admin-v7-sec-title">CREAR NUEVA <em>INTRANET</em></div><div class="admin-v7-sec-sub">Un solo camino de creación. Primero el tipo, después el formulario correcto.</div></div></div><div class="admin-v7-create-types">
-      <div class="admin-v7-type-card" onclick="adminGoCrear('Inmobiliaria')"><div class="icon">▦</div><b>Inmobiliaria</b><p>Cuenta madre con logo, director, gerente, asesores y cupo 10/15/20/30.</p></div>
-      <div class="admin-v7-type-card" onclick="adminGoCrear('Asesor independiente')"><div class="icon">⌂</div><b>Asesor independiente</b><p>Cuenta individual con casita Método NERI, perfil público y link automático.</p></div>
-      <div class="admin-v7-type-card" onclick="adminGoCrear('Grupo de asesores sin inmobiliaria')"><div class="icon">◌</div><b>Grupo sin inmobiliaria</b><p>Cuenta chica para máximo 5 asesores, sin lenguaje corporativo de inmobiliaria.</p></div>
+    return `<div class="admin-v9-section"><div class="admin-v9-sec-head"><div><div class="admin-v9-sec-title">CREAR NUEVA <em>INTRANET</em></div><div class="admin-v9-sec-sub">Único camino de creación. Primero el tipo, después el formulario correcto.</div></div></div><div class="admin-v9-create-types">
+      <div class="admin-v9-type-card" onclick="adminGoCrear('Inmobiliaria')"><div class="icon">▦</div><b>Inmobiliaria</b><p>Cuenta madre con logo, director, gerente, asesores y cupo 10/15/20/30.</p></div>
+      <div class="admin-v9-type-card" onclick="adminGoCrear('Asesor independiente')"><div class="icon">⌂</div><b>Asesor independiente</b><p>Cuenta individual con casita Método NERI, perfil público y link automático.</p></div>
+      <div class="admin-v9-type-card" onclick="adminGoCrear('Grupo de asesores sin inmobiliaria')"><div class="icon">◌</div><b>Grupo sin inmobiliaria</b><p>Cuenta chica para máximo 5 asesores, sin lenguaje corporativo de inmobiliaria.</p></div>
     </div></div>`;
   }
   const isInmo = tipo === 'Inmobiliaria', isInd = tipo === 'Asesor independiente', isGroup = tipo === 'Grupo de asesores sin inmobiliaria';
-  const plan = isInmo ? adminSelectObjects('Paquete / cupo contratado','new-limite','10',ADMIN_V7_PLANES_INMOBILIARIA.map(p=>({value:String(p.limite),label:p.label}))) : `<div class="form-group"><label>Paquete</label><input class="form-inp" value="${adminEsc(isGroup?ADMIN_V7_PLANES.grupo:ADMIN_V7_PLANES.independiente)}" disabled></div>`;
-  const logo = isInd ? `<div class="form-group full"><div class="admin-v7-form-note"><b>Asesor independiente:</b> usa casita Método NERI automática. No se carga logo inmobiliaria.</div></div>` : `<div class="form-group full">${adminUploadField(isInmo?'Logo inmobiliaria':'Logo de grupo','new-logo','','Sube logo como archivo. No se pega URL.')}</div>`;
+  const plan = isInmo ? adminSelectObjects('Paquete / cupo contratado','new-limite','10',ADMIN_V9_PLANES_INMOBILIARIA.map(p=>({value:String(p.limite),label:p.label}))) : `<div class="form-group"><label>Paquete</label><input class="form-inp" value="${adminEsc(isGroup?ADMIN_V9_PLANES.grupo:ADMIN_V9_PLANES.independiente)}" disabled></div>`;
+  const logo = isInd ? `<div class="form-group full"><div class="admin-v9-form-note"><b>Asesor independiente:</b> usa casita Método NERI automática. No se carga logo inmobiliaria.</div></div>` : `<div class="form-group full">${adminUploadField(isInmo?'Logo inmobiliaria':'Logo de grupo','new-logo','','Sube logo como archivo. No se pega URL.')}</div>`;
   const publicFields = isInd ? `${adminUploadField('Foto del asesor','new-foto','','Sube foto como archivo.')} ${adminField('Frase pública','new-frase','')} ${adminField('Pixel ID Meta','new-pixel','')}` : '';
-  return `<div class="admin-v7-section"><div class="admin-v7-sec-head"><div><div class="admin-v7-sec-title">NUEVA INTRANET · <em>${adminEsc(adminTipoCorto(tipo))}</em></div><div class="admin-v7-sec-sub">Creación controlada por administración</div></div><button class="admin-v7-create" onclick="adminGoCrear()">Cambiar tipo</button></div>
-  <div class="admin-v7-card"><div class="admin-v7-card-body"><div class="admin-v7-form-note">Al guardar, la cuenta se va automáticamente a su directorio: inmobiliaria, independiente o grupo. La activación se controla desde Estado.</div><div class="admin-form-grid">
+  return `<div class="admin-v9-section"><div class="admin-v9-sec-head"><div><div class="admin-v9-sec-title">NUEVA INTRANET · <em>${adminEsc(adminTipoCorto(tipo))}</em></div><div class="admin-v9-sec-sub">Creación controlada por administración</div></div><button class="admin-v9-create" onclick="adminGoCrear()">Cambiar tipo</button></div>
+  <div class="admin-v9-ficha"><div class="admin-v9-panel-body"><div class="admin-v9-form-note">Al guardar, la cuenta se va automáticamente a su directorio: inmobiliaria, independiente o grupo.</div><div class="admin-form-grid">
     <div class="form-group"><label>Tipo</label><input class="form-inp" id="new-tipo" value="${adminEsc(tipo)}" disabled></div>
     ${adminSelect('Estado / activación','new-estado','Pendiente',['Pendiente','Activo','Inactivo'])}
     ${adminField(isInd?'Nombre del asesor':'Nombre de cuenta','new-nombre','')}
@@ -4442,57 +4375,41 @@ function adminRenderCrear(){
     ${logo}
     ${publicFields}
     ${adminArea('Notas administrativas','new-notas','','full')}
-  </div><div class="admin-actions"><button class="btn btn-ghost" onclick="adminGoCrear()">Cancelar</button><button class="btn btn-primary" onclick="adminCreateCuentaV7()">Crear intranet</button></div></div></div></div>`;
+  </div><div class="admin-actions"><button class="btn btn-ghost" onclick="adminGoCrear()">Cancelar</button><button class="btn btn-primary" onclick="adminCreateCuentaV9()">Crear intranet</button></div></div></div></div>`;
 }
-function adminCreateCuentaV7(){
-  const tipo = adminState.createTipo;
-  if(!ADMIN_TIPOS_CUENTA.includes(tipo)){ showToast('Selecciona tipo de cuenta'); return; }
+function adminCreateCuentaV9(){
+  const tipo = adminState.createTipo; if(!ADMIN_TIPOS_CUENTA.includes(tipo)){ showToast('Selecciona tipo de cuenta'); return; }
   const nombre = val('new-nombre') || (tipo==='Inmobiliaria'?'Nueva inmobiliaria':tipo==='Asesor independiente'?'Nuevo asesor independiente':'Nuevo grupo sin inmobiliaria');
-  const c = { id:adminId('cta'), nombre, tipo, estado:val('new-estado')||'Pendiente', ciudad:val('new-ciudad'), responsable:val('new-responsable'), director:val('new-director'), whatsappDirector:val('new-whatsapp-director').replace(/\D/g,''), emailDirector:val('new-email-director'), logo:'', limiteAsesores:adminDefaultLimit(tipo), plan:'', notas:val('new-notas') };
-  if(tipo === 'Inmobiliaria'){ c.limiteAsesores = Number(val('new-limite')||10); c.plan = adminV7PlanFromLimit(c.limiteAsesores); c.logo = val('new-logo'); }
-  if(tipo === 'Grupo de asesores sin inmobiliaria'){ c.limiteAsesores = 5; c.plan = ADMIN_V7_PLANES.grupo; c.logo = val('new-logo'); }
-  if(tipo === 'Asesor independiente'){ c.limiteAsesores = 1; c.plan = ADMIN_V7_PLANES.independiente; c.logo = 'CASITA_METODO_NERI'; }
+  const c = { id:adminId('cta'), nombre, tipo, estado:val('new-estado')||'Pendiente', ciudad:val('new-ciudad'), responsable:val('new-responsable'), director:val('new-director'), whatsappDirector:val('new-whatsapp-director').replace(/\D/g,''), emailDirector:val('new-email-director'), logo:'', limiteAsesores:adminDefaultLimit(tipo), plan:'', notas:val('new-notas'), servicios:adminV9DefaultServices(tipo) };
+  if(tipo === 'Inmobiliaria'){ c.limiteAsesores = Number(val('new-limite')||10); c.plan = adminV9PlanFromLimit(c.limiteAsesores); c.logo = val('new-logo'); }
+  if(tipo === 'Grupo de asesores sin inmobiliaria'){ c.limiteAsesores = 5; c.plan = ADMIN_V9_PLANES.grupo; c.logo = val('new-logo'); }
+  if(tipo === 'Asesor independiente'){ c.limiteAsesores = 1; c.plan = ADMIN_V9_PLANES.independiente; c.logo = 'CASITA_METODO_NERI'; }
   adminState.data.cuentas.unshift(c);
   if(tipo === 'Asesor independiente'){
     const slug = adminUniqueSlug(adminSlug(nombre), null);
-    adminState.data.usuarios.unshift({ id:adminId('usr'), cuentaId:c.id, nombre:nombre, whatsapp:val('new-whatsapp').replace(/\D/g,''), email:val('new-email'), foto:val('new-foto'), frase:val('new-frase'), ciudad:c.ciudad, pixel:val('new-pixel'), tipo, estado:c.estado, puesto:'Asesor independiente', slugSugerido:slug, slugOficial:slug, permisos:[...ADMIN_DEFAULT_PERMS_INDEPENDIENTE] });
+    adminState.data.usuarios.unshift({ id:adminId('usr'), cuentaId:c.id, nombre:nombre, whatsapp:val('new-whatsapp').replace(/\D/g,''), email:val('new-email'), foto:val('new-foto'), frase:val('new-frase'), ciudad:c.ciudad, pixel:val('new-pixel'), tipo, estado:c.estado, puesto:'Asesor independiente', slugSugerido:slug, slugOficial:slug, permisos:adminV9PermsInd() });
   }else if(c.director){
     const slug = adminUniqueSlug(adminSlug(c.director), null);
-    adminState.data.usuarios.unshift({ id:adminId('usr'), cuentaId:c.id, nombre:c.director, whatsapp:c.whatsappDirector, email:c.emailDirector, foto:'', frase:'', ciudad:c.ciudad, pixel:'', tipo, estado:c.estado, puesto:tipo==='Inmobiliaria'?'Director':'Líder de grupo', slugSugerido:slug, slugOficial:slug, permisos:[...ADMIN_DEFAULT_PERMS_ORG] });
+    adminState.data.usuarios.unshift({ id:adminId('usr'), cuentaId:c.id, nombre:c.director, whatsapp:c.whatsappDirector, email:c.emailDirector, foto:'', frase:'', ciudad:c.ciudad, pixel:'', tipo, estado:c.estado, puesto:tipo==='Inmobiliaria'?'Director':'Líder de grupo', slugSugerido:slug, slugOficial:slug, permisos:adminV9PermsOrg() });
   }
-  adminState.selectedCuentaId = c.id;
-  adminState.selectedUsuarioId = adminCuentaUsers(c.id)[0]?.id || null;
-  adminState.tab='cuenta';
-  adminSave(); adminRender();
+  adminState.selectedCuentaId = c.id; adminState.selectedUsuarioId = adminCuentaUsers(c.id)[0]?.id || null; adminState.tab='cuenta'; adminSave(); adminRender();
 }
-function adminRenderServiciosV8(){
-  const serviceCards = ADMIN_PERMISSION_CATALOG.map(p=>`<div class="admin-v7-package"><b>${adminEsc(p.title)}</b><span>${adminEsc(p.desc)}</span><small>Servicio del sistema</small></div>`).join('');
-  return `<div class="admin-v7-section">
-    <div class="admin-v7-sec-head"><div><div class="admin-v7-sec-title">SERVICIOS <em>DEL SISTEMA</em></div><div class="admin-v7-sec-sub">Catálogo de lo que existe en Método NERI. Aquí no se edita una cuenta; los servicios reales se asignan dentro de la ficha de cada inmobiliaria, independiente o grupo.</div></div></div>
-    <div class="admin-v7-packages">${serviceCards}</div>
-  </div>
-  <div class="admin-v7-section">
-    <div class="admin-v7-sec-head"><div><div class="admin-v7-sec-title">REGLA DE <em>ORDEN</em></div><div class="admin-v7-sec-sub">Los servicios no viven revueltos. Se consultan aquí y se administran dentro de cada ficha.</div></div></div>
-    <div class="admin-v7-support-grid">
-      <div class="admin-v7-support"><b>Inmobiliaria</b>Entra a Inmobiliarias, selecciona la cuenta y modifica servicios de director, gerente o asesor.</div>
-      <div class="admin-v7-support"><b>Independiente</b>Entra a Independientes, selecciona al asesor y modifica su perfil o servicios desde su ficha.</div>
-      <div class="admin-v7-support"><b>Grupo sin inmobiliaria</b>Entra a Grupos, selecciona el grupo y modifica usuarios o servicios desde su ficha.</div>
-    </div>
-  </div>`;
+function adminRenderServiciosV9(){
+  const cards = [
+    ['Landing vendedores','Formulario / diagnóstico para captar propietarios y documentar su proceso.'],
+    ['Landing compradores','Filtro visual para comprador, ruta comercial y link por asesor.'],
+    ['Sala de mensajes','Mensajes guía para WhatsApp. No contesta por el asesor.'],
+    ['Panel de citas','Vista operativa para agendar y dar seguimiento a visitas.'],
+    ['Reportes básicos','Métricas permitidas por cuenta, sin mezclar administración con CRM.'],
+    ['Branding de cuenta','Logo inmobiliaria o grupo aplicado desde administración.']
+  ].map(s=>`<div class="admin-v9-package"><b>${adminEsc(s[0])}</b><span>${adminEsc(s[1])}</span><small>Servicio existente</small></div>`).join('');
+  return `<div class="admin-v9-section"><div class="admin-v9-sec-head"><div><div class="admin-v9-sec-title">SERVICIOS <em>DEL SISTEMA</em></div><div class="admin-v9-sec-sub">Catálogo general. Aquí no se editan cuentas; se editan dentro de cada ficha.</div></div></div><div class="admin-v9-packages">${cards}</div></div>`;
 }
 function adminSelectUsuario(id){ adminState.selectedUsuarioId=id; adminRender(); }
-function adminNewUsuario(){
-  const c = adminCuenta(adminState.selectedCuentaId);
-  if(!c){ showToast('Primero selecciona una cuenta'); return; }
-  if(c.tipo === 'Asesor independiente'){ adminEnsureUserForCuenta(c); adminSave(); adminRender(); return; }
-  adminV7AddUserPrompt(c.id);
-}
-function adminV7ResetDemo(){
-  localStorage.removeItem(ADMIN_V7_STORAGE_KEY);
-  adminState.data = adminSeedData();
-  adminState.tab='dashboard'; adminState.selectedCuentaId=null; adminState.selectedUsuarioId=null; adminState.createTipo='';
-  adminSave(false); adminRender(); showToast('Prueba reiniciada');
-}
+function adminNewUsuario(){ const c = adminCuenta(adminState.selectedCuentaId); if(!c){ showToast('Primero selecciona una cuenta'); return; } adminV9AddUser(c.id); }
+function adminV9ResetDemo(){ localStorage.removeItem(ADMIN_V9_STORAGE_KEY); adminState.data = adminSeedData(); adminState.tab='dashboard'; adminState.selectedCuentaId=null; adminState.selectedUsuarioId=null; adminState.createTipo=''; adminSave(false); adminRender(); showToast('Prueba reiniciada'); }
+
+
 
 /* ═══════════════════════════════════════════════════
    ENTER EN LOGIN
