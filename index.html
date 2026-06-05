@@ -681,75 +681,6 @@ select.form-input option{background:#111;color:#fff}
 .crm-empty-icon{font-size:32px;opacity:.15}
 .crm-empty-text{font-size:11px;color:var(--w30);letter-spacing:2px;text-transform:uppercase;font-weight:700}
 
-/* ─── PORTAL PROGRESO VISUAL — experiencia tipo seguimiento ─── */
-.prog-shell{display:grid;grid-template-columns:320px 1fr;gap:0;min-height:100%;background:#080808}
-.prog-shell.empty-only{display:block;background:transparent}
-.prog-list{border-right:1px solid var(--border);background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,.005));overflow:auto}
-.prog-list-head{position:sticky;top:0;z-index:2;background:#0b0b0b;border-bottom:1px solid var(--border);padding:18px 18px 14px;display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
-.prog-list-head span{display:block;font-size:7px;letter-spacing:2.8px;text-transform:uppercase;color:var(--gold);font-weight:800;margin-bottom:6px}
-.prog-list-head strong{font-family:var(--display);font-size:32px;color:var(--white);letter-spacing:2px;line-height:1}
-.prog-list-head small{font-size:9px;color:var(--w35);letter-spacing:1px;text-align:right;text-transform:uppercase}
-.prog-client-list{padding:10px;display:flex;flex-direction:column;gap:8px}
-.prog-client-card{width:100%;border:1px solid var(--border);background:rgba(255,255,255,.018);border-radius:5px;padding:12px;display:grid;grid-template-columns:48px 1fr auto;gap:12px;align-items:center;text-align:left;cursor:pointer;color:inherit;transition:all .16s var(--ease);position:relative;overflow:hidden}
-.prog-client-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:transparent;transition:background .16s}
-.prog-client-card:hover{border-color:var(--goldbdr);background:rgba(201,169,110,.045)}
-.prog-client-card.active{border-color:var(--goldbdr);background:rgba(201,169,110,.08)}
-.prog-client-card.active::before{background:var(--gold)}
-.prog-mini-ring{--pct:0;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--gold) calc(var(--pct)*1%),rgba(255,255,255,.08) 0);position:relative;flex-shrink:0}
-.prog-mini-ring::after{content:'';position:absolute;inset:5px;border-radius:50%;background:#0a0a0a;border:1px solid rgba(255,255,255,.05)}
-.prog-mini-ring b{position:relative;z-index:1;font-family:var(--mono);font-size:9px;color:var(--gold)}
-.prog-client-main{display:flex;flex-direction:column;gap:3px;min-width:0}
-.prog-client-name{font-size:13px;color:var(--white);font-weight:750;line-height:1.15}
-.prog-client-sub{font-size:11px;color:var(--w55);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.prog-client-meta{font-size:9px;color:var(--gold);letter-spacing:.7px;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.prog-client-go{font-size:16px;color:var(--w25)}
-.prog-detail{overflow:auto;padding:26px;background:radial-gradient(circle at 70% 0%,rgba(201,169,110,.08),transparent 42%)}
-.prog-detail-card{max-width:980px;margin:0 auto;border:1px solid var(--border);background:rgba(8,8,8,.78);box-shadow:0 24px 80px rgba(0,0,0,.3);border-radius:6px;overflow:hidden}
-.prog-detail-top{display:grid;grid-template-columns:220px 1fr;gap:26px;padding:30px;border-bottom:1px solid var(--border);align-items:center;background:linear-gradient(135deg,rgba(255,255,255,.035),rgba(255,255,255,.006))}
-.prog-ring-wrap{display:flex;align-items:center;justify-content:center}
-.prog-ring{--pct:0;width:176px;height:176px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--gold) calc(var(--pct)*1%),rgba(255,255,255,.075) 0);position:relative;box-shadow:0 0 60px rgba(201,169,110,.06)}
-.prog-ring::before{content:'';position:absolute;inset:10px;border-radius:50%;background:#080808;border:1px solid var(--goldbdr)}
-.prog-ring-core{position:relative;z-index:1;width:126px;height:126px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(circle,rgba(201,169,110,.07),rgba(255,255,255,.015));text-align:center;padding:8px}
-.prog-ring-core strong{font-family:var(--display);font-size:42px;color:var(--white);line-height:.9;letter-spacing:1px}
-.prog-ring-core span{margin-top:8px;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);font-weight:800;line-height:1.35}
-.prog-eyebrow{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);font-weight:800;margin-bottom:10px}
-.prog-name{font-family:var(--display);font-size:38px;letter-spacing:2px;color:var(--white);line-height:.95}
-.prog-prop{font-size:14px;color:var(--w70);margin-top:10px;line-height:1.4}
-.prog-prop span{color:var(--gold)}
-.prog-folio{font-family:var(--mono);font-size:11px;color:var(--gold);letter-spacing:1px;margin-top:8px;display:flex;gap:12px;flex-wrap:wrap}
-.prog-folio span{color:var(--w35)}
-.prog-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px}
-.prog-next-panel{display:grid;grid-template-columns:1.1fr 1fr;gap:1px;background:var(--border);border-bottom:1px solid var(--border)}
-.prog-next-panel>div{background:#0b0b0b;padding:18px 22px;min-height:86px}
-.prog-next-panel span{display:block;font-size:7px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);font-weight:800;margin-bottom:7px}
-.prog-next-panel strong{font-size:13px;color:var(--w85);font-weight:500;line-height:1.55}
-.prog-body-grid{display:grid;grid-template-columns:1fr 1fr;gap:0}
-.prog-track{padding:24px;border-right:1px solid var(--border);display:flex;flex-direction:column;gap:10px}
-.prog-step{display:grid;grid-template-columns:34px 1fr;gap:12px;align-items:center;padding:10px;border:1px solid var(--border);background:rgba(255,255,255,.012);border-radius:4px;position:relative}
-.prog-step-dot{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-family:var(--mono);font-size:10px;border:1px solid var(--border2);color:var(--w35);background:#080808}
-.prog-step-name{font-size:11px;color:var(--w45);letter-spacing:.7px;text-transform:uppercase;font-weight:750}
-.prog-step.done .prog-step-dot{background:rgba(74,222,128,.12);border-color:rgba(74,222,128,.28);color:#4ade80}
-.prog-step.done .prog-step-name{color:var(--w65)}
-.prog-step.now{border-color:var(--goldbdr);background:rgba(201,169,110,.06)}
-.prog-step.now .prog-step-dot{background:var(--gold);border-color:var(--gold);color:#050505;font-weight:900}
-.prog-step.now .prog-step-name{color:var(--gold)}
-.prog-info{padding:24px;display:flex;flex-direction:column;gap:16px}
-.prog-info-title{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);font-weight:800;border-bottom:1px solid var(--border);padding-bottom:10px}
-.prog-pending-list{list-style:none;display:flex;flex-direction:column;gap:8px;margin:0;padding:0}
-.prog-pending-list li{font-size:12px;color:var(--w80);line-height:1.45;padding:10px 12px 10px 30px;border:1px solid var(--border);background:rgba(255,255,255,.016);border-radius:4px;position:relative}
-.prog-pending-list li::before{content:'!';position:absolute;left:11px;top:10px;width:12px;height:12px;border-radius:50%;display:grid;place-items:center;background:rgba(251,191,36,.12);color:#fbbf24;font-size:8px;font-weight:900}
-.prog-no-pending{font-size:12px;color:var(--w45);padding:14px;border:1px solid var(--border);background:rgba(255,255,255,.012);border-radius:4px}
-.prog-fields{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:auto}
-.prog-fields>div{border:1px solid var(--border);background:rgba(255,255,255,.012);padding:11px 12px;border-radius:4px;min-width:0}
-.prog-fields>div.full{grid-column:1/-1}
-.prog-fields span{display:block;font-size:7px;letter-spacing:2px;text-transform:uppercase;color:var(--w30);font-weight:800;margin-bottom:5px}
-.prog-fields b{display:block;font-size:12px;color:var(--w75);font-weight:500;line-height:1.45;word-break:break-word}
-.prog-detail-empty{height:100%;min-height:420px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:var(--w45)}
-.prog-empty-icon{font-size:38px;opacity:.25;margin-bottom:14px}
-.prog-empty-title{font-family:var(--display);font-size:28px;color:var(--white);letter-spacing:2px}
-.prog-empty-copy{font-size:12px;color:var(--w45);margin-top:6px}
-@media(max-width:980px){.prog-shell{grid-template-columns:1fr}.prog-list{max-height:330px;border-right:none;border-bottom:1px solid var(--border)}.prog-detail-top,.prog-body-grid,.prog-next-panel{grid-template-columns:1fr}.prog-track{border-right:none;border-bottom:1px solid var(--border)}.prog-detail{padding:16px}.prog-name{font-size:30px}.prog-ring{width:150px;height:150px}}
-
 /* Skeleton loader */
 .crm-skeleton-row td{padding:12px 16px}
 .crm-skeleton-cell{
@@ -1250,22 +1181,6 @@ select.form-inp option{background:#111;color:#fff}
 .asesor-list{display:grid;gap:8px}.asesor-row{border:1px solid var(--border);background:rgba(255,255,255,.022);border-radius:14px;padding:13px 14px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}.asesor-row b{font-size:12px;color:var(--white)}.asesor-row p{font-size:10px;color:var(--w50);line-height:1.55;margin-top:4px}.asesor-row .meta{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end}.asesor-pill{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--border2);background:rgba(255,255,255,.035);border-radius:999px;padding:6px 9px;font-size:7px;letter-spacing:1.4px;text-transform:uppercase;font-weight:900;color:var(--w55);white-space:nowrap}.asesor-pill.gold{border-color:var(--goldbdr);background:var(--golddim);color:var(--gold)}.asesor-pill.green{border-color:rgba(74,222,128,.25);background:rgba(74,222,128,.08);color:var(--green)}.asesor-pill.red{border-color:rgba(248,113,113,.25);background:rgba(248,113,113,.08);color:var(--red)}
 .asesor-two{display:grid;grid-template-columns:1fr 1fr;gap:14px}.asesor-form{display:grid;grid-template-columns:1fr 1fr;gap:12px}.asesor-form .full{grid-column:1/-1}.asesor-inp,.asesor-textarea{width:100%;background:rgba(0,0,0,.22);border:1px solid var(--border2);border-radius:12px;color:var(--white);padding:12px;font-size:12px;outline:none}.asesor-textarea{min-height:90px;resize:vertical}.asesor-label{font-size:7px;letter-spacing:1.6px;text-transform:uppercase;color:var(--w40);font-weight:900;margin-bottom:6px;display:block}.asesor-lock{border:1px dashed var(--border2);background:rgba(255,255,255,.018);border-radius:12px;padding:12px}.asesor-lock small{font-size:7px;letter-spacing:1.6px;text-transform:uppercase;color:var(--w35);font-weight:900;display:block;margin-bottom:5px}.asesor-lock b{font-family:var(--mono);font-size:11px;color:var(--gold);word-break:break-word}
 .asesor-manual-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.asesor-manual{border:1px solid var(--border);background:rgba(255,255,255,.025);border-radius:14px;padding:14px}.asesor-manual b{font-size:12px;display:block;color:var(--white);margin-bottom:7px}.asesor-manual span{font-size:10px;color:var(--w50);line-height:1.55}.asesor-note{border:1px solid var(--goldbdr);background:var(--golddim);border-radius:14px;padding:14px;font-size:11px;color:var(--w70);line-height:1.7}
-.asesor-hoy-premium{max-width:1180px;margin:0 auto;width:100%}
-.asesor-hoy-box{width:100%;max-width:none;margin:0 0 16px}
-.asesor-hoy-header{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap}
-.asesor-hoy-sub{font-size:11px;color:var(--w50);line-height:1.7;margin-top:7px;max-width:720px}
-.asesor-hoy-line{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;margin-top:12px;border:1px solid var(--border);background:rgba(255,255,255,.018);border-radius:3px;overflow:hidden}
-.asesor-hoy-stage{padding:14px 13px;background:rgba(0,0,0,.18);position:relative;min-height:82px}
-.asesor-hoy-stage:before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--gold);opacity:.5}
-.asesor-hoy-stage b{font-family:var(--display);font-size:34px;line-height:1;color:var(--gold);display:block;letter-spacing:1px}
-.asesor-hoy-stage span{display:block;font-size:7px;letter-spacing:1.6px;text-transform:uppercase;color:var(--w45);font-weight:900;margin-top:6px;line-height:1.45}
-.asesor-hoy-stage small{display:block;font-size:10px;color:var(--w35);line-height:1.45;margin-top:6px}
-.asesor-hoy-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:14px}
-.asesor-hoy-leads{display:grid;gap:2px}
-.asesor-hoy-row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:13px 2px;border-bottom:1px solid var(--border)}
-.asesor-hoy-row:last-child{border-bottom:none}.asesor-hoy-row b{font-size:13px;color:#fff}.asesor-hoy-row p{font-size:10px;color:var(--w45);line-height:1.55;margin-top:4px}.asesor-hoy-actions{display:grid;gap:8px}.asesor-hoy-action{border:1px solid var(--border);background:rgba(255,255,255,.02);border-radius:3px;padding:13px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;cursor:pointer}.asesor-hoy-action:hover{border-color:var(--goldbdr);background:var(--golddim)}.asesor-hoy-action b{font-size:12px}.asesor-hoy-action span{font-size:10px;color:var(--w45);display:block;margin-top:4px;line-height:1.5}.asesor-hoy-empty{padding:20px;border:1px dashed var(--border2);background:rgba(255,255,255,.018);border-radius:3px;text-align:center;color:var(--w40);font-size:11px;line-height:1.7}
-.asesor-hoy-mini{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.asesor-hoy-mini .asesor-pill{text-decoration:none}
-@media(max-width:980px){.asesor-hoy-grid,.asesor-hoy-line{grid-template-columns:1fr}.asesor-hoy-row{grid-template-columns:1fr}.asesor-hoy-mini{justify-content:flex-start}}
 
 /* Perfil del asesor con patrón visual de Lead Vendedores */
 .asesor-perfil-page{padding:28px;max-width:1180px;margin:0 auto;width:100%}
@@ -1308,15 +1223,6 @@ select.form-inp option{background:#111;color:#fff}
     <div class="login-card">
       <div class="lc-brand">NERI</div>
       <div class="lc-sub">Sistema Operativo · Modo prueba abierto</div>
-      <div class="lc-sep"></div>
-
-      <!-- Entrada real del asesor (verificada contra Airtable) -->
-      <div class="quick-logins" style="margin-bottom:16px">
-        <div class="ql-label">Entrar como asesor</div>
-        <input class="form-input" id="l-asesor-slug" type="text" placeholder="tu slug (ej: asesor-prueba-conexion)" autocomplete="off" style="margin:6px 0 8px" onkeydown="if(event.key==='Enter')entrarComoAsesorReal()">
-        <button class="login-btn" onclick="entrarComoAsesorReal()">Entrar a mi intranet →</button>
-        <div id="asesor-login-err" class="login-err"></div>
-      </div>
       <div class="lc-sep"></div>
 
       <!-- Quick login chips para demo -->
@@ -1469,7 +1375,7 @@ const NAV_ROL = {
   admin: [
     { section:'Sistema' },
     { id:'hoy',         label:'Dashboard',          icon:'⬡' },
-    { id:'administracion', label:'Administración Base', icon:'▣', highlight:true },
+    { id:'administracion', label:'Control Maestro', icon:'▣', highlight:true },
     { id:'airtable',    label:'Mi CRM',       icon:'◈' },
     { section:'Herramientas' },
     { id:'sala',        label:'Sala de Mensajes',   icon:'⚡' },
@@ -1497,44 +1403,6 @@ const TOOLS = {
 /* ═══════════════════════════════════════════════════
    LOGIN
 ═══════════════════════════════════════════════════ */
-/* Entrada REAL del asesor: valida el slug contra la tabla Asesor captación.
-   Solo entra si el asesor existe y está Activo. Lo mete con privilegios de
-   asesor (NAV propio + CRM filtrado por su slug). No toca el login de admin. */
-async function entrarComoAsesorReal(slugArg){
-  const errEl = document.getElementById('asesor-login-err');
-  const say = (msg, bad)=>{ if(errEl){ errEl.style.color = bad ? 'var(--red)' : 'var(--w50)'; errEl.textContent = msg; } else if(bad){ showToast(msg); } };
-  const slug = (slugArg || (document.getElementById('l-asesor-slug')?.value) || '').trim().toLowerCase();
-  if(!slug){ say('Escribe tu slug.', true); return; }
-  say('Verificando en Airtable...', false);
-  try{
-    const formula = encodeURIComponent(`LOWER({Slug})='${slug.replace(/'/g,"\\'")}'`);
-    const data = await atFetch(`tblIRPmLIyj8sWyEk?filterByFormula=${formula}&maxRecords=1`);
-    const rec = (data.records || [])[0];
-    if(!rec){ say('Ese asesor no existe en la tabla (slug: ' + slug + '). Revisa el slug en la ficha del asesor.', true); return; }
-    const f = rec.fields || {};
-    if(!f['Activo']){ say('Ese asesor existe pero no está Activo. Márcalo Activo en su ficha.', true); return; }
-    SESSION = {
-      user: slug,
-      slug: slug,
-      rol: 'asesor',
-      nombre:   f['Nombre'] || slug,
-      whatsapp: String(f['Teléfono WhatsApp'] || '').replace(/\D/g,''),
-      pixel:    f['Pixel ID Meta'] || '',
-      empresa:  [f['Puesto'] || 'Asesor Inmobiliario', f['Ciudad'] || ''].filter(Boolean).join(' · ') || 'Método NERI',
-      perfilRecId: rec.id,
-      realAsesor: true
-    };
-    say('', false);
-    document.getElementById('screen-login').classList.add('hidden');
-    document.getElementById('screen-app').classList.remove('hidden');
-    bootApp();
-    refreshChrome();
-    showToast('Entraste como ' + SESSION.nombre);
-  }catch(e){
-    say('Error de conexión: ' + e.message, true);
-  }
-}
-
 function quickLogin(rol){
   document.getElementById('l-user').value = rol;
   document.getElementById('l-pass').value = 'neri2024';
@@ -1572,12 +1440,12 @@ function doLogin(){
 /* Trae nombre/whatsapp/empresa/pixel reales del asesor desde Airtable por slug.
    Best-effort: si falla, la sesión sigue con el perfil local. */
 async function enrichIdentity(slug){
-  if(!slug) return null;
+  if(!slug) return;
   try{
     const formula = encodeURIComponent(`LOWER({Slug})='${String(slug).toLowerCase()}'`);
     const data = await atFetch(`tblIRPmLIyj8sWyEk?filterByFormula=${formula}&maxRecords=1`);
     const rec = (data.records||[])[0];
-    if(!rec) return null;
+    if(!rec) return;
     SESSION.perfilRecId = rec.id;   // id real del registro del asesor, para editar su perfil después
     const f = rec.fields || {};
     if(f['Nombre'])            SESSION.nombre   = f['Nombre'];
@@ -1588,8 +1456,7 @@ async function enrichIdentity(slug){
     if(ciudad || puesto) SESSION.empresa = [puesto, ciudad].filter(Boolean).join(' · ') || SESSION.empresa;
     refreshChrome();
     showToast('Identidad: '+SESSION.nombre);
-    return rec;
-  }catch(e){ return null; /* sin conexión: se queda el perfil local */ }
+  }catch(e){ /* sin conexión: se queda el perfil local */ }
 }
 
 function refreshChrome(){
@@ -1623,7 +1490,7 @@ function bootApp(){
   buildPanels();
   goTo(s.rol === 'asesor' ? 'perfil_asesor' : 'hoy');   // el asesor configura su perfil primero
   updateClock();
-  if(typeof ensureDemoRoleSwitch === 'function' && !SESSION.realAsesor) ensureDemoRoleSwitch();
+  if(typeof ensureDemoRoleSwitch === 'function') ensureDemoRoleSwitch();
 }
 
 /* ── NAV ── */
@@ -1650,8 +1517,6 @@ function buildPanels(){
   ca.innerHTML = '';
   _crmLoaded = false; // reset para nueva sesión
   _perfilLoaded = false; // reset perfil del asesor para nueva sesión
-  if(typeof _asesorPropiedadesLoaded !== 'undefined') _asesorPropiedadesLoaded = false;
-  if(typeof _asesorDocumentosLoaded !== 'undefined') _asesorDocumentosLoaded = false;
 
   ca.insertAdjacentHTML('beforeend', buildHoyPanel());
   ca.insertAdjacentHTML('beforeend', buildAdministracionPanel());
@@ -2040,10 +1905,6 @@ function adminSelect(label,id,value,options,extra=''){
 function adminSelectObjects(label,id,value,options,extra=''){
   return `<div class="form-group"><label>${adminEsc(label)}</label><select class="form-inp" id="${adminEsc(id)}" ${extra}>${options.map(o=>`<option value="${adminEsc(o.value)}" ${String(o.value)===String(value)?'selected':''}>${adminEsc(o.label)}</option>`).join('')}</select></div>`;
 }
-function val(id){
-  const el = document.getElementById(id);
-  return el && typeof el.value !== 'undefined' ? String(el.value).trim() : '';
-}
 function adminUploadField(label,id,value='',hint=''){
   const hasFile = value && value !== 'CASITA_METODO_NERI';
   const preview = hasFile ? `<img src="${adminEsc(value)}" alt="${adminEsc(label)}">` : `<span>＋</span>`;
@@ -2154,14 +2015,13 @@ const CRM_CFG = {
     tableId: 'tblyC9VjjtoRKJPQL',
     label: 'Portal Progreso',
     dot: 'progreso',
-    progresoVisual: true,
     cols: ['Folio','Comprador','Propiedad','Precio','Fase Actual','Asesor','WhatsApp Asesor','Próximo paso'],
     fields: ['Folio','Comprador','Propiedad','Precio','Fase Actual','Asesor','WhatsApp Asesor','Próximo paso'],
     editable: [
       {f:'Comprador',                        type:'text'},
       {f:'Propiedad',                        type:'text'},
       {f:'Precio',                           type:'text'},
-      {f:'Fase Actual',                      type:'select', asText:true, opts:['Apartado','Revisión de compra','Preparando documentos','Acuerdo de compra','Revisión en notaría','Últimas confirmaciones','Día de firma','Entrega de llaves']},
+      {f:'Fase Actual',                      type:'select', asText:true, opts:['Apartado','Expediente','Valuación','Crédito','Escrituración','Firma','Entrega','Completado']},
       {f:'Asesor',                           type:'text'},
       {f:'WhatsApp Asesor',                  type:'text'},
       {f:'Etiqueta WhatsApp',                type:'text'},
@@ -2229,7 +2089,7 @@ const STATUS_BADGE = {
   'Realizada':'badge-cita-real','Cancelada':'badge-cita-canc','Reagendada':'badge-visit',
 };
 
-let crmState = { tab:'compradores', records:[], editId:null, isNew:false, citaFromLead:null, progresoSelectedId:null };
+let crmState = { tab:'compradores', records:[], editId:null, isNew:false, citaFromLead:null };
 // citaFromLead: { folioClienteOrigen, comprador, propiedad, asesor } — se limpia después del POST
 
 /* ─── API helpers — usa el proxy de Vercel ─────────── */
@@ -2245,37 +2105,6 @@ async function atFetch(path, opts={}){
   });
   if(!r.ok) throw new Error('HTTP ' + r.status + ' — ' + await r.text());
   return r.json();
-}
-
-function crmTextValue(v){
-  if(v == null) return '';
-  if(Array.isArray(v)) return v.map(x=>crmTextValue(x)).filter(Boolean).join(' ');
-  if(typeof v === 'object') return v.name || v.email || v.id || Object.values(v).map(x=>crmTextValue(x)).join(' ');
-  return String(v);
-}
-function crmRecordBelongsToCurrentAsesor(rec){
-  if(SESSION?.rol !== 'asesor') return true;
-  const f = rec?.fields || {};
-  const tokens = [SESSION.slug, SESSION.user, SESSION.nombre]
-    .filter(Boolean).map(x=>String(x).toLowerCase().trim()).filter(Boolean);
-  const hay = [
-    f['Asesor'], f['Asesor Slug'], f['Slug Asesor'], f['Slug'],
-    f['Asesor asignado'], f['Responsable'], f['WhatsApp Asesor'], f['Email Asesor']
-  ].map(crmTextValue).join(' ').toLowerCase();
-  if(!hay.trim()) return false;
-  return tokens.some(t => t && hay.includes(t));
-}
-function crmGateMissingAdvisorProfile(){
-  const loading = document.getElementById('crm-loading');
-  const body = document.getElementById('crm-body');
-  const errEl = document.getElementById('crm-error');
-  if(loading) loading.style.display = 'none';
-  if(body) body.style.display = 'none';
-  if(errEl) errEl.style.display = 'block';
-  const msg = document.getElementById('crm-error-msg');
-  if(msg) msg.innerHTML = `Primero hay que dar de alta el <b>perfil real del asesor</b> en Airtable.<br><br>
-    <span style="color:var(--w50);font-size:11px;line-height:1.7">El CRM ya no se abre solo por entrar en modo prueba. Para ver Mis Leads / CRM, el slug <b>${_esc(SESSION?.slug||'')}</b> debe existir en la tabla de asesores <b>tblIRPmLIyj8sWyEk</b>.</span><br><br>
-    <button class="at-btn primary" onclick="goTo('perfil_asesor')" style="margin:0 auto">Ir a Mi Perfil</button>`;
 }
 
 /* ─── LOAD RECORDS ─────────────────────────────────── */
@@ -2296,8 +2125,7 @@ async function crmLoad(tab, force=false){
     // Robusto: sin fields[] (si un nombre no existe, Airtable rechaza TODO con 422)
     // y sin view fija (falla si la vista fue renombrada). Trae todos los campos.
     const data = await atFetch(`${cfg.tableId}?maxRecords=100`);
-    const allRecords = data.records || [];
-    crmState.records = SESSION?.rol === 'asesor' ? allRecords.filter(crmRecordBelongsToCurrentAsesor) : allRecords;
+    crmState.records = data.records || [];
     crmRender(tab, crmState.records);
     const tabCountEl = document.getElementById('tab-count-' + tab);
     if(tabCountEl) tabCountEl.textContent = crmState.records.length;
@@ -2318,10 +2146,6 @@ async function crmLoad(tab, force=false){
 /* ─── RENDER TABLE ─────────────────────────────────── */
 function crmRender(tab, records){
   const cfg = CRM_CFG[tab];
-  if(cfg?.progresoVisual){
-    crmRenderProgreso(records);
-    return;
-  }
   document.getElementById('crm-count').textContent = records.length + ' registros';
 
   const ths = ['', ...cfg.cols].map((c,i) =>
@@ -2358,161 +2182,7 @@ function crmRender(tab, records){
     `<table class="at-table" id="crm-main-table"><thead><tr>${ths}</tr></thead><tbody>${trs}</tbody></table>`;
 }
 
-function crmSplitLines(v){
-  return String(v||'')
-    .split(/\n|,|•|\u2022/g)
-    .map(x=>x.trim())
-    .filter(Boolean);
-}
-function crmPctForFase(fase){
-  const idx = _faseIndex(fase || 'Apartado');
-  return Math.round(((idx + 1) / FASES_PROGRESO.length) * 100);
-}
-function crmShortDate(v){
-  if(!v) return '—';
-  const d = new Date(v);
-  if(isNaN(d)) return String(v);
-  return d.toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric'});
-}
-function crmProgresoRecordHtml(rec, selectedId){
-  const fase = _fval(rec,'Fase Actual') || 'Apartado';
-  const pct = crmPctForFase(fase);
-  const pend = crmSplitLines(_fval(rec,'Pendientes visibles'));
-  const active = rec.id === selectedId ? ' active' : '';
-  return `<button class="prog-client-card${active}" data-progreso-card="1" data-rec-id="${_escAttr(rec.id)}" onclick="crmSelectProgreso('${rec.id}')" type="button">
-    <span class="prog-mini-ring" style="--pct:${pct}"><b>${pct}</b></span>
-    <span class="prog-client-main">
-      <span class="prog-client-name">${_esc(_fval(rec,'Comprador') || 'Sin comprador')}</span>
-      <span class="prog-client-sub">${_esc(_fval(rec,'Propiedad') || 'Sin propiedad')}</span>
-      <span class="prog-client-meta">${_esc(fase)}${pend.length ? ` · ${pend.length} pendiente${pend.length===1?'':'s'}` : ''}</span>
-    </span>
-    <span class="prog-client-go">→</span>
-  </button>`;
-}
-function crmProgresoDetailHtml(rec){
-  if(!rec){
-    return `<div class="prog-detail-empty">
-      <div class="prog-empty-icon">◎</div>
-      <div class="prog-empty-title">Selecciona una operación</div>
-      <div class="prog-empty-copy">Aquí verás el avance tipo portal, no una tabla.</div>
-    </div>`;
-  }
-  const fase = _fval(rec,'Fase Actual') || 'Apartado';
-  const idx = _faseIndex(fase);
-  const pct = crmPctForFase(fase);
-  const next = FASES_PROGRESO[Math.min(idx+1, FASES_PROGRESO.length-1)]?.n || 'Operación completada';
-  const paso = _fval(rec,'Próximo paso') || (idx >= FASES_PROGRESO.length-1 ? 'Entrega final completada.' : `Continuar con: ${next}`);
-  const pend = crmSplitLines(_fval(rec,'Pendientes visibles'));
-  const docsAhora = FASES_PROGRESO[idx]?.listo || '';
-  const link = _fval(rec,'Link Portal');
-  const wa = _waLink(_fval(rec,'WhatsApp Asesor'), _fval(rec,'Mensaje WhatsApp Actualización'));
-  const steps = FASES_PROGRESO.map((step,i)=>{
-    const cls = i < idx ? 'done' : (i === idx ? 'now' : 'next');
-    return `<div class="prog-step ${cls}">
-      <span class="prog-step-dot">${i<idx?'✓':(i+1)}</span>
-      <span class="prog-step-name">${_esc(step.n)}</span>
-    </div>`;
-  }).join('');
-  return `<div class="prog-detail-card">
-    <div class="prog-detail-top">
-      <div class="prog-ring-wrap">
-        <div class="prog-ring" style="--pct:${pct}">
-          <div class="prog-ring-core"><strong>${pct}%</strong><span>${_esc(fase)}</span></div>
-        </div>
-      </div>
-      <div class="prog-hero-copy">
-        <div class="prog-eyebrow">Experiencia progreso</div>
-        <div class="prog-name">${_esc(_fval(rec,'Comprador') || 'Sin comprador')}</div>
-        <div class="prog-prop">${_esc(_fval(rec,'Propiedad') || 'Sin propiedad')} ${_fval(rec,'Precio') ? `<span>· ${_esc(_fval(rec,'Precio'))}</span>` : ''}</div>
-        <div class="prog-folio">${_esc(_fval(rec,'Folio') || 'Sin folio')} ${_fval(rec,'Folio Lead Origen') ? `<span>Origen: ${_esc(_fval(rec,'Folio Lead Origen'))}</span>` : ''}</div>
-        <div class="prog-actions">
-          ${link ? `<a class="at-btn primary" href="${_escAttr(link)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Ver portal ↗</a>` : ''}
-          ${wa ? `<a class="at-btn" href="${_escAttr(wa)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">WhatsApp</a>` : ''}
-          <button class="at-btn" onclick="crmOpenEdit('${rec.id}')">Editar operación</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="prog-next-panel">
-      <div><span>Próximo paso</span><strong>${_esc(paso)}</strong></div>
-      <div><span>Debe estar listo</span><strong>${_esc(docsAhora)}</strong></div>
-    </div>
-
-    <div class="prog-body-grid">
-      <div class="prog-track">
-        ${steps}
-      </div>
-      <div class="prog-info">
-        <div class="prog-info-title">Pendientes visibles para el cliente</div>
-        ${pend.length ? `<ul class="prog-pending-list">${pend.map(x=>`<li>${_esc(x)}</li>`).join('')}</ul>` : `<div class="prog-no-pending">Sin pendientes visibles registrados.</div>`}
-        <div class="prog-fields">
-          <div><span>Asesor</span><b>${_esc(_fval(rec,'Asesor') || '—')}</b></div>
-          <div><span>WhatsApp asesor</span><b>${_esc(_fval(rec,'WhatsApp Asesor') || '—')}</b></div>
-          <div><span>Fecha conversión</span><b>${_esc(crmShortDate(_fval(rec,'Fecha de Conversión')))}</b></div>
-          <div><span>Canal origen</span><b>${_esc(_fval(rec,'Canal de Origen') || '—')}</b></div>
-          <div class="full"><span>Mensaje actualización</span><b>${_esc(_fval(rec,'Mensaje WhatsApp Actualización') || '—')}</b></div>
-        </div>
-      </div>
-    </div>
-  </div>`;
-}
-function crmSelectProgreso(recId){
-  crmState.progresoSelectedId = recId;
-  const detail = document.getElementById('progreso-detail');
-  const rec = crmState.records.find(r=>r.id===recId);
-  if(detail) detail.innerHTML = crmProgresoDetailHtml(rec);
-  document.querySelectorAll('.prog-client-card').forEach(card=>{
-    card.classList.toggle('active', card.dataset.recId === recId);
-  });
-}
-function crmRenderProgreso(records){
-  document.getElementById('crm-count').textContent = records.length + ' operaciones';
-  if(!records.length){
-    document.getElementById('crm-table-wrap').innerHTML = `<div class="prog-shell empty-only">
-      <div class="crm-empty" style="padding:56px 20px">
-        <div class="crm-empty-icon">◎</div>
-        <div class="crm-empty-text">Sin operaciones en Portal Progreso</div>
-        <div style="font-size:12px;color:var(--w45);max-width:520px;margin:12px auto 0;line-height:1.7;text-align:center">
-          Aquí no deben aparecer ejemplos. En cuanto una operación nazca desde Apartado y Make cree el registro en Portal Progreso Clientes, aparecerá su recorrido visual.
-        </div>
-      </div>
-    </div>`;
-    return;
-  }
-  const sorted = [...records].sort((a,b)=>_faseIndex(_fval(a,'Fase Actual')) - _faseIndex(_fval(b,'Fase Actual')));
-  const selected = sorted.find(r=>r.id===crmState.progresoSelectedId) || sorted[0];
-  crmState.progresoSelectedId = selected.id;
-  document.getElementById('crm-table-wrap').innerHTML = `<div class="prog-shell">
-    <aside class="prog-list">
-      <div class="prog-list-head">
-        <div>
-          <span>Clientes en proceso</span>
-          <strong>${records.length}</strong>
-        </div>
-        <small>No es tabla: es recorrido</small>
-      </div>
-      <div class="prog-client-list" id="progreso-list">
-        ${sorted.map(r=>crmProgresoRecordHtml(r, selected.id)).join('')}
-      </div>
-    </aside>
-    <main class="prog-detail" id="progreso-detail">
-      ${crmProgresoDetailHtml(selected)}
-    </main>
-  </div>`;
-}
-
 function crmFilter(q){
-  const cards = document.querySelectorAll('[data-progreso-card]');
-  if(cards.length){
-    let v = 0;
-    cards.forEach(card => {
-      const m = card.textContent.toLowerCase().includes(q.toLowerCase());
-      card.style.display = m ? '' : 'none';
-      if(m) v++;
-    });
-    document.getElementById('crm-count').textContent = v + ' operaciones';
-    return;
-  }
   const tbl = document.getElementById('crm-main-table');
   if(!tbl) return;
   let v = 0;
@@ -2528,7 +2198,6 @@ function crmSwitchTab(tab){
   document.querySelectorAll('.at-tab').forEach(t => t.classList.remove('active'));
   document.getElementById('crm-tab-' + tab)?.classList.add('active');
   document.getElementById('crm-search').value = '';
-  if(tab !== 'progreso') crmState.progresoSelectedId = null;
   crmLoad(tab, true);
 }
 
@@ -2561,8 +2230,7 @@ function crmOpenNew(){
 /* ─── FICHA PREMIUM (solo lectura) ─────────────────── */
 function crmOpenRow(recId){
   const cfg = CRM_CFG[crmState.tab];
-  if(cfg && cfg.progresoVisual) crmSelectProgreso(recId);
-  else if(cfg && cfg.landing) landOpenEditor(recId);
+  if(cfg && cfg.landing) landOpenEditor(recId);
   else if(cfg && cfg.cita) citaOpenFicha(recId);
   else if(cfg && cfg.ficha === 'vendedor') vendedorOpenFicha(recId);
   else if(cfg && cfg.ficha) crmOpenFicha(recId);
@@ -3659,19 +3327,9 @@ function buildAirtablePanel(){
 
 /* ─── AUTO-CARGA al activar el panel ───────────────── */
 let _crmLoaded = false;
-async function onAirtablePanelActivate(){
+function onAirtablePanelActivate(){
   const loading = document.getElementById('crm-loading');
   if(!loading) return;
-
-  // Seguridad de prueba: un asesor no debe ver el CRM si su perfil real no existe.
-  if(SESSION?.rol === 'asesor' && !SESSION.perfilRecId){
-    await enrichIdentity(SESSION.slug);
-    if(!SESSION.perfilRecId){
-      crmGateMissingAdvisorProfile();
-      return;
-    }
-  }
-
   // Primera vez: cargar. Siguientes veces: solo recargar si no hay datos aún.
   if(!_crmLoaded){
     _crmLoaded = true;
@@ -3763,7 +3421,7 @@ function openExternal(id){
    NAVEGACIÓN
 ═══════════════════════════════════════════════════ */
 const LABELS = {
-  hoy:'Inicio', administracion:'Administración Base', airtable:'Mi CRM', sala:'Sala de Mensajes',
+  hoy:'Inicio', administracion:'Control Maestro', airtable:'Mi CRM', sala:'Sala de Mensajes',
   compradores:'Landing Compradores', vendedores:'Landing Vendedores',
   citas:'Panel de Citas', progreso:'Portal Progreso',
   opciones:'Opciones de Compra', reportes:'Reportes'
@@ -3848,8 +3506,9 @@ function adminV9Css(){ return `<style id="admin-v9-style">
   .admin-v12-modal{display:none;position:fixed;inset:0;z-index:950;background:rgba(0,0,0,.9);backdrop-filter:blur(12px);align-items:center;justify-content:center;padding:20px}.admin-v12-modal-box{width:min(720px,100%);background:linear-gradient(180deg,#141414 0%,#0f0f0f 100%);border:1px solid var(--goldbdr);border-top:2px solid var(--gold);border-radius:3px;max-height:92vh;overflow-y:auto;padding:30px;box-shadow:0 32px 80px rgba(0,0,0,.7),0 0 0 1px rgba(201,169,110,.05);scrollbar-width:thin}.admin-v12-modal-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid var(--border)}.admin-v12-modal-title{font-family:var(--display);font-size:32px;letter-spacing:3px;color:var(--white);line-height:1}.admin-v12-modal-title em{color:var(--gold);font-style:normal}.admin-v12-modal-sub{font-size:9px;color:var(--w30);letter-spacing:2px;text-transform:uppercase;margin-top:6px;line-height:1.6}.admin-v12-modal-close{background:transparent;border:1px solid var(--border2);color:var(--w50);font-size:14px;cursor:pointer;width:28px;height:28px;border-radius:2px;display:flex;align-items:center;justify-content:center;transition:all .13s;flex-shrink:0}.admin-v12-modal-close:hover{border-color:var(--goldbdr);color:var(--gold)}.admin-v12-user-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px}.admin-v12-user-name{font-family:var(--display);font-size:26px;letter-spacing:1px;color:#fff;line-height:1.05}.admin-v12-user-folio{font-size:11px;color:var(--gold);letter-spacing:2px;margin-top:6px;font-family:monospace}.admin-v12-user-sub{font-size:12px;color:var(--w50);margin-top:8px;line-height:1.6}.admin-v12-band{margin-top:16px;padding:13px 15px;border-radius:3px;border:1px solid var(--goldbdr);background:rgba(201,169,110,.06);display:flex;flex-direction:column;gap:4px}.admin-v12-band-lbl{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--w30)}.admin-v12-band-val{font-size:14px;color:#fff;line-height:1.45}.admin-v12-sec{margin-top:20px}.admin-v12-sec-title{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);font-weight:900;padding-bottom:8px;margin-bottom:12px;border-bottom:1px solid var(--border)}.admin-v12-lock-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.admin-v12-lock{display:flex;flex-direction:column;gap:3px;padding:11px 13px;border-radius:3px;background:rgba(255,255,255,.02);border:1px solid var(--border)}.admin-v12-lock-k{font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--w30);font-weight:900}.admin-v12-lock-v{font-size:12px;color:var(--w80,#cfcfcf);font-family:monospace;word-break:break-all}.admin-v12-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:24px;padding-top:20px;border-top:1px solid var(--border)}@media(max-width:700px){.admin-v12-lock-grid{grid-template-columns:1fr}.admin-v12-modal-box{padding:22px}.admin-v12-modal-title{font-size:28px}.admin-v12-user-top{flex-direction:column}}
   .admin-v9-support-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.admin-v9-support{border:1px solid var(--border);background:rgba(255,255,255,.02);border-radius:3px;padding:12px;font-size:10px;color:var(--w50);line-height:1.55}.admin-v9-support b{display:block;color:var(--white);font-size:11px;margin-bottom:4px}
   .admin-v9-create-types{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.admin-v9-type-card{border:1px solid var(--border);background:linear-gradient(180deg,var(--surface2),var(--surface));border-radius:3px;padding:22px;cursor:pointer;min-height:180px;transition:all .15s}.admin-v9-type-card:hover{border-color:var(--goldbdr);background:var(--golddim);transform:translateY(-1px)}.admin-v9-type-card .icon{font-size:28px;color:var(--gold);margin-bottom:14px}.admin-v9-type-card b{font-family:var(--display);font-size:28px;letter-spacing:1.6px;line-height:1}.admin-v9-type-card p{font-size:11px;color:var(--w50);line-height:1.7;margin-top:10px}.admin-v9-form-note{padding:12px 14px;background:var(--golddim);border:1px solid var(--goldbdr);border-left:3px solid var(--gold);font-size:10px;color:var(--w50);line-height:1.7;margin-bottom:14px}
-  @media(max-width:1180px){.admin-v9-kpis,.admin-v9-packages,.admin-v9-directory-grid,.admin-v9-list,.admin-v9-create-types,.admin-v9-support-grid{grid-template-columns:1fr 1fr}.admin-v9-ficha-body{grid-template-columns:1fr}.admin-v9-info-grid{grid-template-columns:1fr 1fr}}
-  @media(max-width:700px){.admin-v9-wrap{padding:18px}.admin-v9-kpis,.admin-v9-packages,.admin-v9-directory-grid,.admin-v9-list,.admin-v9-create-types,.admin-v9-support-grid,.admin-v9-info-grid{grid-template-columns:1fr}.admin-v9-title{font-size:38px}.admin-v9-create{width:100%}.admin-v9-user-row{grid-template-columns:1fr}.admin-v9-user-actions{justify-content:flex-start}}
+  .admin-v9-ficha-body-clean{display:block}.admin-v13-clean-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}.admin-v13-card{border:1px solid var(--border);background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(0,0,0,.16));border-radius:3px;padding:16px;min-height:214px;display:flex;flex-direction:column;justify-content:space-between;gap:14px}.admin-v13-card-title{font-family:var(--display);font-size:26px;letter-spacing:1.7px;line-height:1}.admin-v13-card-title em{font-style:normal;color:var(--gold)}.admin-v13-card-sub{font-size:10px;color:var(--w45);line-height:1.65;margin-top:7px}.admin-v13-read-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.admin-v13-read{border:1px solid var(--border);background:rgba(255,255,255,.018);border-radius:3px;padding:10px}.admin-v13-read kbd{display:block;font-size:7px;letter-spacing:1.5px;text-transform:uppercase;color:var(--w30);font-weight:900;margin-bottom:6px}.admin-v13-read strong{font-size:12px;color:#fff;word-break:break-word}.admin-v13-open{align-self:flex-start;border:1px solid var(--goldbdr);background:var(--golddim);color:var(--gold);border-radius:3px;padding:9px 12px;font-size:8px;letter-spacing:1.7px;text-transform:uppercase;font-weight:900;cursor:pointer}.admin-v13-open:hover{background:rgba(201,169,110,.12)}.admin-v13-muted{font-size:9px;color:var(--w40);line-height:1.55}.admin-v13-service-list{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.admin-v13-service{border:1px solid var(--border);background:rgba(255,255,255,.018);border-radius:3px;padding:10px}.admin-v13-service b{display:block;font-size:10px;color:#fff;margin-bottom:4px}.admin-v13-service span{font-size:9px;color:var(--w45);line-height:1.45}.admin-v13-account-modal .admin-v12-modal-box{width:min(980px,100%)}
+  @media(max-width:1180px){.admin-v9-kpis,.admin-v9-packages,.admin-v9-directory-grid,.admin-v9-list,.admin-v9-create-types,.admin-v9-support-grid,.admin-v13-clean-grid{grid-template-columns:1fr 1fr}.admin-v9-ficha-body{grid-template-columns:1fr}.admin-v9-info-grid{grid-template-columns:1fr 1fr}.admin-v13-service-list{grid-template-columns:1fr 1fr}}
+  @media(max-width:700px){.admin-v9-wrap{padding:18px}.admin-v9-kpis,.admin-v9-packages,.admin-v9-directory-grid,.admin-v9-list,.admin-v9-create-types,.admin-v9-support-grid,.admin-v9-info-grid,.admin-v13-clean-grid,.admin-v13-read-grid,.admin-v13-service-list{grid-template-columns:1fr}.admin-v9-title{font-size:38px}.admin-v9-create{width:100%}.admin-v9-user-row{grid-template-columns:1fr}.admin-v9-user-actions{justify-content:flex-start}}
 </style>`; }
 
 function adminV9PermsOrg(){ return ['perfil_publico','copiar_link','landing_compradores','landing_vendedores','sala_mensajes','panel_citas','reportes_basicos','branding_cuenta']; }
@@ -3911,8 +3570,6 @@ function adminV9Normalize(){
     c.airtableUrl = c.airtableUrl || '';
     c.intranetUrl = c.intranetUrl || '';
     c.soporteNotas = c.soporteNotas || '';
-    c.crmCodigo = c.crmCodigo || adminSlug(c.nombre || c.id || 'cuenta');
-    c.crmModo = c.crmModo || 'CRM compartido Método NERI · filtro por Cuenta/Slug';
   });
   adminState.data.usuarios.forEach(u=>{
     const c = adminCuenta(u.cuentaId);
@@ -3931,7 +3588,7 @@ function adminCuentaUsage(c){ if(!c) return 0; return adminCuentaUsers(c.id).len
 function adminCanAddUser(c){ return adminCuentaUsage(c) < adminCuentaMaxUsers(c); }
 function adminV9ActiveCuentas(tipo){ return adminState.data.cuentas.filter(c=>c.tipo===tipo && c.estado==='Activo').length; }
 function adminV9ActiveUsers(){ return adminState.data.usuarios.filter(u=>u.estado==='Activo').length; }
-function adminV9TypeLabel(tipo){ if(tipo==='Inmobiliaria') return 'Inmobiliarias'; if(tipo==='Asesor independiente') return 'Independientes'; return 'Grupos sin inmobiliaria'; }
+function adminV9TypeLabel(tipo){ if(tipo==='Inmobiliaria') return 'Cuentas inmobiliarias'; if(tipo==='Asesor independiente') return 'Asesores independientes'; return 'Grupos comerciales'; }
 function adminV9ViewForTipo(tipo){ if(tipo==='Inmobiliaria') return 'inmobiliarias'; if(tipo==='Asesor independiente') return 'independientes'; return 'grupos'; }
 function adminV9TipoForView(view){ if(view==='inmobiliarias') return 'Inmobiliaria'; if(view==='independientes') return 'Asesor independiente'; if(view==='grupos') return 'Grupo de asesores sin inmobiliaria'; return null; }
 function adminV9PlanFromLimit(limit){ const p = ADMIN_V9_PLANES_INMOBILIARIA.find(x=>x.limite===Number(limit)) || ADMIN_V9_PLANES_INMOBILIARIA[0]; return p.value; }
@@ -3944,10 +3601,10 @@ function buildAdministracionPanel(){
       <div class="admin-v9-wrap">
         <div class="admin-v9-nav">
           ${adminV9NavButton('dashboard','Inicio')}
-          ${adminV9NavButton('inmobiliarias','Inmobiliarias')}
-          ${adminV9NavButton('independientes','Independientes')}
-          ${adminV9NavButton('grupos','Grupos sin inmobiliaria')}
-          ${adminV9NavButton('servicios','Servicios')}
+          ${adminV9NavButton('inmobiliarias','Cuentas inmobiliarias')}
+          ${adminV9NavButton('independientes','Asesores independientes')}
+          ${adminV9NavButton('grupos','Grupos comerciales')}
+          ${adminV9NavButton('servicios','Catálogo comercial')}
           <button class="admin-v7-reset" onclick="adminV9ResetDemo()">Reiniciar prueba</button>
         </div>
         <div id="admin-content"></div>
@@ -3956,12 +3613,24 @@ function buildAdministracionPanel(){
         <div class="admin-v12-modal-box" style="animation:fadeUp .25s var(--ease)">
           <div class="admin-v12-modal-head">
             <div>
-              <div class="admin-v12-modal-title">FICHA DE <em>USUARIO</em></div>
-              <div class="admin-v12-modal-sub" id="admin-user-modal-sub-v12">Administración Método NERI</div>
+              <div class="admin-v12-modal-title">EDITAR <em>USUARIO</em></div>
+              <div class="admin-v12-modal-sub" id="admin-user-modal-sub-v12">Control Maestro NERI</div>
             </div>
             <button class="admin-v12-modal-close" onclick="adminCloseUsuarioV11()">✕</button>
           </div>
           <div id="admin-user-modal-body-v12"></div>
+        </div>
+      </div>
+      <div id="admin-account-modal-v13" class="admin-v12-modal admin-v13-account-modal" onclick="if(event.target.id==='admin-account-modal-v13') adminCloseCuentaEditorV13()">
+        <div class="admin-v12-modal-box" style="animation:fadeUp .25s var(--ease)">
+          <div class="admin-v12-modal-head">
+            <div>
+              <div class="admin-v12-modal-title" id="admin-account-modal-title-v13">EDITAR <em>CUENTA</em></div>
+              <div class="admin-v12-modal-sub" id="admin-account-modal-sub-v13">Control Maestro NERI</div>
+            </div>
+            <button class="admin-v12-modal-close" onclick="adminCloseCuentaEditorV13()">✕</button>
+          </div>
+          <div id="admin-account-modal-body-v13"></div>
         </div>
       </div>
     </div>
@@ -3997,34 +3666,34 @@ function adminRenderDashboard(){
   if(pendientes) alerts.push(`<div class="admin-v9-alert">${pendientes} cuenta${pendientes===1?'':'s'} pendiente${pendientes===1?'':'s'} por resolver</div>`);
   if(inactivas) alerts.push(`<div class="admin-v9-alert red">${inactivas} cuenta${inactivas===1?'':'s'} inactiva${inactivas===1?'':'s'}</div>`);
   return `<div class="admin-v9-hero">
-    <div class="admin-v9-top"><div><div class="ph-eyebrow">Administración Método NERI</div><div class="admin-v9-title">PANEL <em>EJECUTIVO</em></div><div class="admin-v9-sub">Entrada limpia para ver tu negocio: cuentas activas, paquetes disponibles y directorios separados. Para crear algo nuevo solo se usa el botón principal.</div></div><button class="admin-v9-create" onclick="adminGoCrear()">+ Crear nueva intranet</button></div>
+    <div class="admin-v9-top"><div><div class="ph-eyebrow">Sistema Operativo NERI</div><div class="admin-v9-title">CONTROL <em>MAESTRO</em></div><div class="admin-v9-sub">Vista limpia para administrar cuentas, paquetes, usuarios y conexiones sin abrir nada editable de forma automática. Primero se revisa; después se abre lo que se necesita editar.</div></div><button class="admin-v9-create" onclick="adminGoCrear()">+ Dar de alta nueva cuenta</button></div>
     <div class="admin-v9-kpis">
-      <div class="admin-v9-kpi"><div class="admin-v9-kpi-num">${adminV9ActiveCuentas('Inmobiliaria')}</div><div class="admin-v9-kpi-lbl">Inmobiliarias activas</div></div>
+      <div class="admin-v9-kpi"><div class="admin-v9-kpi-num">${adminV9ActiveCuentas('Inmobiliaria')}</div><div class="admin-v9-kpi-lbl">Cuentas inmobiliarias activas</div></div>
       <div class="admin-v9-kpi"><div class="admin-v9-kpi-num">${adminV9ActiveCuentas('Asesor independiente')}</div><div class="admin-v9-kpi-lbl">Asesores independientes activos</div></div>
-      <div class="admin-v9-kpi"><div class="admin-v9-kpi-num">${adminV9ActiveCuentas('Grupo de asesores sin inmobiliaria')}</div><div class="admin-v9-kpi-lbl">Grupos activos</div></div>
+      <div class="admin-v9-kpi"><div class="admin-v9-kpi-num">${adminV9ActiveCuentas('Grupo de asesores sin inmobiliaria')}</div><div class="admin-v9-kpi-lbl">Grupos comerciales activos</div></div>
       <div class="admin-v9-kpi"><div class="admin-v9-kpi-num">${adminV9ActiveUsers()}</div><div class="admin-v9-kpi-lbl">Usuarios activos totales</div></div>
     </div>
     <div class="admin-v9-alerts">${alerts.join('')}</div>
   </div>
-  <div class="admin-v9-section"><div class="admin-v9-sec-head"><div><div class="admin-v9-sec-title">DIRECTORIOS <em>SEPARADOS</em></div><div class="admin-v9-sec-sub">En cada entrada solo aparece lo que corresponde.</div></div></div>
+  <div class="admin-v9-section"><div class="admin-v9-sec-head"><div><div class="admin-v9-sec-title">DIRECTORIO <em>DE CUENTAS</em></div><div class="admin-v9-sec-sub">En cada entrada solo aparece lo que corresponde.</div></div></div>
     <div class="admin-v9-directory-grid">
-      <div class="admin-v9-dir-card" onclick="adminSetView('inmobiliarias')"><div class="num">${d.cuentas.filter(c=>c.tipo==='Inmobiliaria').length}</div><div class="name">Inmobiliarias</div><div class="desc">Solo inmobiliarias. Entrar, seleccionar cuenta y resolver desde su ficha.</div></div>
-      <div class="admin-v9-dir-card" onclick="adminSetView('independientes')"><div class="num">${d.cuentas.filter(c=>c.tipo==='Asesor independiente').length}</div><div class="name">Independientes</div><div class="desc">Solo asesores independientes con casita Método NERI.</div></div>
-      <div class="admin-v9-dir-card" onclick="adminSetView('grupos')"><div class="num">${d.cuentas.filter(c=>c.tipo==='Grupo de asesores sin inmobiliaria').length}</div><div class="name">Grupos sin inmobiliaria</div><div class="desc">Solo grupos chicos de máximo 5 asesores.</div></div>
+      <div class="admin-v9-dir-card" onclick="adminSetView('inmobiliarias')"><div class="num">${d.cuentas.filter(c=>c.tipo==='Inmobiliaria').length}</div><div class="name">Cuentas inmobiliarias</div><div class="desc">Cuentas madre con usuarios, branding, servicios y conexiones.</div></div>
+      <div class="admin-v9-dir-card" onclick="adminSetView('independientes')"><div class="num">${d.cuentas.filter(c=>c.tipo==='Asesor independiente').length}</div><div class="name">Asesores independientes</div><div class="desc">Cuentas individuales con casita Método NERI y link personal.</div></div>
+      <div class="admin-v9-dir-card" onclick="adminSetView('grupos')"><div class="num">${d.cuentas.filter(c=>c.tipo==='Grupo de asesores sin inmobiliaria').length}</div><div class="name">Grupos comerciales</div><div class="desc">Equipos chicos sin estructura formal de inmobiliaria.</div></div>
     </div>
   </div>
-  <div class="admin-v9-section"><div class="admin-v9-sec-head"><div><div class="admin-v9-sec-title">PAQUETES <em>QUE SE VENDEN</em></div><div class="admin-v9-sec-sub">Recordatorio comercial, no reporte de ingresos.</div></div></div>
+  <div class="admin-v9-section"><div class="admin-v9-sec-head"><div><div class="admin-v9-sec-title">CATÁLOGO <em>COMERCIAL</em></div><div class="admin-v9-sec-sub">Paquetes disponibles para dar de alta cuentas.</div></div></div>
     <div class="admin-v9-packages">
       <div class="admin-v9-package"><b>Independiente</b><span>Cuenta individual para un asesor.</span><small>1 asesor</small></div>
-      <div class="admin-v9-package"><b>Grupo sin inmobiliaria</b><span>Equipo chico sin estructura de inmobiliaria.</span><small>5 asesores</small></div>
-      <div class="admin-v9-package"><b>Inmobiliaria</b><span>Cuenta madre con director, gerente, asesores, servicios y soporte.</span><small>10 · 15 · 20 · 30 asesores</small></div>
+      <div class="admin-v9-package"><b>Grupo comercial</b><span>Equipo chico sin estructura de inmobiliaria.</span><small>5 asesores</small></div>
+      <div class="admin-v9-package"><b>Inmobiliaria</b><span>Cuenta madre con director, gerente, asesores, servicios y soporte.</span><small>10 · 15 · 20 · 30 usuarios</small></div>
     </div>
   </div>`;
 }
 function adminRenderDirectory(tipo){
   const cuentas = adminState.data.cuentas.filter(c=>c.tipo===tipo);
   const title = adminV9TypeLabel(tipo);
-  const desc = tipo==='Inmobiliaria' ? 'Solo cuentas inmobiliarias. Aquí no aparecen independientes, grupos ni formularios de creación.' : tipo==='Asesor independiente' ? 'Solo cuentas individuales de asesor independiente. Aquí no aparecen inmobiliarias ni grupos.' : 'Solo grupos sin inmobiliaria. Aquí no aparecen inmobiliarias ni independientes.';
+  const desc = tipo==='Inmobiliaria' ? 'Solo cuentas inmobiliarias. Abre una cuenta para revisar resumen, datos comerciales, usuarios y conexiones.' : tipo==='Asesor independiente' ? 'Solo asesores independientes. Abre una cuenta para revisar antes de editar.' : 'Solo grupos comerciales sin inmobiliaria. Abre una cuenta para revisar antes de editar.';
   const list = cuentas.length ? `<div class="admin-v9-list">${cuentas.map(c=>adminAccountCard(c)).join('')}</div>` : `<div class="admin-v9-empty"><b>Sin registros</b>Aquí no hay cuentas de este tipo todavía.</div>`;
   return `<div class="admin-v9-section"><div class="admin-v9-sec-head"><div><div class="admin-v9-sec-title">${adminEsc(title).toUpperCase()}</div><div class="admin-v9-sec-sub">${adminEsc(desc)}</div></div></div>${list}</div>`;
 }
@@ -4035,22 +3704,77 @@ function adminAccountCard(c){
   const detail = c.tipo === 'Asesor independiente' ? `Usuario único · ${adminLink(users[0]||{})}` : `Usuarios usados ${usage}/${limit} · Activos ${activeUsers}/${users.length}`;
   return `<div class="admin-v9-account-card" onclick="adminOpenCuenta('${c.id}')">
     <div class="ar-top"><div><div class="admin-v9-account-name">${adminEsc(c.nombre)}</div><div class="admin-v9-account-meta">${adminEsc(c.ciudad||'Sin ciudad')} · ${adminEsc(adminV9PlanLabel(c))}<br>${adminEsc(detail)}</div></div>${adminBadge(c.estado)}</div>
-    <div class="admin-v9-account-actions"><span class="admin-v9-resolver">Abrir ficha →</span><span class="ar-meta">Responsable: ${adminEsc(c.responsable||'Pendiente')}</span></div>
+    <div class="admin-v9-account-actions"><span class="admin-v9-resolver">Abrir cuenta →</span><span class="ar-meta">Responsable: ${adminEsc(c.responsable||'Pendiente')}</span></div>
   </div>`;
 }
 function adminOpenCuenta(id){ adminState.selectedCuentaId = id; adminState.selectedUsuarioId = null; adminState.tab = 'cuenta'; adminRender(); }
+function adminCuentaTipoTituloV13(c){
+  if(!c) return 'CUENTA';
+  if(c.tipo==='Inmobiliaria') return 'CUENTA INMOBILIARIA';
+  if(c.tipo==='Asesor independiente') return 'CUENTA INDEPENDIENTE';
+  return 'GRUPO COMERCIAL';
+}
+function adminServicioTituloV13(id){
+  return (ADMIN_V9_SERVICIOS_CUENTA.find(s=>s.id===id)||{}).title || id;
+}
+function adminServicioDescV13(id){
+  return (ADMIN_V9_SERVICIOS_CUENTA.find(s=>s.id===id)||{}).desc || 'Servicio activo en la cuenta.';
+}
+function adminRenderCuentaResumenV13(c, users, usage, limit){
+  const activos = users.filter(u=>u.estado==='Activo').length;
+  return `<div class="admin-v13-card">
+    <div><div class="admin-v13-card-title">RESUMEN <em>DE CUENTA</em></div><div class="admin-v13-card-sub">Lectura rápida. No se edita desde aquí para evitar errores de dedo.</div></div>
+    <div class="admin-v13-read-grid">
+      <div class="admin-v13-read"><kbd>Estado</kbd><strong>${adminEsc(c.estado || 'Pendiente')}</strong></div>
+      <div class="admin-v13-read"><kbd>Tipo</kbd><strong>${adminEsc(c.tipo)}</strong></div>
+      <div class="admin-v13-read"><kbd>Paquete</kbd><strong>${adminEsc(adminV9PlanLabel(c))}</strong></div>
+      <div class="admin-v13-read"><kbd>Usuarios</kbd><strong>${usage} / ${limit}</strong></div>
+      <div class="admin-v13-read"><kbd>Activos</kbd><strong>${activos} / ${users.length}</strong></div>
+      <div class="admin-v13-read"><kbd>Ciudad</kbd><strong>${adminEsc(c.ciudad || 'Pendiente')}</strong></div>
+    </div>
+    <button class="admin-v13-open" onclick="adminOpenCuentaEditorV13('${c.id}','resumen')">Abrir resumen</button>
+  </div>`;
+}
+function adminRenderDatosComercialesV13(c){
+  const branding = c.tipo==='Asesor independiente' ? 'Casita Método NERI automática' : (c.logo ? 'Logo configurado' : 'Logo pendiente');
+  const usuarios = adminCuentaUsers(c.id);
+  const lider = c.director || c.responsable || usuarios[0]?.nombre || 'Pendiente';
+  const link = c.intranetUrl || 'Pendiente de configurar';
+  const crm = c.codigoCrm || 'CRM compartido Método NERI';
+  return `<div class="admin-v13-card">
+    <div><div class="admin-v13-card-title">DATOS <em>COMERCIALES</em></div><div class="admin-v13-card-sub">Identidad de la cuenta, responsable, branding y operación visible.</div></div>
+    <div class="admin-v13-read-grid">
+      <div class="admin-v13-read"><kbd>Nombre público</kbd><strong>${adminEsc(c.nombre)}</strong></div>
+      <div class="admin-v13-read"><kbd>Responsable</kbd><strong>${adminEsc(lider)}</strong></div>
+      <div class="admin-v13-read"><kbd>Branding</kbd><strong>${adminEsc(branding)}</strong></div>
+      <div class="admin-v13-read"><kbd>CRM / cuenta</kbd><strong>${adminEsc(crm)}</strong></div>
+      <div class="admin-v13-read" style="grid-column:1/-1"><kbd>Intranet de la cuenta</kbd><strong>${adminEsc(link)}</strong></div>
+    </div>
+    <button class="admin-v13-open" onclick="adminOpenCuentaEditorV13('${c.id}','datos')">Abrir datos comerciales</button>
+  </div>`;
+}
+function adminRenderContenidoPaqueteV13(c){
+  const servicios = (c.servicios||[]).map(id=>`<div class="admin-v13-service"><b>${adminEsc(adminServicioTituloV13(id))}</b><span>${adminEsc(adminServicioDescV13(id))}</span></div>`).join('') || `<div class="admin-v9-empty"><b>Sin servicios</b>Esta cuenta no tiene servicios activos configurados.</div>`;
+  return `<div class="admin-v9-form-note"><b>Contenido del paquete:</b> aquí se revisa lo que incluye la cuenta. No se edita directo; usa Abrir para modificar servicios, cupo o datos comerciales.</div>
+  <div class="admin-v13-service-list">${servicios}</div>
+  <div style="height:12px"></div>
+  <button class="admin-v13-open" onclick="adminOpenCuentaEditorV13('${c.id}','paquete')">Abrir paquete</button>`;
+}
 function adminRenderCuentaDetalle(){
   const c = adminCuenta(adminState.selectedCuentaId);
   if(!c) return `<div class="admin-v9-empty"><b>Sin cuenta seleccionada</b>Selecciona una cuenta desde su directorio.</div>`;
   const users = adminCuentaUsers(c.id);
   const usage = adminCuentaUsage(c), limit = adminCuentaMaxUsers(c), canAdd = adminCanAddUser(c);
   return `<div class="admin-v9-ficha">
-    <div class="admin-v9-ficha-head"><div><div class="admin-v9-ficha-title">FICHA ÚNICA · <em>${adminEsc(c.nombre)}</em></div><div class="admin-v9-ficha-sub">Una sola ficha para editar cuenta, servicios, usuarios y soporte técnico. Director, gerente y asesores cuentan como usuarios del paquete.</div></div><div class="admin-v9-ficha-actions"><button class="admin-v9-ghost" onclick="adminSetView('${adminV9ViewForTipo(c.tipo)}')">← Volver</button></div></div>
-    <div class="admin-v9-ficha-body">
-      <div class="admin-v9-panel"><div class="admin-v9-panel-head"><div><div class="admin-v9-panel-title">FICHA <em>EDITABLE</em></div><div class="admin-card-sub">Cuenta, paquete, servicios y conexiones</div></div>${adminBadge(c.estado)}</div><div class="admin-v9-panel-body">${adminCuentaControlForm(c)}</div></div>
-      <div class="admin-v9-panel"><div class="admin-v9-panel-head"><div><div class="admin-v9-panel-title">USUARIOS <em>DEL PAQUETE</em></div><div class="admin-card-sub">Lista real de usuarios: director, gerente y asesores</div></div>${c.tipo==='Asesor independiente'?'':`<button class="btn btn-primary" onclick="adminV9AddUser('${c.id}')" ${!canAdd?'disabled':''}>+ Simular registro</button>`}</div><div class="admin-v9-panel-body">
+    <div class="admin-v9-ficha-head"><div><div class="admin-v9-ficha-title">${adminEsc(adminCuentaTipoTituloV13(c))} · <em>${adminEsc(c.nombre)}</em></div><div class="admin-v9-ficha-sub">Primero se revisa la cuenta en modo lectura. Resumen, datos comerciales, usuarios, paquete y conexiones se abren por separado.</div></div><div class="admin-v9-ficha-actions"><button class="admin-v9-ghost" onclick="adminSetView('${adminV9ViewForTipo(c.tipo)}')">← Volver</button></div></div>
+    <div class="admin-v9-ficha-body admin-v9-ficha-body-clean">
+      <div class="admin-v13-clean-grid">
+        ${adminRenderCuentaResumenV13(c, users, usage, limit)}
+        ${adminRenderDatosComercialesV13(c)}
+      </div>
+      <div class="admin-v9-panel" style="margin-bottom:12px"><div class="admin-v9-panel-head"><div><div class="admin-v9-panel-title">USUARIOS <em>Y ACCESOS</em></div><div class="admin-card-sub">Paquete contratado, cupo, usuarios y accesos de esta cuenta</div></div>${c.tipo==='Asesor independiente'?'':`<button class="btn btn-primary" onclick="adminV9AddUser('${c.id}')" ${!canAdd?'disabled':''}>+ Preparar usuario</button>`}</div><div class="admin-v9-panel-body">
         <div class="admin-v9-info-grid">
-          <div class="admin-v9-info"><kbd>Tipo</kbd><strong>${adminEsc(c.tipo)}</strong></div>
+          <div class="admin-v9-info"><kbd>Tipo de cuenta</kbd><strong>${adminEsc(c.tipo)}</strong></div>
           <div class="admin-v9-info"><kbd>Paquete</kbd><strong>${adminEsc(adminV9PlanLabel(c))}</strong></div>
           <div class="admin-v9-info"><kbd>Usuarios usados</kbd><strong class="gold">${usage} / ${limit}</strong></div>
           <div class="admin-v9-info"><kbd>Usuarios activos</kbd><strong>${users.filter(u=>u.estado==='Activo').length} / ${users.length}</strong></div>
@@ -4058,11 +3782,12 @@ function adminRenderCuentaDetalle(){
           <div class="admin-v9-info"><kbd>Ciudad</kbd><strong>${adminEsc(c.ciudad || 'Pendiente')}</strong></div>
         </div>
         <div style="height:14px"></div>
+        ${adminRenderContenidoPaqueteV13(c)}
+        <div style="height:16px"></div>
         ${!canAdd && c.tipo!=='Asesor independiente' ? `<div class="admin-v9-form-note">Cupo lleno: esta cuenta tiene ${usage} de ${limit} usuarios autorizados. Director y gerente también cuentan.</div>` : ''}
         ${adminUsuariosCuentaListV9(c)}
-        <div style="height:14px"></div>
-        ${adminSoporteTecnicoCuentaV10(c)}
       </div></div>
+      <div class="admin-v9-panel"><div class="admin-v9-panel-head"><div><div class="admin-v9-panel-title">CONEXIONES <em>TÉCNICAS</em></div><div class="admin-card-sub">Make, Airtable e intranet de la cuenta. No se editan directo.</div></div><button class="admin-v13-open" onclick="adminOpenCuentaEditorV13('${c.id}','conexiones')">Abrir conexiones</button></div><div class="admin-v9-panel-body">${adminSoporteTecnicoCuentaV10(c)}</div></div>
     </div>
   </div>`;
 }
@@ -4089,31 +3814,21 @@ function adminCuentaControlForm(c){
       ${adminField('Link directo Make','cuenta-make-v10',c.makeUrl||'')}
       ${adminField('Link directo Airtable','cuenta-airtable-v10',c.airtableUrl||'')}
       ${adminField('Link directo Intranet de la cuenta','cuenta-intranet-v10',c.intranetUrl||'')}
-      ${adminField('Código CRM / Cuenta','cuenta-crm-codigo-v13',c.crmCodigo||adminSlug(c.nombre))}
-      <div class="form-group"><label>Modo CRM actual</label><input class="form-inp" value="CRM compartido Método NERI · filtra por Slug/Cuenta" disabled></div>
-      <div class="form-group full"><div class="admin-v9-form-note"><b>Lógica CRM:</b> no se crea un CRM nuevo por usuario. Los leads entran a las tablas reales de CRM_CFG y se separan por Slug del asesor / Cuenta CRM.</div></div>
       ${adminArea('Notas soporte técnico','cuenta-soporte-notas-v10',c.soporteNotas||'','full')}
       ${adminArea('Notas administrativas','cuenta-notas-v9',c.notas,'full')}
     </div>
     <div><div class="admin-card-sub" style="margin-bottom:8px">Servicios activos de esta cuenta</div><div class="admin-v9-checks">${checks}</div></div>
-    <div class="admin-actions"><button class="btn btn-ghost" onclick="adminDeleteCuentaV9('${c.id}')">Eliminar cuenta</button><button class="btn btn-primary" onclick="adminSaveCuentaV9('${c.id}')">Guardar ficha</button></div>
+    <div class="admin-actions"><button class="btn btn-ghost" onclick="adminDeleteCuentaV9('${c.id}')">Eliminar cuenta</button><button class="btn btn-primary" onclick="adminSaveCuentaV9('${c.id}')">Guardar datos de cuenta</button></div>
   </div>`;
 }
-function adminCopyText(text, msg){ try{ navigator.clipboard?.writeText(String(text||'')); showToast(msg || 'Copiado'); }catch(e){ showToast('No se pudo copiar'); } }
 function adminUsuariosCuentaListV9(c){
   const users = adminCuentaUsers(c.id);
   if(!users.length) return `<div class="admin-v9-empty"><b>Sin usuarios</b>Esta cuenta todavía no tiene perfiles preparados.</div>`;
-  return `<div class="admin-card-sub" style="margin-bottom:8px">Lista de usuarios del paquete</div><div class="admin-v9-users">${users.map((u,i)=>{
-    const slug = u.slugOficial || u.slugSugerido || '';
-    const acceso = slug ? `<div class="admin-v9-user-meta" style="color:var(--gold)">Acceso (slug): <b>${adminEsc(slug)}</b></div>` : `<div class="admin-v9-user-meta" style="color:var(--red)">Acceso: se genera al guardar nombre</div>`;
-    const btnCopiar = slug ? `<button class="admin-v9-smallbtn" onclick="event.stopPropagation();adminCopyText('${adminEsc(slug)}','Slug copiado: ${adminEsc(slug)}')">Copiar slug</button>` : '';
-    const btnEntrar = slug ? `<button class="admin-v9-smallbtn" onclick="event.stopPropagation();entrarComoAsesorReal('${adminEsc(slug)}')">Entrar como →</button>` : '';
-    return `<div class="admin-v9-user-row ${u.id===adminState.selectedUsuarioId?'active':''}" onclick="adminOpenUsuarioV9('${u.id}')"><div><div class="admin-v9-user-name">${String(i+1).padStart(2,'0')} · ${adminEsc(u.nombre)}</div><div class="admin-v9-user-meta">${adminEsc(u.puesto||'Sin puesto')} · ${adminEsc(u.whatsapp||'Sin WhatsApp')}</div>${acceso}</div><div class="admin-v9-user-actions">${adminBadge(u.estado)}${btnCopiar}${btnEntrar}<button class="admin-v9-smallbtn" onclick="event.stopPropagation();adminOpenUsuarioV9('${u.id}')">Editar ficha</button></div></div>`;
-  }).join('')}</div>`;
+  return `<div class="admin-card-sub" style="margin-bottom:8px">Lista de usuarios y accesos</div><div class="admin-v9-users">${users.map((u,i)=>`<div class="admin-v9-user-row ${u.id===adminState.selectedUsuarioId?'active':''}" onclick="adminOpenUsuarioV9('${u.id}')"><div><div class="admin-v9-user-name">${String(i+1).padStart(2,'0')} · ${adminEsc(u.nombre)}</div><div class="admin-v9-user-meta">${adminEsc(u.puesto||'Sin puesto')} · ${adminEsc(u.email||'Sin email')} · ${adminEsc(u.whatsapp||'Sin WhatsApp')}</div></div><div class="admin-v9-user-actions">${adminBadge(u.estado)}<button class="admin-v9-smallbtn" onclick="event.stopPropagation();adminOpenUsuarioV9('${u.id}')">Abrir usuario</button></div></div>`).join('')}</div>`;
 }
 function adminUsuarioClosedNoticeV11(c){
   const label = c?.tipo === 'Asesor independiente' ? 'el perfil del asesor independiente' : 'un usuario del paquete';
-  return `<div class="admin-v9-user-detail closed"><h4>FICHA DE USUARIO <em>CERRADA</em></h4><div class="admin-v9-form-note">Selecciona ${adminEsc(label)} en la lista para abrir su ficha editable. Así el administrador revisa una sola cosa a la vez.</div></div>`;
+  return `<div class="admin-v9-user-detail closed"><h4>USUARIO <em>CERRADO</em></h4><div class="admin-v9-form-note">Selecciona ${adminEsc(label)} en la lista para abrir su editor. Así el administrador revisa una sola cosa a la vez.</div></div>`;
 }
 function adminUsuarioSoporteDetalle(u){
   const c = adminCuenta(u.cuentaId);
@@ -4128,7 +3843,7 @@ function adminUsuarioSoporteDetalle(u){
         <div class="admin-v12-user-name">${adminEsc(u.nombre || 'Usuario pendiente')}</div>
         <div class="admin-v12-user-folio">${adminEsc(u.slugOficial || 'slug-pendiente')}</div>
       </div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">${adminBadge(u.estado)}<span class="badge badge-active">${adminEsc(u.puesto || adminDefaultPuesto(u.tipo))}</span>${adminAirtableStatus(u)}</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">${adminBadge(u.estado)}<span class="badge badge-active">${adminEsc(u.puesto || adminDefaultPuesto(u.tipo))}</span></div>
     </div>
     <div class="admin-v12-user-sub">${adminEsc(c?.nombre || 'Cuenta sin nombre')} · ${adminEsc(u.tipo || 'Tipo pendiente')} · ${adminEsc(u.email || 'Sin email')} · ${adminEsc(u.whatsapp || 'Sin WhatsApp')}</div>
     <div class="admin-v12-band"><span class="admin-v12-band-lbl">Regla administrativa</span><span class="admin-v12-band-val">Director, gerente y asesor cuentan igual como usuario del paquete. El puesto solo cambia sus privilegios dentro de la intranet.</span></div>
@@ -4151,19 +3866,35 @@ function adminUsuarioSoporteDetalle(u){
         <div class="admin-v12-lock"><span class="admin-v12-lock-k">Tipo</span><span class="admin-v12-lock-v">${adminEsc(u.tipo || 'Pendiente')}</span></div>
         <div class="admin-v12-lock"><span class="admin-v12-lock-k">Slug automático oficial</span><span class="admin-v12-lock-v">${adminEsc(u.slugOficial||'Pendiente')}</span></div>
         <div class="admin-v12-lock"><span class="admin-v12-lock-k">Link Captación generado</span><span class="admin-v12-lock-v">${adminEsc(adminLink(u))}</span></div>
-        <div class="admin-v12-lock"><span class="admin-v12-lock-k">Registro real Airtable</span><span class="admin-v12-lock-v">${adminEsc(u.airtableRecId || 'Se crea al guardar')}</span></div>
       </div>
     </div>
     <div class="admin-v12-sec"><div class="admin-v12-sec-title">Servicios / permisos de este usuario</div><div class="admin-v9-checks">${checks}</div></div>
-    <div class="admin-v12-actions"><button class="btn btn-ghost" onclick="adminV9ToggleUser('${u.id}')">${u.estado==='Inactivo'?'Activar usuario':'Desactivar usuario'}</button><button class="btn btn-ghost" onclick="adminV9DeleteUser('${u.id}')">Dar de baja</button><button class="btn btn-primary" onclick="adminSaveUsuarioFichaV10('${u.id}')">Guardar ficha de usuario</button></div>`;
+    <div class="admin-v12-actions"><button class="btn btn-ghost" onclick="adminV9ToggleUser('${u.id}')">${u.estado==='Inactivo'?'Activar usuario':'Desactivar usuario'}</button><button class="btn btn-ghost" onclick="adminV9DeleteUser('${u.id}')">Dar de baja usuario</button><button class="btn btn-primary" onclick="adminSaveUsuarioFichaV10('${u.id}')">Guardar usuario</button></div>`;
 }
 function adminSoporteTecnicoCuentaV10(c){
   const card = (title, desc, url, key) => `<div class="admin-v9-support"><b>${adminEsc(title)}</b>${adminEsc(desc)}<br><span class="ar-meta">${url ? adminEsc(url) : 'Pendiente de configurar'}</span><div style="height:10px"></div><button class="admin-v9-smallbtn" onclick="adminOpenTechV10('${c.id}','${key}')">Abrir conexión</button></div>`;
-  return `<div class="admin-card-sub" style="margin-bottom:8px">Centro de soporte técnico de esta cuenta</div><div class="admin-v9-support-grid">
+  return `<div class="admin-card-sub" style="margin-bottom:8px">Conexiones técnicas de esta cuenta</div><div class="admin-v9-support-grid">
     ${card('Make','Escenarios, webhooks y automatizaciones de esta cuenta.',c.makeUrl,'make')}
     ${card('Airtable','Base, tablas, campos y registros conectados.',c.airtableUrl,'airtable')}
     ${card('Intranet','Abrir la intranet real de esta cuenta para revisar configuración.',c.intranetUrl,'intranet')}
   </div>${c.soporteNotas?`<div style="height:10px"></div><div class="admin-v9-form-note"><b>Notas de soporte:</b> ${adminEsc(c.soporteNotas)}</div>`:''}`;
+}
+function adminOpenCuentaEditorV13(id, area='cuenta'){
+  const c = adminCuenta(id); if(!c) return;
+  adminState.selectedCuentaId = id;
+  const modal = document.getElementById('admin-account-modal-v13');
+  const body = document.getElementById('admin-account-modal-body-v13');
+  const title = document.getElementById('admin-account-modal-title-v13');
+  const sub = document.getElementById('admin-account-modal-sub-v13');
+  const areaLabel = area==='resumen' ? 'Resumen de cuenta' : area==='datos' ? 'Datos comerciales' : area==='paquete' ? 'Paquete y servicios' : area==='conexiones' ? 'Conexiones técnicas' : 'Datos de cuenta';
+  if(title) title.innerHTML = `EDITAR <em>CUENTA</em>`;
+  if(sub) sub.textContent = `${areaLabel} · ${c.nombre}`;
+  if(body) body.innerHTML = `<div class="admin-v9-form-note"><b>Modo edición:</b> esta ventana sí modifica datos de la cuenta. Fuera de esta ventana, Control Maestro queda en modo lectura para evitar errores.</div>${adminCuentaControlForm(c)}`;
+  if(modal) modal.style.display = 'flex';
+}
+function adminCloseCuentaEditorV13(){
+  const modal = document.getElementById('admin-account-modal-v13');
+  if(modal) modal.style.display = 'none';
 }
 function adminOpenUsuarioV9(id){
   const u = adminUsuario(id); if(!u) return;
@@ -4180,123 +3911,17 @@ function adminCloseUsuarioV11(){
   if(modal) modal.style.display = 'none';
   adminState.selectedUsuarioId = null;
 }
-
-
-/* ─── Administración → Airtable real
-   La ficha administrativa conserva su estado local, pero el usuario se crea/actualiza
-   en la tabla real de asesores. No crea bases nuevas ni toca CRM_CFG. */
-const ADMIN_ASESOR_TABLE = 'tblIRPmLIyj8sWyEk';
-function adminPublicTipo(tipo){
-  if(tipo === 'Asesor independiente') return 'Independiente';
-  if(tipo === 'Inmobiliaria') return 'Inmobiliaria';
-  if(tipo === 'Grupo de asesores sin inmobiliaria') return 'Grupo sin inmobiliaria';
-  return tipo || 'Independiente';
-}
-function adminIsActivo(estado){ return String(estado||'').toLowerCase() === 'activo'; }
-function adminCleanPhone(v){ return String(v||'').replace(/\D/g,''); }
-function adminCuentaCodigo(c){ return String(c?.crmCodigo || c?.id || adminSlug(c?.nombre || 'cuenta')).trim(); }
-function adminAirtableSafeSlug(slug){ return String(slug||'').toLowerCase().replace(/'/g,"\\'"); }
-async function adminUploadIfFile(fieldId, slug, label){
-  const fileEl = document.getElementById(fieldId + '-file');
-  const file = fileEl?.files?.[0];
-  if(!file) return '';
-  const folio = (slug || 'usuario') + '-' + String(label||'archivo').toLowerCase().replace(/\s+/g,'-');
-  return await uploadBlobFile(file, folio, label || 'Foto');
-}
-function adminAsesorFields(u,c,extra={}){
-  const slug = u.slugOficial || u.slugSugerido || adminUniqueSlug(adminSlug(u.nombre || 'usuario'), u.id);
-  const estado = u.estado || c?.estado || 'Pendiente';
-  const fields = {
-    'Nombre': u.nombre || '',
-    'Teléfono WhatsApp': adminCleanPhone(u.whatsapp),
-    'Email': u.email || undefined,
-    'Ciudad': (u.ciudad || c?.ciudad) || undefined,
-    'Frase': u.frase || '',
-    'Pixel ID Meta': u.pixel || '',
-    'Slug': slug,
-    'Puesto': u.puesto || adminDefaultPuesto(u.tipo || c?.tipo),
-    'Activo': adminIsActivo(estado),
-    'Independiente': (u.tipo || c?.tipo) === 'Asesor independiente'
-  };
-  const fotoUrl = extra.fotoUrl || (String(u.foto||'').startsWith('http') ? u.foto : '');
-  if(fotoUrl) fields['Foto'] = [{ url: fotoUrl }];
-  Object.keys(fields).forEach(k=>{ if(fields[k] === undefined) delete fields[k]; });
-  return fields;
-}
-function adminParseBadField(errorMessage){
-  const msg = String(errorMessage || '');
-  const m1 = msg.match(/Unknown field name:?\s*\\?"([^"\\]+)\\?"/i);
-  if(m1) return m1[1];
-  const m2 = msg.match(/Field\s+\\?"([^"\\]+)\\?"\s+cannot (?:be|accept)/i);
-  if(m2) return m2[1];
-  return '';
-}
-async function adminAtWriteSafe(path, method, fields){
-  let clean = {...fields};
-  let lastError = null;
-  for(let i=0;i<6;i++){
-    try{
-      return await atFetch(path, { method, body: JSON.stringify({ fields: clean, typecast:true }) });
-    }catch(e){
-      lastError = e;
-      const bad = adminParseBadField(e.message);
-      if(bad && Object.prototype.hasOwnProperty.call(clean,bad)){
-        delete clean[bad];
-        continue;
-      }
-      throw e;
-    }
-  }
-  throw lastError || new Error('No se pudo escribir en Airtable');
-}
-async function adminFindAsesorBySlug(slug){
-  if(!slug) return null;
-  const formula = encodeURIComponent(`LOWER({Slug})='${adminAirtableSafeSlug(slug)}'`);
-  const data = await atFetch(`${ADMIN_ASESOR_TABLE}?filterByFormula=${formula}&maxRecords=1`);
-  return (data.records||[])[0] || null;
-}
-async function adminSyncUsuarioAirtable(u, opts={}){
-  const c = adminCuenta(u.cuentaId);
-  if(!u || !c) return null;
-  if(!u.slugOficial) u.slugOficial = adminUniqueSlug(adminSlug(u.nombre || 'usuario'), u.id);
-  u.slugSugerido = u.slugOficial;
-  let fotoUrl = '';
-  if(opts.fotoFieldId){
-    fotoUrl = await adminUploadIfFile(opts.fotoFieldId, u.slugOficial, 'Foto');
-    if(fotoUrl) u.foto = fotoUrl;
-  }
-  const fields = adminAsesorFields(u,c,{fotoUrl});
-  let rec = u.airtableRecId ? { id:u.airtableRecId } : await adminFindAsesorBySlug(u.slugOficial);
-  let saved;
-  if(rec?.id){
-    saved = await adminAtWriteSafe(`${ADMIN_ASESOR_TABLE}/${rec.id}`, 'PATCH', fields);
-  }else{
-    saved = await adminAtWriteSafe(`${ADMIN_ASESOR_TABLE}`, 'POST', fields);
-  }
-  u.airtableRecId = saved?.id || rec?.id || u.airtableRecId || '';
-  u.airtableSyncedAt = new Date().toISOString();
-  u.airtableSyncError = '';
-  return saved;
-}
-function adminAirtableStatus(u){
-  if(u?.airtableRecId) return `<span class="badge badge-active">Airtable conectado</span>`;
-  if(u?.airtableSyncError) return `<span class="badge badge-lost">Airtable pendiente</span>`;
-  return `<span class="badge badge-contact">Sin alta real</span>`;
-}
-async function adminSaveCuentaV9(id){
+function adminSaveCuentaV9(id){
   const c = adminCuenta(id); if(!c) return;
   c.estado = val('cuenta-estado-v9'); c.nombre = val('cuenta-nombre-v9'); c.ciudad = val('cuenta-ciudad-v9'); c.responsable = val('cuenta-responsable-v9'); c.notas = val('cuenta-notas-v9');
-  c.makeUrl = val('cuenta-make-v10'); c.airtableUrl = val('cuenta-airtable-v10'); c.intranetUrl = val('cuenta-intranet-v10'); c.crmCodigo = val('cuenta-crm-codigo-v13') || adminSlug(c.nombre); c.soporteNotas = val('cuenta-soporte-notas-v10');
+  c.makeUrl = val('cuenta-make-v10'); c.airtableUrl = val('cuenta-airtable-v10'); c.intranetUrl = val('cuenta-intranet-v10'); c.soporteNotas = val('cuenta-soporte-notas-v10');
   if(c.tipo === 'Inmobiliaria'){ c.limiteAsesores = Number(val('cuenta-limite-v9')||10); c.plan = adminV9PlanFromLimit(c.limiteAsesores); c.logo = val('cuenta-logo-v9'); c.director = val('cuenta-director-v9'); c.whatsappDirector = val('cuenta-whatsapp-v9').replace(/\D/g,''); c.emailDirector = val('cuenta-email-v9'); }
   else if(c.tipo === 'Grupo de asesores sin inmobiliaria'){ c.limiteAsesores = 5; c.plan = ADMIN_V9_PLANES.grupo; c.logo = val('cuenta-logo-v9'); c.director = val('cuenta-director-v9'); c.whatsappDirector = val('cuenta-whatsapp-v9').replace(/\D/g,''); c.emailDirector = val('cuenta-email-v9'); }
   else { c.limiteAsesores = 1; c.plan = ADMIN_V9_PLANES.independiente; c.logo = 'CASITA_METODO_NERI'; }
   c.servicios = Array.from(document.querySelectorAll('[data-cuenta-servicio]:checked')).map(x=>x.dataset.cuentaServicio);
   if(c.tipo === 'Asesor independiente') c.servicios = c.servicios.filter(x=>x!=='branding_cuenta');
   adminCuentaUsers(c.id).forEach(u=>{ u.tipo = c.tipo; if(!u.estado) u.estado = c.estado; });
-  try{
-    for(const u of adminCuentaUsers(c.id)){ if(u.airtableRecId) await adminSyncUsuarioAirtable(u); }
-  }catch(e){ showToast('Cuenta guardada, pero Airtable no sincronizó: '+(e.message||e)); }
-  adminSave(); adminRender();
+  adminSave(false); adminCloseCuentaEditorV13(); adminRender(); showToast('Datos de cuenta guardados');
 }
 function adminSaveUsuarioServiciosV9(id){
   const u = adminUsuario(id); if(!u) return;
@@ -4304,7 +3929,7 @@ function adminSaveUsuarioServiciosV9(id){
   if(u.tipo === 'Asesor independiente') u.permisos = u.permisos.filter(x=>x!=='branding_cuenta');
   adminSave(); adminRender();
 }
-async function adminSaveUsuarioFichaV10(id){
+function adminSaveUsuarioFichaV10(id){
   const u = adminUsuario(id); if(!u) return;
   u.estado = val('user-estado-v10') || u.estado;
   if(u.tipo !== 'Asesor independiente') u.puesto = val('user-puesto-v10') || u.puesto;
@@ -4319,19 +3944,13 @@ async function adminSaveUsuarioFichaV10(id){
   u.slugSugerido = u.slugOficial;
   u.permisos = Array.from(document.querySelectorAll('[data-user-servicio]:checked')).map(x=>x.dataset.userServicio);
   if(u.tipo === 'Asesor independiente') u.permisos = u.permisos.filter(x=>x!=='branding_cuenta');
-  try{
-    await adminSyncUsuarioAirtable(u,{fotoFieldId:'user-foto-v10'});
-    adminSave(); adminCloseUsuarioV11(); adminRender(); showToast('✓ Usuario guardado en Airtable');
-  }catch(e){
-    u.airtableSyncError = e.message || String(e);
-    adminSave(); adminRender(); showToast('No se pudo guardar en Airtable: '+u.airtableSyncError);
-  }
+  adminSave(); adminCloseUsuarioV11(); adminRender(); showToast('Ficha de usuario guardada');
 }
 function adminOpenTechV10(cuentaId,key){
   const c = adminCuenta(cuentaId); if(!c) return;
   const map = {make:c.makeUrl, airtable:c.airtableUrl, intranet:c.intranetUrl};
   const url = map[key] || '';
-  if(!url){ showToast('Primero guarda el link de '+key+' en la ficha editable'); return; }
+  if(!url){ showToast('Primero guarda el link de '+key+' en Datos de cuenta'); return; }
   window.open(url, '_blank');
 }
 function adminDeleteCuentaV9(id){
@@ -4348,14 +3967,14 @@ function adminV9AddUser(cuentaId){
   const u = { id:adminId('usr'), cuentaId:c.id, nombre, whatsapp:'', email:'', foto:'', frase:'', ciudad:c.ciudad, pixel:'', tipo:c.tipo, estado:c.estado, puesto:'Asesor', slugSugerido:slug, slugOficial:slug, permisos:adminV9PermsOrg() };
   adminState.data.usuarios.push(u); adminState.selectedUsuarioId = null; adminSave(); adminRender();
 }
-async function adminV9ToggleUser(id){ const u = adminUsuario(id); if(!u) return; u.estado = u.estado === 'Inactivo' ? 'Activo' : 'Inactivo'; try{ await adminSyncUsuarioAirtable(u); showToast('Estado actualizado en Airtable'); }catch(e){ u.airtableSyncError=e.message||String(e); showToast('Estado local guardado; Airtable pendiente'); } adminSave(); adminCloseUsuarioV11(); adminRender(); }
+function adminV9ToggleUser(id){ const u = adminUsuario(id); if(!u) return; u.estado = u.estado === 'Inactivo' ? 'Activo' : 'Inactivo'; adminSave(); adminCloseUsuarioV11(); adminRender(); }
 function adminV9DeleteUser(id){ const u = adminUsuario(id); if(!u) return; const c = adminCuenta(u.cuentaId); if(c?.tipo === 'Asesor independiente'){ showToast('La cuenta independiente requiere su perfil único'); return; } adminState.data.usuarios = adminState.data.usuarios.filter(x=>x.id!==id); adminState.selectedUsuarioId = null; adminSave(); adminCloseUsuarioV11(); adminRender(); }
 function adminV9CopyUserLink(id){ const u = adminUsuario(id); if(!u || !u.slugOficial){ showToast('Aún no hay link generado'); return; } navigator.clipboard?.writeText(adminLink(u)); showToast('Link Captación copiado'); }
 function adminV9EnterSystem(id){ const c = adminCuenta(id); showToast(`Entrada de soporte preparada: ${c?.nombre || 'cuenta'}`); }
 function adminRenderCrear(){
   const tipo = adminState.createTipo || '';
   if(!tipo){
-    return `<div class="admin-v9-section"><div class="admin-v9-sec-head"><div><div class="admin-v9-sec-title">CREAR NUEVA <em>INTRANET</em></div><div class="admin-v9-sec-sub">Único camino de creación. Primero el tipo, después el formulario correcto.</div></div></div><div class="admin-v9-create-types">
+    return `<div class="admin-v9-section"><div class="admin-v9-sec-head"><div><div class="admin-v9-sec-title">DAR DE ALTA <em>NUEVA CUENTA</em></div><div class="admin-v9-sec-sub">Único camino de creación. Primero el tipo, después el formulario correcto.</div></div></div><div class="admin-v9-create-types">
       <div class="admin-v9-type-card" onclick="adminGoCrear('Inmobiliaria')"><div class="icon">▦</div><b>Inmobiliaria</b><p>Cuenta madre con logo, director, gerente, asesores y cupo 10/15/20/30.</p></div>
       <div class="admin-v9-type-card" onclick="adminGoCrear('Asesor independiente')"><div class="icon">⌂</div><b>Asesor independiente</b><p>Cuenta individual con casita Método NERI, perfil público y link automático.</p></div>
       <div class="admin-v9-type-card" onclick="adminGoCrear('Grupo de asesores sin inmobiliaria')"><div class="icon">◌</div><b>Grupo sin inmobiliaria</b><p>Cuenta chica para máximo 5 asesores, sin lenguaje corporativo de inmobiliaria.</p></div>
@@ -4365,8 +3984,8 @@ function adminRenderCrear(){
   const plan = isInmo ? adminSelectObjects('Paquete / cupo contratado','new-limite','10',ADMIN_V9_PLANES_INMOBILIARIA.map(p=>({value:String(p.limite),label:p.label}))) : `<div class="form-group"><label>Paquete</label><input class="form-inp" value="${adminEsc(isGroup?ADMIN_V9_PLANES.grupo:ADMIN_V9_PLANES.independiente)}" disabled></div>`;
   const logo = isInd ? `<div class="form-group full"><div class="admin-v9-form-note"><b>Asesor independiente:</b> usa casita Método NERI automática. No se carga logo inmobiliaria.</div></div>` : `<div class="form-group full">${adminUploadField(isInmo?'Logo inmobiliaria':'Logo de grupo','new-logo','','Sube logo como archivo. No se pega URL.')}</div>`;
   const publicFields = isInd ? `${adminUploadField('Foto del asesor','new-foto','','Sube foto como archivo.')} ${adminField('Frase pública','new-frase','')} ${adminField('Pixel ID Meta','new-pixel','')}` : '';
-  return `<div class="admin-v9-section"><div class="admin-v9-sec-head"><div><div class="admin-v9-sec-title">NUEVA INTRANET · <em>${adminEsc(adminTipoCorto(tipo))}</em></div><div class="admin-v9-sec-sub">Creación controlada por administración</div></div><button class="admin-v9-create" onclick="adminGoCrear()">Cambiar tipo</button></div>
-  <div class="admin-v9-ficha"><div class="admin-v9-panel-body"><div class="admin-v9-form-note">Al guardar, la cuenta se va a su directorio y el primer usuario se escribe en la tabla real de asesores de Airtable.</div><div class="admin-form-grid">
+  return `<div class="admin-v9-section"><div class="admin-v9-sec-head"><div><div class="admin-v9-sec-title">NUEVA CUENTA · <em>${adminEsc(adminTipoCorto(tipo))}</em></div><div class="admin-v9-sec-sub">Creación controlada por administración</div></div><button class="admin-v9-create" onclick="adminGoCrear()">Cambiar tipo</button></div>
+  <div class="admin-v9-ficha"><div class="admin-v9-panel-body"><div class="admin-v9-form-note">Al guardar, la cuenta se va automáticamente a su directorio: inmobiliaria, independiente o grupo.</div><div class="admin-form-grid">
     <div class="form-group"><label>Tipo</label><input class="form-inp" id="new-tipo" value="${adminEsc(tipo)}" disabled></div>
     ${adminSelect('Estado / activación','new-estado','Pendiente',['Pendiente','Activo','Inactivo'])}
     ${adminField(isInd?'Nombre del asesor':'Nombre de cuenta','new-nombre','')}
@@ -4376,38 +3995,23 @@ function adminRenderCrear(){
     ${isInd ? adminField('WhatsApp','new-whatsapp','') + adminField('Email','new-email','') : adminField(isInmo?'Director':'Líder de grupo','new-director','') + adminField('WhatsApp director / líder','new-whatsapp-director','') + adminField('Email director / líder','new-email-director','')}
     ${logo}
     ${publicFields}
-    ${adminField('Código CRM / Cuenta','new-crm-codigo',adminSlug(tipo==='Asesor independiente'?'asesor-nuevo':'cuenta-nueva'))}
-    <div class="form-group"><label>Modo CRM</label><input class="form-inp" value="CRM compartido Método NERI · filtro por Slug/Cuenta" disabled></div>
-    <div class="form-group full"><div class="admin-v9-form-note"><b>Alta correcta:</b> este código identifica la cuenta; cada usuario tendrá su Slug. Airtable debe guardar ambos para que el asesor vea solo sus leads.</div></div>
     ${adminArea('Notas administrativas','new-notas','','full')}
-  </div><div class="admin-actions"><button class="btn btn-ghost" onclick="adminGoCrear()">Cancelar</button><button class="btn btn-primary" onclick="adminCreateCuentaV9()">Crear intranet</button></div></div></div></div>`;
+  </div><div class="admin-actions"><button class="btn btn-ghost" onclick="adminGoCrear()">Cancelar</button><button class="btn btn-primary" onclick="adminCreateCuentaV9()">Dar de alta cuenta</button></div></div></div></div>`;
 }
-async function adminCreateCuentaV9(){
+function adminCreateCuentaV9(){
   const tipo = adminState.createTipo; if(!ADMIN_TIPOS_CUENTA.includes(tipo)){ showToast('Selecciona tipo de cuenta'); return; }
   const nombre = val('new-nombre') || (tipo==='Inmobiliaria'?'Nueva inmobiliaria':tipo==='Asesor independiente'?'Nuevo asesor independiente':'Nuevo grupo sin inmobiliaria');
-  const c = { id:adminId('cta'), nombre, tipo, estado:val('new-estado')||'Pendiente', ciudad:val('new-ciudad'), responsable:val('new-responsable'), director:val('new-director'), whatsappDirector:val('new-whatsapp-director').replace(/\D/g,''), emailDirector:val('new-email-director'), logo:'', limiteAsesores:adminDefaultLimit(tipo), plan:'', notas:val('new-notas'), servicios:adminV9DefaultServices(tipo), makeUrl:'', airtableUrl:'', intranetUrl:'', soporteNotas:'', crmCodigo:val('new-crm-codigo') || adminSlug(nombre), crmModo:'CRM compartido Método NERI · filtro por Cuenta/Slug' };
+  const c = { id:adminId('cta'), nombre, tipo, estado:val('new-estado')||'Pendiente', ciudad:val('new-ciudad'), responsable:val('new-responsable'), director:val('new-director'), whatsappDirector:val('new-whatsapp-director').replace(/\D/g,''), emailDirector:val('new-email-director'), logo:'', limiteAsesores:adminDefaultLimit(tipo), plan:'', notas:val('new-notas'), servicios:adminV9DefaultServices(tipo), makeUrl:'', airtableUrl:'', intranetUrl:'', soporteNotas:'' };
   if(tipo === 'Inmobiliaria'){ c.limiteAsesores = Number(val('new-limite')||10); c.plan = adminV9PlanFromLimit(c.limiteAsesores); c.logo = val('new-logo'); }
   if(tipo === 'Grupo de asesores sin inmobiliaria'){ c.limiteAsesores = 5; c.plan = ADMIN_V9_PLANES.grupo; c.logo = val('new-logo'); }
   if(tipo === 'Asesor independiente'){ c.limiteAsesores = 1; c.plan = ADMIN_V9_PLANES.independiente; c.logo = 'CASITA_METODO_NERI'; }
   adminState.data.cuentas.unshift(c);
-  let createdUser = null;
   if(tipo === 'Asesor independiente'){
     const slug = adminUniqueSlug(adminSlug(nombre), null);
-    createdUser = { id:adminId('usr'), cuentaId:c.id, nombre:nombre, whatsapp:val('new-whatsapp').replace(/\D/g,''), email:val('new-email'), foto:val('new-foto'), frase:val('new-frase'), ciudad:c.ciudad, pixel:val('new-pixel'), tipo, estado:c.estado, puesto:'Asesor independiente', slugSugerido:slug, slugOficial:slug, permisos:adminV9PermsInd() };
-    adminState.data.usuarios.unshift(createdUser);
+    adminState.data.usuarios.unshift({ id:adminId('usr'), cuentaId:c.id, nombre:nombre, whatsapp:val('new-whatsapp').replace(/\D/g,''), email:val('new-email'), foto:val('new-foto'), frase:val('new-frase'), ciudad:c.ciudad, pixel:val('new-pixel'), tipo, estado:c.estado, puesto:'Asesor independiente', slugSugerido:slug, slugOficial:slug, permisos:adminV9PermsInd() });
   }else if(c.director){
     const slug = adminUniqueSlug(adminSlug(c.director), null);
-    createdUser = { id:adminId('usr'), cuentaId:c.id, nombre:c.director, whatsapp:c.whatsappDirector, email:c.emailDirector, foto:'', frase:'', ciudad:c.ciudad, pixel:'', tipo, estado:c.estado, puesto:tipo==='Inmobiliaria'?'Director':'Líder de grupo', slugSugerido:slug, slugOficial:slug, permisos:adminV9PermsOrg() };
-    adminState.data.usuarios.unshift(createdUser);
-  }
-  if(createdUser){
-    try{
-      await adminSyncUsuarioAirtable(createdUser,{fotoFieldId: tipo === 'Asesor independiente' ? 'new-foto' : ''});
-      showToast('✓ Intranet creada y usuario escrito en Airtable');
-    }catch(e){
-      createdUser.airtableSyncError = e.message || String(e);
-      showToast('Intranet creada localmente; falta sincronizar Airtable: '+createdUser.airtableSyncError);
-    }
+    adminState.data.usuarios.unshift({ id:adminId('usr'), cuentaId:c.id, nombre:c.director, whatsapp:c.whatsappDirector, email:c.emailDirector, foto:'', frase:'', ciudad:c.ciudad, pixel:'', tipo, estado:c.estado, puesto:tipo==='Inmobiliaria'?'Director':'Líder de grupo', slugSugerido:slug, slugOficial:slug, permisos:adminV9PermsOrg() });
   }
   adminState.selectedCuentaId = c.id; adminState.selectedUsuarioId = null; adminState.tab='cuenta'; adminSave(); adminRender();
 }
@@ -4420,7 +4024,7 @@ function adminRenderServiciosV9(){
     ['Reportes básicos','Métricas permitidas por cuenta, sin mezclar administración con CRM.'],
     ['Branding de cuenta','Logo inmobiliaria o grupo aplicado desde administración.']
   ].map(s=>`<div class="admin-v9-package"><b>${adminEsc(s[0])}</b><span>${adminEsc(s[1])}</span><small>Servicio existente</small></div>`).join('');
-  return `<div class="admin-v9-section"><div class="admin-v9-sec-head"><div><div class="admin-v9-sec-title">SERVICIOS <em>DEL SISTEMA</em></div><div class="admin-v9-sec-sub">Catálogo general. Aquí no se editan cuentas; se editan dentro de cada ficha.</div></div></div><div class="admin-v9-packages">${cards}</div></div>`;
+  return `<div class="admin-v9-section"><div class="admin-v9-sec-head"><div><div class="admin-v9-sec-title">CATÁLOGO <em>COMERCIAL</em></div><div class="admin-v9-sec-sub">Catálogo general. Aquí no se editan cuentas; se editan desde cada cuenta.</div></div></div><div class="admin-v9-packages">${cards}</div></div>`;
 }
 function adminSelectUsuario(id){ adminState.selectedUsuarioId=id; adminRender(); }
 function adminNewUsuario(){ const c = adminCuenta(adminState.selectedCuentaId); if(!c){ showToast('Primero selecciona una cuenta'); return; } adminV9AddUser(c.id); }
@@ -4434,11 +4038,27 @@ function adminV9ResetDemo(){ localStorage.removeItem(ADMIN_V9_STORAGE_KEY); admi
    Conserva Administración Base. Agrega la vista operativa del asesor.
 ═══════════════════════════════════════════════════ */
 const ASESOR_SAMPLE = {
-  link:'',
-  acciones:[],
-  leads:[],
-  propiedades:[],
-  docs:[]
+  link:'https://captacion.vercel.app/?asesor=enrique',
+  acciones:[
+    {tag:'Lead nuevo', titulo:'Llamar a Patricia Gómez', texto:'Llegó por captación vendedora. No tiene primer contacto registrado.', destino:'airtable'},
+    {tag:'Documento pendiente', titulo:'Casa Jacarandas · predial', texto:'Falta revisar predial y agua para avanzar expediente.', destino:'documentos_asesor'},
+    {tag:'Cita próxima', titulo:'Confirmar visita Lomas de Ahuatlán', texto:'Enviar confirmación por WhatsApp y preparar mensaje de llegada.', destino:'citas'},
+  ],
+  leads:[
+    {nombre:'Patricia Gómez', tipo:'Vendedora', estado:'Nuevo', detalle:'Casa en zona norte · documentos parciales · posible tema fiscal'},
+    {nombre:'Laura Méndez', tipo:'Compradora', estado:'HOT', detalle:'Interesada en Lomas de Ahuatlán · quiere visitar esta semana'},
+    {nombre:'Roberto Salinas', tipo:'Crédito bancario', estado:'WARM', detalle:'Tiene ahorro inicial, necesita claridad de gastos y banco'},
+  ],
+  propiedades:[
+    {nombre:'Casa Jacarandas', folio:'CVA-2026-4496', estado:'Captación activa', pendiente:'Falta predial actualizado y revisión fiscal'},
+    {nombre:'Casa Lomas de Ahuatlán', folio:'MLS-608766', estado:'Publicada', pendiente:'Confirmar disponibilidad de citas'},
+    {nombre:'Depto Paseo del Conquistador', folio:'CVA-2026-3000', estado:'Promoción', pendiente:'Actualizar video corto de recámaras'},
+  ],
+  docs:[
+    {doc:'Escritura', estado:'Recibida', nota:'Validar titulares y régimen matrimonial'},
+    {doc:'Predial', estado:'Pendiente', nota:'Solicitar año vigente'},
+    {doc:'Situación fiscal', estado:'Atención', nota:'Revisar posible exención y estrategia antes de prometer'},
+  ]
 };
 
 NAV_ROL.asesor = [
@@ -4497,136 +4117,25 @@ function asesorEsc(s){ return String(s ?? '').replace(/[&<>"]/g, m=>({ '&':'&amp
 function asesorCopy(text){ navigator.clipboard?.writeText(text); showToast('Copiado'); }
 function asesorWa(num,msg){ return `https://wa.me/${String(num||SESSION?.whatsapp||'').replace(/\D/g,'')}?text=${encodeURIComponent(msg||'Hola, te escribo para dar seguimiento.')}`; }
 
-let _asesorHoyLoaded = false;
-function asesorLinkCaptacion(){
-  const slug = SESSION?.slug || SESSION?.user || 'asesor';
-  return `https://captacion.vercel.app/?asesor=${encodeURIComponent(slug)}`;
-}
-function asesorHoySkeleton(){ return '<div class="asesor-hoy-empty">Cargando Mis Leads / CRM…</div>'; }
 function buildAsesorHoyPanel(){
   const s = SESSION || USERS.asesor;
-  const link = asesorLinkCaptacion();
-  return `<div class="panel" id="panel-hoy"><div class="asesor-body asesor-hoy-premium">
-    <div class="ph-head" style="margin-bottom:18px">
-      <div class="ph-eyebrow">Centro de mando del asesor</div>
-      <div class="ph-title">HOY EN TU<br><em>OPERACIÓN</em></div>
-    </div>
-
-    <div class="fv-box asesor-hoy-box">
-      <div class="fv-header">
-        <div>
-          <div class="fv-nombre">${asesorEsc(s.nombre || 'Asesor')}</div>
-          <div class="fv-wa"><span>${asesorEsc(s.empresa || 'Método NERI')}</span></div>
-          <div class="asesor-hoy-sub">Esta pantalla ahora se alimenta de <b>Mis Leads / CRM</b>. No es una lista de ejemplo: lee compradores, vendedores, citas y progreso desde las tablas conectadas en <b>CRM_CFG</b>.</div>
-        </div>
-        <div style="text-align:right">
-          <div class="fv-folio-lbl">Link Captación</div>
-          <div class="fv-folio" style="max-width:260px;word-break:break-all">${asesorEsc(link)}</div>
-          <div style="height:10px"></div>
-          <button class="fv-wa-btn" onclick="asesorCopy('${link}')">Copiar link</button>
-        </div>
-      </div>
-      <div class="fv-body perfil-fv-body">
-        <div class="fv-sec">
-          <div class="fv-sec-title"><em>◈</em> Línea directa con Mis Leads / CRM</div>
-          <div class="asesor-hoy-line" id="asesor-hoy-linea">${asesorHoySkeleton()}</div>
-        </div>
-      </div>
-      <div class="fv-actions perfil-fv-actions">
-        <button class="btn btn-ghost" onclick="asesorHoyLoad(true)">Actualizar HOY</button>
-        <button class="btn btn-primary" onclick="goTo('airtable')">Abrir Mis Leads / CRM</button>
-      </div>
-    </div>
-
-    <div class="asesor-hoy-grid">
-      <section class="fv-box asesor-hoy-box">
-        <div class="fv-header"><div><div class="fv-nombre">LEADS QUE NO DEBES SOLTAR</div><div class="fv-wa"><span>Prioridad real del CRM</span></div></div><div><div class="fv-folio-lbl">Vista</div><div class="fv-folio">HOY</div></div></div>
-        <div class="fv-body perfil-fv-body"><div class="asesor-hoy-leads" id="asesor-hoy-leads">${asesorHoySkeleton()}</div></div>
+  const acciones = ASESOR_SAMPLE.acciones.map(a=>`<button class="asesor-action" onclick="goTo('${a.destino}')"><div><span class="tag">${asesorEsc(a.tag)}</span><b>${asesorEsc(a.titulo)}</b><p>${asesorEsc(a.texto)}</p></div><span class="go">Resolver ahora →</span></button>`).join('');
+  const leads = ASESOR_SAMPLE.leads.map(l=>`<div class="asesor-row"><div><b>${asesorEsc(l.nombre)}</b><p>${asesorEsc(l.tipo)} · ${asesorEsc(l.detalle)}</p></div><div class="meta"><span class="asesor-pill ${l.estado==='HOT'?'gold':l.estado==='Nuevo'?'green':''}">${asesorEsc(l.estado)}</span><a class="asesor-pill gold" href="${asesorWa('', 'Hola '+l.nombre+', te escribo para dar seguimiento a tu registro en Método NERI.')}" target="_blank">WhatsApp</a></div></div>`).join('');
+  return `<div class="panel" id="panel-hoy"><div class="asesor-body">
+    <div class="asesor-hero">
+      <section class="asesor-card">
+        <div class="asesor-eyebrow">Centro de Mando del Asesor</div>
+        <div class="asesor-title">HOY EN TU <em>OPERACIÓN</em></div>
+        <div class="asesor-sub">Hola, ${asesorEsc(s.nombre)}. Esta vista no es administración: es tu tablero diario para saber qué hacer, a quién contactar y qué expediente mover.</div>
+        <div class="asesor-link-box"><div><small>Tu Link Captación</small><code>${asesorEsc(ASESOR_SAMPLE.link)}</code></div><button class="asesor-gold-btn" onclick="asesorCopy('${ASESOR_SAMPLE.link}')">Copiar link</button></div>
       </section>
-      <section class="fv-box asesor-hoy-box">
-        <div class="fv-header"><div><div class="fv-nombre">QUÉ HACER HOY</div><div class="fv-wa"><span>Acciones concretas</span></div></div><div><div class="fv-folio-lbl">Guía</div><div class="fv-folio">NERI</div></div></div>
-        <div class="fv-body perfil-fv-body"><div class="asesor-hoy-actions" id="asesor-hoy-acciones">${asesorHoySkeleton()}</div></div>
-      </section>
+      <section class="asesor-card"><div class="asesor-eyebrow">Resumen útil</div><div class="asesor-kpis"><div class="asesor-kpi"><b>3</b><span>acciones de hoy</span></div><div class="asesor-kpi"><b>2</b><span>leads por contactar</span></div><div class="asesor-kpi"><b>1</b><span>cita próxima</span></div><div class="asesor-kpi"><b>3</b><span>documentos a revisar</span></div></div></section>
     </div>
-
-    <section class="asesor-section"><div class="asesor-note"><b>Regla de esta vista:</b> si el asesor no existe en la tabla real de asesores por Slug, el CRM no debe abrirse. Primero se da de alta el perfil real; después sus leads se filtran por asesor/cuenta.</div></section>
+    <section class="asesor-section"><div class="asesor-sec-head"><div><div class="asesor-sec-title">QUÉ HACER <em>HOY</em></div><div class="asesor-sec-sub">Acciones concretas. No es menú, es guía de trabajo.</div></div></div><div class="asesor-action-grid">${acciones}</div></section>
+    <section class="asesor-section"><div class="asesor-sec-head"><div><div class="asesor-sec-title">LEADS QUE <em>NO DEBES SOLTAR</em></div><div class="asesor-sec-sub">Ejemplos de cómo debe verse tu operación diaria.</div></div><button class="asesor-gold-btn" onclick="goTo('airtable')">Abrir CRM</button></div><div class="asesor-list">${leads}</div></section>
+    <section class="asesor-section"><div class="asesor-note"><b>Regla de esta vista:</b> el asesor no administra cuentas, cupos, paquetes ni soporte técnico. El asesor trabaja leads, citas, propiedades, documentos, mensajes y su perfil público.</div></section>
   </div></div>`;
 }
-
-function asesorHoyPriority(rec, tipo){
-  const estado = _fval(rec,'Clasificación') || _fval(rec,'Status del Lead') || _fval(rec,'Conversión') || _fval(rec,'Estado') || 'Nuevo';
-  const s = String(estado).toLowerCase();
-  if(s.includes('hot') || s.includes('nuevo') || s.includes('firma')) return 3;
-  if(s.includes('warm') || s.includes('seguimiento') || s.includes('cita')) return 2;
-  return 1;
-}
-function asesorHoyLeadRow(rec, tipo){
-  const f = rec.fields || {};
-  const nombre = _fval(rec,'Nombre Completo') || _fval(rec,'Comprador') || _fval(rec,'Nombre') || _fval(rec,'Nombre Propiedad') || 'Registro sin nombre';
-  const wa = _fval(rec,'Teléfono WhatsApp') || _fval(rec,'WhatsApp') || _fval(rec,'WhatsApp Asesor') || '';
-  const estado = _fval(rec,'Clasificación') || _fval(rec,'Status del Lead') || _fval(rec,'Conversión') || _fval(rec,'Estado Cita') || _fval(rec,'Fase Actual') || 'Nuevo';
-  const detalle = tipo === 'Vendedor'
-    ? [_fval(rec,'Tipo de Propiedad'), _fval(rec,'Zona'), _fval(rec,'Precio Estimado')].filter(Boolean).join(' · ')
-    : tipo === 'Cita'
-      ? [_fval(rec,'Propiedad'), _fval(rec,'Fecha de la Cita'), _fval(rec,'Hora')].filter(Boolean).join(' · ')
-      : [_fval(rec,'Propiedad de Interés'), _fval(rec,'Riesgo principal'), _fval(rec,'Siguiente jugada')].filter(Boolean).join(' · ');
-  const badge = STATUS_BADGE[estado] ? `<span class="badge ${STATUS_BADGE[estado]}">${_esc(estado)}</span>` : `<span class="asesor-pill gold">${asesorEsc(estado)}</span>`;
-  return `<div class="asesor-hoy-row"><div><b>${asesorEsc(nombre)}</b><p>${asesorEsc(tipo)}${detalle?' · '+asesorEsc(detalle):''}</p></div><div class="asesor-hoy-mini">${badge}${wa?`<a class="asesor-pill gold" href="${asesorWa(wa, 'Hola '+nombre+', te escribo para dar seguimiento a tu registro en Método NERI.')}" target="_blank" rel="noopener">WhatsApp</a>`:''}</div></div>`;
-}
-function asesorHoyStage(num,label,txt){ return `<div class="asesor-hoy-stage"><b>${num}</b><span>${asesorEsc(label)}</span><small>${asesorEsc(txt)}</small></div>`; }
-async function asesorHoyLoad(force=false){
-  if(_asesorHoyLoaded && !force) return;
-  _asesorHoyLoaded = true;
-  const linea = document.getElementById('asesor-hoy-linea');
-  const leads = document.getElementById('asesor-hoy-leads');
-  const acciones = document.getElementById('asesor-hoy-acciones');
-  if(linea) linea.innerHTML = asesorHoySkeleton();
-  if(leads) leads.innerHTML = asesorHoySkeleton();
-  if(acciones) acciones.innerHTML = asesorHoySkeleton();
-  try{
-    if(!SESSION?.perfilRecId) await enrichIdentity(SESSION?.slug);
-    if(!SESSION?.perfilRecId){
-      const msg = '<div class="asesor-hoy-empty">No existe todavía el perfil real de este asesor en Airtable. Entra como administrador, da de alta el usuario real y asegúrate de que el Slug coincida.</div>';
-      if(linea) linea.innerHTML = msg; if(leads) leads.innerHTML = msg; if(acciones) acciones.innerHTML = msg;
-      return;
-    }
-    const reqs = await Promise.allSettled([
-      atFetch(`${CRM_CFG.compradores.tableId}?maxRecords=100`),
-      atFetch(`${CRM_CFG.vendedores.tableId}?maxRecords=100`),
-      atFetch(`${CRM_CFG.citas.tableId}?maxRecords=100`),
-      atFetch(`${CRM_CFG.progreso.tableId}?maxRecords=100`)
-    ]);
-    const pack = reqs.map(r => r.status === 'fulfilled' ? (r.value.records || []) : []);
-    const compradores = pack[0].filter(crmRecordBelongsToCurrentAsesor);
-    const vendedores = pack[1].filter(crmRecordBelongsToCurrentAsesor);
-    const citas = pack[2].filter(crmRecordBelongsToCurrentAsesor);
-    const progreso = pack[3].filter(crmRecordBelongsToCurrentAsesor);
-    const todos = [
-      ...compradores.map(r=>({rec:r,tipo:'Comprador'})),
-      ...vendedores.map(r=>({rec:r,tipo:'Vendedor'})),
-      ...citas.map(r=>({rec:r,tipo:'Cita'}))
-    ].sort((a,b)=>asesorHoyPriority(b.rec,b.tipo)-asesorHoyPriority(a.rec,a.tipo)).slice(0,6);
-    const nuevos = [...compradores, ...vendedores].filter(r => ['Nuevo','HOT','WARM','Firma exclusiva','Firma venta directa','En seguimiento'].some(x => String(_fval(r,'Status del Lead')||_fval(r,'Clasificación')||_fval(r,'Conversión')||'').toLowerCase().includes(x.toLowerCase()))).length;
-    const citasPend = citas.filter(r => !['Cancelada','Realizada'].includes(_fval(r,'Estado Cita'))).length;
-    const operaciones = progreso.filter(r => !['Completado','Cerrado'].includes(_fval(r,'Fase Actual'))).length;
-    if(linea) linea.innerHTML = [
-      asesorHoyStage(compradores.length,'Compradores','Leads comprador asignados a tu slug/nombre'),
-      asesorHoyStage(vendedores.length,'Vendedores','Captaciones de propietarios en tu CRM'),
-      asesorHoyStage(citasPend,'Citas pendientes','Visitas o llamadas que requieren seguimiento'),
-      asesorHoyStage(operaciones,'Operaciones','Portal progreso conectado al asesor')
-    ].join('');
-    if(leads) leads.innerHTML = todos.length ? todos.map(x=>asesorHoyLeadRow(x.rec,x.tipo)).join('') : '<div class="asesor-hoy-empty">No hay leads asignados a este asesor todavía. Cuando un formulario entre con su slug, aparecerá aquí.</div>';
-    if(acciones) acciones.innerHTML = [
-      {t:'Revisar leads nuevos', d:`${nuevos} registro(s) con prioridad de seguimiento`, go:'airtable'},
-      {t:'Confirmar citas', d:`${citasPend} cita(s) pendiente(s) por preparar o confirmar`, go:'citas'},
-      {t:'Mover operaciones', d:`${operaciones} operación(es) en progreso con siguiente paso visible`, go:'progreso'}
-    ].map(a=>`<button class="asesor-hoy-action" onclick="goTo('${a.go}')"><div><b>${asesorEsc(a.t)}</b><span>${asesorEsc(a.d)}</span></div><span class="asesor-pill gold">Abrir →</span></button>`).join('');
-  }catch(e){
-    const msg = `<div class="asesor-hoy-empty">No se pudo cargar HOY desde CRM. Revisa /api/airtable o el slug del asesor.<br><span style="color:var(--red)">${asesorEsc(e.message||e)}</span></div>`;
-    if(linea) linea.innerHTML = msg; if(leads) leads.innerHTML = msg; if(acciones) acciones.innerHTML = msg;
-  }
-}
-
 
 /* ═══════════════════════════════════════════════════
    MI PERFIL DEL ASESOR  (registro real en Asesor captación · tblIRPmLIyj8sWyEk)
@@ -4765,7 +4274,7 @@ function perfilRender(rec){
 
         <div class="fv-sec">
           <div class="fv-sec-title"><em>🔒</em> Administración / solo lectura</div>
-          <div class="le-banner" style="margin-bottom:10px">Campos bloqueados. Si algo está mal, lo corrige administración desde Administración Base.</div>
+          <div class="le-banner" style="margin-bottom:10px">Campos bloqueados. Si algo está mal, lo corrige administración desde Control Maestro.</div>
           <div class="perfil-fv-locks">
             ${lock('Cuenta asignada', cuenta)}
             ${lock('Tipo', tipoReal)}
@@ -4844,117 +4353,41 @@ async function perfilSave(){
   }
 }
 
-let _asesorPropiedadesLoaded = false;
-let _asesorDocumentosLoaded = false;
-
-function asesorGateRealProfileHtml(vista){
-  return `<div class="asesor-hoy-empty">Para ver ${asesorEsc(vista)}, primero debe existir el <b>perfil real del asesor</b> en Airtable.<br><br><span style="color:var(--w50);font-size:11px;line-height:1.7">El slug <b>${asesorEsc(SESSION?.slug||'')}</b> debe existir en la tabla de asesores <b>tblIRPmLIyj8sWyEk</b>. Sin ese alta, no se muestran propiedades ni documentos de prueba.</span></div>`;
-}
-function asesorEmptyRealHtml(texto){
-  return `<div class="asesor-hoy-empty">${asesorEsc(texto)}</div>`;
-}
-function asesorRecordBelongs(rec){
-  return typeof crmRecordBelongsToCurrentAsesor === 'function' ? crmRecordBelongsToCurrentAsesor(rec) : true;
-}
-function asesorStatusBadge(estado){
-  const e = String(estado || 'Sin estado');
-  const cls = STATUS_BADGE[e] || (e.toLowerCase().includes('pend') ? 'badge-lost' : e.toLowerCase().includes('recib') ? 'badge-close' : 'badge-contact');
-  return `<span class="badge ${cls}">${asesorEsc(e)}</span>`;
-}
 function buildAsesorPropiedadesPanel(){
+  const rows = ASESOR_SAMPLE.propiedades.map(p=>`
+    <div class="fv-row full">
+      <div class="fv-row-k">${asesorEsc(p.estado)}</div>
+      <div class="fv-row-v">
+        <strong style="color:var(--white)">${asesorEsc(p.nombre)}</strong><br>
+        <span style="color:var(--gold);font-family:var(--mono);font-size:11px">${asesorEsc(p.folio)}</span><br>
+        <span style="color:var(--w50)">${asesorEsc(p.pendiente)}</span>
+      </div>
+    </div>`).join('');
   return `<div class="panel" id="panel-propiedades_asesor"><div class="asesor-body asesor-perfil-page">
     <div class="fv-box perfil-fv-box">
       <div class="fv-header"><div><div class="fv-nombre">MIS PROPIEDADES</div><div class="fv-wa"><span>Operaciones vivas · folio · siguiente pendiente</span></div></div><div><div class="fv-folio-lbl">Vista asesor</div><div class="fv-folio">PROPIEDADES</div></div></div>
       <div class="fv-body perfil-fv-body">
-        <div class="fv-sec"><div class="fv-sec-title"><em>⌂</em> Propiedades activas</div><div class="fv-grid" id="asesor-propiedades-list"><div class="asesor-hoy-empty">Cargando propiedades reales…</div></div></div>
-        <div class="fv-sec"><div class="le-banner">Esta vista solo muestra propiedades reales asignadas al asesor por Slug/Cuenta. Si no hay registros, queda vacía; no usa ejemplos.</div></div>
+        <div class="fv-sec"><div class="fv-sec-title"><em>⌂</em> Propiedades activas</div><div class="fv-grid">${rows}</div></div>
+        <div class="fv-sec"><div class="le-banner">Esta vista debe decirle al asesor qué propiedad mover y qué pendiente resolver. No es administración de cuentas.</div></div>
       </div>
-      <div class="fv-actions perfil-fv-actions"><button class="btn btn-ghost" onclick="asesorPropiedadesLoad(true)">Actualizar propiedades</button><button class="btn btn-primary" onclick="goTo('airtable')">Abrir CRM completo</button></div>
     </div>
   </div></div>`;
 }
-async function asesorPropiedadesLoad(force=false){
-  if(_asesorPropiedadesLoaded && !force) return;
-  _asesorPropiedadesLoaded = true;
-  const box = document.getElementById('asesor-propiedades-list');
-  if(!box) return;
-  box.innerHTML = '<div class="asesor-hoy-empty">Cargando propiedades reales…</div>';
-  try{
-    if(!SESSION?.perfilRecId) await enrichIdentity(SESSION?.slug);
-    if(!SESSION?.perfilRecId){ box.innerHTML = asesorGateRealProfileHtml('Mis Propiedades'); return; }
-    const data = await atFetch(`${CRM_CFG.propiedades.tableId}?maxRecords=100`);
-    const records = (data.records || []).filter(asesorRecordBelongs);
-    if(!records.length){ box.innerHTML = asesorEmptyRealHtml('No hay propiedades asignadas a este asesor todavía. Cuando una propiedad real tenga su Slug, nombre o cuenta, aparecerá aquí.'); return; }
-    box.innerHTML = records.map(rec=>{
-      const nombre = _fval(rec,'Nombre Propiedad') || 'Propiedad sin nombre';
-      const folio = _fval(rec,'Folio NERI') || _fval(rec,'Folio Vendedor') || _fval(rec,'Folio') || 'Sin folio';
-      const estado = _fval(rec,'Estado Propiedad') || 'Sin estado';
-      const detalle = [_fval(rec,'Zona / Colonia'), _fval(rec,'Municipio'), _fval(rec,'Precio Lista')].filter(Boolean).join(' · ') || 'Sin datos comerciales todavía';
-      return `<div class="fv-row full">
-        <div class="fv-row-k">${asesorStatusBadge(estado)}</div>
-        <div class="fv-row-v"><strong style="color:var(--white)">${asesorEsc(nombre)}</strong><br><span style="color:var(--gold);font-family:var(--mono);font-size:11px">${asesorEsc(folio)}</span><br><span style="color:var(--w50)">${asesorEsc(detalle)}</span></div>
-      </div>`;
-    }).join('');
-  }catch(e){
-    box.innerHTML = `<div class="asesor-hoy-empty">No se pudieron cargar propiedades desde Airtable.<br><span style="color:var(--red)">${asesorEsc(e.message||e)}</span></div>`;
-  }
-}
 function buildAsesorDocumentosPanel(){
+  const rows = ASESOR_SAMPLE.docs.map(d=>`
+    <div class="fv-lock">
+      <div class="fv-lock-k">${asesorEsc(d.doc)}</div>
+      <div class="fv-lock-v"><span class="badge ${d.estado==='Pendiente'?'badge-lost':d.estado==='Recibida'?'badge-close':'badge-contact'}">${asesorEsc(d.estado)}</span><br><span style="color:var(--w50);font-family:Montserrat,sans-serif">${asesorEsc(d.nota)}</span></div>
+    </div>`).join('');
   return `<div class="panel" id="panel-documentos_asesor"><div class="asesor-body asesor-perfil-page">
     <div class="fv-box perfil-fv-box">
       <div class="fv-header"><div><div class="fv-nombre">DOCUMENTOS Y EXPEDIENTES</div><div class="fv-wa"><span>Qué falta para avanzar, no solo archivos guardados</span></div></div><div><div class="fv-folio-lbl">Vista asesor</div><div class="fv-folio">DOCUMENTOS</div></div></div>
       <div class="fv-body perfil-fv-body">
-        <div class="fv-sec"><div class="fv-sec-title"><em>▤</em> Revisión documental</div><div class="perfil-fv-locks" id="asesor-documentos-list"><div class="asesor-hoy-empty">Cargando expedientes reales…</div></div></div>
-        <div class="fv-sec"><div class="le-banner">Documentos se alimenta de registros reales de Leads Vendedores y Portal Progreso. Si no hay documentos en Airtable, no se inventan pendientes.</div></div>
+        <div class="fv-sec"><div class="fv-sec-title"><em>▤</em> Revisión documental</div><div class="perfil-fv-locks">${rows}</div></div>
+        <div class="fv-sec"><div class="le-banner">La parte fiscal y documental debe mostrarse con claridad: qué falta, qué ya llegó y qué requiere atención antes de avanzar.</div></div>
       </div>
-      <div class="fv-actions perfil-fv-actions"><button class="btn btn-ghost" onclick="asesorDocumentosLoad(true)">Actualizar documentos</button><button class="btn btn-primary" onclick="goTo('airtable')">Abrir CRM completo</button></div>
     </div>
   </div></div>`;
-}
-function asesorDocEstado(texto){
-  const t = String(texto||'').toLowerCase();
-  if(t.includes('pend') || t.includes('falta') || t.includes('solicitar')) return 'Pendiente';
-  if(t.includes('recib') || t.includes('completo') || t.includes('listo')) return 'Recibida';
-  return 'Revisión';
-}
-async function asesorDocumentosLoad(force=false){
-  if(_asesorDocumentosLoaded && !force) return;
-  _asesorDocumentosLoaded = true;
-  const box = document.getElementById('asesor-documentos-list');
-  if(!box) return;
-  box.innerHTML = '<div class="asesor-hoy-empty">Cargando expedientes reales…</div>';
-  try{
-    if(!SESSION?.perfilRecId) await enrichIdentity(SESSION?.slug);
-    if(!SESSION?.perfilRecId){ box.innerHTML = asesorGateRealProfileHtml('Documentos'); return; }
-    const reqs = await Promise.allSettled([
-      atFetch(`${CRM_CFG.vendedores.tableId}?maxRecords=100`),
-      atFetch(`${CRM_CFG.progreso.tableId}?maxRecords=100`)
-    ]);
-    const vendedores = reqs[0].status === 'fulfilled' ? (reqs[0].value.records || []).filter(asesorRecordBelongs) : [];
-    const progreso = reqs[1].status === 'fulfilled' ? (reqs[1].value.records || []).filter(asesorRecordBelongs) : [];
-    const items = [];
-    vendedores.forEach(rec=>{
-      const nombre = _fval(rec,'Nombre Completo') || _fval(rec,'Folio') || 'Lead vendedor';
-      const docs = _fval(rec,'Documentos');
-      const expediente = _fval(rec,'Progreso Expediente');
-      const fiscal = [_fval(rec,'Diagnóstico Fiscal'), _fval(rec,'Detalle Fiscal')].filter(Boolean).join(' · ');
-      const texto = [docs, expediente, fiscal].filter(Boolean).join(' · ');
-      if(texto) items.push({origen:nombre, estado:asesorDocEstado(texto), nota:texto});
-    });
-    progreso.forEach(rec=>{
-      const nombre = _fval(rec,'Propiedad') || _fval(rec,'Comprador') || _fval(rec,'Folio') || 'Operación en progreso';
-      const texto = [_fval(rec,'Pendientes visibles'), _fval(rec,'Próximo paso')].filter(Boolean).join(' · ');
-      if(texto) items.push({origen:nombre, estado:asesorDocEstado(texto), nota:texto});
-    });
-    if(!items.length){ box.innerHTML = asesorEmptyRealHtml('No hay documentos o pendientes documentales registrados para este asesor todavía. Cuando Airtable tenga documentos, pendientes o progreso ligados a su Slug/Cuenta, aparecerán aquí.'); return; }
-    box.innerHTML = items.slice(0,12).map(d=>`
-      <div class="fv-lock">
-        <div class="fv-lock-k">${asesorEsc(d.origen)}</div>
-        <div class="fv-lock-v">${asesorStatusBadge(d.estado)}<br><span style="color:var(--w50);font-family:Montserrat,sans-serif">${asesorEsc(d.nota)}</span></div>
-      </div>`).join('');
-  }catch(e){
-    box.innerHTML = `<div class="asesor-hoy-empty">No se pudieron cargar documentos desde Airtable.<br><span style="color:var(--red)">${asesorEsc(e.message||e)}</span></div>`;
-  }
 }
 function buildAsesorReportesPanel(){
   const nums = [['12','Leads recibidos'],['8','Contactados'],['3','Citas generadas'],['1','Expediente activo']].map(n=>`<div class="fv-num"><div class="fv-num-val">${n[0]}</div><div class="fv-num-lbl">${n[1]}</div></div>`).join('');
@@ -4998,9 +4431,6 @@ function goTo(id){
   if(id === 'administracion') setTimeout(onAdministracionPanelActivate, 60);
   if(id === 'airtable') setTimeout(onAirtablePanelActivate, 60);
   if(id === 'perfil_asesor') setTimeout(()=>perfilLoad(false), 60);
-  if(id === 'propiedades_asesor') setTimeout(()=>asesorPropiedadesLoad(false), 60);
-  if(id === 'documentos_asesor') setTimeout(()=>asesorDocumentosLoad(false), 60);
-  if(id === 'hoy' && SESSION?.rol === 'asesor') setTimeout(()=>asesorHoyLoad(false), 60);
   if(id === 'hoy' && SESSION?.rol !== 'asesor') setTimeout(()=>loadHoyData(false), 60);
   syncDemoRoleSwitch();
 }
