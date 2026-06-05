@@ -1181,6 +1181,23 @@ select.form-inp option{background:#111;color:#fff}
 .asesor-list{display:grid;gap:8px}.asesor-row{border:1px solid var(--border);background:rgba(255,255,255,.022);border-radius:14px;padding:13px 14px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}.asesor-row b{font-size:12px;color:var(--white)}.asesor-row p{font-size:10px;color:var(--w50);line-height:1.55;margin-top:4px}.asesor-row .meta{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end}.asesor-pill{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--border2);background:rgba(255,255,255,.035);border-radius:999px;padding:6px 9px;font-size:7px;letter-spacing:1.4px;text-transform:uppercase;font-weight:900;color:var(--w55);white-space:nowrap}.asesor-pill.gold{border-color:var(--goldbdr);background:var(--golddim);color:var(--gold)}.asesor-pill.green{border-color:rgba(74,222,128,.25);background:rgba(74,222,128,.08);color:var(--green)}.asesor-pill.red{border-color:rgba(248,113,113,.25);background:rgba(248,113,113,.08);color:var(--red)}
 .asesor-two{display:grid;grid-template-columns:1fr 1fr;gap:14px}.asesor-form{display:grid;grid-template-columns:1fr 1fr;gap:12px}.asesor-form .full{grid-column:1/-1}.asesor-inp,.asesor-textarea{width:100%;background:rgba(0,0,0,.22);border:1px solid var(--border2);border-radius:12px;color:var(--white);padding:12px;font-size:12px;outline:none}.asesor-textarea{min-height:90px;resize:vertical}.asesor-label{font-size:7px;letter-spacing:1.6px;text-transform:uppercase;color:var(--w40);font-weight:900;margin-bottom:6px;display:block}.asesor-lock{border:1px dashed var(--border2);background:rgba(255,255,255,.018);border-radius:12px;padding:12px}.asesor-lock small{font-size:7px;letter-spacing:1.6px;text-transform:uppercase;color:var(--w35);font-weight:900;display:block;margin-bottom:5px}.asesor-lock b{font-family:var(--mono);font-size:11px;color:var(--gold);word-break:break-word}
 .asesor-manual-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.asesor-manual{border:1px solid var(--border);background:rgba(255,255,255,.025);border-radius:14px;padding:14px}.asesor-manual b{font-size:12px;display:block;color:var(--white);margin-bottom:7px}.asesor-manual span{font-size:10px;color:var(--w50);line-height:1.55}.asesor-note{border:1px solid var(--goldbdr);background:var(--golddim);border-radius:14px;padding:14px;font-size:11px;color:var(--w70);line-height:1.7}
+
+/* Perfil del asesor con patrón visual de Lead Vendedores */
+.asesor-perfil-page{padding:28px;max-width:1180px;margin:0 auto;width:100%}
+.perfil-fv-box{width:100%;max-width:980px;margin:0 auto 28px}
+.perfil-fv-header{border-radius:3px 3px 0 0}
+.perfil-fv-body{max-height:none;overflow:visible}
+.perfil-fv-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px}
+.perfil-fv-field{display:flex;flex-direction:column;gap:6px;padding:12px;background:rgba(255,255,255,.018);border-radius:2px}
+.perfil-fv-field.full{grid-column:1/-1}
+.perfil-fv-input{border-color:rgba(255,255,255,.11);background:rgba(0,0,0,.22)}
+.perfil-fv-photo{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center;padding:12px;background:rgba(255,255,255,.018);border-radius:2px}
+.perfil-fv-photo .le-thumb,.perfil-fv-photo .le-thumb-empty{width:78px;height:78px}
+.perfil-fv-locks{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.perfil-fv-actions{border:1px solid var(--goldbdr);border-top:none;background:rgba(8,8,8,.78)}
+.perfil-copy-link{float:right;display:inline-flex;text-decoration:none;background:rgba(74,222,128,.06);color:var(--green);border-color:rgba(74,222,128,.3)}
+@media(max-width:760px){.perfil-fv-grid,.perfil-fv-locks,.perfil-fv-photo{grid-template-columns:1fr}.asesor-perfil-page{padding:18px}.perfil-fv-body{padding-left:18px;padding-right:18px}}
+
 @media(max-width:980px){.asesor-hero,.asesor-two{grid-template-columns:1fr}.asesor-action-grid,.asesor-manual-grid{grid-template-columns:1fr}.asesor-form{grid-template-columns:1fr}.demo-role-switch{display:none}}
 
 </style>
@@ -3410,21 +3427,8 @@ const LABELS = {
   opciones:'Opciones de Compra', reportes:'Reportes'
 };
 
-function goTo(id){
-  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.sb-btn').forEach(b=>b.classList.remove('active'));
+/* goTo final se define al final del archivo para incluir Perfil del Asesor y selector de prueba. */
 
-  const panel = document.getElementById('panel-'+id);
-  if(panel) panel.classList.add('active');
-
-  const navBtn = document.getElementById('nav-'+id);
-  if(navBtn) navBtn.classList.add('active');
-
-  document.getElementById('tb-label').textContent = LABELS[id] || id;
-  if(id === 'administracion') setTimeout(onAdministracionPanelActivate, 60);
-  if(id === 'airtable') setTimeout(onAirtablePanelActivate, 60);
-  if(id === 'hoy') setTimeout(()=>loadHoyData(false), 60);
-}
 
 /* ═══════════════════════════════════════════════════
    RELOJ
@@ -4061,17 +4065,12 @@ let _perfilLoaded = false;
 let perfilState = { recId:null, rec:null };
 
 function buildAsesorPerfilPanel(){
-  return `<div class="panel" id="panel-perfil_asesor"><div class="asesor-body">
-    <section class="asesor-section">
-      <div class="asesor-sec-head">
-        <div>
-          <div class="asesor-sec-title">MI PERFIL DEL <em>ASESOR</em></div>
-          <div class="asesor-sec-sub">Lo primero que configuras al recibir acceso. Editas solo tus datos públicos; administración controla cuenta, estado, puesto, slug y activación.</div>
-        </div>
-        <button class="at-btn" onclick="perfilLoad(true)" title="Recargar">↻ Recargar</button>
-      </div>
-      <div id="perfil-asesor-body"><div class="hoy-empty">Cargando tu perfil…</div></div>
-    </section>
+  return `<div class="panel" id="panel-perfil_asesor"><div class="asesor-body asesor-perfil-page">
+    <div class="ph-head" style="margin-bottom:18px">
+      <div class="ph-eyebrow">Perfil público del asesor</div>
+      <div class="ph-title">MI PERFIL<br><em>OPERATIVO</em></div>
+    </div>
+    <div id="perfil-asesor-body"><div class="hoy-empty">Cargando tu perfil…</div></div>
   </div></div>`;
 }
 
@@ -4108,44 +4107,104 @@ function perfilRender(rec){
   const indep   = !!(rec.fields && rec.fields['Independiente']);
   const activo  = !!(rec.fields && rec.fields['Activo']);
   const puesto  = v('Puesto') || v('Puesto (texto viejo)') || 'Asesor Inmobiliario';
-  const link    = v('Link Captación');
+  const slug    = v('Slug') || SESSION?.slug || '';
+  const link    = v('Link Captación') || (slug ? `https://captacion.vercel.app/?asesor=${encodeURIComponent(slug)}` : '');
+  const cuenta  = v('Cuenta') || v('Cuenta asignada') || v('Inmobiliaria') || v('Inmobiliaria / Cuenta') || v('Cuenta / inmobiliaria / grupo') || SESSION?.empresa || '—';
+  const tipoReal = v('Tipo') || (indep ? 'Asesor independiente' : 'Asesor con inmobiliaria');
+  const estadoReal = v('Estado') || (activo ? 'Activo' : 'Pendiente / Inactivo');
+  const nombre = v('Nombre') || SESSION?.nombre || 'Asesor';
+  const whatsapp = v('Teléfono WhatsApp') || SESSION?.whatsapp || '';
   const fotoThumb = foto.has
-    ? `<img class="le-thumb" src="${_escAttr(foto.thumb||foto.url)}" alt="">`
+    ? `<img class="le-thumb" src="${_escAttr(foto.thumb||foto.url)}" alt="Foto del asesor">`
     : `<div class="le-thumb-empty">＋</div>`;
 
+  const input = (label, field, value, attrs='') => `
+    <div class="perfil-fv-field">
+      <div class="fv-row-k">${_esc(label)}</div>
+      <input class="form-inp perfil-fv-input" data-pf="${_escAttr(field)}" data-orig="${_escAttr(value)}" value="${_escAttr(value)}" ${attrs}>
+    </div>`;
+
+  const textarea = (label, field, value) => `
+    <div class="perfil-fv-field full">
+      <div class="fv-row-k">${_esc(label)}</div>
+      <textarea class="form-inp perfil-fv-input" data-pf="${_escAttr(field)}" data-orig="${_escAttr(value)}" rows="3">${_esc(value)}</textarea>
+    </div>`;
+
+  const lock = (label, value) => `
+    <div class="fv-lock">
+      <div class="fv-lock-k">🔒 ${_esc(label)}</div>
+      <div class="fv-lock-v">${value ? _esc(value) : '—'}</div>
+    </div>`;
+
   body.innerHTML = `
-    <div class="asesor-two">
-      <div class="asesor-form">
-        <div><label class="asesor-label">Nombre</label>
-          <input class="asesor-inp" data-pf="Nombre" data-orig="${_escAttr(v('Nombre'))}" value="${_escAttr(v('Nombre'))}"></div>
-        <div><label class="asesor-label">WhatsApp</label>
-          <input class="asesor-inp" data-pf="Teléfono WhatsApp" data-orig="${_escAttr(v('Teléfono WhatsApp'))}" value="${_escAttr(v('Teléfono WhatsApp'))}" placeholder="Con lada país sin +. Ej: 527779855687"></div>
-        <div><label class="asesor-label">Email</label>
-          <input class="asesor-inp" type="email" data-pf="Email" data-orig="${_escAttr(v('Email'))}" value="${_escAttr(v('Email'))}"></div>
-        <div><label class="asesor-label">Ciudad</label>
-          <select class="asesor-inp" data-pf="Ciudad" data-orig="${_escAttr(ciudadActual)}"><option value="">— Selecciona —</option>${ciudadOpts}</select></div>
-        <div class="full"><label class="asesor-label">Frase</label>
-          <textarea class="asesor-textarea" data-pf="Frase" data-orig="${_escAttr(v('Frase'))}">${_esc(v('Frase'))}</textarea></div>
-        <div class="full"><label class="asesor-label">Pixel ID Meta</label>
-          <input class="asesor-inp" data-pf="Pixel ID Meta" data-orig="${_escAttr(v('Pixel ID Meta'))}" value="${_escAttr(v('Pixel ID Meta'))}"></div>
-        <div class="full"><label class="asesor-label">Foto</label>
-          <div class="le-attach">${fotoThumb}<span class="le-vstatus ${foto.has?'on':'off'}">${foto.has?'Cargada':'Vacía'}</span></div>
-          <input class="asesor-inp" type="file" accept="image/*" data-pf-foto>
-          <div class="le-note">Tu foto se sube desde la intranet a Vercel Blob. Airtable guarda solo el enlace, no el archivo.</div>
+    <div class="fv-box perfil-fv-box">
+      <div class="fv-header perfil-fv-header">
+        <div>
+          <div class="fv-nombre">${_esc(nombre)}</div>
+          <div class="fv-wa">
+            ${whatsapp ? `<span>${_esc(whatsapp)}</span>` : '<span style="color:var(--w30);font-size:11px">Sin WhatsApp</span>'}
+            ${whatsapp ? `<a class="fv-wa-btn" href="${asesorWa(whatsapp, 'Hola, te comparto mi link de captación Método NERI.') }" target="_blank" rel="noopener">↗ WhatsApp</a>` : ''}
+          </div>
+          <div class="fv-meta">
+            <div class="fv-meta-chip">Cuenta <em>${_esc(cuenta)}</em></div>
+            <div class="fv-meta-chip">Puesto <em>${_esc(puesto)}</em></div>
+            <div class="fv-meta-chip">Estado <em>${_esc(estadoReal)}</em></div>
+          </div>
+        </div>
+        <div>
+          <div class="fv-folio-lbl">Link Captación</div>
+          <div class="fv-folio">${slug ? _esc(slug) : '— sin slug —'}</div>
+          ${link ? `<button class="fv-wa-btn perfil-copy-link" style="margin-top:8px" onclick="asesorCopy('${_escAttr(link)}')">Copiar link</button>` : ''}
         </div>
       </div>
-      <div class="asesor-list">
-        <div class="asesor-lock"><small>Cuenta asignada</small><b>${_esc(SESSION?.empresa||'—')}</b></div>
-        <div class="asesor-lock"><small>Tipo</small><b>${indep?'Asesor independiente':'Asesor con inmobiliaria'}</b></div>
-        <div class="asesor-lock"><small>Estado</small><b>${activo?'Activo':'Pendiente / Inactivo'} · lo controla administración</b></div>
-        <div class="asesor-lock"><small>Puesto</small><b>${_esc(puesto)}</b></div>
-        <div class="asesor-lock"><small>Slug oficial</small><b>${_esc(v('Slug')||SESSION?.slug||'—')}</b></div>
-        <div class="asesor-lock"><small>Link Captación</small><b>${link?_esc(link):'Se genera solo con el slug'}</b></div>
+
+      <div class="fv-body perfil-fv-body">
+        <div class="fv-sec">
+          <div class="fv-sec-title"><em>◉</em> Datos públicos editables</div>
+          <div class="le-banner" style="margin-bottom:12px">Estos son los únicos datos que puede editar el asesor. Administración conserva control de cuenta, tipo, estado, puesto, slug y servicios.</div>
+          <div class="perfil-fv-grid">
+            ${input('Nombre','Nombre',v('Nombre'))}
+            ${input('WhatsApp','Teléfono WhatsApp',v('Teléfono WhatsApp'),'placeholder="Con lada país. Ej: 527779855687"')}
+            ${input('Email','Email',v('Email'),'type="email"')}
+            <div class="perfil-fv-field">
+              <div class="fv-row-k">Ciudad</div>
+              <select class="form-inp perfil-fv-input" data-pf="Ciudad" data-orig="${_escAttr(ciudadActual)}"><option value="">— Selecciona —</option>${ciudadOpts}</select>
+            </div>
+            ${textarea('Frase pública','Frase',v('Frase'))}
+            ${input('Pixel ID Meta','Pixel ID Meta',v('Pixel ID Meta'))}
+          </div>
+        </div>
+
+        <div class="fv-sec">
+          <div class="fv-sec-title"><em>▣</em> Foto pública</div>
+          <div class="perfil-fv-photo">
+            <div class="le-attach">${fotoThumb}<span class="le-vstatus ${foto.has?'on':'off'}">${foto.has?'Cargada':'Vacía'}</span></div>
+            <div class="perfil-fv-photo-copy">
+              <input class="form-inp perfil-fv-input" type="file" accept="image/*" data-pf-foto>
+              <div class="le-note">La foto se sube desde la intranet a Vercel Blob mediante <b>/api/upload-documento</b>. Airtable guarda solo el enlace final.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="fv-sec">
+          <div class="fv-sec-title"><em>🔒</em> Administración / solo lectura</div>
+          <div class="le-banner" style="margin-bottom:10px">Campos bloqueados. Si algo está mal, lo corrige administración desde Administración Base.</div>
+          <div class="perfil-fv-locks">
+            ${lock('Cuenta asignada', cuenta)}
+            ${lock('Tipo', tipoReal)}
+            ${lock('Estado / activación', `${estadoReal} · lo controla administración`)}
+            ${lock('Puesto', puesto)}
+            ${lock('Slug oficial', slug)}
+            ${lock('Link Captación', link || 'Se genera solo con el slug')}
+          </div>
+        </div>
       </div>
-    </div>
-    <div style="margin-top:18px;display:flex;gap:12px;align-items:center;flex-wrap:wrap">
-      <button class="asesor-gold-btn" id="perfil-save-btn" onclick="perfilSave()">Guardar perfil público</button>
-      <span id="perfil-save-msg" style="font-size:13px;color:var(--w50)"></span>
+
+      <div class="fv-actions perfil-fv-actions">
+        <span id="perfil-save-msg" style="font-size:12px;color:var(--w50);margin-right:auto"></span>
+        <button class="btn btn-ghost" onclick="perfilLoad(true)">Recargar</button>
+        <button class="btn btn-primary" id="perfil-save-btn" onclick="perfilSave()">Guardar perfil público</button>
+      </div>
     </div>`;
 }
 
