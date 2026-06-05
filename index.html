@@ -1906,27 +1906,46 @@ function adminTipoCorto(tipo){
 function adminSeedData(){
   return {
     cuentas:[
-      { id:'cta-c21-haus', nombre:'Century 21 Haus · Cuernavaca', tipo:'Inmobiliaria', estado:'Pendiente', ciudad:'Cuernavaca', responsable:'Dirección comercial', logo:'', limiteAsesores:10, notas:'Ejemplo de cuenta inmobiliaria. Administración controla estado, cupo, permisos base y branding.' },
-      { id:'cta-diana-independiente', nombre:'Diana captación inteligente', tipo:'Asesor independiente', estado:'Activo', ciudad:'Cuernavaca', responsable:'Diana Salgado', logo:'CASITA_METODO_NERI', limiteAsesores:1, notas:'Ejemplo de asesor independiente. No usa logo inmobiliaria; usa casita automática Método NERI.' },
-      { id:'cta-metodo-neri', nombre:'Método NERI · Prueba Admin', tipo:'Grupo de asesores sin inmobiliaria', estado:'Activo', ciudad:'Cuernavaca', responsable:'Enrique Neri', logo:'', limiteAsesores:5, notas:'Cuenta grupal chica. Máximo 5 asesores/subcuentas.' },
+      { id:'cta-c21-haus-v10', nombre:'Century 21 Haus · Cuernavaca', tipo:'Inmobiliaria', estado:'Activo', ciudad:'Cuernavaca', responsable:'Alejandra Dirección Comercial', director:'Diego Dirección', whatsappDirector:'7771110001', emailDirector:'diego@c21haus.mx', logo:'', limiteAsesores:10, plan:'Inmobiliaria 10 asesores', notas:'Ejemplo inmobiliaria activa. Paquete de 10 usuarios TOTAL: director, gerente y asesores cuentan dentro del mismo cupo.', makeUrl:'https://make.com/', airtableUrl:'https://airtable.com/', intranetUrl:'https://intranet-metodo-neri.vercel.app/', soporteNotas:'Revisar escenarios Make, base Airtable y acceso a intranet de esta cuenta.' },
+      { id:'cta-inmo-norte-v10', nombre:'Inmobiliaria Norte · Prueba', tipo:'Inmobiliaria', estado:'Pendiente', ciudad:'Cuernavaca', responsable:'Laura Administración', director:'Laura Montes', whatsappDirector:'7772220002', emailDirector:'laura@inmonorte.mx', logo:'', limiteAsesores:15, plan:'Inmobiliaria 15 asesores', notas:'Ejemplo pendiente para validar alerta y activación desde ficha.', makeUrl:'https://make.com/', airtableUrl:'https://airtable.com/', intranetUrl:'', soporteNotas:'' },
+      { id:'cta-inmo-del-sol-v10', nombre:'Inmobiliaria del Sol · Jiutepec', tipo:'Inmobiliaria', estado:'Activo', ciudad:'Jiutepec', responsable:'Gerencia Comercial', director:'Roberto Silva', whatsappDirector:'7773330003', emailDirector:'roberto@inmobiliariadelsol.mx', logo:'', limiteAsesores:20, plan:'Inmobiliaria 20 asesores', notas:'Ejemplo activo con cupo mayor para probar soporte.', makeUrl:'', airtableUrl:'https://airtable.com/', intranetUrl:'', soporteNotas:'' },
+      { id:'cta-diana-v10', nombre:'Diana captación inteligente', tipo:'Asesor independiente', estado:'Activo', ciudad:'Cuernavaca', responsable:'Diana Salgado', director:'', whatsappDirector:'7774440004', emailDirector:'diana@correo.com', logo:'CASITA_METODO_NERI', limiteAsesores:1, plan:'Independiente · 1 asesor', notas:'Ejemplo independiente. Usa casita Método NERI automática.', makeUrl:'https://make.com/', airtableUrl:'https://airtable.com/', intranetUrl:'', soporteNotas:'' },
+      { id:'cta-mario-v10', nombre:'Mario Broker Independiente', tipo:'Asesor independiente', estado:'Pendiente', ciudad:'Temixco', responsable:'Mario Rivas', director:'', whatsappDirector:'7775550005', emailDirector:'mario@correo.com', logo:'CASITA_METODO_NERI', limiteAsesores:1, plan:'Independiente · 1 asesor', notas:'Ejemplo pendiente.', makeUrl:'', airtableUrl:'', intranetUrl:'', soporteNotas:'' },
+      { id:'cta-sofia-v10', nombre:'Sofía Bienes Raíces', tipo:'Asesor independiente', estado:'Activo', ciudad:'Cuernavaca', responsable:'Sofía Herrera', director:'', whatsappDirector:'7776660006', emailDirector:'sofia@correo.com', logo:'CASITA_METODO_NERI', limiteAsesores:1, plan:'Independiente · 1 asesor', notas:'Ejemplo activo.', makeUrl:'', airtableUrl:'', intranetUrl:'', soporteNotas:'' },
+      { id:'cta-grupo-zona-norte-v10', nombre:'Grupo Zona Norte', tipo:'Grupo de asesores sin inmobiliaria', estado:'Activo', ciudad:'Cuernavaca', responsable:'Enrique Neri', director:'Enrique Neri', whatsappDirector:'7779855687', emailDirector:'enrique@metodoneri.com', logo:'', limiteAsesores:5, plan:'Grupo sin inmobiliaria · 5 asesores', notas:'Ejemplo grupo chico máximo 5 usuarios.', makeUrl:'https://make.com/', airtableUrl:'https://airtable.com/', intranetUrl:'', soporteNotas:'' },
+      { id:'cta-grupo-diamante-v10', nombre:'Grupo Diamante Morelos', tipo:'Grupo de asesores sin inmobiliaria', estado:'Pendiente', ciudad:'Cuernavaca', responsable:'Paola Ruiz', director:'Paola Ruiz', whatsappDirector:'7777770007', emailDirector:'paola@grupo.mx', logo:'', limiteAsesores:5, plan:'Grupo sin inmobiliaria · 5 asesores', notas:'Ejemplo grupo pendiente.', makeUrl:'', airtableUrl:'', intranetUrl:'', soporteNotas:'' },
+      { id:'cta-grupo-sur-v10', nombre:'Grupo Comercial Sur', tipo:'Grupo de asesores sin inmobiliaria', estado:'Activo', ciudad:'Xochitepec', responsable:'Carlos Medina', director:'Carlos Medina', whatsappDirector:'7778880008', emailDirector:'carlos@grupo.mx', logo:'', limiteAsesores:5, plan:'Grupo sin inmobiliaria · 5 asesores', notas:'Ejemplo grupo activo.', makeUrl:'', airtableUrl:'', intranetUrl:'', soporteNotas:'' }
     ],
     usuarios:[
-      {
-        id:'usr-c21-director', cuentaId:'cta-c21-haus', nombre:'Director pendiente', whatsapp:'', email:'', foto:'', frase:'', ciudad:'Cuernavaca', pixel:'',
-        tipo:'Inmobiliaria', estado:'Pendiente', puesto:'Director', slugSugerido:'', slugOficial:'', permisos:[...ADMIN_DEFAULT_PERMS_ORG]
-      },
-      {
-        id:'usr-diana-salgado', cuentaId:'cta-diana-independiente', nombre:'Diana Salgado', whatsapp:'', email:'', foto:'', frase:'Te ayudo a preparar tu venta con orden.', ciudad:'Cuernavaca', pixel:'',
-        tipo:'Asesor independiente', estado:'Activo', puesto:'Asesor independiente', slugSugerido:'diana-salgado', slugOficial:'diana-salgado', permisos:[...ADMIN_DEFAULT_PERMS_INDEPENDIENTE]
-      },
-      {
-        id:'usr-enrique-neri', cuentaId:'cta-metodo-neri', nombre:'Enrique Neri', whatsapp:'527779855687', email:'', foto:'', frase:'El lead es consecuencia de una gestión de calidad.', ciudad:'Cuernavaca', pixel:'1308747473990434',
-        tipo:'Grupo de asesores sin inmobiliaria', estado:'Activo', puesto:'Líder de grupo', slugSugerido:'enrique-neri', slugOficial:'enrique-neri', permisos:[...ADMIN_DEFAULT_PERMS_ORG]
-      }
+      { id:'usr-c21-dir-v10', cuentaId:'cta-c21-haus-v10', nombre:'Diego Dirección', whatsapp:'7771110001', email:'diego@c21haus.mx', foto:'', frase:'Dirección comercial.', ciudad:'Cuernavaca', pixel:'', tipo:'Inmobiliaria', estado:'Activo', puesto:'Director', slugSugerido:'diego-direccion', slugOficial:'diego-direccion', permisos:adminV9PermsOrg() },
+      { id:'usr-c21-ger-v10', cuentaId:'cta-c21-haus-v10', nombre:'Ale Gerencia', whatsapp:'7771110002', email:'ale@c21haus.mx', foto:'', frase:'Gerencia operativa.', ciudad:'Cuernavaca', pixel:'', tipo:'Inmobiliaria', estado:'Activo', puesto:'Gerente', slugSugerido:'ale-gerencia', slugOficial:'ale-gerencia', permisos:adminV9PermsOrg() },
+      { id:'usr-c21-ase-01-v10', cuentaId:'cta-c21-haus-v10', nombre:'Diana Asesora', whatsapp:'7771110003', email:'diana@c21haus.mx', foto:'', frase:'Te ayudo a vender con orden.', ciudad:'Cuernavaca', pixel:'', tipo:'Inmobiliaria', estado:'Activo', puesto:'Asesor', slugSugerido:'diana-asesora', slugOficial:'diana-asesora', permisos:adminV9PermsOrg() },
+      { id:'usr-c21-ase-02-v10', cuentaId:'cta-c21-haus-v10', nombre:'Carlos Asesor', whatsapp:'7771110004', email:'carlos@c21haus.mx', foto:'', frase:'Seguimiento claro para propietarios.', ciudad:'Cuernavaca', pixel:'', tipo:'Inmobiliaria', estado:'Activo', puesto:'Asesor', slugSugerido:'carlos-asesor', slugOficial:'carlos-asesor', permisos:adminV9PermsOrg() },
+      { id:'usr-c21-ase-03-v10', cuentaId:'cta-c21-haus-v10', nombre:'Mariana Asesora', whatsapp:'7771110005', email:'mariana@c21haus.mx', foto:'', frase:'Venta con estrategia.', ciudad:'Cuernavaca', pixel:'', tipo:'Inmobiliaria', estado:'Activo', puesto:'Asesor', slugSugerido:'mariana-asesora', slugOficial:'mariana-asesora', permisos:adminV9PermsOrg() },
+      { id:'usr-c21-ase-04-v10', cuentaId:'cta-c21-haus-v10', nombre:'Luis Asesor', whatsapp:'7771110006', email:'luis@c21haus.mx', foto:'', frase:'Asesoría inmobiliaria simple.', ciudad:'Cuernavaca', pixel:'', tipo:'Inmobiliaria', estado:'Activo', puesto:'Asesor', slugSugerido:'luis-asesor', slugOficial:'luis-asesor', permisos:adminV9PermsOrg() },
+      { id:'usr-c21-ase-05-v10', cuentaId:'cta-c21-haus-v10', nombre:'Sofía Asesora', whatsapp:'7771110007', email:'sofia@c21haus.mx', foto:'', frase:'Orden y claridad.', ciudad:'Cuernavaca', pixel:'', tipo:'Inmobiliaria', estado:'Activo', puesto:'Asesor', slugSugerido:'sofia-asesora-c21', slugOficial:'sofia-asesora-c21', permisos:adminV9PermsOrg() },
+      { id:'usr-c21-ase-06-v10', cuentaId:'cta-c21-haus-v10', nombre:'Fernando Asesor', whatsapp:'7771110008', email:'fernando@c21haus.mx', foto:'', frase:'Acompañamiento comercial.', ciudad:'Cuernavaca', pixel:'', tipo:'Inmobiliaria', estado:'Activo', puesto:'Asesor', slugSugerido:'fernando-asesor', slugOficial:'fernando-asesor', permisos:adminV9PermsOrg() },
+      { id:'usr-c21-ase-07-v10', cuentaId:'cta-c21-haus-v10', nombre:'Paola Asesora', whatsapp:'7771110009', email:'paola@c21haus.mx', foto:'', frase:'Captación con método.', ciudad:'Cuernavaca', pixel:'', tipo:'Inmobiliaria', estado:'Activo', puesto:'Asesor', slugSugerido:'paola-asesora', slugOficial:'paola-asesora', permisos:adminV9PermsOrg() },
+      { id:'usr-c21-ase-08-v10', cuentaId:'cta-c21-haus-v10', nombre:'Andrés Asesor', whatsapp:'7771110010', email:'andres@c21haus.mx', foto:'', frase:'Atención premium.', ciudad:'Cuernavaca', pixel:'', tipo:'Inmobiliaria', estado:'Inactivo', puesto:'Asesor', slugSugerido:'andres-asesor-c21', slugOficial:'andres-asesor-c21', permisos:adminV9PermsOrg() },
+      { id:'usr-norte-dir-v10', cuentaId:'cta-inmo-norte-v10', nombre:'Laura Montes', whatsapp:'7772220002', email:'laura@inmonorte.mx', foto:'', frase:'Dirección.', ciudad:'Cuernavaca', pixel:'', tipo:'Inmobiliaria', estado:'Pendiente', puesto:'Director', slugSugerido:'laura-montes', slugOficial:'laura-montes', permisos:adminV9PermsOrg() },
+      { id:'usr-norte-ger-v10', cuentaId:'cta-inmo-norte-v10', nombre:'Hugo Gerente', whatsapp:'7772220004', email:'hugo@inmonorte.mx', foto:'', frase:'Gerencia.', ciudad:'Cuernavaca', pixel:'', tipo:'Inmobiliaria', estado:'Pendiente', puesto:'Gerente', slugSugerido:'hugo-gerente', slugOficial:'hugo-gerente', permisos:adminV9PermsOrg() },
+      { id:'usr-norte-ase-v10', cuentaId:'cta-inmo-norte-v10', nombre:'Andrés Asesor', whatsapp:'7772220003', email:'andres@inmonorte.mx', foto:'', frase:'Asesoría clara.', ciudad:'Cuernavaca', pixel:'', tipo:'Inmobiliaria', estado:'Pendiente', puesto:'Asesor', slugSugerido:'andres-asesor', slugOficial:'andres-asesor', permisos:adminV9PermsOrg() },
+      { id:'usr-sol-dir-v10', cuentaId:'cta-inmo-del-sol-v10', nombre:'Roberto Silva', whatsapp:'7773330003', email:'roberto@inmobiliariadelsol.mx', foto:'', frase:'Dirección inmobiliaria.', ciudad:'Jiutepec', pixel:'', tipo:'Inmobiliaria', estado:'Activo', puesto:'Director', slugSugerido:'roberto-silva', slugOficial:'roberto-silva', permisos:adminV9PermsOrg() },
+      { id:'usr-sol-ger-v10', cuentaId:'cta-inmo-del-sol-v10', nombre:'Mónica Gerente', whatsapp:'7773330005', email:'monica@inmobiliariadelsol.mx', foto:'', frase:'Gerencia.', ciudad:'Jiutepec', pixel:'', tipo:'Inmobiliaria', estado:'Activo', puesto:'Gerente', slugSugerido:'monica-gerente', slugOficial:'monica-gerente', permisos:adminV9PermsOrg() },
+      { id:'usr-sol-ase-v10', cuentaId:'cta-inmo-del-sol-v10', nombre:'Mariana Asesora', whatsapp:'7773330004', email:'mariana@inmobiliariadelsol.mx', foto:'', frase:'Venta con estrategia.', ciudad:'Jiutepec', pixel:'', tipo:'Inmobiliaria', estado:'Activo', puesto:'Asesor', slugSugerido:'mariana-asesora', slugOficial:'mariana-asesora', permisos:adminV9PermsOrg() },
+      { id:'usr-diana-v10', cuentaId:'cta-diana-v10', nombre:'Diana Salgado', whatsapp:'7774440004', email:'diana@correo.com', foto:'', frase:'Te ayudo a preparar tu venta con orden.', ciudad:'Cuernavaca', pixel:'', tipo:'Asesor independiente', estado:'Activo', puesto:'Asesor independiente', slugSugerido:'diana-salgado', slugOficial:'diana-salgado', permisos:adminV9PermsInd() },
+      { id:'usr-mario-v10', cuentaId:'cta-mario-v10', nombre:'Mario Rivas', whatsapp:'7775550005', email:'mario@correo.com', foto:'', frase:'Acompañamiento inmobiliario simple.', ciudad:'Temixco', pixel:'', tipo:'Asesor independiente', estado:'Pendiente', puesto:'Asesor independiente', slugSugerido:'mario-rivas', slugOficial:'mario-rivas', permisos:adminV9PermsInd() },
+      { id:'usr-sofia-v10', cuentaId:'cta-sofia-v10', nombre:'Sofía Herrera', whatsapp:'7776660006', email:'sofia@correo.com', foto:'', frase:'Orden, claridad y seguimiento.', ciudad:'Cuernavaca', pixel:'', tipo:'Asesor independiente', estado:'Activo', puesto:'Asesor independiente', slugSugerido:'sofia-herrera', slugOficial:'sofia-herrera', permisos:adminV9PermsInd() },
+      { id:'usr-grupo-norte-lider-v10', cuentaId:'cta-grupo-zona-norte-v10', nombre:'Enrique Neri', whatsapp:'7779855687', email:'enrique@metodoneri.com', foto:'', frase:'Sistema operativo inmobiliario.', ciudad:'Cuernavaca', pixel:'', tipo:'Grupo de asesores sin inmobiliaria', estado:'Activo', puesto:'Líder de grupo', slugSugerido:'enrique-neri', slugOficial:'enrique-neri', permisos:adminV9PermsOrg() },
+      { id:'usr-grupo-norte-ase-v10', cuentaId:'cta-grupo-zona-norte-v10', nombre:'Valeria Asesora', whatsapp:'7779855688', email:'valeria@grupo.mx', foto:'', frase:'Captación con método.', ciudad:'Cuernavaca', pixel:'', tipo:'Grupo de asesores sin inmobiliaria', estado:'Activo', puesto:'Asesor', slugSugerido:'valeria-asesora', slugOficial:'valeria-asesora', permisos:adminV9PermsOrg() },
+      { id:'usr-grupo-norte-ase2-v10', cuentaId:'cta-grupo-zona-norte-v10', nombre:'Miguel Asesor', whatsapp:'7779855689', email:'miguel@grupo.mx', foto:'', frase:'Seguimiento con método.', ciudad:'Cuernavaca', pixel:'', tipo:'Grupo de asesores sin inmobiliaria', estado:'Activo', puesto:'Asesor', slugSugerido:'miguel-asesor', slugOficial:'miguel-asesor', permisos:adminV9PermsOrg() },
+      { id:'usr-grupo-diamante-lider-v10', cuentaId:'cta-grupo-diamante-v10', nombre:'Paola Ruiz', whatsapp:'7777770007', email:'paola@grupo.mx', foto:'', frase:'Equipo comercial.', ciudad:'Cuernavaca', pixel:'', tipo:'Grupo de asesores sin inmobiliaria', estado:'Pendiente', puesto:'Líder de grupo', slugSugerido:'paola-ruiz', slugOficial:'paola-ruiz', permisos:adminV9PermsOrg() },
+      { id:'usr-grupo-diamante-ase-v10', cuentaId:'cta-grupo-diamante-v10', nombre:'Iván Asesor', whatsapp:'7777770008', email:'ivan@grupo.mx', foto:'', frase:'Asesoría de grupo.', ciudad:'Cuernavaca', pixel:'', tipo:'Grupo de asesores sin inmobiliaria', estado:'Pendiente', puesto:'Asesor', slugSugerido:'ivan-asesor', slugOficial:'ivan-asesor', permisos:adminV9PermsOrg() },
+      { id:'usr-grupo-sur-lider-v10', cuentaId:'cta-grupo-sur-v10', nombre:'Carlos Medina', whatsapp:'7778880008', email:'carlos@grupo.mx', foto:'', frase:'Zona sur con seguimiento.', ciudad:'Xochitepec', pixel:'', tipo:'Grupo de asesores sin inmobiliaria', estado:'Activo', puesto:'Líder de grupo', slugSugerido:'carlos-medina', slugOficial:'carlos-medina', permisos:adminV9PermsOrg() },
+      { id:'usr-grupo-sur-ase-v10', cuentaId:'cta-grupo-sur-v10', nombre:'Ana Asesora', whatsapp:'7778880009', email:'ana@grupo.mx', foto:'', frase:'Atención y orden.', ciudad:'Xochitepec', pixel:'', tipo:'Grupo de asesores sin inmobiliaria', estado:'Activo', puesto:'Asesor', slugSugerido:'ana-asesora', slugOficial:'ana-asesora', permisos:adminV9PermsOrg() }
     ]
   };
 }
-
 function adminLoad(){
   try{
     const raw = localStorage.getItem(ADMIN_STORAGE_KEY);
@@ -4004,11 +4023,11 @@ function showToast(msg){
 
 
 /* ═══════════════════════════════════════════════════
-   ADMINISTRACIÓN BASE V9 — Directorios puros + ficha única de soporte
+   ADMINISTRACIÓN BASE V10 — Directorios puros + ficha única de soporte
    Regla de oro: al entrar a Inmobiliarias solo se ven inmobiliarias.
    La creación solo vive en + Crear nueva intranet.
 ═══════════════════════════════════════════════════ */
-const ADMIN_V9_STORAGE_KEY = 'neri_admin_base_v9_ficha_unica_directorios';
+const ADMIN_V9_STORAGE_KEY = 'neri_admin_base_v10_usuarios_soporte_tecnico';
 const ADMIN_V9_PLANES_INMOBILIARIA = [
   {value:'Inmobiliaria 10 asesores', label:'Inmobiliaria · 10 asesores', limite:10},
   {value:'Inmobiliaria 15 asesores', label:'Inmobiliaria · 15 asesores', limite:15},
@@ -4115,6 +4134,10 @@ function adminV9Normalize(){
       c.limiteAsesores = 1; c.plan = ADMIN_V9_PLANES.independiente; c.logo = 'CASITA_METODO_NERI';
     }
     c.servicios = Array.isArray(c.servicios) && c.servicios.length ? c.servicios : adminV9DefaultServices(c.tipo);
+    c.makeUrl = c.makeUrl || '';
+    c.airtableUrl = c.airtableUrl || '';
+    c.intranetUrl = c.intranetUrl || '';
+    c.soporteNotas = c.soporteNotas || '';
   });
   adminState.data.usuarios.forEach(u=>{
     const c = adminCuenta(u.cuentaId);
@@ -4129,7 +4152,7 @@ function adminV9Normalize(){
 function adminV9DefaultServices(tipo){ return tipo === 'Asesor independiente' ? adminV9PermsInd() : adminV9PermsOrg(); }
 function adminCuentaUsers(cuentaId){ return (adminState.data?.usuarios||[]).filter(u=>u.cuentaId===cuentaId); }
 function adminCuentaMaxUsers(c){ if(!c) return 0; if(c.tipo==='Inmobiliaria') return [10,15,20,30].includes(Number(c.limiteAsesores)) ? Number(c.limiteAsesores) : 10; if(c.tipo==='Grupo de asesores sin inmobiliaria') return 5; return 1; }
-function adminCuentaUsage(c){ if(!c) return 0; if(c.tipo==='Asesor independiente') return adminCuentaUsers(c.id).length ? 1 : 0; return adminCuentaUsers(c.id).filter(u=>u.puesto==='Asesor').length; }
+function adminCuentaUsage(c){ if(!c) return 0; return adminCuentaUsers(c.id).length; }
 function adminCanAddUser(c){ return adminCuentaUsage(c) < adminCuentaMaxUsers(c); }
 function adminV9ActiveCuentas(tipo){ return adminState.data.cuentas.filter(c=>c.tipo===tipo && c.estado==='Activo').length; }
 function adminV9ActiveUsers(){ return adminState.data.usuarios.filter(u=>u.estado==='Activo').length; }
@@ -4222,7 +4245,7 @@ function adminAccountCard(c){
   const users = adminCuentaUsers(c.id);
   const activeUsers = users.filter(u=>u.estado==='Activo').length;
   const usage = adminCuentaUsage(c), limit = adminCuentaMaxUsers(c);
-  const detail = c.tipo === 'Asesor independiente' ? `Usuario único · ${adminLink(users[0]||{})}` : `Asesores usados ${usage}/${limit} · Usuarios activos ${activeUsers}/${users.length}`;
+  const detail = c.tipo === 'Asesor independiente' ? `Usuario único · ${adminLink(users[0]||{})}` : `Usuarios usados ${usage}/${limit} · Activos ${activeUsers}/${users.length}`;
   return `<div class="admin-v9-account-card" onclick="adminOpenCuenta('${c.id}')">
     <div class="ar-top"><div><div class="admin-v9-account-name">${adminEsc(c.nombre)}</div><div class="admin-v9-account-meta">${adminEsc(c.ciudad||'Sin ciudad')} · ${adminEsc(adminV9PlanLabel(c))}<br>${adminEsc(detail)}</div></div>${adminBadge(c.estado)}</div>
     <div class="admin-v9-account-actions"><span class="admin-v9-resolver">Abrir ficha →</span><span class="ar-meta">Responsable: ${adminEsc(c.responsable||'Pendiente')}</span></div>
@@ -4236,35 +4259,31 @@ function adminRenderCuentaDetalle(){
   const selectedUser = adminUsuario(adminState.selectedUsuarioId) || users[0] || null;
   const usage = adminCuentaUsage(c), limit = adminCuentaMaxUsers(c), canAdd = adminCanAddUser(c);
   return `<div class="admin-v9-ficha">
-    <div class="admin-v9-ficha-head"><div><div class="admin-v9-ficha-title">FICHA ÚNICA · <em>${adminEsc(c.nombre)}</em></div><div class="admin-v9-ficha-sub">Aquí se edita la cuenta, servicios y soporte. Lo demás es informativo para resolver problemas rápido.</div></div><div class="admin-v9-ficha-actions"><button class="admin-v9-ghost" onclick="adminSetView('${adminV9ViewForTipo(c.tipo)}')">← Volver</button><button class="admin-v9-create" onclick="adminV9EnterSystem('${c.id}')">Entrar a su sistema</button></div></div>
+    <div class="admin-v9-ficha-head"><div><div class="admin-v9-ficha-title">FICHA ÚNICA · <em>${adminEsc(c.nombre)}</em></div><div class="admin-v9-ficha-sub">Una sola ficha para editar cuenta, servicios, usuarios y soporte técnico. Director, gerente y asesores cuentan como usuarios del paquete.</div></div><div class="admin-v9-ficha-actions"><button class="admin-v9-ghost" onclick="adminSetView('${adminV9ViewForTipo(c.tipo)}')">← Volver</button></div></div>
     <div class="admin-v9-ficha-body">
-      <div class="admin-v9-panel"><div class="admin-v9-panel-head"><div><div class="admin-v9-panel-title">CONTROL <em>EDITABLE</em></div><div class="admin-card-sub">Estado, paquete y servicios</div></div>${adminBadge(c.estado)}</div><div class="admin-v9-panel-body">${adminCuentaControlForm(c)}</div></div>
-      <div class="admin-v9-panel"><div class="admin-v9-panel-head"><div><div class="admin-v9-panel-title">CONTENIDO DE <em>LA CUENTA</em></div><div class="admin-card-sub">Usuarios, información y soporte</div></div>${c.tipo==='Asesor independiente'?'':`<button class="btn btn-primary" onclick="adminV9AddUser('${c.id}')" ${!canAdd?'disabled':''}>+ Preparar subcuenta</button>`}</div><div class="admin-v9-panel-body">
+      <div class="admin-v9-panel"><div class="admin-v9-panel-head"><div><div class="admin-v9-panel-title">FICHA <em>EDITABLE</em></div><div class="admin-card-sub">Cuenta, paquete, servicios y conexiones</div></div>${adminBadge(c.estado)}</div><div class="admin-v9-panel-body">${adminCuentaControlForm(c)}</div></div>
+      <div class="admin-v9-panel"><div class="admin-v9-panel-head"><div><div class="admin-v9-panel-title">USUARIOS <em>DEL PAQUETE</em></div><div class="admin-card-sub">Lista real de usuarios: director, gerente y asesores</div></div>${c.tipo==='Asesor independiente'?'':`<button class="btn btn-primary" onclick="adminV9AddUser('${c.id}')" ${!canAdd?'disabled':''}>+ Simular registro</button>`}</div><div class="admin-v9-panel-body">
         <div class="admin-v9-info-grid">
           <div class="admin-v9-info"><kbd>Tipo</kbd><strong>${adminEsc(c.tipo)}</strong></div>
           <div class="admin-v9-info"><kbd>Paquete</kbd><strong>${adminEsc(adminV9PlanLabel(c))}</strong></div>
-          <div class="admin-v9-info"><kbd>Cupo vista admin</kbd><strong class="gold">${usage} / ${limit}</strong></div>
+          <div class="admin-v9-info"><kbd>Usuarios usados</kbd><strong class="gold">${usage} / ${limit}</strong></div>
           <div class="admin-v9-info"><kbd>Usuarios activos</kbd><strong>${users.filter(u=>u.estado==='Activo').length} / ${users.length}</strong></div>
           <div class="admin-v9-info"><kbd>Director / líder</kbd><strong>${adminEsc(c.director || c.responsable || 'Pendiente')}</strong></div>
           <div class="admin-v9-info"><kbd>Ciudad</kbd><strong>${adminEsc(c.ciudad || 'Pendiente')}</strong></div>
         </div>
         <div style="height:14px"></div>
-        ${!canAdd && c.tipo!=='Asesor independiente' ? `<div class="admin-v9-form-note">Cupo lleno: esta cuenta tiene ${usage} de ${limit} asesores autorizados.</div>` : ''}
+        ${!canAdd && c.tipo!=='Asesor independiente' ? `<div class="admin-v9-form-note">Cupo lleno: esta cuenta tiene ${usage} de ${limit} usuarios autorizados. Director y gerente también cuentan.</div>` : ''}
         ${adminUsuariosCuentaListV9(c)}
         ${selectedUser ? adminUsuarioSoporteDetalle(selectedUser) : ''}
         <div style="height:14px"></div>
-        <div class="admin-v9-support-grid">
-          <div class="admin-v9-support"><b>Problema de acceso</b>Selecciona al usuario, revisa estado y restablece acceso en la siguiente etapa real.</div>
-          <div class="admin-v9-support"><b>Problema de link</b>Copia el Link Captación generado desde el slug automático del usuario.</div>
-          <div class="admin-v9-support"><b>Problema de permisos</b>Activa o desactiva servicios desde esta misma ficha.</div>
-        </div>
+        ${adminSoporteTecnicoCuentaV10(c)}
       </div></div>
     </div>
   </div>`;
 }
 function adminCuentaControlForm(c){
   const isInd = c.tipo === 'Asesor independiente', isInmo = c.tipo === 'Inmobiliaria';
-  const plan = isInmo ? adminSelectObjects('Paquete / cupo contratado','cuenta-limite-v9',String(adminCuentaMaxUsers(c)),ADMIN_V9_PLANES_INMOBILIARIA.map(p=>({value:String(p.limite),label:p.label}))) : `<div class="form-group"><label>Paquete</label><input class="form-inp" value="${adminEsc(adminV9PlanLabel(c))}" disabled></div>`;
+  const plan = isInmo ? adminSelectObjects('Paquete / usuarios autorizados','cuenta-limite-v9',String(adminCuentaMaxUsers(c)),ADMIN_V9_PLANES_INMOBILIARIA.map(p=>({value:String(p.limite),label:p.label.replace('asesores','usuarios')}))) : `<div class="form-group"><label>Paquete</label><input class="form-inp" value="${adminEsc(adminV9PlanLabel(c))}" disabled></div>`;
   const logo = isInd ? `<div class="admin-v9-form-note"><b>Asesor independiente:</b> usa casita Método NERI automática. No se carga logo inmobiliaria.</div>` : adminUploadField(isInmo?'Logo inmobiliaria':'Logo de grupo','cuenta-logo-v9',c.logo,'Sube archivo. No pegar URL.');
   const checks = ADMIN_V9_SERVICIOS_CUENTA.map(p=>{
     const blocked = isInd && p.id==='branding_cuenta';
@@ -4282,6 +4301,10 @@ function adminCuentaControlForm(c){
       ${isInd ? '' : adminField('WhatsApp director / líder','cuenta-whatsapp-v9',c.whatsappDirector||'')}
       ${isInd ? '' : adminField('Email director / líder','cuenta-email-v9',c.emailDirector||'')}
       <div class="form-group full">${logo}</div>
+      ${adminField('Link directo Make','cuenta-make-v10',c.makeUrl||'')}
+      ${adminField('Link directo Airtable','cuenta-airtable-v10',c.airtableUrl||'')}
+      ${adminField('Link directo Intranet de la cuenta','cuenta-intranet-v10',c.intranetUrl||'')}
+      ${adminArea('Notas soporte técnico','cuenta-soporte-notas-v10',c.soporteNotas||'','full')}
       ${adminArea('Notas administrativas','cuenta-notas-v9',c.notas,'full')}
     </div>
     <div><div class="admin-card-sub" style="margin-bottom:8px">Servicios activos de esta cuenta</div><div class="admin-v9-checks">${checks}</div></div>
@@ -4291,33 +4314,50 @@ function adminCuentaControlForm(c){
 function adminUsuariosCuentaListV9(c){
   const users = adminCuentaUsers(c.id);
   if(!users.length) return `<div class="admin-v9-empty"><b>Sin usuarios</b>Esta cuenta todavía no tiene perfiles preparados.</div>`;
-  return `<div class="admin-v9-users">${users.map(u=>`<div class="admin-v9-user-row ${u.id===adminState.selectedUsuarioId?'active':''}" onclick="adminOpenUsuarioV9('${u.id}')"><div><div class="admin-v9-user-name">${adminEsc(u.nombre)}</div><div class="admin-v9-user-meta">${adminEsc(u.puesto||'Sin puesto')} · ${adminEsc(u.email||'Sin email')}<br>${adminEsc(adminLink(u))}</div></div><div class="admin-v9-user-actions">${adminBadge(u.estado)}<button class="admin-v9-smallbtn" onclick="event.stopPropagation();adminV9CopyUserLink('${u.id}')">Copiar link</button><button class="admin-v9-smallbtn" onclick="event.stopPropagation();adminV9ToggleUser('${u.id}')">${u.estado==='Inactivo'?'Activar':'Desactivar'}</button><button class="admin-v9-smallbtn red" onclick="event.stopPropagation();adminV9DeleteUser('${u.id}')">Baja</button></div></div>`).join('')}</div>`;
+  return `<div class="admin-card-sub" style="margin-bottom:8px">Lista de usuarios del paquete</div><div class="admin-v9-users">${users.map((u,i)=>`<div class="admin-v9-user-row ${u.id===adminState.selectedUsuarioId?'active':''}" onclick="adminOpenUsuarioV9('${u.id}')"><div><div class="admin-v9-user-name">${String(i+1).padStart(2,'0')} · ${adminEsc(u.nombre)}</div><div class="admin-v9-user-meta">${adminEsc(u.puesto||'Sin puesto')} · ${adminEsc(u.email||'Sin email')} · ${adminEsc(u.whatsapp||'Sin WhatsApp')}</div></div><div class="admin-v9-user-actions">${adminBadge(u.estado)}<button class="admin-v9-smallbtn" onclick="event.stopPropagation();adminOpenUsuarioV9('${u.id}')">Editar ficha</button></div></div>`).join('')}</div>`;
 }
 function adminUsuarioSoporteDetalle(u){
+  const c = adminCuenta(u.cuentaId);
+  const puestoOptions = adminPuestoOptions(u.tipo);
   const checks = ADMIN_V9_SERVICIOS_CUENTA.map(p=>{
     const blocked = u.tipo==='Asesor independiente' && p.id==='branding_cuenta';
     const checked = (u.permisos||[]).includes(p.id) && !blocked;
     return `<label class="admin-v9-check ${blocked?'disabled':''}"><input type="checkbox" data-user-servicio="${p.id}" ${checked?'checked':''} ${blocked?'disabled':''}><div><b>${adminEsc(p.title)}</b><span>${adminEsc(p.desc)}</span>${blocked?'<small>No aplica para independiente.</small>':''}</div></label>`;
   }).join('');
-  return `<div class="admin-v9-user-detail"><h4>ASESOR / USUARIO · <em>${adminEsc(u.nombre)}</em></h4>
-    <div class="admin-v9-info-grid">
-      <div class="admin-v9-info"><kbd>Puesto</kbd><strong>${adminEsc(u.puesto||'Pendiente')}</strong></div>
-      <div class="admin-v9-info"><kbd>Estado</kbd><strong>${adminEsc(u.estado)}</strong></div>
-      <div class="admin-v9-info"><kbd>WhatsApp</kbd><strong>${adminEsc(u.whatsapp||'Pendiente')}</strong></div>
-      <div class="admin-v9-info"><kbd>Email</kbd><strong>${adminEsc(u.email||'Pendiente')}</strong></div>
-      <div class="admin-v9-info"><kbd>Slug automático</kbd><strong class="gold">${adminEsc(u.slugOficial||'Pendiente')}</strong></div>
-      <div class="admin-v9-info"><kbd>Link captación</kbd><strong class="gold">${adminEsc(adminLink(u))}</strong></div>
+  return `<div class="admin-v9-user-detail"><h4>FICHA EDITABLE DE USUARIO · <em>${adminEsc(u.nombre)}</em></h4>
+    <div class="admin-v9-form-note">Para administración, director, gerente y asesor cuentan igual como usuario del paquete. El puesto solo cambia sus privilegios dentro de la intranet.</div>
+    <div class="admin-form-grid">
+      ${adminSelect('Estado del usuario','user-estado-v10',u.estado,['Pendiente','Activo','Inactivo'])}
+      ${u.tipo==='Asesor independiente' ? `<div class="form-group"><label>Puesto</label><input class="form-inp" value="Asesor independiente" disabled></div>` : adminSelect('Puesto / privilegio','user-puesto-v10',u.puesto||adminDefaultPuesto(u.tipo),puestoOptions)}
+      ${adminField('Nombre','user-nombre-v10',u.nombre)}
+      ${adminField('WhatsApp','user-whatsapp-v10',u.whatsapp)}
+      ${adminField('Email','user-email-v10',u.email)}
+      ${adminUploadField('Foto del usuario','user-foto-v10',u.foto,'Sube archivo. No pegar URL.')}
+      ${adminField('Ciudad','user-ciudad-v10',u.ciudad || c?.ciudad || '')}
+      ${adminField('Frase pública','user-frase-v10',u.frase)}
+      ${adminField('Pixel ID Meta','user-pixel-v10',u.pixel)}
+      <div class="form-group"><label>Slug automático oficial</label><input class="form-inp" value="${adminEsc(u.slugOficial||'Pendiente')}" disabled></div>
+      <div class="form-group"><label>Link Captación generado</label><input class="form-inp" value="${adminEsc(adminLink(u))}" disabled></div>
     </div>
     <div style="height:12px"></div>
-    <div class="admin-card-sub" style="margin-bottom:8px">Servicios de este usuario</div>
+    <div class="admin-card-sub" style="margin-bottom:8px">Servicios / permisos de este usuario</div>
     <div class="admin-v9-checks">${checks}</div>
-    <div class="admin-actions"><button class="btn btn-ghost" onclick="adminV9ToggleUser('${u.id}')">${u.estado==='Inactivo'?'Activar usuario':'Desactivar usuario'}</button><button class="btn btn-primary" onclick="adminSaveUsuarioServiciosV9('${u.id}')">Guardar servicios del usuario</button></div>
+    <div class="admin-actions"><button class="btn btn-ghost" onclick="adminV9ToggleUser('${u.id}')">${u.estado==='Inactivo'?'Activar usuario':'Desactivar usuario'}</button><button class="btn btn-ghost" onclick="adminV9DeleteUser('${u.id}')">Dar de baja</button><button class="btn btn-primary" onclick="adminSaveUsuarioFichaV10('${u.id}')">Guardar ficha de usuario</button></div>
   </div>`;
+}
+function adminSoporteTecnicoCuentaV10(c){
+  const card = (title, desc, url, key) => `<div class="admin-v9-support"><b>${adminEsc(title)}</b>${adminEsc(desc)}<br><span class="ar-meta">${url ? adminEsc(url) : 'Pendiente de configurar'}</span><div style="height:10px"></div><button class="admin-v9-smallbtn" onclick="adminOpenTechV10('${c.id}','${key}')">Abrir conexión</button></div>`;
+  return `<div class="admin-card-sub" style="margin-bottom:8px">Centro de soporte técnico de esta cuenta</div><div class="admin-v9-support-grid">
+    ${card('Make','Escenarios, webhooks y automatizaciones de esta cuenta.',c.makeUrl,'make')}
+    ${card('Airtable','Base, tablas, campos y registros conectados.',c.airtableUrl,'airtable')}
+    ${card('Intranet','Abrir la intranet real de esta cuenta para revisar configuración.',c.intranetUrl,'intranet')}
+  </div>${c.soporteNotas?`<div style="height:10px"></div><div class="admin-v9-form-note"><b>Notas de soporte:</b> ${adminEsc(c.soporteNotas)}</div>`:''}`;
 }
 function adminOpenUsuarioV9(id){ adminState.selectedUsuarioId = id; adminRender(); }
 function adminSaveCuentaV9(id){
   const c = adminCuenta(id); if(!c) return;
   c.estado = val('cuenta-estado-v9'); c.nombre = val('cuenta-nombre-v9'); c.ciudad = val('cuenta-ciudad-v9'); c.responsable = val('cuenta-responsable-v9'); c.notas = val('cuenta-notas-v9');
+  c.makeUrl = val('cuenta-make-v10'); c.airtableUrl = val('cuenta-airtable-v10'); c.intranetUrl = val('cuenta-intranet-v10'); c.soporteNotas = val('cuenta-soporte-notas-v10');
   if(c.tipo === 'Inmobiliaria'){ c.limiteAsesores = Number(val('cuenta-limite-v9')||10); c.plan = adminV9PlanFromLimit(c.limiteAsesores); c.logo = val('cuenta-logo-v9'); c.director = val('cuenta-director-v9'); c.whatsappDirector = val('cuenta-whatsapp-v9').replace(/\D/g,''); c.emailDirector = val('cuenta-email-v9'); }
   else if(c.tipo === 'Grupo de asesores sin inmobiliaria'){ c.limiteAsesores = 5; c.plan = ADMIN_V9_PLANES.grupo; c.logo = val('cuenta-logo-v9'); c.director = val('cuenta-director-v9'); c.whatsappDirector = val('cuenta-whatsapp-v9').replace(/\D/g,''); c.emailDirector = val('cuenta-email-v9'); }
   else { c.limiteAsesores = 1; c.plan = ADMIN_V9_PLANES.independiente; c.logo = 'CASITA_METODO_NERI'; }
@@ -4332,6 +4372,30 @@ function adminSaveUsuarioServiciosV9(id){
   if(u.tipo === 'Asesor independiente') u.permisos = u.permisos.filter(x=>x!=='branding_cuenta');
   adminSave(); adminRender();
 }
+function adminSaveUsuarioFichaV10(id){
+  const u = adminUsuario(id); if(!u) return;
+  u.estado = val('user-estado-v10') || u.estado;
+  if(u.tipo !== 'Asesor independiente') u.puesto = val('user-puesto-v10') || u.puesto;
+  u.nombre = val('user-nombre-v10') || u.nombre;
+  u.whatsapp = val('user-whatsapp-v10').replace(/\D/g,'');
+  u.email = val('user-email-v10');
+  u.foto = val('user-foto-v10');
+  u.ciudad = val('user-ciudad-v10');
+  u.frase = val('user-frase-v10');
+  u.pixel = val('user-pixel-v10');
+  if(!u.slugOficial) u.slugOficial = adminUniqueSlug(adminSlug(u.nombre || 'usuario'), u.id);
+  u.slugSugerido = u.slugOficial;
+  u.permisos = Array.from(document.querySelectorAll('[data-user-servicio]:checked')).map(x=>x.dataset.userServicio);
+  if(u.tipo === 'Asesor independiente') u.permisos = u.permisos.filter(x=>x!=='branding_cuenta');
+  adminSave(); adminRender();
+}
+function adminOpenTechV10(cuentaId,key){
+  const c = adminCuenta(cuentaId); if(!c) return;
+  const map = {make:c.makeUrl, airtable:c.airtableUrl, intranet:c.intranetUrl};
+  const url = map[key] || '';
+  if(!url){ showToast('Primero guarda el link de '+key+' en la ficha editable'); return; }
+  window.open(url, '_blank');
+}
 function adminDeleteCuentaV9(id){
   const c = adminCuenta(id); if(!c) return;
   if(adminCuentaUsers(id).length){ showToast('No se elimina: primero da de baja o elimina sus usuarios'); return; }
@@ -4341,7 +4405,7 @@ function adminV9AddUser(cuentaId){
   const c = adminCuenta(cuentaId); if(!c) return;
   if(c.tipo==='Asesor independiente'){ showToast('La cuenta independiente usa un solo usuario'); return; }
   if(!adminCanAddUser(c)){ showToast('Cupo lleno: no se pueden preparar más asesores'); return; }
-  const nombre = c.tipo === 'Inmobiliaria' ? 'Asesor pendiente' : 'Asesor de grupo pendiente';
+  const nombre = c.tipo === 'Inmobiliaria' ? 'Usuario pendiente' : 'Usuario de grupo pendiente';
   const slug = adminUniqueSlug(adminSlug(nombre+' '+Date.now().toString().slice(-3)), null);
   const u = { id:adminId('usr'), cuentaId:c.id, nombre, whatsapp:'', email:'', foto:'', frase:'', ciudad:c.ciudad, pixel:'', tipo:c.tipo, estado:c.estado, puesto:'Asesor', slugSugerido:slug, slugOficial:slug, permisos:adminV9PermsOrg() };
   adminState.data.usuarios.push(u); adminState.selectedUsuarioId = u.id; adminSave(); adminRender();
@@ -4380,7 +4444,7 @@ function adminRenderCrear(){
 function adminCreateCuentaV9(){
   const tipo = adminState.createTipo; if(!ADMIN_TIPOS_CUENTA.includes(tipo)){ showToast('Selecciona tipo de cuenta'); return; }
   const nombre = val('new-nombre') || (tipo==='Inmobiliaria'?'Nueva inmobiliaria':tipo==='Asesor independiente'?'Nuevo asesor independiente':'Nuevo grupo sin inmobiliaria');
-  const c = { id:adminId('cta'), nombre, tipo, estado:val('new-estado')||'Pendiente', ciudad:val('new-ciudad'), responsable:val('new-responsable'), director:val('new-director'), whatsappDirector:val('new-whatsapp-director').replace(/\D/g,''), emailDirector:val('new-email-director'), logo:'', limiteAsesores:adminDefaultLimit(tipo), plan:'', notas:val('new-notas'), servicios:adminV9DefaultServices(tipo) };
+  const c = { id:adminId('cta'), nombre, tipo, estado:val('new-estado')||'Pendiente', ciudad:val('new-ciudad'), responsable:val('new-responsable'), director:val('new-director'), whatsappDirector:val('new-whatsapp-director').replace(/\D/g,''), emailDirector:val('new-email-director'), logo:'', limiteAsesores:adminDefaultLimit(tipo), plan:'', notas:val('new-notas'), servicios:adminV9DefaultServices(tipo), makeUrl:'', airtableUrl:'', intranetUrl:'', soporteNotas:'' };
   if(tipo === 'Inmobiliaria'){ c.limiteAsesores = Number(val('new-limite')||10); c.plan = adminV9PlanFromLimit(c.limiteAsesores); c.logo = val('new-logo'); }
   if(tipo === 'Grupo de asesores sin inmobiliaria'){ c.limiteAsesores = 5; c.plan = ADMIN_V9_PLANES.grupo; c.logo = val('new-logo'); }
   if(tipo === 'Asesor independiente'){ c.limiteAsesores = 1; c.plan = ADMIN_V9_PLANES.independiente; c.logo = 'CASITA_METODO_NERI'; }
