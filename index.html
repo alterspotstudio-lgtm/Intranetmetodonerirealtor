@@ -1429,6 +1429,7 @@ async function enrichIdentity(slug){
     const data = await atFetch(`tblIRPmLIyj8sWyEk?filterByFormula=${formula}&maxRecords=1`);
     const rec = (data.records||[])[0];
     if(!rec) return;
+    SESSION.perfilRecId = rec.id;   // id real del registro del asesor, para editar su perfil después
     const f = rec.fields || {};
     if(f['Nombre'])            SESSION.nombre   = f['Nombre'];
     if(f['Teléfono WhatsApp']) SESSION.whatsapp = String(f['Teléfono WhatsApp']).replace(/\D/g,'');
@@ -1470,7 +1471,7 @@ function bootApp(){
 
   buildNav();
   buildPanels();
-  goTo('hoy');
+  goTo(s.rol === 'asesor' ? 'perfil_asesor' : 'hoy');   // el asesor configura su perfil primero
   updateClock();
   if(typeof ensureDemoRoleSwitch === 'function') ensureDemoRoleSwitch();
 }
@@ -1498,6 +1499,7 @@ function buildPanels(){
   const ca = document.getElementById('content-area');
   ca.innerHTML = '';
   _crmLoaded = false; // reset para nueva sesión
+  _perfilLoaded = false; // reset perfil del asesor para nueva sesión
 
   ca.insertAdjacentHTML('beforeend', buildHoyPanel());
   ca.insertAdjacentHTML('beforeend', buildAdministracionPanel());
@@ -3972,7 +3974,7 @@ const ASESOR_SAMPLE = {
 NAV_ROL.asesor = [
   { section:'Centro de Mando' },
   { id:'hoy', label:'Hoy', icon:'⬡', highlight:true },
-  { id:'perfil_asesor', label:'Mi Perfil Público', icon:'◉' },
+  { id:'perfil_asesor', label:'Mi Perfil del Asesor', icon:'◉' },
   { id:'airtable', label:'Mis Leads / CRM', icon:'◈' },
   { id:'propiedades_asesor', label:'Mis Propiedades', icon:'⌂' },
   { id:'documentos_asesor', label:'Documentos', icon:'▤' },
@@ -3987,7 +3989,7 @@ NAV_ROL.asesor = [
 ];
 
 Object.assign(LABELS, {
-  perfil_asesor:'Mi Perfil Público',
+  perfil_asesor:'Mi Perfil del Asesor',
   propiedades_asesor:'Mis Propiedades',
   documentos_asesor:'Documentos',
   reportes_asesor:'Reportes del Asesor',
@@ -4017,7 +4019,7 @@ function switchDemoRole(rol){
   refreshChrome();
   ensureDemoRoleSwitch();
   syncDemoRoleSwitch();
-  goTo(rol==='admin' ? 'administracion' : 'hoy');
+  goTo(rol==='admin' ? 'administracion' : 'perfil_asesor');
   showToast(rol==='admin' ? 'Vista administrador' : 'Vista asesor');
 }
 
@@ -4045,27 +4047,165 @@ function buildAsesorHoyPanel(){
   </div></div>`;
 }
 
+/* ═══════════════════════════════════════════════════
+   MI PERFIL DEL ASESOR  (registro real en Asesor captación · tblIRPmLIyj8sWyEk)
+   - Lee/edita el registro propio del asesor (por Slug).
+   - El asesor edita solo sus 7 datos públicos (tutorial admin).
+   - Puesto, Slug, Estado, Tipo, Cuenta y Link Captación: solo lectura.
+   - La Foto se sube a Vercel Blob por /api/upload-documento; Airtable
+     guarda solo la URL (mismo patrón que el editor de landing del admin).
+═══════════════════════════════════════════════════ */
+const ASESOR_PERFIL_TABLE = 'tblIRPmLIyj8sWyEk';
+const ASESOR_CIUDADES = ["Cuernavaca","Jiutepec","Temixco","Emiliano Zapata","Xochitepec","Yautepec","Cuautla","Tepoztlán","Jojutla","Zacatepec","Puente de Ixtla","Ayala","Yecapixtla","Tlaltizápan","Tlaquiltenango","Tlayacapan","Huitzilac","Miacatlán","Mazatepec","Tetecala","Coatlán del Río","Amacuzac","Axochiapan","Tepalcingo","Jantetelco","Jonacatepec","Temoac","Tetela del Volcán","Ocuituco","Atlatlahucan","Totolapan","Tlalnepantla","Zacualpan de Amilpas","Hueyapan","Coatetelco","Xoxocotla","Otra"];
+let _perfilLoaded = false;
+let perfilState = { recId:null, rec:null };
+
 function buildAsesorPerfilPanel(){
-  const s = SESSION || USERS.asesor;
   return `<div class="panel" id="panel-perfil_asesor"><div class="asesor-body">
-    <section class="asesor-section"><div class="asesor-sec-head"><div><div class="asesor-sec-title">MI PERFIL <em>PÚBLICO</em></div><div class="asesor-sec-sub">El asesor edita solo lo que ve el cliente. Administración controla estado, cuenta, puesto, slug y servicios.</div></div><button class="asesor-gold-btn" onclick="showToast('Perfil guardado en modo prueba')">Guardar perfil</button></div>
-      <div class="asesor-two"><div class="asesor-form">
-        <div><label class="asesor-label">Nombre</label><input class="asesor-inp" value="${asesorEsc(s.nombre)}"></div>
-        <div><label class="asesor-label">WhatsApp</label><input class="asesor-inp" value="${asesorEsc(s.whatsapp)}"></div>
-        <div><label class="asesor-label">Email</label><input class="asesor-inp" value="enrique@metodoneri.com"></div>
-        <div><label class="asesor-label">Ciudad</label><input class="asesor-inp" value="Cuernavaca"></div>
-        <div class="full"><label class="asesor-label">Foto</label><input class="asesor-inp" type="file" accept="image/*"></div>
-        <div class="full"><label class="asesor-label">Frase</label><textarea class="asesor-textarea">Te ayudo a vender tu propiedad con orden, estrategia y seguimiento.</textarea></div>
-        <div class="full"><label class="asesor-label">Pixel ID Meta</label><input class="asesor-inp" value="${asesorEsc(s.pixel||'')}"></div>
-      </div><div class="asesor-list">
-        <div class="asesor-lock"><small>Cuenta asignada</small><b>${asesorEsc(s.empresa)}</b></div>
-        <div class="asesor-lock"><small>Estado</small><b>Activo · bloqueado por administración</b></div>
-        <div class="asesor-lock"><small>Puesto</small><b>Asesor</b></div>
-        <div class="asesor-lock"><small>Slug oficial</small><b>${asesorEsc(s.slug||'enrique')}</b></div>
-        <div class="asesor-lock"><small>Link Captación</small><b>${asesorEsc(ASESOR_SAMPLE.link)}</b></div>
-      </div></div>
+    <section class="asesor-section">
+      <div class="asesor-sec-head">
+        <div>
+          <div class="asesor-sec-title">MI PERFIL DEL <em>ASESOR</em></div>
+          <div class="asesor-sec-sub">Lo primero que configuras al recibir acceso. Editas solo tus datos públicos; administración controla cuenta, estado, puesto, slug y activación.</div>
+        </div>
+        <button class="at-btn" onclick="perfilLoad(true)" title="Recargar">↻ Recargar</button>
+      </div>
+      <div id="perfil-asesor-body"><div class="hoy-empty">Cargando tu perfil…</div></div>
     </section>
   </div></div>`;
+}
+
+async function perfilLoad(force){
+  if(_perfilLoaded && !force) return;
+  const body = document.getElementById('perfil-asesor-body');
+  const slug = SESSION?.slug;
+  if(!slug){ if(body) body.innerHTML = '<div class="hoy-empty err">No hay slug de asesor en la sesión.</div>'; return; }
+  if(body) body.innerHTML = '<div class="hoy-empty">Cargando tu perfil…</div>';
+  try{
+    const formula = encodeURIComponent(`LOWER({Slug})='${String(slug).toLowerCase()}'`);
+    const data = await atFetch(`${ASESOR_PERFIL_TABLE}?filterByFormula=${formula}&maxRecords=1`);
+    const rec = (data.records||[])[0];
+    if(!rec){
+      if(body) body.innerHTML = '<div class="hoy-empty err">No se encontró tu registro de asesor (slug: '+_esc(slug)+'). Pídele a administración que lo dé de alta.</div>';
+      return;
+    }
+    perfilState.recId = rec.id;
+    perfilState.rec   = rec;
+    _perfilLoaded = true;
+    perfilRender(rec);
+  }catch(e){
+    if(body) body.innerHTML = '<div class="hoy-empty err">No se pudo cargar tu perfil. <button class="at-btn" onclick="perfilLoad(true)">Reintentar</button></div>';
+  }
+}
+
+function perfilRender(rec){
+  const body = document.getElementById('perfil-asesor-body');
+  if(!body) return;
+  const v = (n)=> _fval(rec, n);
+  const foto = _attInfo(rec, 'Foto');
+  const ciudadActual = v('Ciudad') || v('Ciudad (texto viejo)');
+  const ciudadOpts = ASESOR_CIUDADES.map(o=>`<option value="${_escAttr(o)}"${ciudadActual===o?' selected':''}>${_esc(o)}</option>`).join('');
+  const indep   = !!(rec.fields && rec.fields['Independiente']);
+  const activo  = !!(rec.fields && rec.fields['Activo']);
+  const puesto  = v('Puesto') || v('Puesto (texto viejo)') || 'Asesor Inmobiliario';
+  const link    = v('Link Captación');
+  const fotoThumb = foto.has
+    ? `<img class="le-thumb" src="${_escAttr(foto.thumb||foto.url)}" alt="">`
+    : `<div class="le-thumb-empty">＋</div>`;
+
+  body.innerHTML = `
+    <div class="asesor-two">
+      <div class="asesor-form">
+        <div><label class="asesor-label">Nombre</label>
+          <input class="asesor-inp" data-pf="Nombre" data-orig="${_escAttr(v('Nombre'))}" value="${_escAttr(v('Nombre'))}"></div>
+        <div><label class="asesor-label">WhatsApp</label>
+          <input class="asesor-inp" data-pf="Teléfono WhatsApp" data-orig="${_escAttr(v('Teléfono WhatsApp'))}" value="${_escAttr(v('Teléfono WhatsApp'))}" placeholder="Con lada país sin +. Ej: 527779855687"></div>
+        <div><label class="asesor-label">Email</label>
+          <input class="asesor-inp" type="email" data-pf="Email" data-orig="${_escAttr(v('Email'))}" value="${_escAttr(v('Email'))}"></div>
+        <div><label class="asesor-label">Ciudad</label>
+          <select class="asesor-inp" data-pf="Ciudad" data-orig="${_escAttr(ciudadActual)}"><option value="">— Selecciona —</option>${ciudadOpts}</select></div>
+        <div class="full"><label class="asesor-label">Frase</label>
+          <textarea class="asesor-textarea" data-pf="Frase" data-orig="${_escAttr(v('Frase'))}">${_esc(v('Frase'))}</textarea></div>
+        <div class="full"><label class="asesor-label">Pixel ID Meta</label>
+          <input class="asesor-inp" data-pf="Pixel ID Meta" data-orig="${_escAttr(v('Pixel ID Meta'))}" value="${_escAttr(v('Pixel ID Meta'))}"></div>
+        <div class="full"><label class="asesor-label">Foto</label>
+          <div class="le-attach">${fotoThumb}<span class="le-vstatus ${foto.has?'on':'off'}">${foto.has?'Cargada':'Vacía'}</span></div>
+          <input class="asesor-inp" type="file" accept="image/*" data-pf-foto>
+          <div class="le-note">Tu foto se sube desde la intranet a Vercel Blob. Airtable guarda solo el enlace, no el archivo.</div>
+        </div>
+      </div>
+      <div class="asesor-list">
+        <div class="asesor-lock"><small>Cuenta asignada</small><b>${_esc(SESSION?.empresa||'—')}</b></div>
+        <div class="asesor-lock"><small>Tipo</small><b>${indep?'Asesor independiente':'Asesor con inmobiliaria'}</b></div>
+        <div class="asesor-lock"><small>Estado</small><b>${activo?'Activo':'Pendiente / Inactivo'} · lo controla administración</b></div>
+        <div class="asesor-lock"><small>Puesto</small><b>${_esc(puesto)}</b></div>
+        <div class="asesor-lock"><small>Slug oficial</small><b>${_esc(v('Slug')||SESSION?.slug||'—')}</b></div>
+        <div class="asesor-lock"><small>Link Captación</small><b>${link?_esc(link):'Se genera solo con el slug'}</b></div>
+      </div>
+    </div>
+    <div style="margin-top:18px;display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+      <button class="asesor-gold-btn" id="perfil-save-btn" onclick="perfilSave()">Guardar perfil público</button>
+      <span id="perfil-save-msg" style="font-size:13px;color:var(--w50)"></span>
+    </div>`;
+}
+
+async function perfilSave(){
+  const recId = perfilState.recId;
+  const btn = document.getElementById('perfil-save-btn');
+  const msg = document.getElementById('perfil-save-msg');
+  const setMsg = (txt,color)=>{ if(msg){ msg.style.color = color||'var(--w50)'; msg.textContent = txt; } };
+  if(!recId){ setMsg('No hay registro para guardar.','var(--red)'); return; }
+  if(btn){ btn.disabled = true; btn.textContent = 'Guardando…'; }
+  setMsg('');
+
+  // 1) Campos públicos editables: solo lo que cambió (no toca campos bloqueados ni fórmulas)
+  const fields = {};
+  document.querySelectorAll('#perfil-asesor-body [data-pf]').forEach(el=>{
+    const name = el.dataset.pf;
+    const orig = (el.dataset.orig||'').trim();
+    const nv   = (el.value||'').trim();
+    if(nv === orig) return;
+    fields[name] = nv === '' ? null : nv;   // typecast:true convierte Ciudad (lista)
+  });
+
+  // 2) Foto: subir a Vercel Blob y guardar SOLO la URL en Airtable
+  const fotoEl = document.querySelector('#perfil-asesor-body [data-pf-foto]');
+  try{
+    if(fotoEl && fotoEl.files && fotoEl.files[0]){
+      if(btn) btn.textContent = 'Subiendo foto…';
+      const folioUpload = (SESSION?.slug||'asesor') + '-perfil';
+      const url = await uploadBlobFile(fotoEl.files[0], folioUpload, 'Foto');
+      fields['Foto'] = [{ url }];
+    }
+  }catch(e){
+    setMsg('Error al subir la foto: '+e.message,'var(--red)');
+    if(btn){ btn.disabled=false; btn.textContent='Guardar perfil público'; }
+    return;
+  }
+
+  if(Object.keys(fields).length === 0){
+    setMsg('No hay cambios para guardar.');
+    if(btn){ btn.disabled=false; btn.textContent='Guardar perfil público'; }
+    return;
+  }
+
+  try{
+    await atFetch(`${ASESOR_PERFIL_TABLE}/${recId}`, {
+      method:'PATCH', body: JSON.stringify({ fields, typecast:true })
+    });
+    // Sincroniza la identidad de la sesión con lo recién guardado
+    if(fields['Nombre'])            SESSION.nombre   = fields['Nombre'];
+    if(fields['Teléfono WhatsApp']) SESSION.whatsapp = String(fields['Teléfono WhatsApp']).replace(/\D/g,'');
+    if(fields['Pixel ID Meta'])     SESSION.pixel    = fields['Pixel ID Meta'];
+    if(typeof refreshChrome === 'function') refreshChrome();
+    showToast('✓ Perfil actualizado');
+    setMsg('Guardado.', 'var(--green, #2ecc71)');
+    await perfilLoad(true);
+  }catch(e){
+    setMsg('Error al guardar: '+e.message,'var(--red)');
+  }finally{
+    if(btn){ btn.disabled=false; btn.textContent='Guardar perfil público'; }
+  }
 }
 
 function buildAsesorPropiedadesPanel(){
@@ -4105,6 +4245,7 @@ function goTo(id){
   if(label) label.textContent = LABELS[id] || id;
   if(id === 'administracion') setTimeout(onAdministracionPanelActivate, 60);
   if(id === 'airtable') setTimeout(onAirtablePanelActivate, 60);
+  if(id === 'perfil_asesor') setTimeout(()=>perfilLoad(false), 60);
   if(id === 'hoy' && SESSION?.rol !== 'asesor') setTimeout(()=>loadHoyData(false), 60);
   syncDemoRoleSwitch();
 }
