@@ -4023,11 +4023,11 @@ function showToast(msg){
 
 
 /* ═══════════════════════════════════════════════════
-   ADMINISTRACIÓN BASE V11 — Fichas cerradas por defecto + soporte técnico
+   ADMINISTRACIÓN BASE V12 — Fichas cerradas + modal elegante estilo CRM
    Regla de oro: al entrar a Inmobiliarias solo se ven inmobiliarias.
    La creación solo vive en + Crear nueva intranet.
 ═══════════════════════════════════════════════════ */
-const ADMIN_V9_STORAGE_KEY = 'neri_admin_base_v11_fichas_cerradas';
+const ADMIN_V9_STORAGE_KEY = 'neri_admin_base_v12_modal_crm';
 const ADMIN_V9_PLANES_INMOBILIARIA = [
   {value:'Inmobiliaria 10 asesores', label:'Inmobiliaria · 10 asesores', limite:10},
   {value:'Inmobiliaria 15 asesores', label:'Inmobiliaria · 15 asesores', limite:15},
@@ -4069,6 +4069,7 @@ function adminV9Css(){ return `<style id="admin-v9-style">
   .admin-v9-controls{display:grid;grid-template-columns:1fr;gap:12px}.admin-v9-checks{display:grid;grid-template-columns:1fr;gap:8px}.admin-v9-check{display:flex;gap:9px;align-items:flex-start;border:1px solid var(--border);background:rgba(255,255,255,.02);padding:10px;border-radius:3px;cursor:pointer}.admin-v9-check:hover{border-color:var(--goldbdr);background:var(--golddim)}.admin-v9-check input{margin-top:2px;accent-color:var(--gold)}.admin-v9-check b{display:block;font-size:10px;color:#fff;margin-bottom:3px}.admin-v9-check span{font-size:9px;color:var(--w50);line-height:1.45}.admin-v9-check.disabled{opacity:.55;cursor:not-allowed}.admin-v9-check small{display:block;color:var(--gold);font-size:8px;text-transform:uppercase;margin-top:4px;font-weight:900;letter-spacing:.8px}
   .admin-v9-users{display:grid;grid-template-columns:1fr;gap:8px}.admin-v9-user-row{border:1px solid var(--border);background:rgba(255,255,255,.02);padding:11px;border-radius:3px;display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;cursor:pointer}.admin-v9-user-row.active,.admin-v9-user-row:hover{border-color:var(--goldbdr);background:var(--golddim)}.admin-v9-user-name{font-size:12px;font-weight:900}.admin-v9-user-meta{font-size:9px;color:var(--w50);line-height:1.6;margin-top:4px}.admin-v9-user-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.admin-v9-smallbtn{border:1px solid var(--border2);background:transparent;color:var(--w50);border-radius:2px;padding:6px 9px;font-size:7px;letter-spacing:1.4px;text-transform:uppercase;font-weight:900;cursor:pointer}.admin-v9-smallbtn:hover{border-color:var(--goldbdr);color:var(--gold);background:var(--golddim)}.admin-v9-smallbtn.red:hover{border-color:rgba(248,113,113,.25);background:rgba(248,113,113,.06);color:var(--red)}
   .admin-v9-user-detail{margin-top:12px;border:1px solid var(--goldbdr);background:rgba(201,169,110,.045);border-radius:3px;padding:14px}.admin-v9-user-detail h4{font-family:var(--display);font-size:24px;letter-spacing:1.4px;margin-bottom:10px}.admin-v9-user-detail h4 em{font-style:normal;color:var(--gold)}
+  .admin-v12-modal{display:none;position:fixed;inset:0;z-index:950;background:rgba(0,0,0,.9);backdrop-filter:blur(12px);align-items:center;justify-content:center;padding:20px}.admin-v12-modal-box{width:min(720px,100%);background:linear-gradient(180deg,#141414 0%,#0f0f0f 100%);border:1px solid var(--goldbdr);border-top:2px solid var(--gold);border-radius:3px;max-height:92vh;overflow-y:auto;padding:30px;box-shadow:0 32px 80px rgba(0,0,0,.7),0 0 0 1px rgba(201,169,110,.05);scrollbar-width:thin}.admin-v12-modal-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid var(--border)}.admin-v12-modal-title{font-family:var(--display);font-size:32px;letter-spacing:3px;color:var(--white);line-height:1}.admin-v12-modal-title em{color:var(--gold);font-style:normal}.admin-v12-modal-sub{font-size:9px;color:var(--w30);letter-spacing:2px;text-transform:uppercase;margin-top:6px;line-height:1.6}.admin-v12-modal-close{background:transparent;border:1px solid var(--border2);color:var(--w50);font-size:14px;cursor:pointer;width:28px;height:28px;border-radius:2px;display:flex;align-items:center;justify-content:center;transition:all .13s;flex-shrink:0}.admin-v12-modal-close:hover{border-color:var(--goldbdr);color:var(--gold)}.admin-v12-user-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px}.admin-v12-user-name{font-family:var(--display);font-size:26px;letter-spacing:1px;color:#fff;line-height:1.05}.admin-v12-user-folio{font-size:11px;color:var(--gold);letter-spacing:2px;margin-top:6px;font-family:monospace}.admin-v12-user-sub{font-size:12px;color:var(--w50);margin-top:8px;line-height:1.6}.admin-v12-band{margin-top:16px;padding:13px 15px;border-radius:3px;border:1px solid var(--goldbdr);background:rgba(201,169,110,.06);display:flex;flex-direction:column;gap:4px}.admin-v12-band-lbl{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--w30)}.admin-v12-band-val{font-size:14px;color:#fff;line-height:1.45}.admin-v12-sec{margin-top:20px}.admin-v12-sec-title{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);font-weight:900;padding-bottom:8px;margin-bottom:12px;border-bottom:1px solid var(--border)}.admin-v12-lock-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.admin-v12-lock{display:flex;flex-direction:column;gap:3px;padding:11px 13px;border-radius:3px;background:rgba(255,255,255,.02);border:1px solid var(--border)}.admin-v12-lock-k{font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--w30);font-weight:900}.admin-v12-lock-v{font-size:12px;color:var(--w80,#cfcfcf);font-family:monospace;word-break:break-all}.admin-v12-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:24px;padding-top:20px;border-top:1px solid var(--border)}@media(max-width:700px){.admin-v12-lock-grid{grid-template-columns:1fr}.admin-v12-modal-box{padding:22px}.admin-v12-modal-title{font-size:28px}.admin-v12-user-top{flex-direction:column}}
   .admin-v9-support-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.admin-v9-support{border:1px solid var(--border);background:rgba(255,255,255,.02);border-radius:3px;padding:12px;font-size:10px;color:var(--w50);line-height:1.55}.admin-v9-support b{display:block;color:var(--white);font-size:11px;margin-bottom:4px}
   .admin-v9-create-types{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.admin-v9-type-card{border:1px solid var(--border);background:linear-gradient(180deg,var(--surface2),var(--surface));border-radius:3px;padding:22px;cursor:pointer;min-height:180px;transition:all .15s}.admin-v9-type-card:hover{border-color:var(--goldbdr);background:var(--golddim);transform:translateY(-1px)}.admin-v9-type-card .icon{font-size:28px;color:var(--gold);margin-bottom:14px}.admin-v9-type-card b{font-family:var(--display);font-size:28px;letter-spacing:1.6px;line-height:1}.admin-v9-type-card p{font-size:11px;color:var(--w50);line-height:1.7;margin-top:10px}.admin-v9-form-note{padding:12px 14px;background:var(--golddim);border:1px solid var(--goldbdr);border-left:3px solid var(--gold);font-size:10px;color:var(--w50);line-height:1.7;margin-bottom:14px}
   @media(max-width:1180px){.admin-v9-kpis,.admin-v9-packages,.admin-v9-directory-grid,.admin-v9-list,.admin-v9-create-types,.admin-v9-support-grid{grid-template-columns:1fr 1fr}.admin-v9-ficha-body{grid-template-columns:1fr}.admin-v9-info-grid{grid-template-columns:1fr 1fr}}
@@ -4177,6 +4178,18 @@ function buildAdministracionPanel(){
         </div>
         <div id="admin-content"></div>
       </div>
+      <div id="admin-user-modal-v12" class="admin-v12-modal" onclick="if(event.target.id==='admin-user-modal-v12') adminCloseUsuarioV11()">
+        <div class="admin-v12-modal-box" style="animation:fadeUp .25s var(--ease)">
+          <div class="admin-v12-modal-head">
+            <div>
+              <div class="admin-v12-modal-title">FICHA DE <em>USUARIO</em></div>
+              <div class="admin-v12-modal-sub" id="admin-user-modal-sub-v12">Administración Método NERI</div>
+            </div>
+            <button class="admin-v12-modal-close" onclick="adminCloseUsuarioV11()">✕</button>
+          </div>
+          <div id="admin-user-modal-body-v12"></div>
+        </div>
+      </div>
     </div>
   </div>`;
 }
@@ -4256,7 +4269,6 @@ function adminRenderCuentaDetalle(){
   const c = adminCuenta(adminState.selectedCuentaId);
   if(!c) return `<div class="admin-v9-empty"><b>Sin cuenta seleccionada</b>Selecciona una cuenta desde su directorio.</div>`;
   const users = adminCuentaUsers(c.id);
-  const selectedUser = users.some(u=>u.id===adminState.selectedUsuarioId) ? adminUsuario(adminState.selectedUsuarioId) : null;
   const usage = adminCuentaUsage(c), limit = adminCuentaMaxUsers(c), canAdd = adminCanAddUser(c);
   return `<div class="admin-v9-ficha">
     <div class="admin-v9-ficha-head"><div><div class="admin-v9-ficha-title">FICHA ÚNICA · <em>${adminEsc(c.nombre)}</em></div><div class="admin-v9-ficha-sub">Una sola ficha para editar cuenta, servicios, usuarios y soporte técnico. Director, gerente y asesores cuentan como usuarios del paquete.</div></div><div class="admin-v9-ficha-actions"><button class="admin-v9-ghost" onclick="adminSetView('${adminV9ViewForTipo(c.tipo)}')">← Volver</button></div></div>
@@ -4274,7 +4286,6 @@ function adminRenderCuentaDetalle(){
         <div style="height:14px"></div>
         ${!canAdd && c.tipo!=='Asesor independiente' ? `<div class="admin-v9-form-note">Cupo lleno: esta cuenta tiene ${usage} de ${limit} usuarios autorizados. Director y gerente también cuentan.</div>` : ''}
         ${adminUsuariosCuentaListV9(c)}
-        ${selectedUser ? adminUsuarioSoporteDetalle(selectedUser) : adminUsuarioClosedNoticeV11(c)}
         <div style="height:14px"></div>
         ${adminSoporteTecnicoCuentaV10(c)}
       </div></div>
@@ -4328,26 +4339,38 @@ function adminUsuarioSoporteDetalle(u){
     const checked = (u.permisos||[]).includes(p.id) && !blocked;
     return `<label class="admin-v9-check ${blocked?'disabled':''}"><input type="checkbox" data-user-servicio="${p.id}" ${checked?'checked':''} ${blocked?'disabled':''}><div><b>${adminEsc(p.title)}</b><span>${adminEsc(p.desc)}</span>${blocked?'<small>No aplica para independiente.</small>':''}</div></label>`;
   }).join('');
-  return `<div class="admin-v9-user-detail"><div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap"><h4>FICHA EDITABLE DE USUARIO · <em>${adminEsc(u.nombre)}</em></h4><button class="admin-v9-smallbtn" onclick="adminCloseUsuarioV11()">Cerrar ficha</button></div>
-    <div class="admin-v9-form-note">Para administración, director, gerente y asesor cuentan igual como usuario del paquete. El puesto solo cambia sus privilegios dentro de la intranet.</div>
-    <div class="admin-form-grid">
-      ${adminSelect('Estado del usuario','user-estado-v10',u.estado,['Pendiente','Activo','Inactivo'])}
-      ${u.tipo==='Asesor independiente' ? `<div class="form-group"><label>Puesto</label><input class="form-inp" value="Asesor independiente" disabled></div>` : adminSelect('Puesto / privilegio','user-puesto-v10',u.puesto||adminDefaultPuesto(u.tipo),puestoOptions)}
-      ${adminField('Nombre','user-nombre-v10',u.nombre)}
-      ${adminField('WhatsApp','user-whatsapp-v10',u.whatsapp)}
-      ${adminField('Email','user-email-v10',u.email)}
-      ${adminUploadField('Foto del usuario','user-foto-v10',u.foto,'Sube archivo. No pegar URL.')}
-      ${adminField('Ciudad','user-ciudad-v10',u.ciudad || c?.ciudad || '')}
-      ${adminField('Frase pública','user-frase-v10',u.frase)}
-      ${adminField('Pixel ID Meta','user-pixel-v10',u.pixel)}
-      <div class="form-group"><label>Slug automático oficial</label><input class="form-inp" value="${adminEsc(u.slugOficial||'Pendiente')}" disabled></div>
-      <div class="form-group"><label>Link Captación generado</label><input class="form-inp" value="${adminEsc(adminLink(u))}" disabled></div>
+  return `<div class="admin-v12-user-top">
+      <div>
+        <div class="admin-v12-user-name">${adminEsc(u.nombre || 'Usuario pendiente')}</div>
+        <div class="admin-v12-user-folio">${adminEsc(u.slugOficial || 'slug-pendiente')}</div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">${adminBadge(u.estado)}<span class="badge badge-active">${adminEsc(u.puesto || adminDefaultPuesto(u.tipo))}</span></div>
     </div>
-    <div style="height:12px"></div>
-    <div class="admin-card-sub" style="margin-bottom:8px">Servicios / permisos de este usuario</div>
-    <div class="admin-v9-checks">${checks}</div>
-    <div class="admin-actions"><button class="btn btn-ghost" onclick="adminV9ToggleUser('${u.id}')">${u.estado==='Inactivo'?'Activar usuario':'Desactivar usuario'}</button><button class="btn btn-ghost" onclick="adminV9DeleteUser('${u.id}')">Dar de baja</button><button class="btn btn-primary" onclick="adminSaveUsuarioFichaV10('${u.id}')">Guardar ficha de usuario</button></div>
-  </div>`;
+    <div class="admin-v12-user-sub">${adminEsc(c?.nombre || 'Cuenta sin nombre')} · ${adminEsc(u.tipo || 'Tipo pendiente')} · ${adminEsc(u.email || 'Sin email')} · ${adminEsc(u.whatsapp || 'Sin WhatsApp')}</div>
+    <div class="admin-v12-band"><span class="admin-v12-band-lbl">Regla administrativa</span><span class="admin-v12-band-val">Director, gerente y asesor cuentan igual como usuario del paquete. El puesto solo cambia sus privilegios dentro de la intranet.</span></div>
+    <div class="admin-v12-sec"><div class="admin-v12-sec-title">Datos editables del usuario</div>
+      <div class="admin-form-grid">
+        ${adminSelect('Estado del usuario','user-estado-v10',u.estado,['Pendiente','Activo','Inactivo'])}
+        ${u.tipo==='Asesor independiente' ? `<div class="form-group"><label>Puesto</label><input class="form-inp" value="Asesor independiente" disabled></div>` : adminSelect('Puesto / privilegio','user-puesto-v10',u.puesto||adminDefaultPuesto(u.tipo),puestoOptions)}
+        ${adminField('Nombre','user-nombre-v10',u.nombre)}
+        ${adminField('WhatsApp','user-whatsapp-v10',u.whatsapp)}
+        ${adminField('Email','user-email-v10',u.email)}
+        ${adminUploadField('Foto del usuario','user-foto-v10',u.foto,'Sube archivo. No pegar URL.')}
+        ${adminField('Ciudad','user-ciudad-v10',u.ciudad || c?.ciudad || '')}
+        ${adminField('Frase pública','user-frase-v10',u.frase)}
+        ${adminField('Pixel ID Meta','user-pixel-v10',u.pixel)}
+      </div>
+    </div>
+    <div class="admin-v12-sec"><div class="admin-v12-sec-title">Datos bloqueados</div>
+      <div class="admin-v12-lock-grid">
+        <div class="admin-v12-lock"><span class="admin-v12-lock-k">Cuenta asignada</span><span class="admin-v12-lock-v">${adminEsc(c?.nombre || 'Pendiente')}</span></div>
+        <div class="admin-v12-lock"><span class="admin-v12-lock-k">Tipo</span><span class="admin-v12-lock-v">${adminEsc(u.tipo || 'Pendiente')}</span></div>
+        <div class="admin-v12-lock"><span class="admin-v12-lock-k">Slug automático oficial</span><span class="admin-v12-lock-v">${adminEsc(u.slugOficial||'Pendiente')}</span></div>
+        <div class="admin-v12-lock"><span class="admin-v12-lock-k">Link Captación generado</span><span class="admin-v12-lock-v">${adminEsc(adminLink(u))}</span></div>
+      </div>
+    </div>
+    <div class="admin-v12-sec"><div class="admin-v12-sec-title">Servicios / permisos de este usuario</div><div class="admin-v9-checks">${checks}</div></div>
+    <div class="admin-v12-actions"><button class="btn btn-ghost" onclick="adminV9ToggleUser('${u.id}')">${u.estado==='Inactivo'?'Activar usuario':'Desactivar usuario'}</button><button class="btn btn-ghost" onclick="adminV9DeleteUser('${u.id}')">Dar de baja</button><button class="btn btn-primary" onclick="adminSaveUsuarioFichaV10('${u.id}')">Guardar ficha de usuario</button></div>`;
 }
 function adminSoporteTecnicoCuentaV10(c){
   const card = (title, desc, url, key) => `<div class="admin-v9-support"><b>${adminEsc(title)}</b>${adminEsc(desc)}<br><span class="ar-meta">${url ? adminEsc(url) : 'Pendiente de configurar'}</span><div style="height:10px"></div><button class="admin-v9-smallbtn" onclick="adminOpenTechV10('${c.id}','${key}')">Abrir conexión</button></div>`;
@@ -4357,8 +4380,21 @@ function adminSoporteTecnicoCuentaV10(c){
     ${card('Intranet','Abrir la intranet real de esta cuenta para revisar configuración.',c.intranetUrl,'intranet')}
   </div>${c.soporteNotas?`<div style="height:10px"></div><div class="admin-v9-form-note"><b>Notas de soporte:</b> ${adminEsc(c.soporteNotas)}</div>`:''}`;
 }
-function adminOpenUsuarioV9(id){ adminState.selectedUsuarioId = id; adminRender(); }
-function adminCloseUsuarioV11(){ adminState.selectedUsuarioId = null; adminRender(); }
+function adminOpenUsuarioV9(id){
+  const u = adminUsuario(id); if(!u) return;
+  adminState.selectedUsuarioId = id;
+  const modal = document.getElementById('admin-user-modal-v12');
+  const body = document.getElementById('admin-user-modal-body-v12');
+  const sub = document.getElementById('admin-user-modal-sub-v12');
+  if(sub) sub.textContent = (adminCuenta(u.cuentaId)?.nombre || 'Cuenta') + ' · ' + (u.puesto || adminDefaultPuesto(u.tipo));
+  if(body) body.innerHTML = adminUsuarioSoporteDetalle(u);
+  if(modal) modal.style.display = 'flex';
+}
+function adminCloseUsuarioV11(){
+  const modal = document.getElementById('admin-user-modal-v12');
+  if(modal) modal.style.display = 'none';
+  adminState.selectedUsuarioId = null;
+}
 function adminSaveCuentaV9(id){
   const c = adminCuenta(id); if(!c) return;
   c.estado = val('cuenta-estado-v9'); c.nombre = val('cuenta-nombre-v9'); c.ciudad = val('cuenta-ciudad-v9'); c.responsable = val('cuenta-responsable-v9'); c.notas = val('cuenta-notas-v9');
@@ -4392,7 +4428,7 @@ function adminSaveUsuarioFichaV10(id){
   u.slugSugerido = u.slugOficial;
   u.permisos = Array.from(document.querySelectorAll('[data-user-servicio]:checked')).map(x=>x.dataset.userServicio);
   if(u.tipo === 'Asesor independiente') u.permisos = u.permisos.filter(x=>x!=='branding_cuenta');
-  adminSave(); adminRender();
+  adminSave(); adminCloseUsuarioV11(); adminRender(); showToast('Ficha de usuario guardada');
 }
 function adminOpenTechV10(cuentaId,key){
   const c = adminCuenta(cuentaId); if(!c) return;
@@ -4415,8 +4451,8 @@ function adminV9AddUser(cuentaId){
   const u = { id:adminId('usr'), cuentaId:c.id, nombre, whatsapp:'', email:'', foto:'', frase:'', ciudad:c.ciudad, pixel:'', tipo:c.tipo, estado:c.estado, puesto:'Asesor', slugSugerido:slug, slugOficial:slug, permisos:adminV9PermsOrg() };
   adminState.data.usuarios.push(u); adminState.selectedUsuarioId = null; adminSave(); adminRender();
 }
-function adminV9ToggleUser(id){ const u = adminUsuario(id); if(!u) return; u.estado = u.estado === 'Inactivo' ? 'Activo' : 'Inactivo'; adminSave(); adminRender(); }
-function adminV9DeleteUser(id){ const u = adminUsuario(id); if(!u) return; const c = adminCuenta(u.cuentaId); if(c?.tipo === 'Asesor independiente'){ showToast('La cuenta independiente requiere su perfil único'); return; } adminState.data.usuarios = adminState.data.usuarios.filter(x=>x.id!==id); adminState.selectedUsuarioId = null; adminSave(); adminRender(); }
+function adminV9ToggleUser(id){ const u = adminUsuario(id); if(!u) return; u.estado = u.estado === 'Inactivo' ? 'Activo' : 'Inactivo'; adminSave(); adminCloseUsuarioV11(); adminRender(); }
+function adminV9DeleteUser(id){ const u = adminUsuario(id); if(!u) return; const c = adminCuenta(u.cuentaId); if(c?.tipo === 'Asesor independiente'){ showToast('La cuenta independiente requiere su perfil único'); return; } adminState.data.usuarios = adminState.data.usuarios.filter(x=>x.id!==id); adminState.selectedUsuarioId = null; adminSave(); adminCloseUsuarioV11(); adminRender(); }
 function adminV9CopyUserLink(id){ const u = adminUsuario(id); if(!u || !u.slugOficial){ showToast('Aún no hay link generado'); return; } navigator.clipboard?.writeText(adminLink(u)); showToast('Link Captación copiado'); }
 function adminV9EnterSystem(id){ const c = adminCuenta(id); showToast(`Entrada de soporte preparada: ${c?.nombre || 'cuenta'}`); }
 function adminRenderCrear(){
