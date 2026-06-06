@@ -3591,33 +3591,77 @@ async function adminToggleUsuario(recId){
     adminState.loaded=false; await adminLoad(true);
   }catch(e){ showToast('Error: '+(e.message||e)); }
 }
+function adminExtractUnknownField(err){
+  const raw = String(err?.message || err || '');
+  const candidates = [raw];
+  const jsonStart = raw.indexOf('{');
+  if(jsonStart >= 0){
+    try{
+      const data = JSON.parse(raw.slice(jsonStart));
+      if(data?.error?.message) candidates.unshift(String(data.error.message));
+    }catch(_e){}
+  }
+  for(const text of candidates){
+    const m = String(text).match(/Unknown field name:\s*"([^"]+)"/i) ||
+              String(text).match(/UNKNOWN_FIELD_NAME.*?Unknown field name:\s*\\?"([^"\\]+)\\?"/i) ||
+              String(text).match(/Unknown field name:\s*([^}\]\n]+)/i);
+    if(m && m[1]) return String(m[1]).replace(/[\\"{}\]]/g,'').trim();
+  }
+  return '';
+}
+function adminFriendlySaveError(err){
+  const raw = String(err?.message || err || '');
+  if(raw.includes('__NERI_NO_PASSWORD_FIELD__')) return 'No se pudo crear el acceso: falta un campo de contraseña compatible en Airtable.';
+  if(raw.includes('__NERI_NO_ACTIVE_FIELD__')) return 'No se pudo crear el acceso: falta un campo de activación compatible en Airtable.';
+  if(raw.includes('Sesión')) return 'Tu sesión venció. Cierra sesión y entra otra vez como administrador.';
+  if(raw.includes('401') || raw.includes('403')) return 'No tienes permiso para guardar este acceso.';
+  return 'No se pudo guardar el acceso. Revisa que Airtable tenga los campos mínimos de usuario.';
+}
 async function adminAirtableSave(path, method, fields){
   const cleanFields = { ...fields };
-  const optional = new Set(['Cuenta','Independiente']);
   const passNames = ['Clave Acceso','Código Acceso','Codigo Acceso','Contraseña','Contrasena','Password','PIN','Access Code'];
-  let passValue = '';
-  for(const k of passNames){ if(cleanFields[k]){ passValue = cleanFields[k]; break; } }
+  const removed = new Set();
+  const passValue = passNames.map(k=>cleanFields[k]).find(Boolean) || '';
   let passIndex = 0;
-  for(let attempt=0; attempt<10; attempt++){
+  function nextPassField(currentBad){
+    if(currentBad) removed.add(currentBad);
+    while(passIndex < passNames.length && (removed.has(passNames[passIndex]) || passNames[passIndex] === currentBad)) passIndex++;
+    return passNames[passIndex++] || '';
+  }
+  for(let attempt=0; attempt<24; attempt++){
     try{
       return await atFetch(path, { method, body:JSON.stringify({ fields:cleanFields, typecast:true }) });
     }catch(e){
-      const msg = String(e?.message || e || '');
-      const m = msg.match(/Unknown field name:\s*\?"([^"\]+)\?"/i) || msg.match(/Unknown field name:\s*([^}]+)/i);
-      const bad = m && String(m[1]||'').replace(/[\"{}\]]/g,'').trim();
+      const bad = adminExtractUnknownField(e);
       if(!bad || !Object.prototype.hasOwnProperty.call(cleanFields,bad)) throw e;
-      if(passNames.includes(bad) && passValue){
-        delete cleanFields[bad];
-        while(passIndex < passNames.length && passNames[passIndex] === bad) passIndex++;
-        if(passIndex < passNames.length){ cleanFields[passNames[passIndex++]] = passValue; continue; }
-        throw e;
+      const wasPass = passNames.includes(bad);
+      const wasActive = bad === 'Activo' || bad === 'Estado';
+      delete cleanFields[bad];
+      removed.add(bad);
+
+      if(wasPass && passValue){
+        const next = nextPassField(bad);
+        if(next){ cleanFields[next] = passValue; continue; }
+        throw new Error('__NERI_NO_PASSWORD_FIELD__');
       }
-      if(optional.has(bad)){ delete cleanFields[bad]; continue; }
+
+      if(wasActive){
+        // Si la base no tuviera Activo, probamos Estado; si Estado tampoco existe, no creamos un acceso que no pueda iniciar sesión.
+        if(bad === 'Activo' && !removed.has('Estado')){ cleanFields['Estado'] = fields['Activo'] === false ? 'Inactivo' : 'Activo'; continue; }
+        throw new Error('__NERI_NO_ACTIVE_FIELD__');
+      }
+
+      // Campos administrativos opcionales: si no existen en la base real, se omiten sin romper el alta.
+      if(['Puesto','Cuenta','Independiente','Link Captación','Tipo'].includes(bad)) continue;
+
+      // Para cualquier otro campo no esencial, omitimos una vez y reintentamos. Nombre y Slug sí son mínimos.
+      if(bad !== 'Nombre' && bad !== 'Slug') continue;
       throw e;
     }
   }
-  return await atFetch(path, { method, body:JSON.stringify({ fields:cleanFields, typecast:true }) });
+  throw new Error('No se pudo guardar después de validar campos de Airtable.');
 }
+
 async function adminSaveUsuarioReal(){
   const btn=document.getElementById('admin-save-btn'), msg=document.getElementById('admin-save-msg');
   const setMsg=(t,c)=>{ if(msg){ msg.textContent=t; msg.style.color=c||'var(--w50)'; } };
@@ -3648,7 +3692,7 @@ async function adminSaveUsuarioReal(){
     await adminAirtableSave(isEdit ? `${ADMIN_ASESORES_TABLE}/${rec.id}` : `${ADMIN_ASESORES_TABLE}`, isEdit ? 'PATCH' : 'POST', fields);
     showToast(isEdit?'Usuario actualizado':'Usuario creado');
     adminState.editRecId=null; adminState.formOpen=false; adminState.loaded=false; await adminLoad(true);
-  }catch(e){ setMsg('No se pudo guardar el acceso. No se creó el usuario.','var(--red)'); console.warn('adminSaveUsuarioReal', e); }
+  }catch(e){ setMsg(adminFriendlySaveError(e),'var(--red)'); console.warn('adminSaveUsuarioReal', e); }
   finally{ if(btn){ btn.disabled=false; btn.textContent=isEdit?'Guardar':'Crear usuario'; } }
 }
 
