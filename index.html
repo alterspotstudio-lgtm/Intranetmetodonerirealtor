@@ -1224,6 +1224,7 @@ select.form-inp option{background:#111;color:#fff}
 .admin-v9-ficha{border:1px solid var(--goldbdr);background:linear-gradient(180deg,rgba(201,169,110,.055),rgba(255,255,255,.018));border-radius:4px;overflow:hidden}.admin-v9-panel-body{padding:16px}
 .admin-v9-users{display:grid;grid-template-columns:1fr;gap:8px}.admin-v9-user-row{border:1px solid var(--border);background:rgba(255,255,255,.02);padding:11px;border-radius:3px;display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;cursor:pointer}.admin-v9-user-row:hover{border-color:var(--goldbdr);background:var(--golddim)}.admin-v9-user-name{font-size:12px;font-weight:900}.admin-v9-user-meta{font-size:9px;color:var(--w50);line-height:1.6;margin-top:4px}.admin-v9-user-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.admin-v9-smallbtn{border:1px solid var(--border2);background:transparent;color:var(--w50);border-radius:2px;padding:6px 9px;font-size:7px;letter-spacing:1.4px;text-transform:uppercase;font-weight:900;cursor:pointer}.admin-v9-smallbtn:hover{border-color:var(--goldbdr);color:var(--gold);background:var(--golddim)}
 .admin-v9-empty{border:1px dashed var(--border2);background:rgba(255,255,255,.018);border-radius:3px;padding:42px 20px;text-align:center;color:var(--w40);font-size:12px;line-height:1.8}.admin-v9-empty b{color:var(--gold);display:block;font-family:var(--display);font-size:30px;letter-spacing:2px;margin-bottom:6px}
+.admin-zone-tabs{display:flex;gap:8px;flex-wrap:wrap;border:1px solid var(--border);background:rgba(255,255,255,.015);padding:8px;border-radius:3px}.admin-zone-tab{border:1px solid transparent;background:transparent;color:var(--w45);padding:10px 14px;border-radius:2px;font-size:8px;letter-spacing:1.8px;text-transform:uppercase;font-weight:900;cursor:pointer}.admin-zone-tab:hover{color:var(--gold);border-color:var(--goldbdr);background:var(--golddim)}.admin-zone-tab.active{background:linear-gradient(180deg,rgba(201,169,110,.18),rgba(201,169,110,.07));border-color:var(--goldbdr);color:var(--gold)}.admin-zone-section{border-top:1px solid var(--border);padding-top:18px}.admin-zone-count{min-width:116px;border:1px solid var(--border);background:rgba(0,0,0,.18);border-radius:3px;padding:10px 12px;text-align:right}.admin-zone-count b{font-family:var(--display);font-size:30px;letter-spacing:2px;color:var(--gold);display:block;line-height:1}.admin-zone-count span{font-size:8px;letter-spacing:1.6px;text-transform:uppercase;color:var(--w45);font-weight:800}
 @media(max-width:900px){.admin-v9-kpis{grid-template-columns:repeat(2,1fr)}.admin-v9-user-row{grid-template-columns:1fr}.admin-v9-user-actions{justify-content:flex-start}}
 @media(max-width:560px){.admin-v9-wrap{padding:18px}.admin-v9-kpis{grid-template-columns:1fr}.admin-v9-title{font-size:38px}}
 
@@ -1272,7 +1273,7 @@ select.form-inp option{background:#111;color:#fff}
       
       <div class="login-footer">
         Acceso real por sesión firmada · SIN DEMO<br>
-        Método NERI · Cabina de mando inmobiliaria<br>Build: ADMIN-FUNCIONAL-LIMPIO-2026-06-05
+        Método NERI · Cabina de mando inmobiliaria<br>Build: ADMIN-SECCIONES-CERRADAS-2026-06-05
       </div>
     </div>
   </div>
@@ -3369,17 +3370,24 @@ function getToolDesc(id){
 
 
 /* ═══════════════════════════════════════════════════
-   ADMINISTRACIÓN REAL — CONTROL MAESTRO
-   Ajuste ADMIN 1:
-   - Admin solo administra cuentas y usuarios.
-   - Sin directorios duplicados, sin Centro de Operaciones en rol admin.
-   - Sin panel local, sin datos de prueba, sin botones técnicos visibles.
+   ADMINISTRACIÓN REAL — CONTROL MAESTRO LIMPIO
+   Corrección ADMIN 2:
+   - No se eliminan las tres zonas comerciales: Inmobiliaria,
+     Asesor independiente y Grupo asesores s/inmobiliaria.
+   - No hay fichas abiertas por defecto: el formulario solo aparece
+     al crear o editar.
+   - Admin no abre Centro de Operaciones ni herramientas de asesor.
    - Alta/edición de usuarios reales en Airtable tabla Asesores.
 ═══════════════════════════════════════════════════ */
 const ADMIN_ASESORES_TABLE = 'tblIRPmLIyj8sWyEk';
 const ADMIN_TIPOS_CUENTA = ['Inmobiliaria','Asesor independiente','Grupo de asesores sin inmobiliaria'];
 const ADMIN_PUESTOS = ['Administrador Neri','Director','Gerente / Coordinador','Asesor de inmobiliaria','Asesor independiente','Líder de grupo','Asesor de grupo'];
-let adminState = { loaded:false, loading:false, error:'', records:[], editRecId:null };
+const ADMIN_ZONAS = [
+  { id:'inmobiliaria', tipo:'Inmobiliaria', titulo:'INMOBILIARIA', desc:'Cuentas madre con director, gerencia, asesores, branding y operación por equipo.' },
+  { id:'independiente', tipo:'Asesor independiente', titulo:'ASESOR INDEPENDIENTE', desc:'Cuenta individual. No usa logo de inmobiliaria; donde no aplique debe mostrarse N/A.' },
+  { id:'grupo', tipo:'Grupo de asesores sin inmobiliaria', titulo:'GRUPO ASESORES S/INMOBILIARIA', desc:'Equipo comercial sin estructura formal de inmobiliaria. Líder y asesores separados por permisos.' }
+];
+let adminState = { loaded:false, loading:false, error:'', records:[], editRecId:null, formOpen:false, filtroTipo:'todos' };
 
 function adminVal(id){ return (document.getElementById(id)?.value || '').trim(); }
 function adminEsc(v){ return _esc(String(v ?? '')); }
@@ -3405,6 +3413,15 @@ function adminPhotoUrl(rec){
   if(Array.isArray(a) && a[0]) return (a[0].thumbnails?.small?.url || a[0].url || '');
   return '';
 }
+function adminNormTipo(tipo){
+  const t = String(tipo||'').toLowerCase();
+  if(t.includes('grupo')) return 'Grupo de asesores sin inmobiliaria';
+  if(t.includes('inmobiliaria')) return 'Inmobiliaria';
+  if(t.includes('independiente')) return 'Asesor independiente';
+  return 'Asesor independiente';
+}
+function adminRecordTipo(rec){ return adminNormTipo(adminF(rec,'Tipo') || adminF(rec,'Puesto') || 'Asesor independiente'); }
+function adminCuentaNombre(rec){ return adminF(rec,['Cuenta','Cuenta asignada','Inmobiliaria','Inmobiliaria / Cuenta']) || 'N/A'; }
 function adminLinkFromSlug(slug){ return slug ? `https://captacion.vercel.app/?asesor=${encodeURIComponent(slug)}` : 'N/A'; }
 function adminBadgeEstado(estado){
   const e = estado || 'Pendiente';
@@ -3414,6 +3431,7 @@ function adminBadgeEstado(estado){
 function adminOptions(list, selected){
   return list.map(o=>`<option value="${adminEscAttr(o)}" ${String(o)===String(selected)?'selected':''}>${adminEsc(o)}</option>`).join('');
 }
+function adminEstado(rec){ return adminF(rec,'Estado') || (String(rec.fields?.Activo).toLowerCase()==='true'?'Activo':'Pendiente'); }
 
 function buildAdministracionPanel(){
   return `<div class="panel" id="panel-administracion">
@@ -3439,45 +3457,86 @@ function adminRender(){
   const el = document.getElementById('admin-content'); if(!el) return;
   if(adminState.loading){ el.innerHTML = '<div class="admin-v9-section"><div class="hoy-empty">Cargando usuarios reales desde Airtable…</div></div>'; return; }
   if(adminState.error){ el.innerHTML = `<div class="admin-v9-section"><div class="hoy-empty err">No se pudo cargar Control Maestro: ${adminEsc(adminState.error)}</div><div class="admin-actions"><button class="btn btn-primary" onclick="adminLoad(true)">Reintentar</button></div></div>`; return; }
-  const activos = adminState.records.filter(r=>/activo/i.test(adminF(r,['Estado'])) || String(r.fields?.Activo).toLowerCase()==='true').length;
-  const inactivos = adminState.records.length - activos;
+  const activos = adminState.records.filter(r=>/activo/i.test(adminEstado(r))).length;
+  const pendientes = adminState.records.filter(r=>/pendiente/i.test(adminEstado(r))).length;
+  const inactivos = adminState.records.filter(r=>/inactivo/i.test(adminEstado(r))).length;
   el.innerHTML = `<div class="admin-v9-hero">
     <div class="admin-v9-top">
       <div>
-        <div class="ph-eyebrow">Administrador Neri · usuarios reales</div>
+        <div class="ph-eyebrow">Administrador Neri · administración real</div>
         <div class="admin-v9-title">CONTROL <em>MAESTRO</em></div>
-        <div class="admin-v9-sub">Esta pantalla solo administra cuentas y accesos. No abre el Centro de Operaciones, no muestra herramientas de asesor y no usa datos de prueba.</div>
+        <div class="admin-v9-sub">Administra cuentas y accesos reales. Las zonas comerciales permanecen separadas: inmobiliaria, asesor independiente y grupo sin inmobiliaria. No se abren fichas hasta que tú elijas crear o editar.</div>
       </div>
       <button class="admin-v9-create" onclick="adminNuevoUsuario()">+ Crear usuario real</button>
     </div>
     <div class="admin-v9-kpis">
-      <div class="admin-v9-kpi"><div class="admin-v9-kpi-num">${adminState.records.length}</div><div class="admin-v9-kpi-lbl">Usuarios en Airtable</div></div>
+      <div class="admin-v9-kpi"><div class="admin-v9-kpi-num">${adminState.records.length}</div><div class="admin-v9-kpi-lbl">Usuarios reales</div></div>
       <div class="admin-v9-kpi"><div class="admin-v9-kpi-num">${activos}</div><div class="admin-v9-kpi-lbl">Activos</div></div>
-      <div class="admin-v9-kpi"><div class="admin-v9-kpi-num">${inactivos}</div><div class="admin-v9-kpi-lbl">Pendientes / inactivos</div></div>
-      <div class="admin-v9-kpi"><div class="admin-v9-kpi-num">N/A</div><div class="admin-v9-kpi-lbl">Modo prueba</div></div>
+      <div class="admin-v9-kpi"><div class="admin-v9-kpi-num">${pendientes}</div><div class="admin-v9-kpi-lbl">Pendientes</div></div>
+      <div class="admin-v9-kpi"><div class="admin-v9-kpi-num">${inactivos}</div><div class="admin-v9-kpi-lbl">Inactivos</div></div>
     </div>
   </div>
-  ${adminRenderForm()}
-  ${adminRenderUsuariosReales()}`;
+  ${adminRenderFiltros()}
+  ${adminState.formOpen || adminState.editRecId ? adminRenderForm() : ''}
+  ${adminRenderZonas()}`;
 }
-function adminNuevoUsuario(){ adminState.editRecId = null; adminRender(); setTimeout(()=>document.getElementById('admin-user-form')?.scrollIntoView({behavior:'smooth',block:'start'}),40); }
-function adminEditarUsuario(recId){ adminState.editRecId = recId; adminRender(); setTimeout(()=>document.getElementById('admin-user-form')?.scrollIntoView({behavior:'smooth',block:'start'}),40); }
+function adminRenderFiltros(){
+  const buttons = [{id:'todos',label:'TODO'}].concat(ADMIN_ZONAS.map(z=>({id:z.id,label:z.titulo})));
+  return `<div class="admin-v9-section"><div class="admin-v9-sec-head"><div><div class="admin-v9-sec-title">ZONAS DE <em>ADMINISTRACIÓN</em></div><div class="admin-v9-sec-sub">Sin duplicar directorios. Cada bloque se mantiene cerrado y ordenado.</div></div><button class="btn btn-ghost" onclick="adminLoad(true)">Actualizar</button></div><div class="admin-zone-tabs">${buttons.map(b=>`<button class="admin-zone-tab ${adminState.filtroTipo===b.id?'active':''}" onclick="adminSetFiltro('${b.id}')">${adminEsc(b.label)}</button>`).join('')}</div></div>`;
+}
+function adminSetFiltro(id){ adminState.filtroTipo=id||'todos'; adminState.formOpen=false; adminState.editRecId=null; adminRender(); }
+function adminNuevoUsuario(){ adminState.editRecId = null; adminState.formOpen = true; adminRender(); setTimeout(()=>document.getElementById('admin-user-form')?.scrollIntoView({behavior:'smooth',block:'start'}),40); }
+function adminCerrarFormulario(){ adminState.editRecId=null; adminState.formOpen=false; adminRender(); }
+function adminEditarUsuario(recId){ adminState.editRecId = recId; adminState.formOpen = true; adminRender(); setTimeout(()=>document.getElementById('admin-user-form')?.scrollIntoView({behavior:'smooth',block:'start'}),40); }
 function adminRecordEdit(){ return adminState.records.find(r=>r.id===adminState.editRecId) || null; }
+function adminRenderZonas(){
+  const visibles = ADMIN_ZONAS.filter(z=>adminState.filtroTipo==='todos' || adminState.filtroTipo===z.id);
+  return visibles.map(z=>adminRenderZona(z)).join('');
+}
+function adminRenderZona(z){
+  const records = adminState.records.filter(r=>adminRecordTipo(r)===z.tipo);
+  const active = records.filter(r=>/activo/i.test(adminEstado(r))).length;
+  const rows = records.map(rec=>adminUsuarioRow(rec)).join('');
+  return `<div class="admin-v9-section admin-zone-section" id="admin-zone-${z.id}">
+    <div class="admin-v9-sec-head">
+      <div><div class="admin-v9-sec-title">${adminEsc(z.titulo)}</div><div class="admin-v9-sec-sub">${adminEsc(z.desc)}</div></div>
+      <div class="admin-zone-count"><b>${records.length}</b><span>${active} activos</span></div>
+    </div>
+    ${rows?`<div class="admin-v9-users">${rows}</div>`:`<div class="admin-v9-empty"><b>Sin registros</b>No hay usuarios reales en esta zona todavía.</div>`}
+  </div>`;
+}
+function adminUsuarioRow(rec){
+  const nombre = adminF(rec,'Nombre') || 'Sin nombre';
+  const slug = adminF(rec,'Slug') || 'Sin slug';
+  const cuenta = adminCuentaNombre(rec);
+  const tipo = adminRecordTipo(rec);
+  const puesto = adminF(rec,'Puesto') || 'N/A';
+  const estado = adminEstado(rec);
+  const link = adminF(rec,'Link Captación') || adminLinkFromSlug(slug);
+  const foto = adminPhotoUrl(rec);
+  return `<div class="admin-v9-user-row">
+    <div style="display:flex;gap:12px;align-items:center;min-width:0">
+      <div class="admin-upload-preview" style="width:46px;height:46px;font-size:16px">${foto?`<img src="${adminEscAttr(foto)}" alt="">`:'<span>＋</span>'}</div>
+      <div style="min-width:0"><div class="admin-v9-user-name">${adminEsc(nombre)}</div><div class="admin-v9-user-meta">${adminEsc(tipo)} · ${adminEsc(puesto)} · Cuenta: ${adminEsc(cuenta)}</div><div class="admin-v14-user-link">${adminEsc(link)}</div></div>
+    </div>
+    <div class="admin-v9-user-actions">${adminBadgeEstado(estado)}<button class="admin-v9-smallbtn" onclick="navigator.clipboard?.writeText('${adminEscAttr(link)}');showToast('Link copiado')">Copiar link</button><button class="admin-v9-smallbtn" onclick="adminEditarUsuario('${rec.id}')">Editar</button></div>
+  </div>`;
+}
 function adminRenderForm(){
   const rec = adminRecordEdit();
   const isEdit = !!rec;
   const f = (names)=> adminF(rec,names);
   const nombre = f('Nombre');
   const slug = f('Slug') || adminSlug(nombre);
-  const tipo = f('Tipo') || 'Asesor independiente';
+  const tipo = adminRecordTipo(rec) || 'Asesor independiente';
   const puesto = f('Puesto') || (tipo==='Asesor independiente' ? 'Asesor independiente' : 'Asesor de inmobiliaria');
   const estado = f('Estado') || (String(rec?.fields?.Activo).toLowerCase()==='true' ? 'Activo' : 'Activo');
   const foto = adminPhotoUrl(rec);
   const link = f('Link Captación') || adminLinkFromSlug(slug);
   return `<div class="admin-v9-section" id="admin-user-form">
     <div class="admin-v9-sec-head">
-      <div><div class="admin-v9-sec-title">${isEdit?'EDITAR':'CREAR'} <em>USUARIO REAL</em></div><div class="admin-v9-sec-sub">Guarda en Airtable. El asesor entrará con Slug + contraseña real.</div></div>
-      ${isEdit?'<button class="btn btn-ghost" onclick="adminNuevoUsuario()">Cancelar edición</button>':''}
+      <div><div class="admin-v9-sec-title">${isEdit?'EDITAR':'CREAR'} <em>USUARIO REAL</em></div><div class="admin-v9-sec-sub">Formulario cerrado por defecto. Guarda en Airtable; el asesor entrará con Slug + contraseña real.</div></div>
+      <button class="btn btn-ghost" onclick="adminCerrarFormulario()">Cerrar sin guardar</button>
     </div>
     <div class="admin-v9-ficha"><div class="admin-v9-panel-body">
       <div class="admin-form-grid">
@@ -3485,7 +3544,7 @@ function adminRenderForm(){
         <div class="form-group"><label>Slug / usuario de acceso</label><input class="form-inp" id="admin-slug" value="${adminEscAttr(slug)}" oninput="adminUpdateLinkPreview()" placeholder="enrique-neri"></div>
         <div class="form-group"><label>${isEdit?'Nueva contraseña (opcional)':'Contraseña real'}</label><input class="form-inp" id="admin-pass" type="password" value="" placeholder="${isEdit?'Deja vacío para no cambiarla':'Contraseña para entrar'}"></div>
         <div class="form-group"><label>Estado / activación</label><select class="form-inp" id="admin-estado">${adminOptions(['Activo','Pendiente','Inactivo'],estado)}</select></div>
-        <div class="form-group"><label>Cuenta</label><input class="form-inp" id="admin-cuenta" value="${adminEscAttr(f(['Cuenta','Cuenta asignada','Inmobiliaria','Inmobiliaria / Cuenta']))}" placeholder="Ej: C21 Haus / N/A"></div>
+        <div class="form-group"><label>Cuenta</label><input class="form-inp" id="admin-cuenta" value="${adminEscAttr(adminCuentaNombre(rec))}" placeholder="Ej: C21 Haus / N/A"></div>
         <div class="form-group"><label>Tipo</label><select class="form-inp" id="admin-tipo">${adminOptions(ADMIN_TIPOS_CUENTA,tipo)}</select></div>
         <div class="form-group"><label>Puesto</label><select class="form-inp" id="admin-puesto">${adminOptions(ADMIN_PUESTOS,puesto)}</select></div>
         <div class="form-group"><label>Ciudad</label><input class="form-inp" id="admin-ciudad" value="${adminEscAttr(f(['Ciudad','Ciudad (texto viejo)']))}" placeholder="Cuernavaca"></div>
@@ -3508,37 +3567,18 @@ function adminRenderForm(){
       </div>
       <div class="admin-actions">
         <span id="admin-save-msg" style="margin-right:auto;font-size:12px;color:var(--w50)"></span>
-        <button class="btn btn-ghost" onclick="adminNuevoUsuario()">Limpiar formulario</button>
+        <button class="btn btn-ghost" onclick="adminCerrarFormulario()">Cerrar sin guardar</button>
         <button class="btn btn-primary" id="admin-save-btn" onclick="adminSaveUsuarioReal()">${isEdit?'Guardar cambios':'Crear usuario real'}</button>
       </div>
     </div></div>
   </div>`;
 }
-function adminRenderUsuariosReales(){
-  const rows = adminState.records.map(rec=>{
-    const nombre = adminF(rec,'Nombre') || 'Sin nombre';
-    const slug = adminF(rec,'Slug') || 'Sin slug';
-    const cuenta = adminF(rec,['Cuenta','Cuenta asignada','Inmobiliaria','Inmobiliaria / Cuenta']) || 'N/A';
-    const tipo = adminF(rec,'Tipo') || 'N/A';
-    const estado = adminF(rec,'Estado') || (String(rec.fields?.Activo).toLowerCase()==='true'?'Activo':'Pendiente');
-    const link = adminF(rec,'Link Captación') || adminLinkFromSlug(slug);
-    const foto = adminPhotoUrl(rec);
-    return `<div class="admin-v9-user-row" onclick="adminEditarUsuario('${rec.id}')">
-      <div style="display:flex;gap:12px;align-items:center;min-width:0">
-        <div class="admin-upload-preview" style="width:46px;height:46px;font-size:16px">${foto?`<img src="${adminEscAttr(foto)}" alt="">`:'<span>＋</span>'}</div>
-        <div style="min-width:0"><div class="admin-v9-user-name">${adminEsc(nombre)}</div><div class="admin-v9-user-meta">${adminEsc(tipo)} · ${adminEsc(cuenta)} · ${adminEsc(adminF(rec,'Email')||'Sin email')}</div><div class="admin-v14-user-link">${adminEsc(link)}</div></div>
-      </div>
-      <div class="admin-v9-user-actions">${adminBadgeEstado(estado)}<button class="admin-v9-smallbtn" onclick="event.stopPropagation();navigator.clipboard?.writeText('${adminEscAttr(link)}');showToast('Link copiado')">Copiar link</button><button class="admin-v9-smallbtn" onclick="event.stopPropagation();adminEditarUsuario('${rec.id}')">Editar</button></div>
-    </div>`;
-  }).join('');
-  return `<div class="admin-v9-section"><div class="admin-v9-sec-head"><div><div class="admin-v9-sec-title">USUARIOS <em>REALES</em></div><div class="admin-v9-sec-sub">Lectura directa desde Airtable. No es directorio duplicado ni pantalla de prueba.</div></div><button class="btn btn-ghost" onclick="adminLoad(true)">Actualizar</button></div>${rows?`<div class="admin-v9-users">${rows}</div>`:'<div class="admin-v9-empty"><b>Sin usuarios reales</b>Crea el primer usuario desde el formulario superior.</div>'}</div>`;
-}
 function adminAutofillSlug(){
   if(adminState.editRecId) return;
   const slugEl = document.getElementById('admin-slug');
-  if(slugEl && !slugEl.dataset.touched){ slugEl.value = adminSlug(adminVal('admin-nombre')); adminUpdateLinkPreview(); }
+  if(slugEl && !slugEl.dataset.touched){ slugEl.value = adminSlug(adminVal('admin-nombre')); adminUpdateLinkPreview(true); }
 }
-function adminUpdateLinkPreview(){ const el=document.getElementById('admin-link-preview'); if(el) el.value=adminLinkFromSlug(adminVal('admin-slug')); const s=document.getElementById('admin-slug'); if(s) s.dataset.touched='1'; }
+function adminUpdateLinkPreview(fromAuto=false){ const el=document.getElementById('admin-link-preview'); if(el) el.value=adminLinkFromSlug(adminVal('admin-slug')); const s=document.getElementById('admin-slug'); if(s && !fromAuto) s.dataset.touched='1'; }
 function adminPreviewPhoto(ev){
   const file = ev?.target?.files?.[0]; const box=document.getElementById('admin-foto-preview'); if(!box || !file) return;
   const r = new FileReader(); r.onload = () => { box.innerHTML = `<img src="${adminEscAttr(r.result)}" alt="Foto nueva">`; }; r.readAsDataURL(file);
@@ -3584,11 +3624,10 @@ async function adminSaveUsuarioReal(){
     if(isEdit){ await atFetch(`${ADMIN_ASESORES_TABLE}/${rec.id}`, { method:'PATCH', body:JSON.stringify({ fields, typecast:true }) }); }
     else { await atFetch(`${ADMIN_ASESORES_TABLE}`, { method:'POST', body:JSON.stringify({ fields, typecast:true }) }); }
     showToast(isEdit?'✓ Usuario actualizado en Airtable':'✓ Usuario creado en Airtable');
-    adminState.editRecId=null; adminState.loaded=false; await adminLoad(true);
+    adminState.editRecId=null; adminState.formOpen=false; adminState.loaded=false; await adminLoad(true);
   }catch(e){ setMsg('Error: '+e.message,'var(--red)'); }
   finally{ if(btn){ btn.disabled=false; btn.textContent=isEdit?'Guardar cambios':'Crear usuario real'; } }
 }
-
 
 /* ═══════════════════════════════════════════════════
    ASESOR — CABINA DE MANDO REAL
@@ -3919,7 +3958,7 @@ window.addEventListener('DOMContentLoaded', () => {
   const sub = document.querySelector('.lc-sub');
   if(sub) sub.textContent = 'Acceso operativo · usuarios reales · SIN DEMO · LOGIN OBLIGATORIO';
   const footer = document.querySelector('.login-footer');
-  if(footer) footer.innerHTML = 'Acceso real por sesión firmada · SIN DEMO<br>Método NERI · Cabina de mando inmobiliaria<br>Build: ADMIN-FUNCIONAL-LIMPIO-2026-06-05';
+  if(footer) footer.innerHTML = 'Acceso real por sesión firmada · SIN DEMO<br>Método NERI · Cabina de mando inmobiliaria<br>Build: ADMIN-SECCIONES-CERRADAS-2026-06-05';
   // IMPORTANTE: por etapa de pruebas reales, no se auto-recupera sesión.
   // Cada carga empieza en login para evitar accesos arrastrados por sessionStorage/cache del modo anterior.
   try{ sessionStorage.removeItem(SESSION_STORE_KEY); }catch(_){ }
