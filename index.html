@@ -1186,6 +1186,7 @@ select.form-inp option{background:#111;color:#fff}
 .perfil-fv-locks{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 .perfil-fv-actions{border:1px solid var(--goldbdr);border-top:none;background:rgba(8,8,8,.78)}
 .perfil-copy-link{float:right;display:inline-flex;text-decoration:none;background:rgba(74,222,128,.06);color:var(--green);border-color:rgba(74,222,128,.3)}
+.perfil-fv-header::before{content:'ASESOR'}
 @media(max-width:760px){.perfil-fv-grid,.perfil-fv-locks,.perfil-fv-photo{grid-template-columns:1fr}.asesor-perfil-page{padding:18px}.perfil-fv-body{padding-left:18px;padding-right:18px}}
 
 @media(max-width:980px){.asesor-hero,.asesor-two{grid-template-columns:1fr}.asesor-action-grid,.asesor-manual-grid{grid-template-columns:1fr}.asesor-form{grid-template-columns:1fr}.role-switch{display:none}}
@@ -3142,7 +3143,7 @@ function buildAirtablePanel(){
         <div class="airtable-title-row">
           <div class="at-title">
             CENTRO DE <em>OPERACIONES</em>
-            <span class="at-title-sub">Expedientes vivos · datos reales filtrados por sesión</span>
+            <span class="at-title-sub">Leads, citas y propiedades · datos reales filtrados por sesión</span>
           </div>
           <div class="at-right">
             <button class="at-btn" onclick="crmLoad(crmState.tab,true)" title="Recargar">
@@ -3384,7 +3385,7 @@ const LABELS = {
   hoy:'Inicio',
   administracion:'Control de Mando',
   airtable:'Centro de Operaciones',
-  expedientes:'Expedientes Vivos',
+  expedientes:'Expedientes',
   sala:'Sala de Mensajes',
   compradores:'Landing Compradores',
   vendedores:'Landing Vendedores',
@@ -3443,7 +3444,7 @@ function getSectionForId(id, rol){
 function getToolDesc(id){
   const descs = {
     administracion: 'Administración de cuentas.',
-    airtable:    'Expedientes vivos y registros reales filtrados por sesión.',
+    airtable:    'Leads, citas y propiedades reales filtrados por sesión.',
     sala:        'Mensajes y comunicación con el equipo.',
     compradores: 'Landing personalizada para captar compradores.',
     vendedores:  'Diagnóstico profesional para propietarios.',
@@ -3601,16 +3602,14 @@ function adminRenderAccessReady(){
   const tablas = adminTablasPaquete(a.tipoCuenta);
   return `<div class="admin-v9-section admin-access-created">
     <div class="admin-v9-user-row admin-user-closed-row" style="border-color:rgba(74,222,128,.22);background:rgba(74,222,128,.035)">
-      <div style="min-width:0"><div class="admin-v9-user-name">Acceso creado</div><div class="admin-v9-user-meta">${adminEsc(line + phoneLine)}</div><div class="admin-v9-user-meta" style="color:var(--gold);margin-top:4px">Tablas asignadas: ${adminEsc(tablas)}</div></div>
+      <div style="min-width:0"><div class="admin-v9-user-name">Acceso creado</div><div class="admin-v9-user-meta">${adminEsc(line + phoneLine)}</div><div class="admin-v9-user-meta" style="color:var(--gold);margin-top:4px">Conexión actual: ${adminEsc(tablas)}</div></div>
       <div class="admin-v9-user-actions"><button class="admin-v9-smallbtn" onclick="adminCopyAccessReady()">Copiar acceso</button><button class="admin-v9-smallbtn" onclick="adminSendAccessReady()">Enviar</button><button class="admin-v9-smallbtn" onclick="adminClearAccessReady()">Cerrar</button></div>
     </div>
   </div>`;
 }
 function adminTablasPaquete(tipo){
   const base = 'Compradores · Vendedores · Propiedades · Citas · Progreso';
-  return String(tipo||'').toLowerCase().includes('inmobiliaria')
-    ? base + ' (paquete inmobiliaria · filtradas por asesor)'
-    : base + ' (paquete asesor independiente · filtradas por este asesor)';
+  return base + ' (prueba actual: tablas configuradas y filtradas por sesión del asesor)';
 }
 function adminCopyAccessReady(){
   const txt = adminAccessText();
@@ -3688,7 +3687,7 @@ function adminRenderForm(){
           <div class="form-group"><label>Nombre / cuenta</label><input class="form-inp" id="admin-nombre" value="${adminEscAttr(nombre)}" oninput="adminAutofillSlug()" placeholder="Nombre del usuario o cuenta"></div>
           <div class="form-group"><label>Usuario / slug</label><input class="form-inp" id="admin-slug" value="${adminEscAttr(slug)}" oninput="adminUpdateLinkPreview()" placeholder="laura-garcia"></div>
           <div class="form-group"><label>Acceso</label><select class="form-inp" id="admin-activo"><option value="true" ${activo?'selected':''}>Activo</option><option value="false" ${!activo?'selected':''}>Inactivo</option></select></div>
-          <div class="form-group"><label>Tipo de cuenta · paquete de tablas</label><select class="form-inp" id="admin-tipo" onchange="adminSyncPuestoByTipo()">${adminOptions(ADMIN_TIPOS_CUENTA,tipo)}</select></div>
+          <div class="form-group"><label>Tipo de cuenta</label><select class="form-inp" id="admin-tipo" onchange="adminSyncPuestoByTipo()">${adminOptions(ADMIN_TIPOS_CUENTA,tipo)}</select></div>
           <div class="form-group"><label>Puesto / rol</label><select class="form-inp" id="admin-puesto">${adminOptions(ADMIN_PUESTOS,puesto)}</select></div>
           <div class="form-group"><label>WhatsApp de envío</label><input class="form-inp" id="admin-whatsapp-destino" value="" placeholder="Ej: 527771234567"></div>
           <div class="form-group full"><label>Link captación</label><input class="form-inp" id="admin-link-preview" value="${adminEscAttr(link)}" disabled></div>
@@ -3847,7 +3846,7 @@ async function asesorLoadAll(force=false){
 }
 function buildAsesorHoyPanel(){
   const s=SESSION||{}, link=asesorLinkCaptacion();
-  return `<div class="panel" id="panel-hoy"><div class="asesor-body"><div class="asesor-hero"><section class="asesor-card"><div class="asesor-eyebrow">Cabina real del asesor</div><div class="asesor-title">HOY SE <em>MUEVE DINERO</em></div><div class="asesor-sub">Hola, ${asesorEsc(s.nombre||'asesor')}. Esta vista debe decirte qué hacer, a quién contactar, qué riesgo atender, qué documento falta y qué mensaje mandar.</div><div class="asesor-link-box"><div><small>Tu Link Captación</small><code id="asesor-link-cap">${asesorEsc(link || 'Sin slug / sin link')}</code></div>${link?`<button class="asesor-gold-btn" onclick="asesorCopy('${asesorEsc(link)}')">Copiar link</button>`:''}</div></section><section class="asesor-card"><div class="asesor-eyebrow">Resumen de dinero</div><div class="asesor-kpis" id="asesor-money-kpis"><div class="hoy-empty">Cargando datos reales…</div></div></section></div><section class="asesor-section"><div class="asesor-sec-head"><div><div class="asesor-sec-title">DINERO <em>EN RIESGO / CERCA / DORMIDO</em></div><div class="asesor-sec-sub">Tres zonas para decidir dónde actuar primero.</div></div><button class="asesor-gold-btn" onclick="asesorLoadHoy(true)">Actualizar</button></div><div class="asesor-action-grid" id="asesor-zonas"><div class="hoy-empty">Cargando…</div></div></section><section class="asesor-section"><div class="asesor-sec-head"><div><div class="asesor-sec-title">QUÉ HACER <em>HOY</em></div><div class="asesor-sec-sub">Qué hacer, a quién contactar, qué lead se enfría, qué operación está en riesgo, qué documento falta y qué mensaje mandar.</div></div><button class="asesor-gold-btn" onclick="goTo('airtable')">Abrir Centro de Operaciones</button></div><div class="asesor-list" id="asesor-hoy-list"><div class="hoy-empty">Cargando registros reales…</div></div></section><section class="asesor-section"><div class="asesor-note"><b>Regla de esta vista:</b> no usa datos de prueba. Si aparece vacía, significa que no hubo registros reales para el asesor filtrado por la sesión.</div></section></div></div>`;
+  return `<div class="panel" id="panel-hoy"><div class="asesor-body"><div class="asesor-hero"><section class="asesor-card"><div class="asesor-eyebrow">Cabina real del asesor</div><div class="asesor-title">HOY SE <em>MUEVE DINERO</em></div><div class="asesor-sub">Hola, ${asesorEsc(s.nombre||'asesor')}. Esta vista debe decirte qué hacer, a quién contactar, qué riesgo atender, qué documento falta y qué mensaje mandar.</div><div class="asesor-link-box"><div><small>Tu Link Captación</small><code id="asesor-link-cap">${asesorEsc(link || 'Sin slug / sin link')}</code></div>${link?`<button class="asesor-gold-btn" data-copy="${asesorEsc(link)}" onclick="asesorCopy(this.dataset.copy)">Copiar link</button>`:''}</div></section><section class="asesor-card"><div class="asesor-eyebrow">Resumen de dinero</div><div class="asesor-kpis" id="asesor-money-kpis"><div class="hoy-empty">Cargando datos reales…</div></div></section></div><section class="asesor-section"><div class="asesor-sec-head"><div><div class="asesor-sec-title">DINERO <em>EN RIESGO / CERCA / DORMIDO</em></div><div class="asesor-sec-sub">Tres zonas para decidir dónde actuar primero.</div></div><button class="asesor-gold-btn" onclick="asesorLoadHoy(true)">Actualizar</button></div><div class="asesor-action-grid" id="asesor-zonas"><div class="hoy-empty">Cargando…</div></div></section><section class="asesor-section"><div class="asesor-sec-head"><div><div class="asesor-sec-title">QUÉ HACER <em>HOY</em></div><div class="asesor-sec-sub">Qué hacer, a quién contactar, qué lead se enfría, qué operación está en riesgo, qué documento falta y qué mensaje mandar.</div></div><button class="asesor-gold-btn" onclick="goTo('airtable')">Abrir Centro de Operaciones</button></div><div class="asesor-list" id="asesor-hoy-list"><div class="hoy-empty">Cargando registros reales…</div></div></section><section class="asesor-section"><div class="asesor-note"><b>Regla de esta vista:</b> no usa datos de prueba. Si aparece vacía, significa que no hubo registros reales para el asesor filtrado por la sesión.</div></section></div></div>`;
 }
 async function asesorLoadHoy(force=false){
   if(_asesorHoyLoaded && !force) return; _asesorHoyLoaded=true;
@@ -3858,7 +3857,7 @@ async function asesorLoadHoy(force=false){
     const riesgo=prog.filter(r=>/riesgo|pendiente|falta|atorad|detenid|document/i.test((_fval(r,'Pendientes visibles')+' '+_fval(r,'Próximo paso')).toLowerCase())).concat(comp.filter(r=>/riesgo|no entiende|banco|crédito|credito|gastos|document/i.test((_fval(r,'Riesgo principal')+' '+_fval(r,'Diagnóstico comercial')).toLowerCase())));
     const dineroRiesgo=riesgo.reduce((a,r)=>a+asesorMoney(_fval(r,'Precio')||_fval(r,'Precio Lista')||_fval(r,'Precio Estimado')),0);
     if(kpis) kpis.innerHTML=[[riesgo.length,'operaciones / leads en riesgo'],[cerca.length,'oportunidades cerca'],[dormidos.length,'leads dormidos'],[citas.filter(r=>['Pendiente','Confirmada','Reagendada'].includes(_fval(r,'Estado Cita'))).length,'citas activas']].map(x=>`<div class="asesor-kpi"><b>${x[0]}</b><span>${x[1]}</span></div>`).join('');
-    if(zonas) zonas.innerHTML=[['Dinero en riesgo',dineroRiesgo?`${asesorFmtMoney(dineroRiesgo)} requiere acción`:`${riesgo.length} expedientes con riesgo`,riesgo[0]?asesorMensaje(riesgo[0]):'Sin riesgos detectados en registros reales.','airtable'],['Dinero cerca',`${cerca.length} oportunidades para avanzar`,cerca[0]?asesorMensaje(cerca[0]):'Sin oportunidades listas detectadas.','airtable'],['Dinero dormido',`${dormidos.length} leads se enfrían`,dormidos[0]?`${asesorNombre(dormidos[0])}: ${asesorMensaje(dormidos[0])}`:'Sin leads dormidos detectados.','airtable']].map(z=>`<button class="asesor-action" onclick="goTo('${z[3]}')"><div><span class="tag">${asesorEsc(z[0])}</span><b>${asesorEsc(z[1])}</b><p>${asesorEsc(z[2])}</p></div><span class="go">Resolver ahora →</span></button>`).join('');
+    if(zonas) zonas.innerHTML=[['Dinero en riesgo',dineroRiesgo?`${asesorFmtMoney(dineroRiesgo)} requiere acción`:`${riesgo.length} registros con riesgo`,riesgo[0]?asesorMensaje(riesgo[0]):'Sin riesgos detectados en registros reales.','airtable'],['Dinero cerca',`${cerca.length} oportunidades para avanzar`,cerca[0]?asesorMensaje(cerca[0]):'Sin oportunidades listas detectadas.','airtable'],['Dinero dormido',`${dormidos.length} leads se enfrían`,dormidos[0]?`${asesorNombre(dormidos[0])}: ${asesorMensaje(dormidos[0])}`:'Sin leads dormidos detectados.','airtable']].map(z=>`<button class="asesor-action" onclick="goTo('${z[3]}')"><div><span class="tag">${asesorEsc(z[0])}</span><b>${asesorEsc(z[1])}</b><p>${asesorEsc(z[2])}</p></div><span class="go">Resolver ahora →</span></button>`).join('');
     const acciones=[]; const firstRisk=riesgo[0], firstDormido=dormidos[0], firstCerca=cerca[0], docPend=prog.find(r=>_fval(r,'Pendientes visibles'))||vend.find(r=>_fval(r,'Documentos'));
     if(firstRisk) acciones.push(['Qué operación está en riesgo',asesorNombre(firstRisk),asesorMensaje(firstRisk),firstRisk]); if(firstCerca) acciones.push(['A quién contactar',asesorNombre(firstCerca),asesorMensaje(firstCerca),firstCerca]); if(firstDormido) acciones.push(['Qué lead se está enfriando',asesorNombre(firstDormido),`${asesorDays(_fval(firstDormido,'Última interacción'))} días sin contacto · ${asesorMensaje(firstDormido)}`,firstDormido]); if(docPend) acciones.push(['Qué documento falta',asesorNombre(docPend),_fval(docPend,'Pendientes visibles')||_fval(docPend,'Documentos'),docPend]); if(!acciones.length&&(comp.length||vend.length||prog.length)) acciones.push(['Qué hacer hoy','Revisar Centro de Operaciones','Hay registros reales, pero todavía no tienen riesgo/siguiente jugada/documento capturado.',comp[0]||vend[0]||prog[0]]);
     if(list) list.innerHTML=acciones.length?acciones.map(([tag,nombre,txt,rec])=>{const phone=_fval(rec,'Teléfono WhatsApp')||_fval(rec,'WhatsApp Asesor'); const msg=asesorMensaje(rec); const wa=phone?`<a class="asesor-pill gold" href="${asesorWa(phone,msg)}" target="_blank" rel="noopener">Mensaje sugerido</a>`:''; return `<div class="asesor-row" style="cursor:pointer" onclick="openExpedienteById('${rec.id}')"><div><b>${asesorEsc(nombre)}</b><p>${asesorEsc(tag)} · ${asesorEsc(txt)}</p></div><div class="meta"><span class="asesor-pill">${asesorEsc(asesorStatus(rec))}</span>${wa}</div></div>`;}).join(''):'<div class="hoy-empty">No hay registros reales para construir tu cabina de hoy.</div>';
@@ -3874,10 +3873,30 @@ async function asesorLoadHoy(force=false){
    - La Foto se sube a Vercel Blob por /api/upload-documento; Airtable
      guarda solo la URL (mismo patrón que el editor de landing del admin).
 ═══════════════════════════════════════════════════ */
+
 const ASESOR_PERFIL_TABLE = 'tblIRPmLIyj8sWyEk';
 const ASESOR_CIUDADES = ["Cuernavaca","Jiutepec","Temixco","Emiliano Zapata","Xochitepec","Yautepec","Cuautla","Tepoztlán","Jojutla","Zacatepec","Puente de Ixtla","Ayala","Yecapixtla","Tlaltizápan","Tlaquiltenango","Tlayacapan","Huitzilac","Miacatlán","Mazatepec","Tetecala","Coatlán del Río","Amacuzac","Axochiapan","Tepalcingo","Jantetelco","Jonacatepec","Temoac","Tetela del Volcán","Ocuituco","Atlatlahucan","Totolapan","Tlalnepantla","Zacualpan de Amilpas","Hueyapan","Coatetelco","Xoxocotla","Otra"];
+const ASESOR_FRASES = [
+  'Te ayudo a vender con estrategia, orden y seguimiento real.',
+  'Acompaño tu operación inmobiliaria de principio a fin.',
+  'Vender tu propiedad también es proteger tu dinero y tu tranquilidad.',
+  'Mi trabajo es que cada paso de tu operación quede claro y documentado.',
+  'Estrategia inmobiliaria con seguimiento, documentos y decisiones claras.'
+];
 let _perfilLoaded = false;
-let perfilState = { recId:null, rec:null };
+let perfilState = { recId:null, rec:null, editMode:false };
+
+function perfilSafeCopyButton(text, label='Copiar'){
+  if(!text) return '';
+  return `<button class="fv-wa-btn perfil-copy-link" data-copy="${_escAttr(text)}" onclick="asesorCopy(this.dataset.copy)">${_esc(label)}</button>`;
+}
+function perfilSafeAnchor(url, label='Abrir'){
+  if(!url) return '';
+  return `<a class="fv-wa-btn perfil-copy-link" href="${_escAttr(url)}" target="_blank" rel="noopener">${_esc(label)}</a>`;
+}
+function perfilIsPrimeraVez(rec){
+  return !(_fval(rec,'Teléfono WhatsApp') || _fval(rec,'Email') || _fval(rec,'Frase'));
+}
 
 function buildAsesorPerfilPanel(){
   return `<div class="panel" id="panel-perfil_asesor"><div class="asesor-body asesor-perfil-page">
@@ -3906,6 +3925,7 @@ async function perfilLoad(force){
     perfilState.recId = rec.id;
     perfilState.rec   = rec;
     _perfilLoaded = true;
+    if(perfilIsPrimeraVez(rec)) perfilState.editMode = true;
     perfilRender(rec);
   }catch(e){
     if(body) body.innerHTML = '<div class="hoy-empty err">No se pudo cargar tu perfil. <button class="at-btn" onclick="perfilLoad(true)">Reintentar</button></div>';
@@ -3913,6 +3933,104 @@ async function perfilLoad(force){
 }
 
 function perfilRender(rec){
+  if(perfilState.editMode) return perfilRenderForm(rec);
+  return perfilRenderCard(rec);
+}
+
+function perfilEdit(){
+  if(!perfilState.rec) return;
+  perfilState.editMode = true;
+  perfilRender(perfilState.rec);
+}
+function perfilCancelEdit(){
+  if(!perfilState.rec) return;
+  if(perfilIsPrimeraVez(perfilState.rec)){ showToast('Completa tu perfil para continuar'); return; }
+  perfilState.editMode = false;
+  perfilRender(perfilState.rec);
+}
+
+function perfilRenderCard(rec){
+  const body = document.getElementById('perfil-asesor-body');
+  if(!body) return;
+  const v = (n)=> _fval(rec, n);
+  const foto = _attInfo(rec, 'Foto');
+  const indep   = !!(rec.fields && rec.fields['Independiente']);
+  const activo  = !!(rec.fields && rec.fields['Activo']);
+  const puesto  = v('Puesto') || v('Puesto (texto viejo)') || 'Asesor Inmobiliario';
+  const slug    = v('Slug') || SESSION?.slug || '';
+  const link    = v('Link Captación') || (slug ? `https://captacion.vercel.app/?asesor=${encodeURIComponent(slug)}` : '');
+  const cuenta  = v('Cuenta') || v('Cuenta asignada') || v('Inmobiliaria') || v('Inmobiliaria / Cuenta') || v('Cuenta / inmobiliaria / grupo') || SESSION?.empresa || '—';
+  const tipoReal = v('Tipo') || (indep ? 'Asesor independiente' : 'Asesor con inmobiliaria');
+  const estadoReal = v('Estado') || (activo ? 'Activo' : 'Pendiente / Inactivo');
+  const nombre = v('Nombre') || SESSION?.nombre || 'Asesor';
+  const whatsapp = v('Teléfono WhatsApp') || SESSION?.whatsapp || '';
+  const email = v('Email') || '—';
+  const ciudad = v('Ciudad') || v('Ciudad (texto viejo)') || '—';
+  const frase = v('Frase') || 'Sin frase pública todavía.';
+  const fotoThumb = foto.has
+    ? `<img class="le-thumb" src="${_escAttr(foto.thumb||foto.url)}" alt="Foto del asesor">`
+    : `<div class="le-thumb-empty">＋</div>`;
+  const lock = (label, value) => `<div class="fv-lock"><div class="fv-lock-k">${_esc(label)}</div><div class="fv-lock-v">${value ? _esc(value) : '—'}</div></div>`;
+  body.innerHTML = `
+    <div class="fv-box perfil-fv-box">
+      <div class="fv-header perfil-fv-header">
+        <div>
+          <div class="fv-nombre">${_esc(nombre)}</div>
+          <div class="fv-wa">
+            ${whatsapp ? `<span>${_esc(whatsapp)}</span>` : '<span style="color:var(--w30);font-size:11px">Sin WhatsApp</span>'}
+            ${whatsapp ? `<a class="fv-wa-btn" href="${asesorWa(whatsapp, 'Hola, te comparto mi link de captación Método NERI.') }" target="_blank" rel="noopener">↗ WhatsApp</a>` : ''}
+          </div>
+          <div class="fv-meta">
+            <div class="fv-meta-chip">Cuenta <em>${_esc(cuenta)}</em></div>
+            <div class="fv-meta-chip">Tipo <em>${_esc(tipoReal)}</em></div>
+            <div class="fv-meta-chip">Estado <em>${_esc(estadoReal)}</em></div>
+          </div>
+        </div>
+        <div>
+          <div class="fv-folio-lbl">Link Captación</div>
+          <div class="fv-folio">${slug ? _esc(slug) : '— sin slug —'}</div>
+          <div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:8px">
+            ${perfilSafeAnchor(link,'Ver landing')}
+            ${perfilSafeCopyButton(link,'Copiar link')}
+          </div>
+        </div>
+      </div>
+      <div class="fv-body perfil-fv-body">
+        <div class="fv-sec">
+          <div class="fv-sec-title"><em>◉</em> Perfil visible</div>
+          <div class="perfil-fv-photo" style="margin-bottom:12px">
+            <div class="le-attach">${fotoThumb}<span class="le-vstatus ${foto.has?'on':'off'}">${foto.has?'Foto cargada':'Sin foto'}</span></div>
+            <div>
+              <div class="fv-row-v" style="font-size:15px;color:var(--white);margin-bottom:6px">${_esc(frase)}</div>
+              <div class="fv-row-k">Así te verá el propietario o comprador cuando abra tu link.</div>
+            </div>
+          </div>
+          <div class="perfil-fv-locks">
+            ${lock('Email', email)}
+            ${lock('Ciudad', ciudad)}
+            ${lock('Puesto', puesto)}
+            ${lock('Slug oficial', slug)}
+          </div>
+        </div>
+        <div class="fv-sec">
+          <div class="fv-sec-title"><em>🔒</em> Administración / solo lectura</div>
+          <div class="perfil-fv-locks">
+            ${lock('Cuenta asignada', cuenta)}
+            ${lock('Tipo', tipoReal)}
+            ${lock('Estado / activación', `${estadoReal} · lo controla administración`)}
+            ${lock('Link Captación', link || 'Se genera solo con el slug')}
+          </div>
+        </div>
+      </div>
+      <div class="fv-actions perfil-fv-actions">
+        <span style="font-size:12px;color:var(--w50);margin-right:auto">Perfil guardado. Para cambiar datos, abre edición.</span>
+        <button class="btn btn-ghost" onclick="perfilLoad(true)">Recargar</button>
+        <button class="btn btn-primary" onclick="perfilEdit()">Editar perfil</button>
+      </div>
+    </div>`;
+}
+
+function perfilRenderForm(rec){
   const body = document.getElementById('perfil-asesor-body');
   if(!body) return;
   const v = (n)=> _fval(rec, n);
@@ -3942,7 +4060,10 @@ function perfilRender(rec){
   const textarea = (label, field, value) => `
     <div class="perfil-fv-field full">
       <div class="fv-row-k">${_esc(label)}</div>
-      <textarea class="form-inp perfil-fv-input" data-pf="${_escAttr(field)}" data-orig="${_escAttr(value)}" rows="3">${_esc(value)}</textarea>
+      <textarea class="form-inp perfil-fv-input" id="perfil-frase-input" data-pf="${_escAttr(field)}" data-orig="${_escAttr(value)}" rows="3">${_esc(value)}</textarea>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+        ${ASESOR_FRASES.map(fr=>`<button type="button" class="asesor-pill" data-frase="${_escAttr(fr)}" onclick="document.getElementById('perfil-frase-input').value=this.dataset.frase">${_esc(fr.slice(0,38))}${fr.length>38?'…':''}</button>`).join('')}
+      </div>
     </div>`;
 
   const lock = (label, value) => `
@@ -3969,7 +4090,10 @@ function perfilRender(rec){
         <div>
           <div class="fv-folio-lbl">Link Captación</div>
           <div class="fv-folio">${slug ? _esc(slug) : '— sin slug —'}</div>
-          ${link ? `<button class="fv-wa-btn perfil-copy-link" style="margin-top:8px" onclick="asesorCopy('${_escAttr(link)}')">Copiar link</button>` : ''}
+          <div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:8px">
+            ${perfilSafeAnchor(link,'Ver landing')}
+            ${perfilSafeCopyButton(link,'Copiar link')}
+          </div>
         </div>
       </div>
 
@@ -4017,6 +4141,7 @@ function perfilRender(rec){
 
       <div class="fv-actions perfil-fv-actions">
         <span id="perfil-save-msg" style="font-size:12px;color:var(--w50);margin-right:auto"></span>
+        <button class="btn btn-ghost" onclick="perfilCancelEdit()">Cancelar</button>
         <button class="btn btn-ghost" onclick="perfilLoad(true)">Recargar</button>
         <button class="btn btn-primary" id="perfil-save-btn" onclick="perfilSave()">Guardar perfil público</button>
       </div>
@@ -4032,17 +4157,15 @@ async function perfilSave(){
   if(btn){ btn.disabled = true; btn.textContent = 'Guardando…'; }
   setMsg('');
 
-  // 1) Campos públicos editables: solo lo que cambió (no toca campos bloqueados ni fórmulas)
   const fields = {};
   document.querySelectorAll('#perfil-asesor-body [data-pf]').forEach(el=>{
     const name = el.dataset.pf;
     const orig = (el.dataset.orig||'').trim();
     const nv   = (el.value||'').trim();
     if(nv === orig) return;
-    fields[name] = nv === '' ? null : nv;   // typecast:true convierte Ciudad (lista)
+    fields[name] = nv === '' ? null : nv;
   });
 
-  // 2) Foto: subir a Vercel Blob y guardar SOLO la URL en Airtable
   const fotoEl = document.querySelector('#perfil-asesor-body [data-pf-foto]');
   try{
     if(fotoEl && fotoEl.files && fotoEl.files[0]){
@@ -4058,8 +4181,8 @@ async function perfilSave(){
   }
 
   if(Object.keys(fields).length === 0){
-    setMsg('No hay cambios para guardar.');
-    if(btn){ btn.disabled=false; btn.textContent='Guardar perfil público'; }
+    perfilState.editMode = false;
+    perfilRenderCard(perfilState.rec);
     return;
   }
 
@@ -4067,13 +4190,12 @@ async function perfilSave(){
     await atFetch(`${ASESOR_PERFIL_TABLE}/${recId}`, {
       method:'PATCH', body: JSON.stringify({ fields, typecast:true })
     });
-    // Sincroniza la identidad de la sesión con lo recién guardado
     if(fields['Nombre'])            SESSION.nombre   = fields['Nombre'];
     if(fields['Teléfono WhatsApp']) SESSION.whatsapp = String(fields['Teléfono WhatsApp']).replace(/\D/g,'');
     if(fields['Pixel ID Meta'])     SESSION.pixel    = fields['Pixel ID Meta'];
     if(typeof refreshChrome === 'function') refreshChrome();
     showToast('✓ Perfil actualizado');
-    setMsg('Guardado.', 'var(--green, #2ecc71)');
+    perfilState.editMode = false;
     await perfilLoad(true);
   }catch(e){
     setMsg('Error al guardar: '+e.message,'var(--red)');
@@ -4081,7 +4203,6 @@ async function perfilSave(){
     if(btn){ btn.disabled=false; btn.textContent='Guardar perfil público'; }
   }
 }
-
 
 function buildAsesorPropiedadesPanel(){ return `<div class="panel" id="panel-propiedades_asesor"><div class="asesor-body asesor-perfil-page"><div class="fv-box perfil-fv-box"><div class="fv-header"><div><div class="fv-nombre">MIS PROPIEDADES</div><div class="fv-wa"><span>Operaciones vivas · folio · siguiente pendiente</span></div></div><div><div class="fv-folio-lbl">Vista asesor</div><div class="fv-folio">PROPIEDADES</div></div></div><div class="fv-body perfil-fv-body"><div class="fv-sec"><div class="fv-sec-title"><em>⌂</em> Propiedades activas</div><div class="fv-grid" id="asesor-propiedades-list"><div class="hoy-empty">Cargando propiedades reales…</div></div></div><div class="fv-sec"><div class="le-banner">Esta vista debe decirle al asesor qué propiedad mover y qué pendiente resolver. La tabla es secundaria; el expediente vivo es la experiencia principal.</div></div></div></div></div></div>`; }
 async function asesorLoadPropiedades(force=false){ if(_asesorPropsLoaded&&!force) return; _asesorPropsLoaded=true; const el=document.getElementById('asesor-propiedades-list'); if(!el)return; try{ const data=await asesorLoadAll(force); const props=data.propiedades||[]; el.innerHTML=props.length?props.map(p=>`<div class="fv-row full"><div class="fv-row-k">${asesorEsc(_fval(p,'Estado Propiedad')||'Propiedad')}</div><div class="fv-row-v"><strong style="color:var(--white)">${asesorEsc(_fval(p,'Nombre Propiedad')||'Sin nombre')}</strong><br><span style="color:var(--gold);font-family:var(--mono);font-size:11px">${asesorEsc(_fval(p,'Folio NERI')||_fval(p,'Folio Vendedor')||'— sin folio —')}</span><br><span style="color:var(--w50)">${asesorEsc([_fval(p,'Zona / Colonia'),_fval(p,'Municipio'),_fval(p,'Precio Lista')].filter(Boolean).join(' · ')||'Sin datos operativos')}</span></div></div>`).join(''):'<div class="hoy-empty">Sin propiedades reales para esta sesión.</div>'; }catch(e){ el.innerHTML=`<div class="hoy-empty err">No se pudieron cargar propiedades: ${asesorEsc(e.message)}</div>`; } }
