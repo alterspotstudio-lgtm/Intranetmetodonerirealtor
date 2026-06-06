@@ -3382,13 +3382,13 @@ function getToolDesc(id){
 ═══════════════════════════════════════════════════ */
 const ADMIN_ASESORES_TABLE = 'tblIRPmLIyj8sWyEk';
 const ADMIN_TIPOS_CUENTA = ['Inmobiliaria','Asesor independiente','Grupo de asesores sin inmobiliaria'];
-const ADMIN_PUESTOS = ['Administrador Neri','Director','Gerente / Coordinador','Asesor de inmobiliaria','Asesor independiente','Líder de grupo','Asesor de grupo'];
+const ADMIN_PUESTOS = ['Asesor Inmobiliario','Gerente de ventas','Director general','Asesor independiente'];
 const ADMIN_ZONAS = [
   { id:'inmobiliaria', tipo:'Inmobiliaria', titulo:'INMOBILIARIA' },
   { id:'independiente', tipo:'Asesor independiente', titulo:'ASESOR INDEPENDIENTE' },
   { id:'grupo', tipo:'Grupo de asesores sin inmobiliaria', titulo:'GRUPO ASESORES S/INMOBILIARIA' }
 ];
-let adminState = { loaded:false, loading:false, error:'', records:[], editRecId:null, formOpen:false, filtroTipo:null };
+let adminState = { loaded:false, loading:false, error:'', records:[], editRecId:null, formOpen:false, filtroTipo:null, lastAccess:null };
 
 function adminVal(id){ return (document.getElementById(id)?.value || '').trim(); }
 function adminEsc(v){ return _esc(String(v ?? '')); }
@@ -3423,18 +3423,15 @@ function adminNormTipo(tipo){
 }
 function adminRecordTipo(rec){
   const puesto = adminF(rec,'Puesto') || '';
-  const cuenta = adminCuentaNombre(rec);
   const independiente = rec?.fields && rec.fields['Independiente'] === true;
-  const tipoDirecto = adminF(rec,'Tipo'); // compatibilidad si alguna base futura lo tiene; no se escribe desde admin.
   const p = String(puesto).toLowerCase();
-  if(tipoDirecto) return adminNormTipo(tipoDirecto);
-  if(p.includes('grupo')) return 'Grupo de asesores sin inmobiliaria';
-  if(p.includes('director') || p.includes('gerente') || p.includes('coordinador') || p.includes('inmobiliaria')) return 'Inmobiliaria';
+  // La tabla real no tiene campo Tipo ni Cuenta. La zona se interpreta con los campos confirmados:
+  // Independiente + Puesto. Grupo se representa como Independiente=true + Gerente de ventas/Director general.
+  if(independiente && (p.includes('gerente') || p.includes('director'))) return 'Grupo de asesores sin inmobiliaria';
   if(independiente) return 'Asesor independiente';
-  if(cuenta && cuenta !== 'N/A') return 'Inmobiliaria';
-  return adminNormTipo(puesto || 'Asesor independiente');
+  return 'Inmobiliaria';
 }
-function adminCuentaNombre(rec){ return adminF(rec,['Cuenta','Cuenta asignada','Inmobiliaria','Inmobiliaria / Cuenta']) || 'N/A'; }
+function adminCuentaNombre(rec){ return (rec?.fields?.['Independiente'] === true) ? 'N/A' : 'Inmobiliaria'; }
 function adminLinkFromSlug(slug){ return slug ? `https://captacion.vercel.app/?asesor=${encodeURIComponent(slug)}` : 'N/A'; }
 function adminEstado(rec){
   const f = rec?.fields || {};
@@ -3534,12 +3531,12 @@ function adminRenderForm(){
   const f = (names)=> rec ? adminF(rec,names) : '';
   const zona = adminZonaActiva();
   const tipo = isEdit ? (adminRecordTipo(rec) || 'Asesor independiente') : (zona?.tipo || 'Asesor independiente');
-  const puesto = f('Puesto') || (tipo==='Inmobiliaria' ? 'Director' : tipo==='Grupo de asesores sin inmobiliaria' ? 'Líder de grupo' : 'Asesor independiente');
+  const puesto = f('Puesto') || (tipo==='Inmobiliaria' ? 'Asesor Inmobiliario' : tipo==='Grupo de asesores sin inmobiliaria' ? 'Gerente de ventas' : 'Asesor independiente');
   const nombre = f('Nombre');
   const slug = f('Slug') || adminSlug(nombre);
   const activo = isEdit ? adminEstadoKey(adminEstado(rec)) !== 'inactivo' : true;
-  const cuenta = adminCuentaNombre(rec);
   const link = adminLinkFromSlug(slug);
+  const last = adminState.lastAccess;
   return `<div class="admin-account-modal" id="admin-user-form">
     <div class="admin-account-box">
       <div class="admin-account-head">
@@ -3550,12 +3547,11 @@ function adminRenderForm(){
         <div class="admin-form-grid">
           <div class="form-group"><label>Nombre / cuenta</label><input class="form-inp" id="admin-nombre" value="${adminEscAttr(nombre)}" oninput="adminAutofillSlug()" placeholder="Nombre del usuario o cuenta"></div>
           <div class="form-group"><label>Usuario / slug</label><input class="form-inp" id="admin-slug" value="${adminEscAttr(slug)}" oninput="adminUpdateLinkPreview()" placeholder="laura-garcia"></div>
-          <div class="form-group"><label>${isEdit?'Nueva contraseña':'Contraseña temporal'}</label><input class="form-inp" id="admin-pass" type="password" value="" placeholder="${isEdit?'Opcional':'Contraseña de acceso'}"></div>
           <div class="form-group"><label>Acceso</label><select class="form-inp" id="admin-activo"><option value="true" ${activo?'selected':''}>Activo</option><option value="false" ${!activo?'selected':''}>Inactivo</option></select></div>
-          <div class="form-group"><label>Tipo de cuenta</label><select class="form-inp" id="admin-tipo">${adminOptions(ADMIN_TIPOS_CUENTA,tipo)}</select></div>
+          <div class="form-group"><label>Tipo de cuenta</label><select class="form-inp" id="admin-tipo" onchange="adminSyncPuestoByTipo()">${adminOptions(ADMIN_TIPOS_CUENTA,tipo)}</select></div>
           <div class="form-group"><label>Puesto / rol</label><select class="form-inp" id="admin-puesto">${adminOptions(ADMIN_PUESTOS,puesto)}</select></div>
-          <div class="form-group full"><label>Cuenta / inmobiliaria</label><input class="form-inp" id="admin-cuenta" value="${adminEscAttr(cuenta)}" placeholder="N/A"></div>
           <div class="form-group full"><label>Link captación</label><input class="form-inp" id="admin-link-preview" value="${adminEscAttr(link)}" disabled></div>
+          ${last?`<div class="form-group full"><label>Acceso temporal generado</label><input class="form-inp" value="Usuario: ${adminEscAttr(last.slug)} · Contraseña: ${adminEscAttr(last.temporaryPassword)}" readonly></div>`:''}
         </div>
         <div class="admin-account-actions">
           <span id="admin-save-msg" style="margin-right:auto;font-size:12px;color:var(--w50)"></span>
@@ -3576,6 +3572,15 @@ function adminAutofillSlug(){
   if(slugEl && !slugEl.dataset.touched){ slugEl.value = adminSlug(adminVal('admin-nombre')); adminUpdateLinkPreview(true); }
 }
 function adminUpdateLinkPreview(fromAuto=false){ const el=document.getElementById('admin-link-preview'); if(el) el.value=adminLinkFromSlug(adminVal('admin-slug')); const s=document.getElementById('admin-slug'); if(s && !fromAuto) s.dataset.touched='1'; }
+function adminSyncPuestoByTipo(){
+  const tipo = adminVal('admin-tipo');
+  const puesto = document.getElementById('admin-puesto');
+  if(!puesto) return;
+  if(tipo === 'Asesor independiente') puesto.value = 'Asesor independiente';
+  else if(tipo === 'Grupo de asesores sin inmobiliaria') puesto.value = 'Gerente de ventas';
+  else if(!['Asesor Inmobiliario','Gerente de ventas','Director general'].includes(puesto.value)) puesto.value = 'Asesor Inmobiliario';
+}
+
 function adminPreviewPhoto(ev){
   const file = ev?.target?.files?.[0]; const box=document.getElementById('admin-foto-preview'); if(!box || !file) return;
   const r = new FileReader(); r.onload = () => { box.innerHTML = `<img src="${adminEscAttr(r.result)}" alt="Foto nueva">`; }; r.readAsDataURL(file);
@@ -3609,59 +3614,30 @@ function adminExtractUnknownField(err){
   }
   return '';
 }
+
 function adminFriendlySaveError(err){
   const raw = String(err?.message || err || '');
-  if(raw.includes('__NERI_NO_PASSWORD_FIELD__')) return 'No se pudo crear el acceso: falta un campo de contraseña compatible en Airtable.';
-  if(raw.includes('__NERI_NO_ACTIVE_FIELD__')) return 'No se pudo crear el acceso: falta un campo de activación compatible en Airtable.';
+  if(raw.includes('409')) return 'Ya existe un usuario con ese slug.';
   if(raw.includes('Sesión')) return 'Tu sesión venció. Cierra sesión y entra otra vez como administrador.';
   if(raw.includes('401') || raw.includes('403')) return 'No tienes permiso para guardar este acceso.';
-  return 'No se pudo guardar el acceso. Revisa que Airtable tenga los campos mínimos de usuario.';
+  try{
+    const i = raw.indexOf('{');
+    if(i >= 0){ const data = JSON.parse(raw.slice(i)); if(data?.error) return data.error; }
+  }catch(_e){}
+  return 'No se pudo guardar el acceso.';
 }
-async function adminAirtableSave(path, method, fields){
-  const cleanFields = { ...fields };
-  const passNames = ['Clave Acceso','Código Acceso','Codigo Acceso','Contraseña','Contrasena','Password','PIN','Access Code'];
-  const removed = new Set();
-  const passValue = passNames.map(k=>cleanFields[k]).find(Boolean) || '';
-  let passIndex = 0;
-  function nextPassField(currentBad){
-    if(currentBad) removed.add(currentBad);
-    while(passIndex < passNames.length && (removed.has(passNames[passIndex]) || passNames[passIndex] === currentBad)) passIndex++;
-    return passNames[passIndex++] || '';
-  }
-  for(let attempt=0; attempt<24; attempt++){
-    try{
-      return await atFetch(path, { method, body:JSON.stringify({ fields:cleanFields, typecast:true }) });
-    }catch(e){
-      const bad = adminExtractUnknownField(e);
-      if(!bad || !Object.prototype.hasOwnProperty.call(cleanFields,bad)) throw e;
-      const wasPass = passNames.includes(bad);
-      const wasActive = bad === 'Activo' || bad === 'Estado';
-      delete cleanFields[bad];
-      removed.add(bad);
-
-      if(wasPass && passValue){
-        const next = nextPassField(bad);
-        if(next){ cleanFields[next] = passValue; continue; }
-        throw new Error('__NERI_NO_PASSWORD_FIELD__');
-      }
-
-      if(wasActive){
-        // Si la base no tuviera Activo, probamos Estado; si Estado tampoco existe, no creamos un acceso que no pueda iniciar sesión.
-        if(bad === 'Activo' && !removed.has('Estado')){ cleanFields['Estado'] = fields['Activo'] === false ? 'Inactivo' : 'Activo'; continue; }
-        throw new Error('__NERI_NO_ACTIVE_FIELD__');
-      }
-
-      // Campos administrativos opcionales: si no existen en la base real, se omiten sin romper el alta.
-      if(['Puesto','Cuenta','Independiente','Link Captación','Tipo'].includes(bad)) continue;
-
-      // Para cualquier otro campo no esencial, omitimos una vez y reintentamos. Nombre y Slug sí son mínimos.
-      if(bad !== 'Nombre' && bad !== 'Slug') continue;
-      throw e;
-    }
-  }
-  throw new Error('No se pudo guardar después de validar campos de Airtable.');
+async function adminUserApi(method, payload){
+  const token = SESSION?.token;
+  if(!token) throw new Error('Sesión no iniciada.');
+  const r = await fetch('/api/admin-user', {
+    method,
+    headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer '+token },
+    body:JSON.stringify(payload)
+  });
+  const data = await r.json().catch(()=>({}));
+  if(!r.ok) throw new Error('HTTP '+r.status+' — '+JSON.stringify(data));
+  return data;
 }
-
 async function adminSaveUsuarioReal(){
   const btn=document.getElementById('admin-save-btn'), msg=document.getElementById('admin-save-msg');
   const setMsg=(t,c)=>{ if(msg){ msg.textContent=t; msg.style.color=c||'var(--w50)'; } };
@@ -3669,29 +3645,25 @@ async function adminSaveUsuarioReal(){
   const isEdit = !!rec;
   const nombre = adminVal('admin-nombre').trim();
   const slug = adminSlug(adminVal('admin-slug') || nombre);
-  const pass = adminVal('admin-pass');
   if(!nombre){ setMsg('Falta nombre.','var(--red)'); return; }
   if(!slug){ setMsg('Falta usuario.','var(--red)'); return; }
-  if(!isEdit && !pass){ setMsg('Falta contraseña.','var(--red)'); return; }
-  const tipoElegido = adminVal('admin-tipo') || (adminZonaActiva()?.tipo || 'Asesor independiente');
-  const puestoElegido = adminVal('admin-puesto') || (tipoElegido === 'Inmobiliaria' ? 'Director' : tipoElegido === 'Grupo de asesores sin inmobiliaria' ? 'Líder de grupo' : 'Asesor independiente');
-  const fields = {
-    'Nombre': nombre,
-    'Slug': slug,
-    'Activo': adminVal('admin-activo') !== 'false',
-    'Puesto': puestoElegido
+  const payload = {
+    recordId: rec?.id || '',
+    nombre,
+    slug,
+    activo: adminVal('admin-activo') !== 'false',
+    tipoCuenta: adminVal('admin-tipo') || (adminZonaActiva()?.tipo || 'Asesor independiente'),
+    puesto: adminVal('admin-puesto')
   };
-  // No se escribe campo “Tipo”: tu Airtable real no lo tiene. La zona se deduce por Puesto/Cuenta.
-  const cuenta = adminVal('admin-cuenta');
-  if(cuenta && cuenta !== 'N/A') fields['Cuenta'] = cuenta;
-  if(tipoElegido === 'Asesor independiente') fields['Independiente'] = true;
-  if(tipoElegido !== 'Asesor independiente') fields['Independiente'] = false;
-  if(pass) fields['Clave Acceso'] = pass;
   try{
     if(btn){ btn.disabled=true; btn.textContent='Guardando…'; }
-    await adminAirtableSave(isEdit ? `${ADMIN_ASESORES_TABLE}/${rec.id}` : `${ADMIN_ASESORES_TABLE}`, isEdit ? 'PATCH' : 'POST', fields);
+    const result = await adminUserApi(isEdit ? 'PATCH' : 'POST', payload);
+    adminState.lastAccess = result?.temporaryPassword ? { slug: result.slug, temporaryPassword: result.temporaryPassword } : null;
     showToast(isEdit?'Usuario actualizado':'Usuario creado');
-    adminState.editRecId=null; adminState.formOpen=false; adminState.loaded=false; await adminLoad(true);
+    setMsg(result?.temporaryPassword ? `Acceso creado. Usuario: ${result.slug} · Contraseña: ${result.temporaryPassword}` : 'Guardado.', 'var(--gold)');
+    adminState.loaded=false; await adminLoad(true);
+    // Mantiene abierto el modal después de crear para copiar el acceso temporal.
+    if(!isEdit){ adminState.formOpen=true; adminRender(); }
   }catch(e){ setMsg(adminFriendlySaveError(e),'var(--red)'); console.warn('adminSaveUsuarioReal', e); }
   finally{ if(btn){ btn.disabled=false; btn.textContent=isEdit?'Guardar':'Crear usuario'; } }
 }
