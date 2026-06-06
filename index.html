@@ -1494,10 +1494,10 @@ const NAV_ROL = {
 ═══════════════════════════════════════════════════ */
 const TOOLS = {
   sala:        { name:'Sala de Mensajes',    url:'https://mensajesmaestros.vercel.app',                  ext:true },
-  compradores: { name:'Landing Compradores', url:'https://captacion.vercel.app',             ext:true },
+  compradores: { name:'Landing Compradores', url:'https://compradorcasa.vercel.app',       ext:true },
   vendedores:  { name:'Landing Vendedores',  url:'https://ahuatlan32m.vercel.app',      ext:true },
   citas:       { name:'Panel de Citas',      url:'https://citas-vert.vercel.app',                    ext:true },
-  progreso:    { name:'Portal Progreso',      url:'https://captacion.vercel.app',        ext:true },
+  progreso:    { name:'Portal Progreso',      url:'https://progreso-zeta.vercel.app',       ext:true },
   opciones:    { name:'Opciones de Compra',  url:'https://opcionesdecompra.vercel.app',     ext:true },
   reportes:    { name:'Reportes',            url:'Reportes.html',                        ext:true },
 };
@@ -1518,18 +1518,24 @@ async function doLogin(){
     const data = await r.json().catch(()=>({}));
     if(!r.ok) throw new Error(data.error || 'No se pudo iniciar sesión.');
     SESSION = { ...(data.user||{}), token:data.token, user };
+    // Blindaje: la sesión debe traer siempre slug y nombre público real.
+    // Antes se pintaba la app primero y luego se enriquecía; por eso a veces
+    // quedaba visible "Asesor inmobiliario" en lugar del nombre.
+    if(!SESSION.slug) SESSION.slug = user;
+    if(!SESSION.nombre) SESSION.nombre = SESSION.Nombre || SESSION.name || SESSION.slug || user;
+    if(SESSION.rol === 'asesor') await enrichIdentity(SESSION.slug || user, true);
     sessionStorage.setItem(SESSION_STORE_KEY, JSON.stringify(SESSION));
     err.textContent = '';
     document.getElementById('screen-login').classList.add('hidden');
     document.getElementById('screen-app').classList.remove('hidden');
     bootApp();
-    if(SESSION.rol === 'asesor') enrichIdentity(SESSION.slug);
+    refreshChrome();
   }catch(e){ err.textContent = e.message; }
 }
 
 /* Trae nombre/whatsapp/empresa/pixel reales del asesor desde Airtable por slug.
    Best-effort: si falla, la sesión sigue con el perfil local. */
-async function enrichIdentity(slug){
+async function enrichIdentity(slug, silent=false){
   if(!slug) return;
   try{
     const formula = encodeURIComponent(`LOWER({Slug})='${String(slug).toLowerCase()}'`);
@@ -1545,7 +1551,7 @@ async function enrichIdentity(slug){
     const puesto = f['Puesto'] || f['Puesto (texto viejo)'] || '';
     if(ciudad || puesto) SESSION.empresa = [puesto, ciudad].filter(Boolean).join(' · ') || SESSION.empresa;
     refreshChrome();
-    showToast('Identidad: '+SESSION.nombre);
+    if(!silent) showToast('Identidad: '+SESSION.nombre);
   }catch(e){ /* sin conexión: se queda el perfil local */ }
 }
 
@@ -1722,11 +1728,10 @@ async function loadHoyData(force){
   _hoyLoaded = true;
   const rb = document.getElementById('hoy-refresh'); if(rb) rb.classList.add('spin');
   try{
-    const cCfg = CRM_CFG.compradores, kCfg = CRM_CFG.citas, pCfg = CRM_CFG.progreso;
     const [comp, cit, prog] = await Promise.all([
-      atFetch(`${cCfg.tableId}?maxRecords=100`),
-      atFetch(`${kCfg.tableId}?maxRecords=100`),
-      atFetch(`${pCfg.tableId}?maxRecords=100`)
+      atFetch(crmListPath('compradores', 100)),
+      atFetch(crmListPath('citas', 100)),
+      atFetch(crmListPath('progreso', 100))
     ]);
     renderHoy(comp.records||[], cit.records||[], prog.records||[]);
   }catch(e){
@@ -1925,6 +1930,7 @@ const CRM_CFG = {
     tableId: 'tblOdlY3bBlGi64qR',
     label: 'Leads Compradores',
     dot: 'compradores',
+    sortField: 'Fecha de Entrada',
     ficha: true,
     portalBase: 'https://progreso-zeta.vercel.app/',
     fichaExtra: ['Riesgo principal','Diagnóstico comercial','Estado emocional','Siguiente jugada','Mensaje sugerido','Última interacción','Propiedad de Interés','Status del Lead','Clasificación','Folio Propiedad NERI','Folio del Comprador'],
@@ -1951,6 +1957,7 @@ const CRM_CFG = {
     tableId: 'tblQHdwEucTaNrLzm',
     label: 'Leads Vendedores',
     dot: 'vendedores',
+    sortField: 'Fecha de Entrada',
     ficha: 'vendedor',
     cols: ['Folio','Nombre','Tipo','Zona','Precio','Conversión','Asesor','Fecha'],
     fields: ['Folio','Nombre Completo','Tipo de Propiedad','Zona','Precio Estimado','Conversión','Asesor','Fecha de Entrada'],
@@ -2006,6 +2013,7 @@ const CRM_CFG = {
     tableId: 'tblaAfbSD3pqSLdAA', // tabla Citas real (base appRh791vGXRdOJs3)
     label: 'Citas',
     dot: 'citas',
+    sortField: 'Fecha de la Cita',
     cita: true,
     cols: ['Folio Cita','Folio Origen','Comprador','Propiedad','Fecha','Hora','Tipo','Estado','Asesor'],
     fields: ['Folio Cita','Folio Cliente Origen','Comprador','Propiedad','Fecha de la Cita','Hora','Tipo de Cita','Estado Cita','Asesor'],
@@ -2079,6 +2087,16 @@ async function atFetch(path, opts={}){
   return r.json();
 }
 
+function crmListPath(tab, maxRecords=100){
+  const cfg = CRM_CFG[tab];
+  const params = new URLSearchParams({ maxRecords:String(maxRecords) });
+  if(cfg?.sortField){
+    params.set('sort[0][field]', cfg.sortField);
+    params.set('sort[0][direction]', 'desc');
+  }
+  return `${cfg.tableId}?${params.toString()}`;
+}
+
 /* ─── LOAD RECORDS ─────────────────────────────────── */
 async function crmLoad(tab, force=false){
   crmState.tab = tab;
@@ -2096,7 +2114,9 @@ async function crmLoad(tab, force=false){
   try {
     // Robusto: sin fields[] (si un nombre no existe, Airtable rechaza TODO con 422)
     // y sin view fija (falla si la vista fue renombrada). Trae todos los campos.
-    const data = await atFetch(`${cfg.tableId}?maxRecords=100`);
+    // Si existe campo de fecha conocido, trae primero los registros nuevos para que
+    // un lead recién llegado por Make no quede perdido fuera de los primeros 100.
+    const data = await atFetch(crmListPath(tab, 100));
     crmState.records = data.records || [];
     crmRender(tab, crmState.records);
     const tabCountEl = document.getElementById('tab-count-' + tab);
@@ -2154,7 +2174,7 @@ function crmRender(tab, records){
 function crmEmptyHtml(tab){
   const cfg = CRM_CFG[tab] || {};
   const esAsesor = (typeof SESSION!=='undefined' && SESSION && SESSION.rol==='asesor');
-  const link = (typeof asesorLinkCaptacion==='function') ? asesorLinkCaptacion() : '';
+  const link = (typeof asesorLeadLink==='function') ? asesorLeadLink(tab) : ((typeof asesorLinkCaptacion==='function') ? asesorLinkCaptacion() : '');
   const titulo = tab==='vendedores' ? 'Aún no hay propietarios captados'
     : tab==='compradores' ? 'Aún no hay compradores en seguimiento'
     : 'Esta tabla todavía está vacía';
@@ -2666,12 +2686,13 @@ function _safeDocKey(s){
 }
 
 // Límites reales para que la ficha no se quede “pensando” y para evitar landings lentas.
-// Vercel Blob guarda el archivo; no lo convierte. Por eso la intranet valida antes de subir.
+// Fotos: se comprimen y pueden ir por /api/upload-documento.
+// Videos: se suben DIRECTO a IDrive e2 con URL firmada; ya no pasan por Vercel Function.
 const UPLOAD_LIMITS = {
-  videoMax: 45 * 1024 * 1024,        // margen debajo del límite del endpoint
+  videoMax: 500 * 1024 * 1024,       // tope operativo por video para IDrive e2 directo
   docMax:   45 * 1024 * 1024,
   imageSourceMax: 25 * 1024 * 1024,  // evita bloquear el navegador con fotos enormes
-  totalRecommended: 120 * 1024 * 1024
+  totalRecommended: 1500 * 1024 * 1024
 };
 
 function _bytes(n){
@@ -2699,7 +2720,7 @@ function _uploadIssues(inputs){
     }
     if(_isVideo(file)){
       if(file.size > UPLOAD_LIMITS.videoMax){
-        issues.push(`${label}: el video pesa ${_bytes(file.size)}. Máximo seguro: ${_bytes(UPLOAD_LIMITS.videoMax)}. Recomendado: 10–25 MB.`);
+        issues.push(`${label}: el video pesa ${_bytes(file.size)}. Máximo operativo: ${_bytes(UPLOAD_LIMITS.videoMax)}. Recomendado para landing rápida: 10–80 MB.`);
       }
       return;
     }
@@ -2708,7 +2729,7 @@ function _uploadIssues(inputs){
     }
   });
   if(total > UPLOAD_LIMITS.totalRecommended){
-    issues.push(`Seleccionaste ${_bytes(total)} en total. Para no congelar la ficha, sube primero portada + 1 o 2 videos, guarda, y después continúa.`);
+    issues.push(`Seleccionaste ${_bytes(total)} en total. Para una prueba inicial conviene guardar por bloques, aunque el video ya sube directo a IDrive e2.`);
   }
   return issues;
 }
@@ -2739,8 +2760,44 @@ async function _prepareUploadFile(file){
   return _compressImageFile(file);
 }
 
+async function uploadDirectToIdrive(file, folio, doc){
+  const contentType = file.type || 'application/octet-stream';
+  const metaRes = await fetch('/api/upload-idrive-url', {
+    method:'POST',
+    headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer '+(SESSION?.token||'') },
+    body: JSON.stringify({
+      filename: file.name || 'video.mp4',
+      contentType,
+      size: file.size || 0,
+      folio: folio || 'sin-folio',
+      doc: _safeDocKey(doc || 'video')
+    })
+  });
+  const meta = await metaRes.json().catch(() => ({}));
+  if(!metaRes.ok) throw new Error(meta.error || 'No se pudo preparar la subida directa a IDrive e2.');
+  if(!meta.uploadUrl || !meta.url) throw new Error('IDrive e2 no devolvió URL firmada o URL pública.');
+
+  const putRes = await fetch(meta.uploadUrl, {
+    method:'PUT',
+    headers:{ 'Content-Type': contentType },
+    body:file
+  });
+  if(!putRes.ok){
+    const txt = await putRes.text().catch(()=> '');
+    throw new Error('IDrive e2 rechazó el video (' + putRes.status + '). Revisa CORS del bucket y credenciales. ' + txt.slice(0,180));
+  }
+  return meta.url;
+}
+
 async function uploadBlobFile(file, folio, doc){
   if(!file) return null;
+
+  // Videos pesados: solución real. Suben directo a IDrive e2; no atraviesan
+  // /api/upload-documento ni el límite de payload de Vercel Functions.
+  if(_isVideo(file)){
+    return uploadDirectToIdrive(file, folio, doc);
+  }
+
   const safeFile = await _prepareUploadFile(file);
   const qs = new URLSearchParams({
     folio: folio || 'sin-folio',
@@ -2781,7 +2838,7 @@ function _landInput(fl, rec){
         </div>
         <input class="form-inp" type="text" data-attach="${_escAttr(name)}"
                placeholder="O pegar URL pública para reemplazar (opcional)">
-        ${noteText || '<div class="le-note">Puedes subir el archivo desde aquí. La intranet lo manda a Vercel Blob y guarda solo la URL en Airtable.</div>'}
+        ${noteText || '<div class="le-note">Puedes subir el archivo desde aquí. La intranet sube fotos a Blob y videos directo a IDrive e2; Airtable guarda solo la URL final.</div>'}
       </div>`;
   }
   if(fl.type === 'select'){
@@ -2816,7 +2873,7 @@ function _landVideoRow(v, rec){
         <input class="form-inp" type="text" data-field="${_escAttr(v.yt)}" data-ftype="text" data-orig="${_escAttr(ytVal)}" value="${_escAttr(ytVal)}" placeholder="${ph}">
         <div class="le-upload">
           <input class="form-inp" type="file" data-upload-attach="${_escAttr(v.mp4)}" data-upload-doc="${_escAttr(v.mp4)}" accept="video/mp4,video/quicktime">
-          <div class="le-note">Máximo seguro 45 MB. Recomendado 10–25 MB para que la landing no se vuelva lenta.</div>
+          <div class="le-note">Subida directa a IDrive e2. Recomendado 10–80 MB para que la landing cargue rápido.</div>
         </div>
       </div>
       ${mp4}
@@ -2838,7 +2895,7 @@ function landOpenEditor(recId){
   const secs = LANDING_FORM.map(sec => {
     let inner;
     if(sec.videos){
-      inner = `<div class="le-note" style="margin:0 0 8px">Puedes pegar ID de YouTube o subir el MP4 aquí. La intranet sube el archivo a Blob y guarda la URL en Airtable.</div>`
+      inner = `<div class="le-note" style="margin:0 0 8px">Puedes pegar ID de YouTube o subir el MP4 aquí. El video sube directo a IDrive e2 y Airtable guarda la URL final.</div>`
             + sec.videos.map(v => _landVideoRow(v, rec)).join('');
     } else {
       inner = `<div class="le-grid">${sec.fields.map(fl => _landInput(fl, rec)).join('')}</div>`;
@@ -3946,6 +4003,8 @@ function asesorEsc(s){ return String(s ?? '').replace(/[&<>"]/g, m=>({ '&':'&amp
 function asesorCopy(text){ navigator.clipboard?.writeText(text || ''); showToast('Copiado'); }
 function asesorWa(num,msg){ return `https://wa.me/${String(num||SESSION?.whatsapp||'').replace(/\D/g,'')}?text=${encodeURIComponent(msg||'Hola, te escribo para dar seguimiento.')}`; }
 function asesorLinkCaptacion(){ return SESSION?.linkCaptacion || (SESSION?.slug ? `https://captacion.vercel.app/?asesor=${encodeURIComponent(SESSION.slug)}` : ''); }
+function asesorLinkCompradores(){ return SESSION?.slug ? `https://compradorcasa.vercel.app/?asesor=${encodeURIComponent(SESSION.slug)}` : ''; }
+function asesorLeadLink(tab){ return tab === 'compradores' ? asesorLinkCompradores() : asesorLinkCaptacion(); }
 function asesorMoney(v){ const n=Number(String(v||'').replace(/[^0-9.]/g,'')); return Number.isFinite(n)?n:0; }
 function asesorFmtMoney(n){ return n ? '$'+Math.round(n).toLocaleString('es-MX') : '—'; }
 function asesorDays(f){ return _daysSince(f); }
@@ -3955,7 +4014,11 @@ function asesorMensaje(rec){ return _fval(rec,'Mensaje sugerido') || _fval(rec,'
 async function asesorLoadAll(force=false){
   if(!force && asesorCache._loaded) return asesorCache;
   const [compradores, vendedores, progreso, citas, propiedades] = await Promise.all([
-    atFetch(`${CRM_CFG.compradores.tableId}?maxRecords=100`), atFetch(`${CRM_CFG.vendedores.tableId}?maxRecords=100`), atFetch(`${CRM_CFG.progreso.tableId}?maxRecords=100`), atFetch(`${CRM_CFG.citas.tableId}?maxRecords=100`), atFetch(`${CRM_CFG.propiedades.tableId}?maxRecords=100`)
+    atFetch(crmListPath('compradores', 100)),
+    atFetch(crmListPath('vendedores', 100)),
+    atFetch(crmListPath('progreso', 100)),
+    atFetch(crmListPath('citas', 100)),
+    atFetch(crmListPath('propiedades', 100))
   ]);
   asesorCache = { compradores:compradores.records||[], vendedores:vendedores.records||[], progreso:progreso.records||[], citas:citas.records||[], propiedades:propiedades.records||[], _loaded:true };
   return asesorCache;
