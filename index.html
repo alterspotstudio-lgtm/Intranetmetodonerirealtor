@@ -3493,23 +3493,49 @@ function adminRender(){
 function adminRenderFiltros(){
   return `<div class="admin-v9-section admin-zona-simple"><div class="admin-zone-tabs">${ADMIN_ZONAS.map(z=>`<button class="admin-zone-tab ${adminState.filtroTipo===z.id?'active':''}" onclick="adminSetFiltro('${z.id}')"><span>${adminEsc(z.titulo)}</span></button>`).join('')}</div></div>`;
 }
+function adminAccessText(){
+  const a = adminState.accessReady; if(!a) return '';
+  return `Hola. Ya quedó creado tu acceso a la intranet Método Neri.
+
+Usuario: ${a.slug}
+Contraseña temporal: ${a.temporaryPassword}
+
+Entra a tu intranet, personaliza tu perfil y cambia tu contraseña temporal cuando quede habilitado el cambio de contraseña.
+
+Link captación: ${a.linkCaptacion || adminLinkFromSlug(a.slug)}`;
+}
+function adminCleanPhone(num){ return String(num||'').replace(/\D/g,''); }
 function adminRenderAccessReady(){
   const a = adminState.accessReady;
   if(!a || adminState.formOpen || adminState.editRecId) return '';
   const line = `Usuario: ${a.slug} · Contraseña: ${a.temporaryPassword}`;
+  const phone = adminCleanPhone(a.whatsappDestino);
+  const phoneLine = phone ? ` · WhatsApp: ${phone}` : '';
   return `<div class="admin-v9-section admin-access-created">
     <div class="admin-v9-user-row admin-user-closed-row" style="border-color:rgba(74,222,128,.22);background:rgba(74,222,128,.035)">
-      <div style="min-width:0"><div class="admin-v9-user-name">Acceso creado</div><div class="admin-v9-user-meta">${adminEsc(line)}</div></div>
-      <div class="admin-v9-user-actions"><button class="admin-v9-smallbtn" onclick="adminCopyAccessReady()">Copiar acceso</button><button class="admin-v9-smallbtn" onclick="adminClearAccessReady()">Cerrar</button></div>
+      <div style="min-width:0"><div class="admin-v9-user-name">Acceso creado</div><div class="admin-v9-user-meta">${adminEsc(line + phoneLine)}</div></div>
+      <div class="admin-v9-user-actions"><button class="admin-v9-smallbtn" onclick="adminCopyAccessReady()">Copiar acceso</button><button class="admin-v9-smallbtn" onclick="adminSendAccessReady()">Enviar</button><button class="admin-v9-smallbtn" onclick="adminClearAccessReady()">Cerrar</button></div>
     </div>
   </div>`;
 }
 function adminCopyAccessReady(){
-  const a = adminState.accessReady; if(!a) return;
-  const txt = `Usuario: ${a.slug}
-Contraseña: ${a.temporaryPassword}
-Link captación: ${a.linkCaptacion || adminLinkFromSlug(a.slug)}`;
+  const txt = adminAccessText();
+  if(!txt) return;
   navigator.clipboard?.writeText(txt); showToast('Acceso copiado');
+}
+function adminSendAccessReady(){
+  const a = adminState.accessReady; if(!a) return;
+  let phone = adminCleanPhone(a.whatsappDestino);
+  if(!phone){
+    const typed = prompt('Número de WhatsApp destino en formato internacional, sin +. Ej: 527771234567');
+    phone = adminCleanPhone(typed);
+    if(!phone) return;
+    a.whatsappDestino = phone;
+    adminRender();
+  }
+  const msg = adminAccessText();
+  const url = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+  window.open(url,'_blank','noopener');
 }
 function adminClearAccessReady(){ adminState.accessReady=null; adminRender(); }
 function adminSetFiltro(id){ adminState.filtroTipo=id||null; adminState.formOpen=false; adminState.editRecId=null; adminState.lastAccess=null; adminState.accessReady=null; adminRender(); }
@@ -3570,6 +3596,7 @@ function adminRenderForm(){
           <div class="form-group"><label>Acceso</label><select class="form-inp" id="admin-activo"><option value="true" ${activo?'selected':''}>Activo</option><option value="false" ${!activo?'selected':''}>Inactivo</option></select></div>
           <div class="form-group"><label>Tipo de cuenta</label><select class="form-inp" id="admin-tipo" onchange="adminSyncPuestoByTipo()">${adminOptions(ADMIN_TIPOS_CUENTA,tipo)}</select></div>
           <div class="form-group"><label>Puesto / rol</label><select class="form-inp" id="admin-puesto">${adminOptions(ADMIN_PUESTOS,puesto)}</select></div>
+          <div class="form-group"><label>WhatsApp de envío</label><input class="form-inp" id="admin-whatsapp-destino" value="" placeholder="Ej: 527771234567"></div>
           <div class="form-group full"><label>Link captación</label><input class="form-inp" id="admin-link-preview" value="${adminEscAttr(link)}" disabled></div>
         </div>
         <div class="admin-account-actions">
@@ -3682,7 +3709,8 @@ async function adminSaveUsuarioReal(){
       slug: result.slug,
       temporaryPassword: result.temporaryPassword,
       linkCaptacion: result.linkCaptacion || adminLinkFromSlug(result.slug),
-      tipoCuenta: payload.tipoCuenta
+      tipoCuenta: payload.tipoCuenta,
+      whatsappDestino: adminCleanPhone(adminVal('admin-whatsapp-destino'))
     } : null;
     const zonaNueva = ADMIN_ZONAS.find(z=>z.tipo===payload.tipoCuenta);
     if(zonaNueva) adminState.filtroTipo = zonaNueva.id;
