@@ -43,8 +43,23 @@ function escFormula(v){ return String(v||'').replace(/'/g,"\\'"); }
 function fieldValue(v){ if(Array.isArray(v)) return v.map(x=>x?.name||x).join(', '); if(v&&typeof v==='object') return v.name||v.url||''; return v==null?'':String(v); }
 function parseAirtablePath(path){ const decoded=decodeURIComponent(String(path)); const u=new URL('/'+decoded.replace(/^\//,''),'https://neri.local'); const parts=u.pathname.replace(/^\//,'').split('/').filter(Boolean); return { table:parts[0], recordId:parts[1]||'', params:u.searchParams, toAirtableUrl(base){ const q=this.params.toString(); return `https://api.airtable.com/v0/${base}/${this.table}${this.recordId?'/'+this.recordId:''}${q?'?'+q:''}`; } }; }
 function mergeFormula(params,formula){ const existing=params.get('filterByFormula'); params.set('filterByFormula', existing?`AND(${existing},${formula})`:formula); }
-function ownerFormula(field, session){ const n=escFormula(String(session.nombre||'').toLowerCase()); const sl=escFormula(String(session.slug||'').toLowerCase()); const parts=[]; if(n) parts.push(`LOWER({${field}})='${n}'`); if(sl && sl!==n) parts.push(`LOWER({${field}})='${sl}'`); if(!parts.length) return `{${field}}=''`; return parts.length>1?`OR(${parts.join(',')})`:parts[0]; }
-function ownerMatches(value, session){ const v=String(value||'').toLowerCase().trim(); return !!((session.nombre && v===String(session.nombre).toLowerCase().trim()) || (session.slug && v===String(session.slug).toLowerCase().trim())); }
+function ownerFormula(field, session){
+  const n=escFormula(String(session.nombre||'').toLowerCase().trim());
+  const sl=escFormula(String(session.slug||'').toLowerCase().trim());
+  const parts=[];
+  // Match exacto + match contenido. Esto evita que un lead real quede oculto si Make
+  // guarda "Enrique Neri · Asesor inmobiliario" o el slug dentro del campo Asesor.
+  if(n) parts.push(`OR(LOWER({${field}}&'')='${n}',FIND('${n}',LOWER({${field}}&''))>0)`);
+  if(sl && sl!==n) parts.push(`OR(LOWER({${field}}&'')='${sl}',FIND('${sl}',LOWER({${field}}&''))>0)`);
+  if(!parts.length) return `{${field}}=''`;
+  return parts.length>1?`OR(${parts.join(',')})`:parts[0];
+}
+function ownerMatches(value, session){
+  const v=String(value||'').toLowerCase().trim();
+  const n=String(session.nombre||'').toLowerCase().trim();
+  const sl=String(session.slug||'').toLowerCase().trim();
+  return !!((n && (v===n || v.includes(n))) || (sl && (v===sl || v.includes(sl))));
+}
 function applyReadScope(parsed,tableCfg,session){ if(isAdmin(session)) return; if(tableCfg.slugField){ mergeFormula(parsed.params,`LOWER({${tableCfg.slugField}})='${escFormula(String(session.slug||'').toLowerCase())}'`); return; } if(tableCfg.ownerField){ mergeFormula(parsed.params, ownerFormula(tableCfg.ownerField, session)); } }
 function normalizeBody(req){ if(typeof req.body==='string') req.body=JSON.parse(req.body||'{}'); req.body=req.body||{}; req.body.fields=req.body.fields||{}; return req.body; }
 function applyWriteScope(req,tableCfg,session){ const body=normalizeBody(req); if(isAdmin(session)||isManager(session)) return; if(tableCfg.slugField){ body.fields[tableCfg.slugField]=session.slug; stripLockedProfileFields(body.fields); return; } if(tableCfg.ownerField){ const attempted=body.fields[tableCfg.ownerField]; const own=session.nombre||session.slug; if(attempted&&!ownerMatches(fieldValue(attempted),session)) throw new Error('No puedes crear registros para otro asesor.'); body.fields[tableCfg.ownerField]=own; } }
