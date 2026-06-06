@@ -92,7 +92,7 @@ function inferTipo(independiente, puesto){
   if(independiente) return 'Asesor independiente';
   return 'Inmobiliaria';
 }
-function normalizeRole(requested, tipo, puesto){ const p=String(puesto||'').toLowerCase(); const t=String(tipo||'').toLowerCase(); if(p.includes('director')) return 'director'; if(p.includes('gerente')||p.includes('coordinador')) return 'gerente'; if(t.includes('independiente') || t.includes('grupo')) return 'asesor'; return ['asesor','gerente','director'].includes(requested) ? requested : 'asesor'; }
+function normalizeRole(requested, tipo, puesto){ const p=String(puesto||'').toLowerCase(); if(p.includes('director')) return 'director'; if(p.includes('gerente')||p.includes('coordinador')) return 'gerente'; return 'asesor'; } // El rol SIEMPRE se deriva del registro real (Puesto). El rol solicitado por el cliente se ignora para evitar escalada de privilegios.
 function tempPassword(slug){
   const raw = crypto.createHmac('sha256', SESSION_SECRET).update('temp-password:'+String(slug||'').toLowerCase()).digest('hex').slice(0,8).toUpperCase();
   return `NERI-${raw}`;
