@@ -3388,7 +3388,7 @@ const ADMIN_ZONAS = [
   { id:'independiente', tipo:'Asesor independiente', titulo:'ASESOR INDEPENDIENTE' },
   { id:'grupo', tipo:'Grupo de asesores sin inmobiliaria', titulo:'GRUPO ASESORES S/INMOBILIARIA' }
 ];
-let adminState = { loaded:false, loading:false, error:'', records:[], editRecId:null, formOpen:false, filtroTipo:null, lastAccess:null };
+let adminState = { loaded:false, loading:false, error:'', records:[], editRecId:null, formOpen:false, filtroTipo:null, lastAccess:null, accessReady:null };
 
 function adminVal(id){ return (document.getElementById(id)?.value || '').trim(); }
 function adminEsc(v){ return _esc(String(v ?? '')); }
@@ -3486,15 +3486,35 @@ function adminRender(){
     </div>
   </div>
   ${adminRenderFiltros()}
+  ${adminRenderAccessReady()}
   ${adminRenderListaActiva()}
   ${adminState.formOpen || adminState.editRecId ? adminRenderForm() : ''}`;
 }
 function adminRenderFiltros(){
   return `<div class="admin-v9-section admin-zona-simple"><div class="admin-zone-tabs">${ADMIN_ZONAS.map(z=>`<button class="admin-zone-tab ${adminState.filtroTipo===z.id?'active':''}" onclick="adminSetFiltro('${z.id}')"><span>${adminEsc(z.titulo)}</span></button>`).join('')}</div></div>`;
 }
-function adminSetFiltro(id){ adminState.filtroTipo=id||null; adminState.formOpen=false; adminState.editRecId=null; adminRender(); }
-function adminNuevoUsuario(){ adminState.editRecId = null; adminState.formOpen = true; adminRender(); }
-function adminCerrarFormulario(){ adminState.editRecId=null; adminState.formOpen=false; adminRender(); }
+function adminRenderAccessReady(){
+  const a = adminState.accessReady;
+  if(!a || adminState.formOpen || adminState.editRecId) return '';
+  const line = `Usuario: ${a.slug} · Contraseña: ${a.temporaryPassword}`;
+  return `<div class="admin-v9-section admin-access-created">
+    <div class="admin-v9-user-row admin-user-closed-row" style="border-color:rgba(74,222,128,.22);background:rgba(74,222,128,.035)">
+      <div style="min-width:0"><div class="admin-v9-user-name">Acceso creado</div><div class="admin-v9-user-meta">${adminEsc(line)}</div></div>
+      <div class="admin-v9-user-actions"><button class="admin-v9-smallbtn" onclick="adminCopyAccessReady()">Copiar acceso</button><button class="admin-v9-smallbtn" onclick="adminClearAccessReady()">Cerrar</button></div>
+    </div>
+  </div>`;
+}
+function adminCopyAccessReady(){
+  const a = adminState.accessReady; if(!a) return;
+  const txt = `Usuario: ${a.slug}
+Contraseña: ${a.temporaryPassword}
+Link captación: ${a.linkCaptacion || adminLinkFromSlug(a.slug)}`;
+  navigator.clipboard?.writeText(txt); showToast('Acceso copiado');
+}
+function adminClearAccessReady(){ adminState.accessReady=null; adminRender(); }
+function adminSetFiltro(id){ adminState.filtroTipo=id||null; adminState.formOpen=false; adminState.editRecId=null; adminState.lastAccess=null; adminState.accessReady=null; adminRender(); }
+function adminNuevoUsuario(){ adminState.editRecId = null; adminState.formOpen = true; adminState.lastAccess=null; adminState.accessReady=null; adminRender(); }
+function adminCerrarFormulario(){ adminState.editRecId=null; adminState.formOpen=false; adminState.lastAccess=null; adminRender(); }
 function adminEditarUsuario(recId){ adminState.editRecId = recId; adminState.formOpen = true; adminRender(); }
 function adminRecordEdit(){ return adminState.records.find(r=>r.id===adminState.editRecId) || null; }
 function adminRenderListaActiva(){
@@ -3551,7 +3571,6 @@ function adminRenderForm(){
           <div class="form-group"><label>Tipo de cuenta</label><select class="form-inp" id="admin-tipo" onchange="adminSyncPuestoByTipo()">${adminOptions(ADMIN_TIPOS_CUENTA,tipo)}</select></div>
           <div class="form-group"><label>Puesto / rol</label><select class="form-inp" id="admin-puesto">${adminOptions(ADMIN_PUESTOS,puesto)}</select></div>
           <div class="form-group full"><label>Link captación</label><input class="form-inp" id="admin-link-preview" value="${adminEscAttr(link)}" disabled></div>
-          ${last?`<div class="form-group full"><label>Acceso temporal generado</label><input class="form-inp" value="Usuario: ${adminEscAttr(last.slug)} · Contraseña: ${adminEscAttr(last.temporaryPassword)}" readonly></div>`:''}
         </div>
         <div class="admin-account-actions">
           <span id="admin-save-msg" style="margin-right:auto;font-size:12px;color:var(--w50)"></span>
@@ -3658,12 +3677,19 @@ async function adminSaveUsuarioReal(){
   try{
     if(btn){ btn.disabled=true; btn.textContent='Guardando…'; }
     const result = await adminUserApi(isEdit ? 'PATCH' : 'POST', payload);
-    adminState.lastAccess = result?.temporaryPassword ? { slug: result.slug, temporaryPassword: result.temporaryPassword } : null;
+    adminState.lastAccess = null;
+    adminState.accessReady = (!isEdit && result?.temporaryPassword) ? {
+      slug: result.slug,
+      temporaryPassword: result.temporaryPassword,
+      linkCaptacion: result.linkCaptacion || adminLinkFromSlug(result.slug),
+      tipoCuenta: payload.tipoCuenta
+    } : null;
+    const zonaNueva = ADMIN_ZONAS.find(z=>z.tipo===payload.tipoCuenta);
+    if(zonaNueva) adminState.filtroTipo = zonaNueva.id;
+    adminState.formOpen=false;
+    adminState.editRecId=null;
     showToast(isEdit?'Usuario actualizado':'Usuario creado');
-    setMsg(result?.temporaryPassword ? `Acceso creado. Usuario: ${result.slug} · Contraseña: ${result.temporaryPassword}` : 'Guardado.', 'var(--gold)');
     adminState.loaded=false; await adminLoad(true);
-    // Mantiene abierto el modal después de crear para copiar el acceso temporal.
-    if(!isEdit){ adminState.formOpen=true; adminRender(); }
   }catch(e){ setMsg(adminFriendlySaveError(e),'var(--red)'); console.warn('adminSaveUsuarioReal', e); }
   finally{ if(btn){ btn.disabled=false; btn.textContent=isEdit?'Guardar':'Crear usuario'; } }
 }
