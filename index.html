@@ -3424,7 +3424,11 @@ function adminNormTipo(tipo){
 function adminRecordTipo(rec){ return adminNormTipo(adminF(rec,'Tipo') || adminF(rec,'Puesto') || 'Asesor independiente'); }
 function adminCuentaNombre(rec){ return adminF(rec,['Cuenta','Cuenta asignada','Inmobiliaria','Inmobiliaria / Cuenta']) || 'N/A'; }
 function adminLinkFromSlug(slug){ return slug ? `https://captacion.vercel.app/?asesor=${encodeURIComponent(slug)}` : 'N/A'; }
-function adminEstado(rec){ return String(adminF(rec,'Estado') || (rec?.fields?.Activo === true ? 'Activo' : 'Pendiente')).trim(); }
+function adminEstado(rec){
+  const f = rec?.fields || {};
+  if(Object.prototype.hasOwnProperty.call(f,'Activo')) return f.Activo === true ? 'Activo' : 'Inactivo';
+  return String(adminF(rec,'Estado') || 'Pendiente').trim();
+}
 function adminEstadoKey(estado){
   const e = String(estado || '').trim().toLowerCase();
   if(e === 'activo' || e === 'activa') return 'activo';
@@ -3518,63 +3522,28 @@ function adminRenderForm(){
   const f = (names)=> rec ? adminF(rec,names) : '';
   const zona = adminZonaActiva();
   const tipo = isEdit ? (adminRecordTipo(rec) || 'Asesor independiente') : (zona?.tipo || 'Asesor independiente');
-  const puesto = f('Puesto') || (tipo==='Asesor independiente' ? 'Asesor independiente' : tipo==='Inmobiliaria' ? 'Director' : 'Líder de grupo');
+  const puesto = f('Puesto') || (tipo==='Inmobiliaria' ? 'Director' : tipo==='Grupo de asesores sin inmobiliaria' ? 'Líder de grupo' : 'Asesor independiente');
   const nombre = f('Nombre');
   const slug = f('Slug') || adminSlug(nombre);
-  const estado = f('Estado') || 'Activo';
-  const link = f('Link Captación') || adminLinkFromSlug(slug);
-  const foto = adminPhotoUrl(rec);
+  const activo = isEdit ? adminEstadoKey(adminEstado(rec)) !== 'inactivo' : true;
+  const cuenta = adminCuentaNombre(rec);
+  const link = adminLinkFromSlug(slug);
   return `<div class="admin-account-modal" id="admin-user-form">
     <div class="admin-account-box">
       <div class="admin-account-head">
-        <div class="admin-account-title"><b>${isEdit?'EDITAR':'CREAR'} CUENTA</b><span>${adminEsc(tipo)}</span></div>
+        <div class="admin-account-title"><b>${isEdit?'EDITAR ACCESO':'CREAR ACCESO'}</b><span>${adminEsc(tipo)}</span></div>
         <button class="admin-account-close" onclick="adminCerrarFormulario()">×</button>
       </div>
-      <div class="admin-account-tabs">
-        <button class="admin-account-tab active" data-admin-tab="datos" onclick="adminSwitchFormTab('datos')">Datos</button>
-        <button class="admin-account-tab" data-admin-tab="contacto" onclick="adminSwitchFormTab('contacto')">Contacto</button>
-        <button class="admin-account-tab" data-admin-tab="acceso" onclick="adminSwitchFormTab('acceso')">Acceso</button>
-        <button class="admin-account-tab" data-admin-tab="imagen" onclick="adminSwitchFormTab('imagen')">Imagen</button>
-      </div>
       <div class="admin-account-content">
-        <div class="admin-form-tab-panel active" data-admin-panel="datos">
-          <div class="admin-form-grid">
-            <div class="form-group"><label>Nombre</label><input class="form-inp" id="admin-nombre" value="${adminEscAttr(nombre)}" oninput="adminAutofillSlug()" placeholder="Nombre"></div>
-            <div class="form-group"><label>Usuario / Slug</label><input class="form-inp" id="admin-slug" value="${adminEscAttr(slug)}" oninput="adminUpdateLinkPreview()" placeholder="enrique-neri"></div>
-            <div class="form-group"><label>Estado</label><select class="form-inp" id="admin-estado">${adminOptions(['Activo','Pendiente','Inactivo'],estado)}</select></div>
-            <div class="form-group"><label>Cuenta</label><input class="form-inp" id="admin-cuenta" value="${adminEscAttr(adminCuentaNombre(rec))}" placeholder="N/A"></div>
-            <div class="form-group"><label>Tipo</label><select class="form-inp" id="admin-tipo">${adminOptions(ADMIN_TIPOS_CUENTA,tipo)}</select></div>
-            <div class="form-group"><label>Puesto</label><select class="form-inp" id="admin-puesto">${adminOptions(ADMIN_PUESTOS,puesto)}</select></div>
-            <div class="form-group full"><label>Ciudad</label><input class="form-inp" id="admin-ciudad" value="${adminEscAttr(f(['Ciudad','Ciudad (texto viejo)']))}" placeholder="Cuernavaca"></div>
-          </div>
-        </div>
-        <div class="admin-form-tab-panel" data-admin-panel="contacto">
-          <div class="admin-form-grid">
-            <div class="form-group"><label>WhatsApp</label><input class="form-inp" id="admin-whatsapp" value="${adminEscAttr(f(['Teléfono WhatsApp','Telefono WhatsApp','WhatsApp']))}" placeholder="527779855687"></div>
-            <div class="form-group"><label>Email</label><input class="form-inp" id="admin-email" value="${adminEscAttr(f('Email'))}" placeholder="correo@dominio.com"></div>
-            <div class="form-group full"><label>Frase</label><textarea class="form-inp" id="admin-frase" rows="3" placeholder="Frase pública">${adminEsc(f('Frase'))}</textarea></div>
-          </div>
-        </div>
-        <div class="admin-form-tab-panel" data-admin-panel="acceso">
-          <div class="admin-form-grid">
-            <div class="form-group"><label>${isEdit?'Nueva contraseña':'Contraseña'}</label><input class="form-inp" id="admin-pass" type="password" value="" placeholder="${isEdit?'Opcional':'Contraseña'}"></div>
-            <div class="form-group"><label>Pixel ID Meta</label><input class="form-inp" id="admin-pixel" value="${adminEscAttr(f('Pixel ID Meta'))}" placeholder="N/A"></div>
-            <div class="form-group full"><label>Link captación</label><input class="form-inp" id="admin-link-preview" value="${adminEscAttr(link)}" disabled></div>
-          </div>
-        </div>
-        <div class="admin-form-tab-panel" data-admin-panel="imagen">
-          <div class="admin-form-grid">
-            <div class="form-group"><label>Branding / logo</label><input class="form-inp" value="N/A" disabled></div>
-            <div class="form-group full"><label>Foto</label>
-              <div class="admin-upload-box">
-                <div class="admin-upload-preview" id="admin-foto-preview">${foto?`<img src="${adminEscAttr(foto)}" alt="Foto">`:'<span>＋</span>'}</div>
-                <div class="admin-upload-actions">
-                  <input type="file" id="admin-foto-file" accept="image/*" onchange="adminPreviewPhoto(event)">
-                  ${isEdit?'<label style="font-size:10px;color:var(--w50);display:flex;gap:8px;align-items:center;margin-top:9px"><input type="checkbox" id="admin-remove-photo"> Quitar foto</label>':''}
-                </div>
-              </div>
-            </div>
-          </div>
+        <div class="admin-form-grid">
+          <div class="form-group"><label>Nombre / cuenta</label><input class="form-inp" id="admin-nombre" value="${adminEscAttr(nombre)}" oninput="adminAutofillSlug()" placeholder="Nombre del usuario o cuenta"></div>
+          <div class="form-group"><label>Usuario / slug</label><input class="form-inp" id="admin-slug" value="${adminEscAttr(slug)}" oninput="adminUpdateLinkPreview()" placeholder="laura-garcia"></div>
+          <div class="form-group"><label>${isEdit?'Nueva contraseña':'Contraseña temporal'}</label><input class="form-inp" id="admin-pass" type="password" value="" placeholder="${isEdit?'Opcional':'Contraseña de acceso'}"></div>
+          <div class="form-group"><label>Acceso</label><select class="form-inp" id="admin-activo"><option value="true" ${activo?'selected':''}>Activo</option><option value="false" ${!activo?'selected':''}>Inactivo</option></select></div>
+          <div class="form-group"><label>Tipo</label><select class="form-inp" id="admin-tipo">${adminOptions(ADMIN_TIPOS_CUENTA,tipo)}</select></div>
+          <div class="form-group"><label>Puesto / rol</label><select class="form-inp" id="admin-puesto">${adminOptions(ADMIN_PUESTOS,puesto)}</select></div>
+          <div class="form-group full"><label>Cuenta / inmobiliaria</label><input class="form-inp" id="admin-cuenta" value="${adminEscAttr(cuenta)}" placeholder="N/A"></div>
+          <div class="form-group full"><label>Link captación</label><input class="form-inp" id="admin-link-preview" value="${adminEscAttr(link)}" disabled></div>
         </div>
         <div class="admin-account-actions">
           <span id="admin-save-msg" style="margin-right:auto;font-size:12px;color:var(--w50)"></span>
@@ -3603,10 +3572,10 @@ async function adminToggleUsuario(recId){
   const rec = adminState.records.find(r=>r.id===recId);
   if(!rec) return;
   const estadoActual = adminEstadoKey(adminEstado(rec));
-  const nuevoEstado = estadoActual === 'inactivo' ? 'Activo' : 'Inactivo';
+  const activar = estadoActual === 'inactivo';
   try{
-    await atFetch(`${ADMIN_ASESORES_TABLE}/${rec.id}`, { method:'PATCH', body:JSON.stringify({ fields:{ 'Estado': nuevoEstado }, typecast:true }) });
-    showToast(nuevoEstado === 'Inactivo' ? 'Usuario desactivado' : 'Usuario activado');
+    await atFetch(`${ADMIN_ASESORES_TABLE}/${rec.id}`, { method:'PATCH', body:JSON.stringify({ fields:{ 'Activo': activar }, typecast:true }) });
+    showToast(activar ? 'Usuario activado' : 'Usuario desactivado');
     adminState.loaded=false; await adminLoad(true);
   }catch(e){ showToast('Error: '+(e.message||e)); }
 }
@@ -3624,30 +3593,15 @@ async function adminSaveUsuarioReal(){
   const fields = {
     'Nombre': nombre,
     'Slug': slug,
-    'Estado': adminVal('admin-estado') || 'Activo',
-    'Cuenta': adminVal('admin-cuenta') || 'N/A',
+    'Activo': adminVal('admin-activo') !== 'false',
     'Tipo': adminVal('admin-tipo') || 'Asesor independiente',
-    'Puesto': adminVal('admin-puesto') || 'Asesor independiente',
-    'Ciudad': adminVal('admin-ciudad') || null,
-    'Teléfono WhatsApp': adminVal('admin-whatsapp').replace(/\D/g,''),
-    'Email': adminVal('admin-email') || null,
-    'Frase': adminVal('admin-frase') || null,
-    'Pixel ID Meta': adminVal('admin-pixel') || null,
-    'Link Captación': adminLinkFromSlug(slug)
+    'Puesto': adminVal('admin-puesto') || 'Asesor independiente'
   };
+  const cuenta = adminVal('admin-cuenta');
+  if(cuenta && cuenta !== 'N/A') fields['Cuenta'] = cuenta;
   if(pass) fields['Clave Acceso'] = pass;
-  Object.keys(fields).forEach(k=>{ if(fields[k]===null || fields[k]==='') delete fields[k]; });
   try{
     if(btn){ btn.disabled=true; btn.textContent='Guardando…'; }
-    const fotoEl=document.getElementById('admin-foto-file');
-    const remove=document.getElementById('admin-remove-photo')?.checked;
-    if(remove) fields['Foto'] = [];
-    if(fotoEl?.files?.[0]){
-      if(btn) btn.textContent='Subiendo foto…';
-      const url = await uploadBlobFile(fotoEl.files[0], slug+'-admin', 'Foto');
-      fields['Foto'] = [{ url }];
-    }
-    if(btn) btn.textContent = isEdit ? 'Actualizando…' : 'Creando…';
     if(isEdit){ await atFetch(`${ADMIN_ASESORES_TABLE}/${rec.id}`, { method:'PATCH', body:JSON.stringify({ fields, typecast:true }) }); }
     else { await atFetch(`${ADMIN_ASESORES_TABLE}`, { method:'POST', body:JSON.stringify({ fields, typecast:true }) }); }
     showToast(isEdit?'Usuario actualizado':'Usuario creado');
