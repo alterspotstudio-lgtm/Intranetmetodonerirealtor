@@ -1276,6 +1276,26 @@ select.form-inp option{background:#111;color:#fff}
 .exp-ok{border:1px solid rgba(74,222,128,.25);background:rgba(74,222,128,.06);border-radius:14px;padding:13px 15px;font-size:12px;color:#a7e8bd;line-height:1.6}
 .exp-doc{border:1px solid var(--border2);border-radius:12px;padding:11px 13px;margin-bottom:8px}
 .exp-doc .dn{font-size:12px;color:var(--white)}.exp-doc .ds{font-size:10px;color:var(--w45);margin-top:3px}
+
+/* ─── Refinamiento visual NERI · editorial · solo apariencia (no toca IDs, handlers ni datos) ─── */
+/* Tarjetas: planas como las del home, esquinas casi rectas, sin glass ni glow */
+.asesor-card{background:var(--surface);border-radius:3px}
+.asesor-card::before{display:none}
+.asesor-section{background:var(--surface);border-radius:3px}
+.asesor-kpi{background:rgba(0,0,0,.35);border-radius:3px}
+.asesor-link-box{border-radius:3px}
+.asesor-action{background:rgba(255,255,255,.018);border-radius:3px}
+.asesor-action:hover{background:var(--golddim);transform:none}
+.asesor-row{background:rgba(255,255,255,.015);border-radius:3px}
+.asesor-manual{border-radius:3px}
+.asesor-note{border-radius:3px}
+.asesor-pill{border-radius:2px}
+.exp-alert,.exp-ok,.exp-doc{border-radius:3px}
+/* Botones: el oro es acento, no relleno. Borde fino que se rellena al pasar el mouse */
+.asesor-gold-btn,.exp-btn{background:transparent;border:1px solid var(--gold);color:var(--gold);border-radius:var(--r);font-weight:800;letter-spacing:2px;transition:background .2s var(--ease),color .2s var(--ease)}
+.asesor-gold-btn:hover,.exp-btn:hover{background:var(--gold);color:var(--black)}
+.exp-btn.ghost{background:transparent;border-color:var(--border2);color:var(--w70)}
+.exp-btn.ghost:hover{background:transparent;border-color:var(--gold);color:var(--gold)}
 .exp-sla{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:10px;color:var(--w50);margin-top:12px}
 .exp-sla .bar{flex:1;height:5px;border-radius:3px;background:rgba(255,255,255,.07);overflow:hidden}
 .exp-sla .bar i{display:block;height:100%;background:var(--gold)}
