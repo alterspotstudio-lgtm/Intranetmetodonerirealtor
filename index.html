@@ -1222,11 +1222,13 @@ select.form-inp option{background:#111;color:#fff}
 .admin-v9-ficha{border:1px solid var(--goldbdr);background:linear-gradient(180deg,rgba(201,169,110,.055),rgba(255,255,255,.018));border-radius:4px;overflow:hidden}.admin-v9-panel-body{padding:16px}
 .admin-v9-users{display:grid;grid-template-columns:1fr;gap:8px}.admin-v9-user-row{border:1px solid var(--border);background:rgba(255,255,255,.02);padding:11px;border-radius:3px;display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;cursor:pointer}.admin-v9-user-row:hover{border-color:var(--goldbdr);background:var(--golddim)}.admin-v9-user-name{font-size:12px;font-weight:900}.admin-v9-user-meta{font-size:9px;color:var(--w50);line-height:1.6;margin-top:4px}.admin-v9-user-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.admin-v9-smallbtn{border:1px solid var(--border2);background:transparent;color:var(--w50);border-radius:2px;padding:6px 9px;font-size:7px;letter-spacing:1.4px;text-transform:uppercase;font-weight:900;cursor:pointer}.admin-v9-smallbtn:hover{border-color:var(--goldbdr);color:var(--gold);background:var(--golddim)}
 .admin-v9-empty{border:1px dashed var(--border2);background:rgba(255,255,255,.018);border-radius:3px;padding:42px 20px;text-align:center;color:var(--w40);font-size:12px;line-height:1.8}.admin-v9-empty b{color:var(--gold);display:block;font-family:var(--display);font-size:30px;letter-spacing:2px;margin-bottom:6px}
-.admin-zone-tabs{display:flex;gap:8px;flex-wrap:wrap;border:1px solid var(--border);background:rgba(255,255,255,.015);padding:8px;border-radius:3px}.admin-zone-tab{border:1px solid transparent;background:transparent;color:var(--w45);padding:10px 14px;border-radius:2px;font-size:8px;letter-spacing:1.8px;text-transform:uppercase;font-weight:900;cursor:pointer}.admin-zone-tab:hover{color:var(--gold);border-color:var(--goldbdr);background:var(--golddim)}.admin-zone-tab.active{background:linear-gradient(180deg,rgba(201,169,110,.18),rgba(201,169,110,.07));border-color:var(--goldbdr);color:var(--gold)}.admin-zone-section{border-top:1px solid var(--border);padding-top:18px}.admin-zone-count{min-width:116px;border:1px solid var(--border);background:rgba(0,0,0,.18);border-radius:3px;padding:10px 12px;text-align:right}.admin-zone-count b{font-family:var(--display);font-size:30px;letter-spacing:2px;color:var(--gold);display:block;line-height:1}.admin-zone-count span{font-size:8px;letter-spacing:1.6px;text-transform:uppercase;color:var(--w45);font-weight:800}
-
-.admin-control-compact{padding:22px 26px;margin-bottom:16px}.admin-control-compact:after{display:none}.admin-control-compact .admin-v9-top{align-items:center}.admin-control-compact .admin-v9-title{margin:0}.admin-zona-simple{margin-top:0}.admin-zona-simple .admin-zone-tabs{border-color:var(--goldbdr);padding:10px;background:rgba(201,169,110,.035)}.admin-user-closed-row{cursor:default}.admin-user-closed-row:hover{background:rgba(255,255,255,.02)}.admin-v9-smallbtn.danger:hover{border-color:rgba(248,113,113,.45);color:var(--red);background:rgba(248,113,113,.08)}
-@media(max-width:900px){.admin-v9-user-row{grid-template-columns:1fr}.admin-v9-user-actions{justify-content:flex-start}}
-@media(max-width:560px){.admin-v9-wrap{padding:18px}.admin-v9-title{font-size:38px}}
+.admin-control-compact{padding:0;margin-bottom:20px;background:transparent;border:none}.admin-control-compact:after{display:none}.admin-control-compact .admin-v9-top{align-items:center;border-bottom:1px solid var(--border);padding-bottom:18px}.admin-control-compact .admin-v9-title{margin:0;font-size:44px}
+.admin-zona-simple{margin-top:0}.admin-zone-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:0 0 22px}.admin-zone-tab{min-height:92px;text-align:left;border:1px solid var(--border);background:linear-gradient(180deg,rgba(255,255,255,.032),rgba(255,255,255,.012));color:var(--w70);padding:18px 20px;border-radius:3px;font-size:11px;letter-spacing:.2px;text-transform:none;font-weight:700;cursor:pointer;position:relative;overflow:hidden;transition:all .16s var(--ease);display:flex;flex-direction:column;justify-content:space-between}.admin-zone-tab::before{content:'Cuenta';font-size:7px;letter-spacing:2.8px;text-transform:uppercase;color:var(--gold);font-weight:900}.admin-zone-tab::after{content:'→';position:absolute;right:18px;bottom:15px;color:var(--gold);opacity:.55;font-size:14px}.admin-zone-tab:hover{border-color:var(--goldbdr);background:var(--golddim);transform:translateY(-1px)}.admin-zone-tab.active{border-color:var(--gold);background:linear-gradient(180deg,rgba(201,169,110,.15),rgba(201,169,110,.045));box-shadow:inset 2px 0 0 var(--gold);color:var(--white)}
+.admin-zone-section{border-top:1px solid var(--border);padding-top:22px}.admin-zone-section .admin-v9-sec-head{margin-bottom:14px}.admin-zone-section .admin-v9-sec-title{font-size:34px}.admin-zone-count{display:none}
+.admin-user-closed-row{cursor:default;border-radius:3px;padding:14px 16px}.admin-user-closed-row:hover{background:rgba(255,255,255,.02)}.admin-v9-user-actions .badge-close{background:rgba(74,222,128,.1);border-color:rgba(74,222,128,.28);color:var(--green)}.admin-v9-user-actions .badge-lost{background:rgba(248,113,113,.09);border-color:rgba(248,113,113,.28);color:var(--red)}.admin-v9-smallbtn.danger:hover{border-color:rgba(248,113,113,.45);color:var(--red);background:rgba(248,113,113,.08)}
+.admin-account-modal{position:fixed;inset:0;z-index:930;background:rgba(0,0,0,.90);backdrop-filter:blur(14px);display:flex;align-items:center;justify-content:center;padding:22px}.admin-account-box{width:min(920px,100%);max-height:92vh;overflow:auto;background:linear-gradient(180deg,#141414,#0c0c0c);border:1px solid var(--goldbdr);border-top:2px solid var(--gold);border-radius:3px;box-shadow:0 36px 90px rgba(0,0,0,.72)}.admin-account-head{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;padding:26px 30px 20px;border-bottom:1px solid var(--border);position:relative;overflow:hidden}.admin-account-head::after{content:'CUENTA';position:absolute;right:-12px;bottom:-36px;font-family:var(--display);font-size:118px;letter-spacing:6px;color:rgba(201,169,110,.04);pointer-events:none}.admin-account-title{position:relative;z-index:1}.admin-account-title b{display:block;font-family:var(--display);font-size:34px;letter-spacing:3px;line-height:1;color:#fff}.admin-account-title span{display:block;margin-top:7px;font-size:8px;letter-spacing:2.4px;text-transform:uppercase;color:var(--gold);font-weight:900}.admin-account-close{position:relative;z-index:1;background:transparent;border:1px solid var(--border2);color:var(--w45);width:30px;height:30px;border-radius:2px;cursor:pointer}.admin-account-close:hover{border-color:var(--goldbdr);color:var(--gold)}.admin-account-tabs{display:flex;gap:0;padding:0 26px;border-bottom:1px solid var(--border);background:#0b0b0b}.admin-account-tab{border:0;background:transparent;color:var(--w35);padding:14px 18px 13px;font-size:7px;letter-spacing:2.4px;text-transform:uppercase;font-weight:900;cursor:pointer;position:relative}.admin-account-tab::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--gold);transform:scaleX(0);transition:.18s}.admin-account-tab.active{color:#fff}.admin-account-tab.active::after{transform:scaleX(1)}.admin-account-content{padding:24px 30px}.admin-form-tab-panel{display:none}.admin-form-tab-panel.active{display:block}.admin-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.admin-form-grid .full{grid-column:1/-1}.admin-upload-box{display:grid;grid-template-columns:86px 1fr;gap:14px;align-items:center;border:1px solid var(--border);background:rgba(255,255,255,.02);border-radius:3px;padding:13px}.admin-upload-preview{width:66px;height:66px;border:1px dashed var(--border2);border-radius:3px;display:flex;align-items:center;justify-content:center;color:var(--gold);overflow:hidden;background:#090909}.admin-upload-preview img{width:100%;height:100%;object-fit:cover}.admin-upload-actions input[type=file]{font-size:10px;color:var(--w45);max-width:100%}.admin-account-actions{display:flex;align-items:center;gap:8px;justify-content:flex-end;margin:24px -30px -24px;padding:18px 30px;border-top:1px solid var(--border);background:rgba(0,0,0,.22)}
+@media(max-width:900px){.admin-zone-tabs{grid-template-columns:1fr}.admin-v9-user-row{grid-template-columns:1fr}.admin-v9-user-actions{justify-content:flex-start}.admin-form-grid{grid-template-columns:1fr}.admin-upload-box{grid-template-columns:1fr}.admin-account-tabs{overflow:auto}.admin-account-content{padding:20px}.admin-account-actions{margin-left:-20px;margin-right:-20px;padding-left:20px;padding-right:20px}}
+@media(max-width:560px){.admin-v9-wrap{padding:18px}.admin-v9-title{font-size:36px}.admin-account-head{padding:22px}.admin-account-title b{font-size:28px}}
 
 </style>
 </head>
@@ -1272,8 +1274,8 @@ select.form-inp option{background:#111;color:#fff}
       <button class="login-btn" onclick="doLogin()">Entrar al sistema →</button>
       
       <div class="login-footer">
-        Acceso real por sesión firmada · SIN DEMO<br>
-        Método NERI · Cabina de mando inmobiliaria<br>Build: ADMIN-CONTROL-MANDO-LIMPIO-2026-06-05
+        Acceso operativo real<br>
+        Método NERI · Sistema operativo inmobiliario
       </div>
     </div>
   </div>
@@ -1338,7 +1340,7 @@ select.form-inp option{background:#111;color:#fff}
 let SESSION = null;
 
 /* ═══════════════════════════════════════════════════
-   SESIÓN REAL · SIN DEMO
+   SESIÓN REAL
    No hay credenciales en frontend. /api/login valida en servidor.
 ═══════════════════════════════════════════════════ */
 const LOGIN_MODE = 'real';
@@ -3432,7 +3434,7 @@ function adminEstadoKey(estado){
 function adminBadgeEstado(estado){
   const e = estado || 'Pendiente';
   const key = adminEstadoKey(e);
-  const cls = key === 'activo' ? 'badge-active' : key === 'inactivo' ? 'badge-lost' : 'badge-offer';
+  const cls = key === 'activo' ? 'badge-close' : key === 'inactivo' ? 'badge-lost' : 'badge-offer';
   return `<span class="badge ${cls}">${adminEsc(e)}</span>`;
 }
 function adminOptions(list, selected){
@@ -3463,7 +3465,7 @@ async function adminLoad(force=false){
 function adminRender(){
   const el = document.getElementById('admin-content'); if(!el) return;
   if(adminState.loading){ el.innerHTML = '<div class="admin-v9-section"><div class="hoy-empty">Cargando usuarios…</div></div>'; return; }
-  if(adminState.error){ el.innerHTML = `<div class="admin-v9-section"><div class="hoy-empty err">No se pudo cargar Control de Mando: ${adminEsc(adminState.error)}</div><div class="admin-actions"><button class="btn btn-primary" onclick="adminLoad(true)">Reintentar</button></div></div>`; return; }
+  if(adminState.error){ el.innerHTML = `<div class="admin-v9-section"><div class="hoy-empty err">No se pudieron cargar las cuentas.</div><div class="admin-actions"><button class="btn btn-primary" onclick="adminLoad(true)">Reintentar</button></div></div>`; return; }
   el.innerHTML = `<div class="admin-v9-hero admin-control-compact">
     <div class="admin-v9-top">
       <div class="admin-v9-title">CONTROL DE <em>MANDO</em></div>
@@ -3471,16 +3473,16 @@ function adminRender(){
     </div>
   </div>
   ${adminRenderFiltros()}
-  ${adminState.formOpen || adminState.editRecId ? adminRenderForm() : ''}
-  ${adminRenderListaActiva()}`;
+  ${adminRenderListaActiva()}
+  ${adminState.formOpen || adminState.editRecId ? adminRenderForm() : ''}`;
 }
 function adminRenderFiltros(){
-  return `<div class="admin-v9-section admin-zona-simple"><div class="admin-zone-tabs">${ADMIN_ZONAS.map(z=>`<button class="admin-zone-tab ${adminState.filtroTipo===z.id?'active':''}" onclick="adminSetFiltro('${z.id}')">${adminEsc(z.titulo)}</button>`).join('')}</div></div>`;
+  return `<div class="admin-v9-section admin-zona-simple"><div class="admin-zone-tabs">${ADMIN_ZONAS.map(z=>`<button class="admin-zone-tab ${adminState.filtroTipo===z.id?'active':''}" onclick="adminSetFiltro('${z.id}')"><span>${adminEsc(z.titulo)}</span></button>`).join('')}</div></div>`;
 }
 function adminSetFiltro(id){ adminState.filtroTipo=id||null; adminState.formOpen=false; adminState.editRecId=null; adminRender(); }
-function adminNuevoUsuario(){ adminState.editRecId = null; adminState.formOpen = true; adminRender(); setTimeout(()=>document.getElementById('admin-user-form')?.scrollIntoView({behavior:'smooth',block:'start'}),40); }
+function adminNuevoUsuario(){ adminState.editRecId = null; adminState.formOpen = true; adminRender(); }
 function adminCerrarFormulario(){ adminState.editRecId=null; adminState.formOpen=false; adminRender(); }
-function adminEditarUsuario(recId){ adminState.editRecId = recId; adminState.formOpen = true; adminRender(); setTimeout(()=>document.getElementById('admin-user-form')?.scrollIntoView({behavior:'smooth',block:'start'}),40); }
+function adminEditarUsuario(recId){ adminState.editRecId = recId; adminState.formOpen = true; adminRender(); }
 function adminRecordEdit(){ return adminState.records.find(r=>r.id===adminState.editRecId) || null; }
 function adminRenderListaActiva(){
   const z = adminZonaActiva();
@@ -3513,53 +3515,79 @@ function adminUsuarioRow(rec){
 function adminRenderForm(){
   const rec = adminRecordEdit();
   const isEdit = !!rec;
-  const f = (names)=> adminF(rec,names);
-  const nombre = f('Nombre');
-  const slug = f('Slug') || adminSlug(nombre);
+  const f = (names)=> rec ? adminF(rec,names) : '';
   const zona = adminZonaActiva();
   const tipo = isEdit ? (adminRecordTipo(rec) || 'Asesor independiente') : (zona?.tipo || 'Asesor independiente');
   const puesto = f('Puesto') || (tipo==='Asesor independiente' ? 'Asesor independiente' : tipo==='Inmobiliaria' ? 'Director' : 'Líder de grupo');
-  const estado = f('Estado') || (rec?.fields?.Activo === true ? 'Activo' : 'Activo');
-  const foto = adminPhotoUrl(rec);
+  const nombre = f('Nombre');
+  const slug = f('Slug') || adminSlug(nombre);
+  const estado = f('Estado') || 'Activo';
   const link = f('Link Captación') || adminLinkFromSlug(slug);
-  return `<div class="admin-v9-section" id="admin-user-form">
-    <div class="admin-v9-sec-head">
-      <div class="admin-v9-sec-title">${isEdit?'EDITAR':'CREAR'} <em>USUARIO</em></div>
-      <button class="btn btn-ghost" onclick="adminCerrarFormulario()">Cerrar</button>
-    </div>
-    <div class="admin-v9-ficha"><div class="admin-v9-panel-body">
-      <div class="admin-form-grid">
-        <div class="form-group"><label>Nombre</label><input class="form-inp" id="admin-nombre" value="${adminEscAttr(nombre)}" oninput="adminAutofillSlug()" placeholder="Nombre"></div>
-        <div class="form-group"><label>Usuario / Slug</label><input class="form-inp" id="admin-slug" value="${adminEscAttr(slug)}" oninput="adminUpdateLinkPreview()" placeholder="enrique-neri"></div>
-        <div class="form-group"><label>${isEdit?'Nueva contraseña':'Contraseña'}</label><input class="form-inp" id="admin-pass" type="password" value="" placeholder="${isEdit?'Opcional':'Contraseña'}"></div>
-        <div class="form-group"><label>Estado</label><select class="form-inp" id="admin-estado">${adminOptions(['Activo','Pendiente','Inactivo'],estado)}</select></div>
-        <div class="form-group"><label>Cuenta</label><input class="form-inp" id="admin-cuenta" value="${adminEscAttr(adminCuentaNombre(rec))}" placeholder="N/A"></div>
-        <div class="form-group"><label>Tipo</label><select class="form-inp" id="admin-tipo">${adminOptions(ADMIN_TIPOS_CUENTA,tipo)}</select></div>
-        <div class="form-group"><label>Puesto</label><select class="form-inp" id="admin-puesto">${adminOptions(ADMIN_PUESTOS,puesto)}</select></div>
-        <div class="form-group"><label>Ciudad</label><input class="form-inp" id="admin-ciudad" value="${adminEscAttr(f(['Ciudad','Ciudad (texto viejo)']))}" placeholder="Cuernavaca"></div>
-        <div class="form-group"><label>WhatsApp</label><input class="form-inp" id="admin-whatsapp" value="${adminEscAttr(f(['Teléfono WhatsApp','Telefono WhatsApp','WhatsApp']))}" placeholder="527779855687"></div>
-        <div class="form-group"><label>Email</label><input class="form-inp" id="admin-email" value="${adminEscAttr(f('Email'))}" placeholder="correo@dominio.com"></div>
-        <div class="form-group full"><label>Frase</label><textarea class="form-inp" id="admin-frase" rows="2" placeholder="Frase pública">${adminEsc(f('Frase'))}</textarea></div>
-        <div class="form-group"><label>Pixel ID Meta</label><input class="form-inp" id="admin-pixel" value="${adminEscAttr(f('Pixel ID Meta'))}" placeholder="N/A"></div>
-        <div class="form-group"><label>Link captación</label><input class="form-inp" id="admin-link-preview" value="${adminEscAttr(link)}" disabled></div>
-        <div class="form-group"><label>Branding / logo</label><input class="form-inp" value="N/A" disabled></div>
-        <div class="form-group full"><label>Foto</label>
-          <div class="admin-upload-box">
-            <div class="admin-upload-preview" id="admin-foto-preview">${foto?`<img src="${adminEscAttr(foto)}" alt="Foto">`:'<span>＋</span>'}</div>
-            <div class="admin-upload-actions">
-              <input type="file" id="admin-foto-file" accept="image/*" onchange="adminPreviewPhoto(event)">
-              ${isEdit?'<label style="font-size:10px;color:var(--w50);display:flex;gap:8px;align-items:center"><input type="checkbox" id="admin-remove-photo"> Quitar foto</label>':''}
+  const foto = adminPhotoUrl(rec);
+  return `<div class="admin-account-modal" id="admin-user-form">
+    <div class="admin-account-box">
+      <div class="admin-account-head">
+        <div class="admin-account-title"><b>${isEdit?'EDITAR':'CREAR'} CUENTA</b><span>${adminEsc(tipo)}</span></div>
+        <button class="admin-account-close" onclick="adminCerrarFormulario()">×</button>
+      </div>
+      <div class="admin-account-tabs">
+        <button class="admin-account-tab active" data-admin-tab="datos" onclick="adminSwitchFormTab('datos')">Datos</button>
+        <button class="admin-account-tab" data-admin-tab="contacto" onclick="adminSwitchFormTab('contacto')">Contacto</button>
+        <button class="admin-account-tab" data-admin-tab="acceso" onclick="adminSwitchFormTab('acceso')">Acceso</button>
+        <button class="admin-account-tab" data-admin-tab="imagen" onclick="adminSwitchFormTab('imagen')">Imagen</button>
+      </div>
+      <div class="admin-account-content">
+        <div class="admin-form-tab-panel active" data-admin-panel="datos">
+          <div class="admin-form-grid">
+            <div class="form-group"><label>Nombre</label><input class="form-inp" id="admin-nombre" value="${adminEscAttr(nombre)}" oninput="adminAutofillSlug()" placeholder="Nombre"></div>
+            <div class="form-group"><label>Usuario / Slug</label><input class="form-inp" id="admin-slug" value="${adminEscAttr(slug)}" oninput="adminUpdateLinkPreview()" placeholder="enrique-neri"></div>
+            <div class="form-group"><label>Estado</label><select class="form-inp" id="admin-estado">${adminOptions(['Activo','Pendiente','Inactivo'],estado)}</select></div>
+            <div class="form-group"><label>Cuenta</label><input class="form-inp" id="admin-cuenta" value="${adminEscAttr(adminCuentaNombre(rec))}" placeholder="N/A"></div>
+            <div class="form-group"><label>Tipo</label><select class="form-inp" id="admin-tipo">${adminOptions(ADMIN_TIPOS_CUENTA,tipo)}</select></div>
+            <div class="form-group"><label>Puesto</label><select class="form-inp" id="admin-puesto">${adminOptions(ADMIN_PUESTOS,puesto)}</select></div>
+            <div class="form-group full"><label>Ciudad</label><input class="form-inp" id="admin-ciudad" value="${adminEscAttr(f(['Ciudad','Ciudad (texto viejo)']))}" placeholder="Cuernavaca"></div>
+          </div>
+        </div>
+        <div class="admin-form-tab-panel" data-admin-panel="contacto">
+          <div class="admin-form-grid">
+            <div class="form-group"><label>WhatsApp</label><input class="form-inp" id="admin-whatsapp" value="${adminEscAttr(f(['Teléfono WhatsApp','Telefono WhatsApp','WhatsApp']))}" placeholder="527779855687"></div>
+            <div class="form-group"><label>Email</label><input class="form-inp" id="admin-email" value="${adminEscAttr(f('Email'))}" placeholder="correo@dominio.com"></div>
+            <div class="form-group full"><label>Frase</label><textarea class="form-inp" id="admin-frase" rows="3" placeholder="Frase pública">${adminEsc(f('Frase'))}</textarea></div>
+          </div>
+        </div>
+        <div class="admin-form-tab-panel" data-admin-panel="acceso">
+          <div class="admin-form-grid">
+            <div class="form-group"><label>${isEdit?'Nueva contraseña':'Contraseña'}</label><input class="form-inp" id="admin-pass" type="password" value="" placeholder="${isEdit?'Opcional':'Contraseña'}"></div>
+            <div class="form-group"><label>Pixel ID Meta</label><input class="form-inp" id="admin-pixel" value="${adminEscAttr(f('Pixel ID Meta'))}" placeholder="N/A"></div>
+            <div class="form-group full"><label>Link captación</label><input class="form-inp" id="admin-link-preview" value="${adminEscAttr(link)}" disabled></div>
+          </div>
+        </div>
+        <div class="admin-form-tab-panel" data-admin-panel="imagen">
+          <div class="admin-form-grid">
+            <div class="form-group"><label>Branding / logo</label><input class="form-inp" value="N/A" disabled></div>
+            <div class="form-group full"><label>Foto</label>
+              <div class="admin-upload-box">
+                <div class="admin-upload-preview" id="admin-foto-preview">${foto?`<img src="${adminEscAttr(foto)}" alt="Foto">`:'<span>＋</span>'}</div>
+                <div class="admin-upload-actions">
+                  <input type="file" id="admin-foto-file" accept="image/*" onchange="adminPreviewPhoto(event)">
+                  ${isEdit?'<label style="font-size:10px;color:var(--w50);display:flex;gap:8px;align-items:center;margin-top:9px"><input type="checkbox" id="admin-remove-photo"> Quitar foto</label>':''}
+                </div>
+              </div>
             </div>
           </div>
         </div>
+        <div class="admin-account-actions">
+          <span id="admin-save-msg" style="margin-right:auto;font-size:12px;color:var(--w50)"></span>
+          <button class="btn btn-ghost" onclick="adminCerrarFormulario()">Cancelar</button>
+          <button class="btn btn-primary" id="admin-save-btn" onclick="adminSaveUsuarioReal()">${isEdit?'Guardar':'Crear usuario'}</button>
+        </div>
       </div>
-      <div class="admin-actions">
-        <span id="admin-save-msg" style="margin-right:auto;font-size:12px;color:var(--w50)"></span>
-        <button class="btn btn-ghost" onclick="adminCerrarFormulario()">Cancelar</button>
-        <button class="btn btn-primary" id="admin-save-btn" onclick="adminSaveUsuarioReal()">${isEdit?'Guardar':'Crear usuario'}</button>
-      </div>
-    </div></div>
+    </div>
   </div>`;
+}
+function adminSwitchFormTab(tab){
+  document.querySelectorAll('.admin-account-tab').forEach(b=>b.classList.toggle('active', b.dataset.adminTab===tab));
+  document.querySelectorAll('.admin-form-tab-panel').forEach(p=>p.classList.toggle('active', p.dataset.adminPanel===tab));
 }
 function adminAutofillSlug(){
   if(adminState.editRecId) return;
@@ -3955,9 +3983,9 @@ document.addEventListener('keydown', e=>{
 
 window.addEventListener('DOMContentLoaded', () => {
   const sub = document.querySelector('.lc-sub');
-  if(sub) sub.textContent = 'Acceso operativo · usuarios reales · SIN DEMO · LOGIN OBLIGATORIO';
+  if(sub) sub.textContent = 'Acceso operativo · Control de acceso';
   const footer = document.querySelector('.login-footer');
-  if(footer) footer.innerHTML = 'Acceso real por sesión firmada · SIN DEMO<br>Método NERI · Cabina de mando inmobiliaria<br>Build: ADMIN-CONTROL-MANDO-LIMPIO-2026-06-05';
+  if(footer) footer.innerHTML = 'Acceso operativo real<br>Método NERI · Sistema operativo inmobiliario';
   // IMPORTANTE: por etapa de pruebas reales, no se auto-recupera sesión.
   // Cada carga empieza en login para evitar accesos arrastrados por sessionStorage/cache del modo anterior.
   try{ sessionStorage.removeItem(SESSION_STORE_KEY); }catch(_){ }
