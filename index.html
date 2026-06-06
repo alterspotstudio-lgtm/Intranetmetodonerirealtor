@@ -2819,7 +2819,7 @@ async function landSave(){
       if(nv === ''){ fields[name] = null; }        // se limpió
       else { const n = Number(nv.replace(/[, $]/g,'')); if(!isNaN(n)) fields[name] = n; }
     } else if(ftype === 'select'){
-      fields[name] = nv === '' ? null : nv;   // typecast:true maneja la conversión
+      fields[name] = nv === '' ? null : nv;        // typecast:true maneja la conversión
     } else {
       fields[name] = nv === '' ? null : nv;        // texto / textarea / url / youtube id
     }
@@ -2832,31 +2832,35 @@ async function landSave(){
     if(url) fields[name] = [{ url }];
   });
 
-  // 3) Adjuntos por archivo: sube a Vercel Blob y guarda SOLO la URL en Airtable
-  const currentRec = crmState.records.find(r => r.id === crmState.editId);
-  const folioUpload = _fval(currentRec || {}, 'Folio NERI') || _fval(currentRec || {}, 'Nombre Propiedad') || crmState.editId;
-  const uploadInputs = Array.from(document.querySelectorAll('#crm-landing-body [data-upload-attach]'))
-    .filter(el => el.files && el.files[0]);
-
-  if(uploadInputs.length){
-    btn.textContent = uploadInputs.length === 1 ? 'Subiendo archivo...' : 'Subiendo archivos...';
-    for(const el of uploadInputs){
-      const name = el.dataset.uploadAttach;
-      const doc  = el.dataset.uploadDoc || name;
-      const file = el.files[0];
-      const url = await uploadBlobFile(file, folioUpload, doc);
-      fields[name] = [{ url }];
-    }
-  }
-
-  if(Object.keys(fields).length === 0){
-    errEl.style.color = 'var(--w50)';
-    errEl.textContent = 'No hay cambios para guardar.';
-    btn.textContent = 'Guardar cambios'; btn.disabled = false;
-    return;
-  }
-
   try {
+    // 3) Adjuntos por archivo: sube a Vercel Blob y guarda SOLO la URL en Airtable
+    // Importante: esto debe vivir dentro del try/catch.
+    // Si falla /api/upload-documento, el botón no queda atorado en “Subiendo archivos...”
+    // y la pantalla muestra el error real para corregir configuración.
+    const currentRec = crmState.records.find(r => r.id === crmState.editId);
+    const folioUpload = _fval(currentRec || {}, 'Folio NERI') || _fval(currentRec || {}, 'Nombre Propiedad') || crmState.editId;
+    const uploadInputs = Array.from(document.querySelectorAll('#crm-landing-body [data-upload-attach]'))
+      .filter(el => el.files && el.files[0]);
+
+    if(uploadInputs.length){
+      btn.textContent = uploadInputs.length === 1 ? 'Subiendo archivo...' : 'Subiendo archivos...';
+      for(const el of uploadInputs){
+        const name = el.dataset.uploadAttach;
+        const doc  = el.dataset.uploadDoc || name;
+        const file = el.files[0];
+        const url = await uploadBlobFile(file, folioUpload, doc);
+        fields[name] = [{ url }];
+      }
+    }
+
+    if(Object.keys(fields).length === 0){
+      errEl.style.color = 'var(--w50)';
+      errEl.textContent = 'No hay cambios para guardar.';
+      return;
+    }
+
+    btn.textContent = 'Guardando cambios...';
+
     await atFetch(`${cfg.tableId}/${crmState.editId}`, {
       method:'PATCH', body: JSON.stringify({ fields, typecast:true })
     });
@@ -2865,7 +2869,8 @@ async function landSave(){
     await crmLoad('propiedades', true);
   } catch(e){
     errEl.style.color = 'var(--red)';
-    errEl.textContent = 'Error al guardar: ' + e.message;
+    errEl.textContent = 'Error al guardar: ' + (e?.message || e);
+    console.error('landSave error', e);
   } finally {
     btn.textContent = 'Guardar cambios'; btn.disabled = false;
   }
