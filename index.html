@@ -1251,6 +1251,14 @@ select.form-inp option{background:#111;color:#fff}
 .exp-sla .bar i{display:block;height:100%;background:var(--gold)}
 .exp-sla .bar i.over{background:var(--red)}
 @media(max-width:920px){.exp-file{grid-template-columns:1fr}}
+/* estado vacío premium del Centro de Operaciones */
+.crm-empty-premium{padding:54px 28px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px}
+.crm-empty-premium .crm-empty-icon{font-size:34px;color:var(--gold);opacity:.55}
+.crm-empty-premium .crm-empty-text{font-family:var(--display);font-size:24px;letter-spacing:.5px;color:var(--white)}
+.crm-empty-premium .crm-empty-sub{font-size:12px;color:var(--w50);line-height:1.7;max-width:420px}
+.crm-empty-link{margin-top:14px;border:1px solid var(--goldbdr);background:var(--golddim);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;align-items:center;max-width:460px}
+.crm-empty-link span{font-size:7px;letter-spacing:1.8px;text-transform:uppercase;color:var(--gold);font-weight:900}
+.crm-empty-link code{font-family:var(--mono);font-size:11px;color:var(--w80);word-break:break-all}
 
 
 
@@ -1324,14 +1332,8 @@ select.form-inp option{background:#111;color:#fff}
       <label class="form-label">Contraseña</label>
       <input class="form-input" id="l-pass" type="password" placeholder="••••••••">
       
-      <label class="form-label">Rol</label>
-      <select class="form-input" id="l-rol">
-        <option value="">Seleccionar rol...</option>
-        <option value="asesor">Asesor</option>
-        <option value="gerente">Gerente</option>
-        <option value="director">Director</option>
-        <option value="admin">Admin</option>
-      </select>
+      <input type="hidden" id="l-rol" value="asesor">
+      <div class="login-hint" style="font-size:10px;color:var(--w40,#7a7a7a);letter-spacing:.4px;line-height:1.6;margin:2px 0 4px">Tu acceso y tu rol se determinan por tu usuario real. Entra con tu slug y tu contraseña; el administrador entra con <b>admin</b>.</div>
 
       <div id="login-err" class="login-err"></div>
       <button class="login-btn" onclick="doLogin()">Entrar al sistema →</button>
@@ -1550,7 +1552,9 @@ function bootApp(){
 
   buildNav();
   buildPanels();
-  goTo(s.rol === 'admin' ? 'administracion' : (s.rol === 'asesor' ? 'perfil_asesor' : 'hoy'));   // admin entra a administración; asesor configura su perfil primero
+  // admin → Control de Mando · asesor → Centro de Operaciones (su trabajo real). Solo la PRIMERA vez (perfil sin WhatsApp) lo mandamos a configurar su perfil.
+  const asesorPrimeraVez = (s.rol === 'asesor') && !s.whatsapp;
+  goTo(s.rol === 'admin' ? 'administracion' : (s.rol === 'asesor' ? (asesorPrimeraVez ? 'perfil_asesor' : 'airtable') : 'hoy'));
   updateClock();
 }
 
@@ -2114,15 +2118,32 @@ function crmRender(tab, records){
     }).join('');
     return `<tr onclick="crmOpenRow('${rec.id}')" title="Clic para abrir expediente">
       <td>◎</td>${cells}</tr>`;
-  }).join('') || `<tr><td colspan="20"><div class="crm-empty">
-    <div class="crm-empty-icon">◎</div>
-    <div class="crm-empty-text">Sin registros en esta tabla</div>
-  </div></td></tr>`;
+  }).join('') || crmEmptyHtml(tab);
 
   document.getElementById('crm-table-wrap').innerHTML =
     `<table class="at-table" id="crm-main-table"><thead><tr>${ths}</tr></thead><tbody>${trs}</tbody></table>`;
 }
 
+function crmEmptyHtml(tab){
+  const cfg = CRM_CFG[tab] || {};
+  const esAsesor = (typeof SESSION!=='undefined' && SESSION && SESSION.rol==='asesor');
+  const link = (typeof asesorLinkCaptacion==='function') ? asesorLinkCaptacion() : '';
+  const titulo = tab==='vendedores' ? 'Aún no hay propietarios captados'
+    : tab==='compradores' ? 'Aún no hay compradores en seguimiento'
+    : 'Esta tabla todavía está vacía';
+  const sub = esAsesor
+    ? 'Esto no es un error: tu espacio está limpio y listo. En cuanto entre un lead por tu landing, aparecerá aquí filtrado solo para ti.'
+    : 'No hay registros que coincidan con el filtro de esta sesión.';
+  const linkBox = (esAsesor && link)
+    ? `<div class="crm-empty-link"><span>Comparte tu landing para empezar a captar</span><code>${_esc(link)}</code><button class="at-btn primary" onclick="asesorCopy('${_escAttr(link)}')">Copiar link</button></div>`
+    : '';
+  return `<tr><td colspan="20"><div class="crm-empty crm-empty-premium">
+    <div class="crm-empty-icon">◎</div>
+    <div class="crm-empty-text">${_esc(titulo)}</div>
+    <div class="crm-empty-sub">${_esc(sub)}</div>
+    ${linkBox}
+  </div></td></tr>`;
+}
 function crmFilter(q){
   const tbl = document.getElementById('crm-main-table');
   if(!tbl) return;
@@ -3577,12 +3598,19 @@ function adminRenderAccessReady(){
   const line = `Usuario: ${a.slug} · Contraseña: ${a.temporaryPassword}`;
   const phone = adminCleanPhone(a.whatsappDestino);
   const phoneLine = phone ? ` · WhatsApp: ${phone}` : '';
+  const tablas = adminTablasPaquete(a.tipoCuenta);
   return `<div class="admin-v9-section admin-access-created">
     <div class="admin-v9-user-row admin-user-closed-row" style="border-color:rgba(74,222,128,.22);background:rgba(74,222,128,.035)">
-      <div style="min-width:0"><div class="admin-v9-user-name">Acceso creado</div><div class="admin-v9-user-meta">${adminEsc(line + phoneLine)}</div></div>
+      <div style="min-width:0"><div class="admin-v9-user-name">Acceso creado</div><div class="admin-v9-user-meta">${adminEsc(line + phoneLine)}</div><div class="admin-v9-user-meta" style="color:var(--gold);margin-top:4px">Tablas asignadas: ${adminEsc(tablas)}</div></div>
       <div class="admin-v9-user-actions"><button class="admin-v9-smallbtn" onclick="adminCopyAccessReady()">Copiar acceso</button><button class="admin-v9-smallbtn" onclick="adminSendAccessReady()">Enviar</button><button class="admin-v9-smallbtn" onclick="adminClearAccessReady()">Cerrar</button></div>
     </div>
   </div>`;
+}
+function adminTablasPaquete(tipo){
+  const base = 'Compradores · Vendedores · Propiedades · Citas · Progreso';
+  return String(tipo||'').toLowerCase().includes('inmobiliaria')
+    ? base + ' (paquete inmobiliaria · filtradas por asesor)'
+    : base + ' (paquete asesor independiente · filtradas por este asesor)';
 }
 function adminCopyAccessReady(){
   const txt = adminAccessText();
@@ -3660,7 +3688,7 @@ function adminRenderForm(){
           <div class="form-group"><label>Nombre / cuenta</label><input class="form-inp" id="admin-nombre" value="${adminEscAttr(nombre)}" oninput="adminAutofillSlug()" placeholder="Nombre del usuario o cuenta"></div>
           <div class="form-group"><label>Usuario / slug</label><input class="form-inp" id="admin-slug" value="${adminEscAttr(slug)}" oninput="adminUpdateLinkPreview()" placeholder="laura-garcia"></div>
           <div class="form-group"><label>Acceso</label><select class="form-inp" id="admin-activo"><option value="true" ${activo?'selected':''}>Activo</option><option value="false" ${!activo?'selected':''}>Inactivo</option></select></div>
-          <div class="form-group"><label>Tipo de cuenta</label><select class="form-inp" id="admin-tipo" onchange="adminSyncPuestoByTipo()">${adminOptions(ADMIN_TIPOS_CUENTA,tipo)}</select></div>
+          <div class="form-group"><label>Tipo de cuenta · paquete de tablas</label><select class="form-inp" id="admin-tipo" onchange="adminSyncPuestoByTipo()">${adminOptions(ADMIN_TIPOS_CUENTA,tipo)}</select></div>
           <div class="form-group"><label>Puesto / rol</label><select class="form-inp" id="admin-puesto">${adminOptions(ADMIN_PUESTOS,puesto)}</select></div>
           <div class="form-group"><label>WhatsApp de envío</label><input class="form-inp" id="admin-whatsapp-destino" value="" placeholder="Ej: 527771234567"></div>
           <div class="form-group full"><label>Link captación</label><input class="form-inp" id="admin-link-preview" value="${adminEscAttr(link)}" disabled></div>
