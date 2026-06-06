@@ -2596,9 +2596,9 @@ function fichaCopy(btn){
    Folio NERI / Links / contadores son fórmula/Make → bloqueados.        */
 const LANDING_FORM = [
   {title:'Portada', ico:'◫', fields:[
-    {f:'Frase Portada',  type:'text',     full:true},
-    {f:'Frase Inicio',   type:'textarea', full:true},
-    {f:'Foto de portada',type:'attach',   full:true, img:true},
+    {f:'Frase Portada',  label:'Etiqueta superior de portada', type:'text',     full:true, note:'Texto pequeño arriba del título. Ejemplo: Experiencia privada.'},
+    {f:'Frase Inicio',   label:'Descripción corta de la propiedad', type:'textarea', full:true, note:'Este texto aparece debajo del precio en la landing. No debe venir de Razón de venta del propietario.'},
+    {f:'Foto de portada',label:'Foto de portada', type:'attach',   full:true, img:true, note:'La intranet comprime fotos automáticamente. Para video usa los campos MP4 de cada área.'},
   ]},
   {title:'Precio', ico:'$', fields:[
     {f:'Precio Lista',  type:'number'},
@@ -2665,17 +2665,92 @@ function _safeDocKey(s){
     .slice(0,80);
 }
 
+// Límites reales para que la ficha no se quede “pensando” y para evitar landings lentas.
+// Vercel Blob guarda el archivo; no lo convierte. Por eso la intranet valida antes de subir.
+const UPLOAD_LIMITS = {
+  videoMax: 45 * 1024 * 1024,        // margen debajo del límite del endpoint
+  docMax:   45 * 1024 * 1024,
+  imageSourceMax: 25 * 1024 * 1024,  // evita bloquear el navegador con fotos enormes
+  totalRecommended: 120 * 1024 * 1024
+};
+
+function _bytes(n){
+  const v = Number(n || 0);
+  if(v >= 1024*1024) return (v/(1024*1024)).toFixed(1).replace('.0','') + ' MB';
+  if(v >= 1024) return (v/1024).toFixed(1).replace('.0','') + ' KB';
+  return v + ' B';
+}
+function _isImg(file){ return !!(file && /^image\//.test(file.type || '')); }
+function _isVideo(file){ return !!(file && /^video\//.test(file.type || '')); }
+
+function _uploadIssues(inputs){
+  const issues = [];
+  let total = 0;
+  inputs.forEach(el => {
+    const file = el.files && el.files[0];
+    if(!file) return;
+    total += file.size || 0;
+    const label = el.dataset.uploadDoc || el.dataset.uploadAttach || 'Archivo';
+    if(_isImg(file)){
+      if(file.size > UPLOAD_LIMITS.imageSourceMax){
+        issues.push(`${label}: la foto pesa ${_bytes(file.size)}. Sube una foto menor a ${_bytes(UPLOAD_LIMITS.imageSourceMax)}.`);
+      }
+      return;
+    }
+    if(_isVideo(file)){
+      if(file.size > UPLOAD_LIMITS.videoMax){
+        issues.push(`${label}: el video pesa ${_bytes(file.size)}. Máximo seguro: ${_bytes(UPLOAD_LIMITS.videoMax)}. Recomendado: 10–25 MB.`);
+      }
+      return;
+    }
+    if(file.size > UPLOAD_LIMITS.docMax){
+      issues.push(`${label}: el archivo pesa ${_bytes(file.size)}. Máximo seguro: ${_bytes(UPLOAD_LIMITS.docMax)}.`);
+    }
+  });
+  if(total > UPLOAD_LIMITS.totalRecommended){
+    issues.push(`Seleccionaste ${_bytes(total)} en total. Para no congelar la ficha, sube primero portada + 1 o 2 videos, guarda, y después continúa.`);
+  }
+  return issues;
+}
+
+async function _compressImageFile(file){
+  if(!_isImg(file) || file.size < 1.8 * 1024 * 1024) return file;
+  try{
+    const bitmap = await createImageBitmap(file);
+    const maxSide = 1920;
+    const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height));
+    const w = Math.max(1, Math.round(bitmap.width * scale));
+    const h = Math.max(1, Math.round(bitmap.height * scale));
+    const canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    const ctx = canvas.getContext('2d', { alpha:false });
+    ctx.drawImage(bitmap, 0, 0, w, h);
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.82));
+    if(!blob || blob.size >= file.size) return file;
+    const cleanName = (file.name || 'foto').replace(/\.[^.]+$/, '') + '.jpg';
+    return new File([blob], cleanName, { type:'image/jpeg', lastModified:Date.now() });
+  }catch(e){
+    console.warn('No se pudo comprimir imagen; se sube original', e);
+    return file;
+  }
+}
+
+async function _prepareUploadFile(file){
+  return _compressImageFile(file);
+}
+
 async function uploadBlobFile(file, folio, doc){
   if(!file) return null;
+  const safeFile = await _prepareUploadFile(file);
   const qs = new URLSearchParams({
     folio: folio || 'sin-folio',
     doc: _safeDocKey(doc || 'archivo'),
-    filename: file.name || 'archivo'
+    filename: safeFile.name || file.name || 'archivo'
   });
   const r = await fetch('/api/upload-documento?' + qs.toString(), {
     method:'POST',
-    headers:{ 'x-content-type': file.type || 'application/octet-stream', 'Authorization':'Bearer '+(SESSION?.token||'') },
-    body:file
+    headers:{ 'x-content-type': safeFile.type || file.type || 'application/octet-stream', 'Authorization':'Bearer '+(SESSION?.token||'') },
+    body:safeFile
   });
   const data = await r.json().catch(() => ({}));
   if(!r.ok) throw new Error(data.error || ('No se pudo subir ' + (file.name || 'archivo')));
@@ -2685,6 +2760,8 @@ async function uploadBlobFile(file, folio, doc){
 
 function _landInput(fl, rec){
   const name = fl.f;
+  const labelText = fl.label || name;
+  const noteText = fl.note ? `<div class="le-note">${_esc(fl.note)}</div>` : '';
   let val = _fval(rec, name);
   const orig = val;
 
@@ -2697,33 +2774,33 @@ function _landInput(fl, rec){
       ? `<span class="le-vstatus on">Cargado${info.count>1?' ('+info.count+')':''}</span>`
       : `<span class="le-vstatus off">Vacío</span>`;
     return `<div class="form-group full">
-        <label class="form-label">${name}</label>
+        <label class="form-label">${_esc(labelText)}</label>
         <div class="le-attach">${thumb}${status}</div>
         <div class="le-upload">
-          <input class="form-inp" type="file" data-upload-attach="${_escAttr(name)}" data-upload-doc="${_escAttr(name)}" accept="image/*,video/mp4,video/quicktime,application/pdf">
+          <input class="form-inp" type="file" data-upload-attach="${_escAttr(name)}" data-upload-doc="${_escAttr(name)}" accept="${fl.img ? 'image/*' : 'image/*,video/mp4,video/quicktime,application/pdf'}">
         </div>
         <input class="form-inp" type="text" data-attach="${_escAttr(name)}"
                placeholder="O pegar URL pública para reemplazar (opcional)">
-        <div class="le-note">Puedes subir el archivo desde aquí. La intranet lo manda a Vercel Blob y guarda solo la URL en Airtable.</div>
+        ${noteText || '<div class="le-note">Puedes subir el archivo desde aquí. La intranet lo manda a Vercel Blob y guarda solo la URL en Airtable.</div>'}
       </div>`;
   }
   if(fl.type === 'select'){
     const os = (fl.opts||[]).map(o => `<option value="${_escAttr(o)}"${val===o?' selected':''}>${o}</option>`).join('');
     return `<div class="form-group${fl.full?' full':''}">
-        <label class="form-label">${name}</label>
+        <label class="form-label">${_esc(labelText)}</label>
         <select class="form-inp" data-field="${_escAttr(name)}" data-ftype="select" data-orig="${_escAttr(orig)}">
-          <option value="">— Sin selección</option>${os}</select></div>`;
+          <option value="">— Sin selección</option>${os}</select>${noteText}</div>`;
   }
   if(fl.type === 'textarea'){
     return `<div class="form-group${fl.full?' full':''}">
-        <label class="form-label">${name}</label>
-        <textarea class="form-inp" data-field="${_escAttr(name)}" data-ftype="text" data-orig="${_escAttr(orig)}" rows="2">${_esc(val)}</textarea></div>`;
+        <label class="form-label">${_esc(labelText)}</label>
+        <textarea class="form-inp" data-field="${_escAttr(name)}" data-ftype="text" data-orig="${_escAttr(orig)}" rows="2">${_esc(val)}</textarea>${noteText}</div>`;
   }
   const inType = fl.type === 'number' ? 'number' : 'text';
   const ft = fl.type === 'number' ? 'number' : 'text';
   return `<div class="form-group${fl.full?' full':''}">
-      <label class="form-label">${name}</label>
-      <input class="form-inp" type="${inType}" data-field="${_escAttr(name)}" data-ftype="${ft}" data-orig="${_escAttr(orig)}" value="${_escAttr(val)}"></div>`;
+      <label class="form-label">${_esc(labelText)}</label>
+      <input class="form-inp" type="${inType}" data-field="${_escAttr(name)}" data-ftype="${ft}" data-orig="${_escAttr(orig)}" value="${_escAttr(val)}">${noteText}</div>`;
 }
 
 function _landVideoRow(v, rec){
@@ -2739,6 +2816,7 @@ function _landVideoRow(v, rec){
         <input class="form-inp" type="text" data-field="${_escAttr(v.yt)}" data-ftype="text" data-orig="${_escAttr(ytVal)}" value="${_escAttr(ytVal)}" placeholder="${ph}">
         <div class="le-upload">
           <input class="form-inp" type="file" data-upload-attach="${_escAttr(v.mp4)}" data-upload-doc="${_escAttr(v.mp4)}" accept="video/mp4,video/quicktime">
+          <div class="le-note">Máximo seguro 45 MB. Recomendado 10–25 MB para que la landing no se vuelva lenta.</div>
         </div>
       </div>
       ${mp4}
@@ -2842,12 +2920,18 @@ async function landSave(){
     const uploadInputs = Array.from(document.querySelectorAll('#crm-landing-body [data-upload-attach]'))
       .filter(el => el.files && el.files[0]);
 
+    const issues = _uploadIssues(uploadInputs);
+    if(issues.length){
+      throw new Error('Revisa archivos antes de guardar:\n• ' + issues.join('\n• '));
+    }
+
     if(uploadInputs.length){
-      btn.textContent = uploadInputs.length === 1 ? 'Subiendo archivo...' : 'Subiendo archivos...';
-      for(const el of uploadInputs){
+      for(let i=0; i<uploadInputs.length; i++){
+        const el = uploadInputs[i];
         const name = el.dataset.uploadAttach;
         const doc  = el.dataset.uploadDoc || name;
         const file = el.files[0];
+        btn.textContent = `Subiendo ${i+1}/${uploadInputs.length}...`;
         const url = await uploadBlobFile(file, folioUpload, doc);
         fields[name] = [{ url }];
       }
@@ -2869,6 +2953,7 @@ async function landSave(){
     await crmLoad('propiedades', true);
   } catch(e){
     errEl.style.color = 'var(--red)';
+    errEl.style.whiteSpace = 'pre-line';
     errEl.textContent = 'Error al guardar: ' + (e?.message || e);
     console.error('landSave error', e);
   } finally {
