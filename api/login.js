@@ -24,7 +24,6 @@ export default async function handler(req, res){
     const rolSolicitado = clean(body.rol || 'asesor');
     const modo = 'real';
     if(!user || !pass) return res.status(400).json({ error:'Usuario y contraseña son obligatorios.' });
-    // Modo demo eliminado: toda entrada se valida contra administrador o Airtable.
     if(['admin','administrador'].includes(user)){
       const adminCode = process.env.NERI_ADMIN_CODE;
       if(!adminCode || pass !== adminCode) return res.status(401).json({ error:'Credenciales administrativas incorrectas.' });
