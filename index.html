@@ -1190,6 +1190,69 @@ select.form-inp option{background:#111;color:#fff}
 
 @media(max-width:980px){.asesor-hero,.asesor-two{grid-template-columns:1fr}.asesor-action-grid,.asesor-manual-grid{grid-template-columns:1fr}.asesor-form{grid-template-columns:1fr}.role-switch{display:none}}
 
+/* ══════════ EXPEDIENTE VIVO — Ficha premium del cliente (Arma 6) ══════════ */
+.exp-body{padding:26px;min-height:100%;overflow:auto;animation:fadeUp .35s var(--ease)}
+.exp-head{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;margin-bottom:18px;border-bottom:1px solid var(--border);padding-bottom:16px;flex-wrap:wrap}
+.exp-h-title{font-family:var(--display);font-size:40px;line-height:.95;letter-spacing:.5px}.exp-h-title em{font-style:normal;color:var(--gold)}
+.exp-h-sub{font-size:11px;color:var(--w45);margin-top:8px;line-height:1.6;max-width:600px}
+.exp-back{border:1px solid var(--border2);background:rgba(255,255,255,.03);color:var(--w70);border-radius:999px;padding:9px 14px;font-size:8px;letter-spacing:1.4px;text-transform:uppercase;font-weight:900;cursor:pointer}
+.exp-back:hover{border-color:var(--goldbdr);color:var(--gold)}
+.exp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.exp-card{border:1px solid var(--border);background:linear-gradient(150deg,rgba(255,255,255,.04),rgba(255,255,255,.015));border-radius:16px;padding:16px;cursor:pointer;transition:.14s var(--ease);text-align:left;position:relative;overflow:hidden;width:100%}
+.exp-card:hover{border-color:var(--goldbdr);transform:translateY(-2px)}
+.exp-card .ribbon{position:absolute;top:0;right:0;width:4px;height:100%}
+.exp-card .ribbon.red{background:var(--red)}.exp-card .ribbon.gold{background:var(--gold)}.exp-card .ribbon.green{background:var(--green)}
+.exp-card .ec-top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
+.exp-card .ec-tipo{font-size:6px;letter-spacing:1.8px;text-transform:uppercase;font-weight:900;color:var(--gold)}
+.exp-card .ec-folio{font-family:var(--mono);font-size:9px;color:var(--w45)}
+.exp-card .ec-name{font-size:15px;color:var(--white);font-weight:600;margin-bottom:6px}
+.exp-card .ec-stage{font-size:10px;color:var(--w55);line-height:1.5}
+.exp-card .ec-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:12px}
+.exp-pill{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--border2);background:rgba(255,255,255,.035);border-radius:999px;padding:5px 9px;font-size:7px;letter-spacing:1.2px;text-transform:uppercase;font-weight:900;color:var(--w55);white-space:nowrap}
+.exp-pill.gold{border-color:var(--goldbdr);background:var(--golddim);color:var(--gold)}
+.exp-pill.red{border-color:rgba(248,113,113,.28);background:rgba(248,113,113,.09);color:var(--red)}
+.exp-file{display:grid;grid-template-columns:1.4fr .9fr;gap:14px}
+.exp-col{display:grid;gap:14px;align-content:start}
+.exp-sec{border:1px solid var(--border);background:var(--surface);border-radius:18px;padding:18px}
+.exp-sec-t{font-size:7px;letter-spacing:2.2px;text-transform:uppercase;color:var(--gold);font-weight:900;margin-bottom:14px}
+.exp-id{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start}
+.exp-id .name{font-family:var(--display);font-size:30px;line-height:1;letter-spacing:.5px;color:var(--white)}
+.exp-id .folio{font-family:var(--mono);font-size:11px;color:var(--gold);margin-top:8px}
+.exp-tag{display:inline-block;font-size:7px;letter-spacing:1.6px;text-transform:uppercase;font-weight:900;padding:5px 10px;border-radius:999px;border:1px solid var(--goldbdr);background:var(--golddim);color:var(--gold)}
+.exp-step{display:flex;gap:0;margin-top:6px;flex-wrap:wrap}
+.exp-step .s{flex:1;min-width:64px;text-align:center;position:relative;padding-top:22px}
+.exp-step .s::before{content:'';position:absolute;top:6px;left:50%;width:100%;height:2px;background:var(--border2)}
+.exp-step .s:last-child::before{display:none}
+.exp-step .s .dot{position:absolute;top:0;left:50%;transform:translateX(-50%);width:13px;height:13px;border-radius:50%;background:var(--ink);border:2px solid var(--border2);z-index:2}
+.exp-step .s.done .dot{background:var(--gold);border-color:var(--gold)}
+.exp-step .s.done::before{background:var(--gold)}
+.exp-step .s.now .dot{background:var(--gold);border-color:var(--gold);box-shadow:0 0 0 4px var(--golddim)}
+.exp-step .s small{font-size:7px;letter-spacing:.6px;text-transform:uppercase;color:var(--w45);font-weight:900}
+.exp-step .s.now small{color:var(--gold)}.exp-step .s.done small{color:var(--w70)}
+.exp-kv{display:grid;gap:10px}
+.exp-kv .row{border-left:2px solid var(--border2);padding:2px 0 2px 12px}
+.exp-kv .row.alert{border-left-color:var(--red)}
+.exp-kv .row.play{border-left-color:var(--gold)}
+.exp-kv .k{font-size:7px;letter-spacing:1.6px;text-transform:uppercase;color:var(--w40);font-weight:900;margin-bottom:4px}
+.exp-kv .val{font-size:13px;color:var(--white);line-height:1.55}
+.exp-kv .val.muted{color:var(--w45);font-style:italic}
+.exp-msg{border:1px solid var(--goldbdr);background:var(--golddim);border-radius:14px;padding:14px;margin-top:14px}
+.exp-msg .q{font-size:13px;color:var(--white);line-height:1.6;font-style:italic}
+.exp-msg .acts{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.exp-btn{border:1px solid var(--goldbdr);background:linear-gradient(135deg,rgba(201,169,110,.95),rgba(229,204,154,.82));color:#17120a;border-radius:999px;padding:9px 14px;font-size:8px;letter-spacing:1.3px;text-transform:uppercase;font-weight:900;cursor:pointer;white-space:nowrap;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.exp-btn.ghost{background:rgba(255,255,255,.03);border-color:var(--border2);color:var(--w70)}
+.exp-alert{border:1px solid rgba(248,113,113,.3);background:rgba(248,113,113,.07);border-radius:14px;padding:13px 15px;font-size:12px;color:#f7b4ab;line-height:1.6;display:flex;gap:10px;align-items:flex-start}
+.exp-alert b{color:#fff}
+.exp-ok{border:1px solid rgba(74,222,128,.25);background:rgba(74,222,128,.06);border-radius:14px;padding:13px 15px;font-size:12px;color:#a7e8bd;line-height:1.6}
+.exp-doc{border:1px solid var(--border2);border-radius:12px;padding:11px 13px;margin-bottom:8px}
+.exp-doc .dn{font-size:12px;color:var(--white)}.exp-doc .ds{font-size:10px;color:var(--w45);margin-top:3px}
+.exp-sla{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:10px;color:var(--w50);margin-top:12px}
+.exp-sla .bar{flex:1;height:5px;border-radius:3px;background:rgba(255,255,255,.07);overflow:hidden}
+.exp-sla .bar i{display:block;height:100%;background:var(--gold)}
+.exp-sla .bar i.over{background:var(--red)}
+@media(max-width:920px){.exp-file{grid-template-columns:1fr}}
+
+
 
 /* CONTROL MAESTRO V14 — ficha limpia con diseño premium */
 .admin-v14-ficha{width:100%;max-width:1280px;margin:0 auto 28px}
@@ -1355,6 +1418,7 @@ const NAV_ROL = {
     { id:'hoy', label:'Hoy', icon:'⬡', highlight:true },
     { id:'perfil_asesor', label:'Mi Perfil del Asesor', icon:'◉' },
     { id:'airtable', label:'Centro de Operaciones', icon:'◈' },
+    { id:'expedientes', label:'Expedientes', icon:'❑' },
     { id:'propiedades_asesor', label:'Mis Propiedades', icon:'⌂' },
     { id:'documentos_asesor', label:'Documentos', icon:'▤' },
     { section:'Herramientas' },
@@ -1525,6 +1589,7 @@ function buildPanels(){
   ca.insertAdjacentHTML('beforeend', buildAsesorDocumentosPanel());
   ca.insertAdjacentHTML('beforeend', buildAsesorReportesPanel());
   ca.insertAdjacentHTML('beforeend', buildAsesorManualesPanel());
+  ca.insertAdjacentHTML('beforeend', buildExpedientePanel());
 
   ca.insertAdjacentHTML('beforeend', buildAirtablePanel());
   ca.insertAdjacentHTML('beforeend', buildSalaMensajesPanel());
@@ -3298,6 +3363,7 @@ const LABELS = {
   hoy:'Inicio',
   administracion:'Control de Mando',
   airtable:'Centro de Operaciones',
+  expedientes:'Expedientes Vivos',
   sala:'Sala de Mensajes',
   compradores:'Landing Compradores',
   vendedores:'Landing Vendedores',
@@ -3767,7 +3833,7 @@ async function asesorLoadHoy(force=false){
     if(zonas) zonas.innerHTML=[['Dinero en riesgo',dineroRiesgo?`${asesorFmtMoney(dineroRiesgo)} requiere acción`:`${riesgo.length} expedientes con riesgo`,riesgo[0]?asesorMensaje(riesgo[0]):'Sin riesgos detectados en registros reales.','airtable'],['Dinero cerca',`${cerca.length} oportunidades para avanzar`,cerca[0]?asesorMensaje(cerca[0]):'Sin oportunidades listas detectadas.','airtable'],['Dinero dormido',`${dormidos.length} leads se enfrían`,dormidos[0]?`${asesorNombre(dormidos[0])}: ${asesorMensaje(dormidos[0])}`:'Sin leads dormidos detectados.','airtable']].map(z=>`<button class="asesor-action" onclick="goTo('${z[3]}')"><div><span class="tag">${asesorEsc(z[0])}</span><b>${asesorEsc(z[1])}</b><p>${asesorEsc(z[2])}</p></div><span class="go">Resolver ahora →</span></button>`).join('');
     const acciones=[]; const firstRisk=riesgo[0], firstDormido=dormidos[0], firstCerca=cerca[0], docPend=prog.find(r=>_fval(r,'Pendientes visibles'))||vend.find(r=>_fval(r,'Documentos'));
     if(firstRisk) acciones.push(['Qué operación está en riesgo',asesorNombre(firstRisk),asesorMensaje(firstRisk),firstRisk]); if(firstCerca) acciones.push(['A quién contactar',asesorNombre(firstCerca),asesorMensaje(firstCerca),firstCerca]); if(firstDormido) acciones.push(['Qué lead se está enfriando',asesorNombre(firstDormido),`${asesorDays(_fval(firstDormido,'Última interacción'))} días sin contacto · ${asesorMensaje(firstDormido)}`,firstDormido]); if(docPend) acciones.push(['Qué documento falta',asesorNombre(docPend),_fval(docPend,'Pendientes visibles')||_fval(docPend,'Documentos'),docPend]); if(!acciones.length&&(comp.length||vend.length||prog.length)) acciones.push(['Qué hacer hoy','Revisar Centro de Operaciones','Hay registros reales, pero todavía no tienen riesgo/siguiente jugada/documento capturado.',comp[0]||vend[0]||prog[0]]);
-    if(list) list.innerHTML=acciones.length?acciones.map(([tag,nombre,txt,rec])=>{const phone=_fval(rec,'Teléfono WhatsApp')||_fval(rec,'WhatsApp Asesor'); const msg=asesorMensaje(rec); const wa=phone?`<a class="asesor-pill gold" href="${asesorWa(phone,msg)}" target="_blank" rel="noopener">Mensaje sugerido</a>`:''; return `<div class="asesor-row"><div><b>${asesorEsc(nombre)}</b><p>${asesorEsc(tag)} · ${asesorEsc(txt)}</p></div><div class="meta"><span class="asesor-pill">${asesorEsc(asesorStatus(rec))}</span>${wa}</div></div>`;}).join(''):'<div class="hoy-empty">No hay registros reales para construir tu cabina de hoy.</div>';
+    if(list) list.innerHTML=acciones.length?acciones.map(([tag,nombre,txt,rec])=>{const phone=_fval(rec,'Teléfono WhatsApp')||_fval(rec,'WhatsApp Asesor'); const msg=asesorMensaje(rec); const wa=phone?`<a class="asesor-pill gold" href="${asesorWa(phone,msg)}" target="_blank" rel="noopener">Mensaje sugerido</a>`:''; return `<div class="asesor-row" style="cursor:pointer" onclick="openExpedienteById('${rec.id}')"><div><b>${asesorEsc(nombre)}</b><p>${asesorEsc(tag)} · ${asesorEsc(txt)}</p></div><div class="meta"><span class="asesor-pill">${asesorEsc(asesorStatus(rec))}</span>${wa}</div></div>`;}).join(''):'<div class="hoy-empty">No hay registros reales para construir tu cabina de hoy.</div>';
   }catch(e){ if(list) list.innerHTML=`<div class="hoy-empty err">No se pudo cargar la cabina: ${asesorEsc(e.message)}</div>`; if(zonas) zonas.innerHTML='<div class="hoy-empty err">Sin datos.</div>'; }
 }
 
@@ -4016,7 +4082,204 @@ function buildAsesorManualesPanel(){
 }
 
 function buildSalaMensajesPanel(){ return `<div class="panel" id="panel-sala"><div class="asesor-body asesor-perfil-page"><div class="fv-box perfil-fv-box"><div class="fv-header"><div><div class="fv-nombre">SALA DE MENSAJES</div><div class="fv-wa"><span>No es biblioteca: recibe contexto del cliente y sugiere respuesta</span></div></div><div><div class="fv-folio-lbl">Contextual</div><div class="fv-folio">MENSAJES</div></div></div><div class="fv-body perfil-fv-body"><div class="fv-sec"><div class="fv-sec-title"><em>⚡</em> Contexto comercial del cliente</div><div id="sala-contexto"><div class="hoy-empty">Cargando contexto real…</div></div></div><div class="fv-sec"><div class="le-banner">La sala debe mostrar tipo de cliente, etapa, riesgo principal, diagnóstico comercial y mensaje sugerido. El asesor copia, adapta y decide; el sistema no contesta por él.</div></div></div></div></div></div>`; }
-async function salaLoadContext(force=false){ if(_salaLoaded&&!force)return; _salaLoaded=true; const el=document.getElementById('sala-contexto'); if(!el)return; try{ const data=await asesorLoadAll(force); const registros=[...(data.compradores||[]),...(data.vendedores||[]),...(data.progreso||[])]; const top=registros.map(r=>({r,score:(_fval(r,'Mensaje sugerido')?3:0)+(_fval(r,'Riesgo principal')?2:0)+(_fval(r,'Diagnóstico comercial')?2:0)+(_fval(r,'Pendientes visibles')?1:0)})).sort((a,b)=>b.score-a.score).slice(0,6); el.innerHTML=top.length?top.map(o=>{const r=o.r,msg=asesorMensaje(r),phone=_fval(r,'Teléfono WhatsApp')||_fval(r,'WhatsApp Asesor'); const safe=asesorEsc(msg).replace(/'/g,'\\\''); return `<div class="fv-row full"><div class="fv-row-k">${asesorEsc(_fval(r,'Conversión')||_fval(r,'Fase Actual')||asesorStatus(r))}</div><div class="fv-row-v"><strong style="color:var(--white)">${asesorEsc(asesorNombre(r))}</strong><br><span style="color:var(--w50)">Tipo/etapa: ${asesorEsc(_fval(r,'Tipo de Propiedad')||_fval(r,'Propiedad de Interés')||_fval(r,'Propiedad')||'Sin contexto')}</span><br><span style="color:var(--gold)">Riesgo:</span> ${asesorEsc(_fval(r,'Riesgo principal')||_fval(r,'Pendientes visibles')||'Sin riesgo capturado')}<br><span style="color:var(--gold)">Diagnóstico:</span> ${asesorEsc(_fval(r,'Diagnóstico comercial')||_fval(r,'Diagnóstico Fiscal')||'Sin diagnóstico capturado')}<br><span style="color:var(--white)">Mensaje sugerido:</span> ${asesorEsc(msg)}<br>${phone?`<a class="asesor-pill gold" href="${asesorWa(phone,msg)}" target="_blank" rel="noopener">Abrir WhatsApp con mensaje</a>`:''}<button class="asesor-pill" onclick="asesorCopy('${safe}')">Copiar mensaje</button></div></div>`;}).join(''):'<div class="hoy-empty">No hay contexto suficiente en registros reales para sugerir mensajes.</div>'; }catch(e){ el.innerHTML=`<div class="hoy-empty err">No se pudo cargar Sala de Mensajes: ${asesorEsc(e.message)}</div>`; } }
+async function salaLoadContext(force=false){ if(_salaLoaded&&!force)return; _salaLoaded=true; const el=document.getElementById('sala-contexto'); if(!el)return; try{ const data=await asesorLoadAll(force); const registros=[...(data.compradores||[]),...(data.vendedores||[]),...(data.progreso||[])]; const top=registros.map(r=>({r,score:(_fval(r,'Mensaje sugerido')?3:0)+(_fval(r,'Riesgo principal')?2:0)+(_fval(r,'Diagnóstico comercial')?2:0)+(_fval(r,'Pendientes visibles')?1:0)})).sort((a,b)=>b.score-a.score).slice(0,6); el.innerHTML=top.length?top.map(o=>{const r=o.r,msg=asesorMensaje(r),phone=_fval(r,'Teléfono WhatsApp')||_fval(r,'WhatsApp Asesor'); const safe=asesorEsc(msg).replace(/'/g,'\\\''); return `<div class="fv-row full" style="cursor:pointer" onclick="openExpedienteById('${r.id}')"><div class="fv-row-k">${asesorEsc(_fval(r,'Conversión')||_fval(r,'Fase Actual')||asesorStatus(r))}</div><div class="fv-row-v"><strong style="color:var(--white)">${asesorEsc(asesorNombre(r))}</strong><br><span style="color:var(--w50)">Tipo/etapa: ${asesorEsc(_fval(r,'Tipo de Propiedad')||_fval(r,'Propiedad de Interés')||_fval(r,'Propiedad')||'Sin contexto')}</span><br><span style="color:var(--gold)">Riesgo:</span> ${asesorEsc(_fval(r,'Riesgo principal')||_fval(r,'Pendientes visibles')||'Sin riesgo capturado')}<br><span style="color:var(--gold)">Diagnóstico:</span> ${asesorEsc(_fval(r,'Diagnóstico comercial')||_fval(r,'Diagnóstico Fiscal')||'Sin diagnóstico capturado')}<br><span style="color:var(--white)">Mensaje sugerido:</span> ${asesorEsc(msg)}<br>${phone?`<a class="asesor-pill gold" href="${asesorWa(phone,msg)}" target="_blank" rel="noopener">Abrir WhatsApp con mensaje</a>`:''}<button class="asesor-pill" onclick="asesorCopy('${safe}')">Copiar mensaje</button></div></div>`;}).join(''):'<div class="hoy-empty">No hay contexto suficiente en registros reales para sugerir mensajes.</div>'; }catch(e){ el.innerHTML=`<div class="hoy-empty err">No se pudo cargar Sala de Mensajes: ${asesorEsc(e.message)}</div>`; } }
+
+
+/* ═══════════════════════════════════════════════════
+   EXPEDIENTE VIVO — Ficha premium del cliente (Arma 6)
+   Convierte cada fila en un expediente: etapa, diagnóstico,
+   riesgo, siguiente jugada, mensaje sugerido, documentos
+   faltantes y liga de carga para el cliente.
+   Los datos ya llegan filtrados por Asesor desde /api/airtable.js
+═══════════════════════════════════════════════════ */
+const EXP_PORTAL_BASE = 'https://progreso-zeta.vercel.app/';  // portal de progreso del cliente
+const EXP_DOC_BASE    = 'https://progreso-zeta.vercel.app/';  // liga de carga de documentos — apúntala a tu landing real de documentos
+const EXP_SLA = { 'HOT':2, 'WARM':4, 'COLD':8, 'Frío':8, 'Frio':8, '_def':6 }; // días estimados sin contacto antes de alertar
+let _expLoaded = false;
+
+function expSlaDays(rec){ const c=String(asesorStatus(rec)||'').trim(); return EXP_SLA[c] ?? EXP_SLA._def; }
+
+function buildExpedientePanel(){
+  return `<div class="panel" id="panel-expedientes"><div class="exp-body">
+    <div class="exp-head">
+      <div>
+        <div class="exp-h-title">EXPEDIENTES <em>VIVOS</em></div>
+        <div class="exp-h-sub">Cada cliente deja de ser una fila y se vuelve un expediente: en qué etapa va, qué lo detiene, cuál es la siguiente jugada y qué mensaje mandar. Toca uno para abrirlo.</div>
+      </div>
+      <button class="asesor-gold-btn" onclick="expLoadIndex(true)">Actualizar</button>
+    </div>
+    <div id="exp-root"><div class="hoy-empty">Cargando expedientes reales…</div></div>
+  </div></div>`;
+}
+
+function expFindAny(recId){
+  const d = asesorCache||{};
+  let rec = (d.compradores||[]).find(r=>r.id===recId); if(rec) return {tipo:'comprador', rec};
+  rec = (d.vendedores||[]).find(r=>r.id===recId); if(rec) return {tipo:'vendedor', rec};
+  rec = (d.progreso||[]).find(r=>r.id===recId); if(rec) return {tipo:'progreso', rec};
+  return null;
+}
+
+function expFindProgreso(rec){
+  const d=asesorCache||{}; if(!d.progreso) return null;
+  const folio=String(_fval(rec,'Folio')||_fval(rec,'Folio del Comprador')||'').trim();
+  const nombre=asesorNombre(rec).toLowerCase();
+  return d.progreso.find(p=>{
+    const pf=String(_fval(p,'Folio')||'').trim();
+    const pc=String(_fval(p,'Comprador')||'').toLowerCase();
+    return (folio&&pf&&pf===folio)||(nombre&&pc&&pc===nombre);
+  })||null;
+}
+
+function expStepper(tipo, rec, prog){
+  let stages, idx;
+  const conv=String(_fval(rec,'Conversión')||'').toLowerCase();
+  const fase=String(_fval(prog||rec,'Fase Actual')||'').toLowerCase();
+  if(tipo==='vendedor'){
+    stages=['Contacto','Seguimiento','Exclusiva','Documentos','Producción','Publicada'];
+    idx=0;
+    if(conv.includes('seguimiento')) idx=1;
+    if(conv.includes('exclusiva')||conv.includes('venta directa')) idx=2;
+    if(_fval(rec,'Documentos')||_fval(rec,'Progreso Expediente')) idx=Math.max(idx,3);
+    if(/(true|sí|si|creada|publicada)/i.test(String(_fval(rec,'Propiedad Creada')))) idx=Math.max(idx,5);
+  } else {
+    stages=['Contacto','Diagnóstico','Cita','Apartado','Crédito','Escrituración','Firma','Entrega'];
+    idx=0;
+    if(_fval(rec,'Diagnóstico comercial')) idx=1;
+    if(conv.includes('cita')) idx=2;
+    if(conv.includes('apartado')) idx=3;
+    const fmap={'crédito':4,'credito':4,'valuación':4,'valuacion':4,'expediente':4,'escrituración':5,'escrituracion':5,'firma':6,'entrega':7,'completado':7};
+    for(const k in fmap){ if(fase.includes(k)) idx=Math.max(idx,fmap[k]); }
+  }
+  return stages.map((s,i)=>`<div class="s ${i<idx?'done':''} ${i===idx?'now':''}"><span class="dot"></span><small>${asesorEsc(s)}</small></div>`).join('');
+}
+
+function expDocsFor(tipo, rec, prog){
+  const out=[];
+  const pv=_fval(prog||{},'Pendientes visibles')||_fval(rec,'Pendientes visibles');
+  if(pv) out.push({n:'Pendientes del expediente', s:pv});
+  const dv=_fval(rec,'Documentos');
+  if(dv) out.push({n:'Documentos del vendedor', s:dv});
+  const df=_fval(rec,'Diagnóstico Fiscal'); const detalle=_fval(rec,'Detalle Fiscal');
+  if(df) out.push({n:'Situación fiscal', s:[df,detalle].filter(Boolean).join(' · ')});
+  return out;
+}
+
+async function expLoadIndex(force=false){
+  const root=document.getElementById('exp-root'); if(!root) return;
+  root.innerHTML='<div class="hoy-empty">Cargando expedientes reales…</div>';
+  try{
+    const d=await asesorLoadAll(force); _expLoaded=true;
+    const items=[
+      ...(d.vendedores||[]).map(r=>({tipo:'vendedor',rec:r})),
+      ...(d.compradores||[]).map(r=>({tipo:'comprador',rec:r})),
+    ];
+    if(!items.length){ root.innerHTML='<div class="hoy-empty">Aún no hay leads reales para esta sesión. En cuanto entren vendedores o compradores por tus landings, aquí nacen sus expedientes.</div>'; return; }
+    root.innerHTML='<div class="exp-grid">'+items.map(({tipo,rec})=>{
+      const dias=asesorDays(_fval(rec,'Última interacción')||_fval(rec,'Fecha de Entrada'));
+      const sla=expSlaDays(rec); const over=dias!=null&&dias>sla;
+      const ribbon=over?'red':(/HOT|Cita|Apartado|exclusiva|Listo/i.test([asesorStatus(rec),_fval(rec,'Conversión')].join(' '))?'gold':'green');
+      const folio=_fval(rec,'Folio')||_fval(rec,'Folio del Comprador')||'—';
+      const prog=tipo==='comprador'?expFindProgreso(rec):null;
+      const etapa=_fval(prog||rec,'Fase Actual')||_fval(rec,'Conversión')||asesorStatus(rec);
+      const diasTxt=dias!=null?`${dias} d sin contacto`:'sin fecha';
+      return `<button class="exp-card" onclick="openExpedienteById('${rec.id}')"><span class="ribbon ${ribbon}"></span>
+        <div class="ec-top"><span class="ec-tipo">${tipo==='vendedor'?'Vendedor · captación':'Comprador'}</span><span class="ec-folio">${asesorEsc(folio)}</span></div>
+        <div class="ec-name">${asesorEsc(asesorNombre(rec))}</div>
+        <div class="ec-stage">Etapa: ${asesorEsc(etapa||'Contacto')}</div>
+        <div class="ec-foot"><span class="exp-pill ${over?'red':''}">${asesorEsc(diasTxt)}</span><span class="exp-pill gold">Abrir →</span></div>
+      </button>`;
+    }).join('')+'</div>';
+  }catch(e){ root.innerHTML=`<div class="hoy-empty err">No se pudieron cargar expedientes: ${asesorEsc(e.message)}</div>`; }
+}
+
+async function openExpedienteById(recId){
+  // Activa el panel sin disparar el índice, y pinta el expediente profundo.
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sb-btn').forEach(b=>b.classList.remove('active'));
+  const panel=document.getElementById('panel-expedientes'); if(panel) panel.classList.add('active');
+  const navBtn=document.getElementById('nav-expedientes'); if(navBtn) navBtn.classList.add('active');
+  const label=document.getElementById('tb-label'); if(label) label.textContent=(typeof LABELS!=='undefined'&&LABELS.expedientes)||'Expedientes';
+  const root=document.getElementById('exp-root'); if(root) root.innerHTML='<div class="hoy-empty">Abriendo expediente…</div>';
+  try{ await asesorLoadAll(false); }catch(_){}
+  const found=expFindAny(recId);
+  if(!found){ if(root) root.innerHTML='<div class="hoy-empty err">No se encontró el expediente. <button class="exp-back" onclick="expLoadIndex(true)">← Volver</button></div>'; return; }
+  expRenderFile(found.tipo, found.rec);
+}
+
+function expRenderFile(tipo, rec){
+  const root=document.getElementById('exp-root'); if(!root) return;
+  const prog = tipo==='comprador' ? expFindProgreso(rec) : (tipo==='progreso'?rec:null);
+  const nombre=asesorNombre(rec);
+  const folio=_fval(rec,'Folio')||_fval(rec,'Folio del Comprador')||'— sin folio —';
+  const phone=_fval(rec,'Teléfono WhatsApp')||_fval(rec,'WhatsApp Asesor')||SESSION?.whatsapp||'';
+  const dias=asesorDays(_fval(rec,'Última interacción')||_fval(rec,'Fecha de Entrada'));
+  const sla=expSlaDays(rec); const over=dias!=null&&dias>sla;
+  const precio=asesorMoney(_fval(rec,'Precio')||_fval(rec,'Precio Estimado')||_fval(prog||{},'Precio'));
+  const diag=_fval(rec,'Diagnóstico comercial')||_fval(rec,'Diagnóstico Fiscal');
+  const riesgo=_fval(rec,'Riesgo principal')||_fval(prog||{},'Pendientes visibles');
+  const emo=_fval(rec,'Estado emocional');
+  const jugada=_fval(rec,'Siguiente jugada')||_fval(prog||{},'Próximo paso');
+  const msg=asesorMensaje(rec);
+  const tipoLbl = tipo==='vendedor'?'Vendedor · captación':(tipo==='progreso'?'Operación en progreso':'Comprador');
+  const docs=expDocsFor(tipo,rec,prog);
+  const folioParam = folio!=='— sin folio —'?folio:(SESSION?.slug||'');
+  const docLink=EXP_DOC_BASE+'?folio='+encodeURIComponent(folioParam);
+  const portalLink=EXP_PORTAL_BASE+'?folio='+encodeURIComponent(folio!=='— sin folio —'?folio:'');
+  const safeMsg=asesorEsc(msg).replace(/'/g,"\\'");
+  const pct=Math.min(100, (dias!=null&&sla)?Math.round(dias/sla*100):0);
+
+  const alertBlock = over
+    ? `<div class="exp-alert"><span>▲</span><div><b>${dias} días sin movimiento.</b> ${precio?`Operación de ${asesorFmtMoney(precio)} en riesgo de enfriarse.`:'Este expediente necesita acción hoy.'} El tiempo estimado para esta etapa era de ${sla} días.</div></div>`
+    : `<div class="exp-ok">Ritmo sano: ${dias!=null?dias+' días':'sin registro'} desde el último contacto (estimado: ${sla} días). Mantén el seguimiento.</div>`;
+
+  root.innerHTML = `
+    <div style="margin-bottom:14px"><button class="exp-back" onclick="expLoadIndex(false)">← Volver a expedientes</button></div>
+    <div class="exp-file">
+      <div class="exp-col">
+        <div class="exp-sec">
+          <div class="exp-id">
+            <div><span class="exp-tag">${asesorEsc(tipoLbl)}</span><div class="name" style="margin-top:10px">${asesorEsc(nombre)}</div><div class="folio">${asesorEsc(folio)}</div></div>
+            ${phone?`<a class="exp-btn" href="${asesorWa(phone,msg)}" target="_blank" rel="noopener">↗ WhatsApp</a>`:''}
+          </div>
+          <div class="exp-step" style="margin-top:22px">${expStepper(tipo,rec,prog)}</div>
+        </div>
+        <div class="exp-sec">
+          <div class="exp-sec-t">Diagnóstico y siguiente jugada</div>
+          <div class="exp-kv">
+            <div class="row"><div class="k">Diagnóstico comercial</div><div class="val ${diag?'':'muted'}">${asesorEsc(diag||'Sin diagnóstico capturado todavía.')}</div></div>
+            <div class="row ${riesgo?'alert':''}"><div class="k">Riesgo principal</div><div class="val ${riesgo?'':'muted'}">${asesorEsc(riesgo||'Sin riesgo capturado.')}</div></div>
+            <div class="row"><div class="k">Estado emocional</div><div class="val ${emo?'':'muted'}">${asesorEsc(emo||'Sin lectura emocional capturada.')}</div></div>
+            <div class="row play"><div class="k">Siguiente jugada</div><div class="val ${jugada?'':'muted'}">${asesorEsc(jugada||'Definir el siguiente paso y registrarlo.')}</div></div>
+          </div>
+          <div class="exp-msg"><div style="font-size:7px;letter-spacing:1.6px;text-transform:uppercase;color:var(--gold);font-weight:900;margin-bottom:8px">Mensaje sugerido</div><div class="q">"${asesorEsc(msg)}"</div><div class="acts">${phone?`<a class="exp-btn" href="${asesorWa(phone,msg)}" target="_blank" rel="noopener">Enviar por WhatsApp</a>`:''}<button class="exp-btn ghost" onclick="asesorCopy('${safeMsg}')">Copiar</button><button class="exp-btn ghost" onclick="goTo('sala')">Ver más respuestas</button></div></div>
+        </div>
+      </div>
+      <div class="exp-col">
+        <div class="exp-sec">
+          <div class="exp-sec-t">Estado de la operación</div>
+          ${alertBlock}
+          <div class="exp-sla"><span>Tiempo en etapa</span><div class="bar"><i class="${over?'over':''}" style="width:${pct}%"></i></div><span>${dias!=null?dias:'—'} / ${sla} d</span></div>
+        </div>
+        <div class="exp-sec">
+          <div class="exp-sec-t">Documentos · qué destraba la venta</div>
+          ${docs.length?docs.map(d=>`<div class="exp-doc"><div class="dn">${asesorEsc(d.n)}</div><div class="ds">${asesorEsc(d.s)}</div></div>`).join(''):'<div class="hoy-empty" style="padding:14px">Sin documentos pendientes registrados. Si la venta requiere papeles, captúralos para que el sistema vigile el riesgo.</div>'}
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">
+            <a class="exp-btn" href="${asesorEsc(docLink)}" target="_blank" rel="noopener">Liga de carga para el cliente</a>
+            ${tipo!=='vendedor'?`<a class="exp-btn ghost" href="${asesorEsc(portalLink)}" target="_blank" rel="noopener">Ver portal de progreso</a>`:''}
+          </div>
+          <div style="font-size:10px;color:var(--w45);margin-top:10px;line-height:1.6">El cliente sube sus documentos desde casa con esa liga. Si falta algo, el sistema te alerta aquí mismo.</div>
+        </div>
+        <div class="exp-sec">
+          <div class="exp-sec-t">Atajos</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="exp-btn ghost" onclick="goTo('airtable')">Editar en Centro de Operaciones</button>
+            <button class="exp-btn ghost" onclick="goTo('citas')">Agendar / ver cita</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
 
 function goTo(id){
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
@@ -4036,6 +4299,7 @@ function goTo(id){
   if(id === 'documentos_asesor') setTimeout(()=>asesorLoadDocumentos(false), 60);
   if(id === 'reportes_asesor') setTimeout(()=>asesorLoadReportes(false), 60);
   if(id === 'sala') setTimeout(()=>salaLoadContext(false), 60);
+  if(id === 'expedientes') setTimeout(()=>expLoadIndex(false), 60);
 }
 
 /* ═══════════════════════════════════════════════════
