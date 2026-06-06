@@ -2,7 +2,7 @@
 export default async function handler(req, res){
   res.status(200).json({
     app:'Método Neri Intranet',
-    build:'ADMIN-FUNCIONAL-LIMPIO-2026-06-05',
+    build:'ADMIN-SECCIONES-CERRADAS-2026-06-05',
     demo:false,
     hasAdminCode:Boolean(process.env.NERI_ADMIN_CODE),
     hasSessionSecret:Boolean(process.env.NERI_SESSION_SECRET),
