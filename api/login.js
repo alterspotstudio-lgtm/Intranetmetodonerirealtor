@@ -35,7 +35,8 @@ export default async function handler(req, res){
     if(!rec) return res.status(401).json({ error:'No se encontró asesor activo con ese slug.' });
     const f = rec.fields || {};
     const estado = field(f,'Estado') || (truthy(f['Activo']) ? 'Activo' : '');
-    if(estado && !/activo/i.test(String(estado)) && !truthy(f['Activo'])) return res.status(403).json({ error:'El asesor no está activo. Revisa activación en Control Maestro.' });
+    const estadoKey = statusKey(estado);
+    if(estadoKey === 'inactivo' || (estadoKey !== 'activo' && !truthy(f['Activo']))) return res.status(403).json({ error:'El asesor no está activo. Revisa activación en Control de Mando.' });
     const fieldPass = PASS_FIELDS.map(k=>f[k]).find(Boolean);
     const globalCode = process.env.NERI_ACCESS_CODE;
     const passOk = fieldPass ? String(fieldPass) === pass : (globalCode && String(globalCode) === pass);
@@ -60,7 +61,8 @@ function b64url(s){ return Buffer.from(s).toString('base64url'); }
 function basePayload(data){ return { ...data, iat:Date.now(), exp:Date.now()+1000*60*60*12 }; }
 function clean(v){ return String(v||'').trim().toLowerCase(); }
 function onlyDigits(v){ return String(v||'').replace(/\D/g,''); }
-function truthy(v){ return v === true || String(v).toLowerCase() === 'true' || String(v).toLowerCase() === 'activo'; }
+function truthy(v){ const s=String(v).toLowerCase(); return v === true || s === 'true' || s === 'activo' || s === 'activa'; }
+function statusKey(v){ const s=String(v||'').trim().toLowerCase(); if(s === 'activo' || s === 'activa') return 'activo'; if(s === 'inactivo' || s === 'inactiva') return 'inactivo'; return s || ''; }
 function field(f,k){ const v=f?.[k]; if(Array.isArray(v)) return v.map(x=>x?.name||x).join(', '); if(v && typeof v==='object') return v.name || v.url || ''; return v == null ? '' : String(v); }
 function normalizeRole(requested, tipo, puesto){ const p=String(puesto||'').toLowerCase(); const t=String(tipo||'').toLowerCase(); if(p.includes('director')) return 'director'; if(p.includes('gerente')||p.includes('coordinador')) return 'gerente'; if(t.includes('independiente')) return 'asesor'; return ['asesor','gerente','director'].includes(requested) ? requested : 'asesor'; }
 async function findAsesorBySlug(slug){ const formula=encodeURIComponent(`LOWER({Slug})='${String(slug).toLowerCase().replace(/'/g,"\\'")}'`); const url=`https://api.airtable.com/v0/${BASE_ID}/${ASESOR_TABLE}?filterByFormula=${formula}&maxRecords=1`; const r=await fetch(url,{headers:{Authorization:`Bearer ${TOKEN}`}}); const data=await r.json(); if(!r.ok) throw new Error(data?.error?.message || JSON.stringify(data)); return data.records?.[0] || null; }
