@@ -38,8 +38,26 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Método no permitido' });
   }
 
+  // ── Autorización dual ────────────────────────────────────────────────
+  //  · Asesor desde la intranet (cabina) → sesión NERI firmada (Bearer).
+  //  · Propietario desde el portal público → folio + token del expediente.
+  //    El portal NO tiene sesión NERI; se autoriza validando folio+token
+  //    contra /api/vendedor-expediente (misma fuente de verdad que usa el
+  //    portal para cargar el expediente). Sin esto, el propietario recibe
+  //    401 en cada subida y la cadena se congela.
   const session = verifySession(req);
-  if(!session) return res.status(401).json({ error:'Sesión inválida o vencida.' });
+  let authorized = !!session;
+
+  if (!authorized) {
+    const { folio: authFolio, token: authToken } = getAuthParams(req);
+    if (authFolio && authToken) {
+      authorized = await validateExpedienteToken(req, authFolio, authToken);
+    }
+  }
+
+  if (!authorized) {
+    return res.status(401).json({ error: 'Sesión inválida o vencida.' });
+  }
 
   if (!process.env.BLOB_READ_WRITE_TOKEN) {
     return res.status(500).json({
@@ -100,6 +118,41 @@ function getParams(req) {
 
 function getHeader(req, name) {
   return req.headers?.[name.toLowerCase()] || req.headers?.[name];
+}
+
+// Lee folio + token de la query SIN consumir el body (que es el archivo).
+function getAuthParams(req) {
+  const fromQuery = req.query || {};
+  const host = getHeader(req, 'host') || 'localhost';
+  let searchParams;
+  try {
+    searchParams = new URL(req.url || '/', `https://${host}`).searchParams;
+  } catch (_) {
+    searchParams = new URLSearchParams();
+  }
+  return {
+    folio: fromQuery.folio || searchParams.get('folio') || '',
+    token: fromQuery.token || searchParams.get('token') || '',
+  };
+}
+
+// Valida el par folio+token del expediente reutilizando el endpoint que ya
+// existe y funciona en producción (/api/vendedor-expediente). Si ese endpoint
+// responde 200 para ese folio+token, la subida del propietario queda
+// autorizada. No reimplementamos el esquema del token aquí: usamos la misma
+// fuente de verdad que el portal usa para abrir el expediente.
+async function validateExpedienteToken(req, folio, token) {
+  try {
+    const host = getHeader(req, 'x-forwarded-host') || getHeader(req, 'host');
+    if (!host) return false;
+    const proto = getHeader(req, 'x-forwarded-proto') || 'https';
+    const url = `${proto}://${host}/api/vendedor-expediente`
+      + `?folio=${encodeURIComponent(folio)}&token=${encodeURIComponent(token)}`;
+    const r = await fetch(url, { method: 'GET', headers: { accept: 'application/json' } });
+    return r.ok;
+  } catch (_) {
+    return false;
+  }
 }
 
 function sanitize(value) {
