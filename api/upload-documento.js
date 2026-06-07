@@ -30,7 +30,7 @@ const MAX_BYTES = MAX_MB * 1024 * 1024;
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-content-type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-content-type, x-file-name, Authorization');
 
   if (req.method === 'OPTIONS') return res.status(200).end();
 
