@@ -593,7 +593,7 @@ select.form-input option{background:#111;color:#fff}
 .at-table thead tr{background:#0c0c0c}
 .at-table thead th{
   padding:11px 16px;text-align:left;
-  font-size:6px;letter-spacing:3px;text-transform:uppercase;
+  font-size:9px;letter-spacing:1.6px;text-transform:uppercase;
   font-weight:800;color:var(--w30);white-space:nowrap;
   border-bottom:1px solid var(--border2);
   background:#0c0c0c;
@@ -620,6 +620,7 @@ select.form-input option{background:#111;color:#fff}
 .at-table tbody td{
   padding:12px 16px;color:var(--w80);
   vertical-align:middle;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:240px;
 }
 .at-table tbody td:first-child{
   padding-left:20px;width:44px;
@@ -1327,28 +1328,6 @@ select.form-inp option{background:#111;color:#fff}
 .admin-account-modal{position:fixed;inset:0;z-index:930;background:rgba(0,0,0,.90);backdrop-filter:blur(14px);display:flex;align-items:center;justify-content:center;padding:22px}.admin-account-box{width:min(920px,100%);max-height:92vh;overflow:auto;background:linear-gradient(180deg,#141414,#0c0c0c);border:1px solid var(--goldbdr);border-top:2px solid var(--gold);border-radius:3px;box-shadow:0 36px 90px rgba(0,0,0,.72)}.admin-account-head{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;padding:26px 30px 20px;border-bottom:1px solid var(--border);position:relative;overflow:hidden}.admin-account-head::after{content:'CUENTA';position:absolute;right:-12px;bottom:-36px;font-family:var(--display);font-size:118px;letter-spacing:6px;color:rgba(201,169,110,.04);pointer-events:none}.admin-account-title{position:relative;z-index:1}.admin-account-title b{display:block;font-family:var(--display);font-size:34px;letter-spacing:3px;line-height:1;color:#fff}.admin-account-title span{display:block;margin-top:7px;font-size:8px;letter-spacing:2.4px;text-transform:uppercase;color:var(--gold);font-weight:900}.admin-account-close{position:relative;z-index:1;background:transparent;border:1px solid var(--border2);color:var(--w45);width:30px;height:30px;border-radius:2px;cursor:pointer}.admin-account-close:hover{border-color:var(--goldbdr);color:var(--gold)}.admin-account-tabs{display:flex;gap:0;padding:0 26px;border-bottom:1px solid var(--border);background:#0b0b0b}.admin-account-tab{border:0;background:transparent;color:var(--w35);padding:14px 18px 13px;font-size:7px;letter-spacing:2.4px;text-transform:uppercase;font-weight:900;cursor:pointer;position:relative}.admin-account-tab::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--gold);transform:scaleX(0);transition:.18s}.admin-account-tab.active{color:#fff}.admin-account-tab.active::after{transform:scaleX(1)}.admin-account-content{padding:24px 30px}.admin-form-tab-panel{display:none}.admin-form-tab-panel.active{display:block}.admin-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.admin-form-grid .full{grid-column:1/-1}.admin-upload-box{display:grid;grid-template-columns:86px 1fr;gap:14px;align-items:center;border:1px solid var(--border);background:rgba(255,255,255,.02);border-radius:3px;padding:13px}.admin-upload-preview{width:66px;height:66px;border:1px dashed var(--border2);border-radius:3px;display:flex;align-items:center;justify-content:center;color:var(--gold);overflow:hidden;background:#090909}.admin-upload-preview img{width:100%;height:100%;object-fit:cover}.admin-upload-actions input[type=file]{font-size:10px;color:var(--w45);max-width:100%}.admin-account-actions{display:flex;align-items:center;gap:8px;justify-content:flex-end;margin:24px -30px -24px;padding:18px 30px;border-top:1px solid var(--border);background:rgba(0,0,0,.22)}
 @media(max-width:900px){.admin-zone-tabs{grid-template-columns:1fr}.admin-v9-user-row{grid-template-columns:1fr}.admin-v9-user-actions{justify-content:flex-start}.admin-form-grid{grid-template-columns:1fr}.admin-upload-box{grid-template-columns:1fr}.admin-account-tabs{overflow:auto}.admin-account-content{padding:20px}.admin-account-actions{margin-left:-20px;margin-right:-20px;padding-left:20px;padding-right:20px}}
 @media(max-width:560px){.admin-v9-wrap{padding:18px}.admin-v9-title{font-size:36px}.admin-account-head{padding:22px}.admin-account-title b{font-size:28px}}
-
-/* ════════════════════════════════════════════════════════════
-   UNIFICACIÓN DE IDENTIDAD VISUAL · SISTEMA NERI
-   Normaliza la cabina del asesor y los expedientes al lenguaje
-   editorial NERI: esquinas rectas, superficies planas y oro en
-   línea fina. Elimina degradados glossy, glow radial, sombras
-   profundas y botones dorados rellenos (identidad divergente).
-   Solo neutraliza propiedades visuales: no toca DOM, IDs ni JS.
-   ════════════════════════════════════════════════════════════ */
-.asesor-card,.asesor-section,.asesor-link-box,.asesor-kpi,.asesor-action,.asesor-row,.asesor-lock,.asesor-manual,.asesor-note,.asesor-inp,.asesor-textarea,.exp-sec,.exp-card,.exp-msg,.exp-alert,.exp-ok,.exp-doc,.perfil-closed-card{
-  border-radius:3px;background-image:none;box-shadow:none;
-}
-.asesor-card{background:var(--surface)}
-.exp-card{background:var(--surface)}
-.perfil-closed-card{background:var(--surface)}
-.asesor-card::before{display:none}
-.asesor-gold-btn,.exp-btn{
-  background:var(--golddim);background-image:none;color:var(--gold);
-  border:1px solid var(--goldbdr);border-radius:2px;
-}
-.asesor-gold-btn:hover,.exp-btn:hover{background:var(--goldbdr);color:var(--gold2)}
-.asesor-pill,.exp-pill,.exp-tag,.exp-back{border-radius:2px}
 
 </style>
 </head>
@@ -2473,7 +2452,7 @@ function vendedorOpenFicha(recId){
       <!-- SECCIÓN: Sistema (solo lectura) -->
       <div class="fv-sec">
         <div class="fv-sec-title"><em>🔒</em>Sistema</div>
-        <div class="le-banner" style="margin-bottom:10px">Campos generados automáticamente. No se editan desde el sistema.</div>
+        <div class="le-banner" style="margin-bottom:10px">Campos generados automáticamente. No se editan desde la intranet.</div>
         <div class="fv-lock">
           <div class="fv-lock-k">🔒 Folio</div>
           <div class="fv-lock-v">${_esc(folio)}</div>
@@ -2618,6 +2597,9 @@ function fichaCopy(btn){
 /* Solo lectura del folio; edita SOLO campos de contenido de la landing.
    Folio NERI / Links / contadores son fórmula/Make → bloqueados.        */
 const LANDING_FORM = [
+  {title:'Identificación', ico:'◆', fields:[
+    {f:'Nombre Propiedad', type:'text', full:true},
+  ]},
   {title:'Portada', ico:'◫', fields:[
     {f:'Frase Portada',  type:'text',     full:true},
     {f:'Frase Inicio',   type:'textarea', full:true},
@@ -2727,7 +2709,7 @@ function _landInput(fl, rec){
         </div>
         <input class="form-inp" type="text" data-attach="${_escAttr(name)}"
                placeholder="O pegar URL pública para reemplazar (opcional)">
-        <div class="le-note">Puedes subir el archivo desde aquí. El sistema lo resguarda y guarda solo el enlace en el expediente.</div>
+        <div class="le-note">Puedes subir el archivo desde aquí. La intranet lo manda a Vercel Blob y guarda solo la URL en Airtable.</div>
       </div>`;
   }
   if(fl.type === 'select'){
@@ -2783,7 +2765,7 @@ function landOpenEditor(recId){
   const secs = LANDING_FORM.map(sec => {
     let inner;
     if(sec.videos){
-      inner = `<div class="le-note" style="margin:0 0 8px">Puedes pegar el ID de YouTube o subir el MP4 aquí. El sistema lo resguarda y guarda solo el enlace en el expediente.</div>`
+      inner = `<div class="le-note" style="margin:0 0 8px">Puedes pegar ID de YouTube o subir el MP4 aquí. La intranet sube el archivo a Blob y guarda la URL en Airtable.</div>`
             + sec.videos.map(v => _landVideoRow(v, rec)).join('');
     } else {
       inner = `<div class="le-grid">${sec.fields.map(fl => _landInput(fl, rec)).join('')}</div>`;
@@ -2798,7 +2780,7 @@ function landOpenEditor(recId){
 
   const lockBlock = `<div class="le-sec">
       <div class="le-sec-title"><span class="le-ico">🔒</span>Folio y enlaces (solo lectura)</div>
-      <div class="le-banner">Estos los arma el sistema solo (folio maestro y enlaces). No se escriben a mano.</div>
+      <div class="le-banner">Estos los arma el sistema solo (folio maestro y links). La intranet nunca los escribe.</div>
       <div style="margin-top:10px">
         ${lockRow('Folio NERI', folioNeri)}
         ${lockRow('Link Comprador (landing)', linkComp)}
@@ -2986,7 +2968,7 @@ function citaOpenFicha(recId){
   // Bloque folio — solo lectura
   const lockHtml = `
     <div class="cita-sec-title"><span>🔒</span>Sistema (solo lectura)</div>
-    <div class="le-banner">El Folio de Cita lo genera el sistema automáticamente. No se escribe a mano.</div>
+    <div class="le-banner">El Folio de Cita lo genera Make automáticamente. La intranet nunca lo escribe.</div>
     ${folioCita ? `<div class="le-lock" style="margin-top:10px">
       <div class="le-lock-k">🔒 Folio Cita</div>
       <div class="le-lock-v">${_esc(folioCita)}</div>
@@ -4166,7 +4148,7 @@ function perfilRenderForm(rec){
             <div class="le-attach">${fotoThumb}<span class="le-vstatus ${foto.has?'on':'off'}">${foto.has?'Cargada':'Vacía'}</span></div>
             <div class="perfil-fv-photo-copy">
               <input class="form-inp perfil-fv-input" type="file" accept="image/*" data-pf-foto>
-              <div class="le-note">La foto se sube desde el sistema mediante <b>/api/upload-documento</b>. Airtable guarda solo el enlace final.</div>
+              <div class="le-note">La foto se sube desde la intranet a Vercel Blob mediante <b>/api/upload-documento</b>. Airtable guarda solo el enlace final.</div>
             </div>
           </div>
         </div>
@@ -4288,9 +4270,7 @@ async function salaLoadContext(force=false){ if(_salaLoaded&&!force)return; _sal
    Los datos ya llegan filtrados por Asesor desde /api/airtable.js
 ═══════════════════════════════════════════════════ */
 const EXP_PORTAL_BASE = 'https://progreso-zeta.vercel.app/';  // portal de progreso del cliente
-const EXP_DOC_BASE    = 'https://expedientedocumentalpropietario.vercel.app/';  // liga de carga documental del propietario
-/* Fuente única: la cabina del vendedor (cabina-vendedor.js) lee este valor */
-try { window.EXP_DOC_BASE = EXP_DOC_BASE; window.EXP_PORTAL_BASE = EXP_PORTAL_BASE; } catch(_){}
+const EXP_DOC_BASE    = 'https://expediente-propietario.vercel.app/';  // liga de carga documental del propietario
 const EXP_SLA = { 'HOT':2, 'WARM':4, 'COLD':8, 'Frío':8, 'Frio':8, '_def':6 }; // días estimados sin contacto antes de alertar
 let _expLoaded = false;
 
