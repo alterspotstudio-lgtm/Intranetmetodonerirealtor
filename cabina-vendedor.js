@@ -1,11 +1,9 @@
 /* ============================================================================
    MÉTODO NERI · Cabina de acciones del vendedor/propietario
    ----------------------------------------------------------------------------
-   Reemplaza el panel suelto "panel-citas.html". Vive DENTRO de la ficha del
-   vendedor (vendedorOpenFicha). Según la etapa (Conversión) habilita:
-     · Producción Inmobiliaria  → confirmación para el cliente
-     · Notaría                  → confirmación para el cliente
-     · Reporte Semanal (v1)     → análisis interno (separado de las anteriores)
+   Reemplaza el panel suelto "panel-citas.html". Vive DENTRO de la ficha de
+   PROPIEDADES (landOpenEditor). Según el manual de ensamble, Producción,
+   Notaría y Reporte pertenecen a la propiedad activa, no al lead vendedor.
 
    No toca el flujo de compradores (fichaAgendarCita / citacasa_comprador_)
    ni el portal de progreso.
@@ -86,10 +84,19 @@
     if (Array.isArray(v)) v = v[0];
     return v == null ? '' : v;
   }
+  function getState() {
+    if (window.crmState && window.crmState.records) return window.crmState;
+    try { if (typeof crmState !== 'undefined' && crmState && crmState.records) return crmState; } catch (_) {}
+    return null;
+  }
   function getRecord(recId) {
-    var st = window.crmState;
+    var st = getState();
     if (!st || !st.records) return null;
     return st.records.find(function (r) { return r.id === recId; }) || null;
+  }
+  function isPropiedadActiva() {
+    var st = getState();
+    return !!(st && st.tab === 'propiedades');
   }
   function logoSVG(inmo) {
     var u = String(inmo || '').toUpperCase().trim();
@@ -300,12 +307,12 @@
     cab.lastCardHTML = '';
 
     // Datos que la intranet ya conoce → cero captura doble
-    var propietario = fval(rec, 'Nombre Completo') || '';
-    var zona = fval(rec, 'Zona') || '';
-    var estado = fval(rec, 'Estado / Entidad') || fval(rec, 'Estado') || '';
+    var propietario = fval(rec, 'Nombre Completo') || fval(rec, 'Nombre Propietario') || fval(rec, 'Propietario') || fval(rec, 'Nombre Propiedad') || '';
+    var zona = fval(rec, 'Zona') || fval(rec, 'Zona / Colonia') || fval(rec, 'Municipio') || '';
+    var estado = fval(rec, 'Estado / Entidad') || fval(rec, 'Estado') || fval(rec, 'Estado Propiedad') || '';
     var direccion = [zona, estado].filter(Boolean).join(', ');
     var asesorNombre = fval(rec, 'Asesor') || ASESOR_DEFAULT.nombre;
-    var folio = fval(rec, 'Folio') || '';
+    var folio = fval(rec, 'Folio') || fval(rec, 'Folio NERI') || fval(rec, 'Folio Vendedor') || '';
 
     cab.prefill = { propietario: propietario, direccion: direccion, asesor: asesorNombre, folio: folio };
 
@@ -591,7 +598,7 @@
      EXPEDIENTE DOCUMENTAL: arma el link del propietario y maneja subidas
      ========================================================================= */
   function expedienteLink(rec) {
-    var folio = fval(rec, 'Folio') || '';
+    var folio = fval(rec, 'Folio') || fval(rec, 'Folio NERI') || fval(rec, 'Folio Vendedor') || '';
     var token = fval(rec, 'Token Expediente') || fval(rec, 'Token') || '';
     var url = String(EXP_DOC_BASE).replace(/\/+$/, '') + '/?folio=' + encodeURIComponent(folio);
     if (token) url += '&token=' + encodeURIComponent(token);
@@ -618,16 +625,24 @@
     var inp = byId('cab-doc-file-' + recId);
     if (inp) inp.click();
   }
+  function cabSessionToken() {
+    try { if (typeof SESSION !== 'undefined' && SESSION && SESSION.token) return SESSION.token; } catch (_) {}
+    try {
+      var raw = sessionStorage.getItem('neri_signed_session_v1');
+      if (raw) { var parsed = JSON.parse(raw); return parsed && parsed.token ? parsed.token : ''; }
+    } catch (_) {}
+    return '';
+  }
   function cabDocSeleccionado(recId, inputEl) {
     var file = inputEl && inputEl.files && inputEl.files[0];
     if (!file) return;
     var st = byId('cab-doc-status-' + recId);
     if (st) { st.style.display = 'block'; st.innerHTML = 'Subiendo <b>' + esc(file.name) + '</b>…'; }
     var rec = getRecord(recId);
-    var folio = (rec ? fval(rec, 'Folio') : '') || '';
+    var folio = (rec ? (fval(rec, 'Folio') || fval(rec, 'Folio NERI') || fval(rec, 'Folio Vendedor')) : '') || '';
     fetch(UPLOAD_DOC_ENDPOINT + (folio ? ('?folio=' + encodeURIComponent(folio)) : ''), {
       method: 'POST',
-      headers: { 'Content-Type': file.type || 'application/octet-stream', 'x-content-type': file.type || '', 'x-file-name': encodeURIComponent(file.name) },
+      headers: { 'Content-Type': file.type || 'application/octet-stream', 'x-content-type': file.type || '', 'x-file-name': encodeURIComponent(file.name), 'Authorization': 'Bearer ' + cabSessionToken() },
       body: file
     })
       .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, j: j }; }); })
@@ -661,17 +676,17 @@
       + '  <div id="cab-doc-status-' + recId + '" style="display:none;margin-top:8px;font-size:12px;color:rgba(255,255,255,.6)"></div>'
       + '</div>';
   }
-  function accionesHTML(recId, conv) {
-    var firmada = ETAPAS_FIRMADAS.indexOf(conv) > -1;
-    var head = '<div class="cab-acciones"><div class="cab-acc-title"><em>▸</em> Acciones del proceso</div>';
+  function accionesHTML(recId, conv, esPropiedad) {
+    var firmada = esPropiedad || ETAPAS_FIRMADAS.indexOf(conv) > -1;
+    var head = '<div class="cab-acciones"><div class="cab-acc-title"><em>▸</em> Acciones de la propiedad</div>';
     if (!firmada) {
       return head
-        + '<div class="cab-acc-hint">Las confirmaciones para el propietario se habilitan cuando la operación pasa a <b>Firma exclusiva</b> o <b>Firma venta directa</b>.</div>'
-        + '<div class="cab-acc-locked">Etapa actual: <b>' + esc(conv || 'Sin definir') + '</b>. Primero convierte el lead a una firma para preparar Producción y Notaría.</div>'
+        + '<div class="cab-acc-hint">Las confirmaciones para el propietario se habilitan cuando la operación ya existe como propiedad activa.</div>'
+        + '<div class="cab-acc-locked">Etapa actual: <b>' + esc(conv || 'Sin definir') + '</b>. Primero convierte el lead a una firma para trabajar Producción y Notaría desde Propiedades.</div>'
         + '</div>';
     }
     return head
-      + '<div class="cab-acc-hint">La propiedad ya está firmada. Genera las confirmaciones para el propietario — los datos se llenan solos desde esta ficha.</div>'
+      + '<div class="cab-acc-hint">La propiedad ya existe en el sistema. Genera Producción, Notaría y Reporte desde esta ficha; no desde el lead original.</div>'
       + '<div class="cab-acc-grid">'
       + '<button class="cab-acc-btn" onclick="cabAbrir(\'produccion\',\'' + recId + '\')">Producción Inmobiliaria<small>Foto y video · confirmación al propietario</small></button>'
       + '<button class="cab-acc-btn" onclick="cabAbrir(\'notaria\',\'' + recId + '\')">Cita en Notaría<small>Formalización · confirmación al cliente</small></button>'
@@ -684,26 +699,25 @@
   function inyectarAcciones(recId) {
     var rec = getRecord(recId);
     if (!rec) return;
-    var conv = fval(rec, 'Conversión');
-    var inner = byId('crm-fv-inner');
+    var esPropiedad = isPropiedadActiva();
+    var conv = esPropiedad ? 'Propiedad activa' : fval(rec, 'Conversión');
+    var inner = esPropiedad ? byId('crm-landing-body') : byId('crm-fv-inner');
     if (!inner) return;
-    // evitar duplicado
     var prev = inner.querySelector('.cab-acciones');
     if (prev && prev.parentNode) prev.parentNode.removeChild(prev);
-    // anclar al final del body de la ficha (o al inner si no existe)
     var body = inner.querySelector('.fv-body') || inner;
-    body.insertAdjacentHTML('beforeend', accionesHTML(recId, conv));
+    body.insertAdjacentHTML('beforeend', accionesHTML(recId, conv, esPropiedad));
   }
 
-  /* Wrap de vendedorOpenFicha sin tocar index.html */
+  /* Wrap de landOpenEditor: la cabina vive en Propiedades, no en Leads Vendedores. */
   function patch() {
-    if (typeof window.vendedorOpenFicha === 'function' && !window.vendedorOpenFicha.__cabPatched) {
-      var orig = window.vendedorOpenFicha;
-      window.vendedorOpenFicha = function (recId) {
+    if (typeof window.landOpenEditor === 'function' && !window.landOpenEditor.__cabPatched) {
+      var orig = window.landOpenEditor;
+      window.landOpenEditor = function (recId) {
         orig.apply(this, arguments);
         try { inyectarAcciones(recId); } catch (e) { /* silencioso */ }
       };
-      window.vendedorOpenFicha.__cabPatched = true;
+      window.landOpenEditor.__cabPatched = true;
       return true;
     }
     return false;

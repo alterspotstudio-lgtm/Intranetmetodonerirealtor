@@ -473,7 +473,7 @@ select.form-input option{background:#111;color:#fff}
 .hoy-launch-label::before{content:'';width:20px;height:1px;background:var(--goldbdr);display:block}
 
 /* ══════════════════════════════════════════
-   CRM PANEL — diseño premium
+   CENTRO DE OPERACIONES — diseño premium
 ══════════════════════════════════════════ */
 
 /* Layout */
@@ -1469,7 +1469,7 @@ const NAV_ROL = {
     { section:'Operación' },
     { id:'compradores', label:'Landing Compradores',icon:'⊕' },
     { id:'vendedores',  label:'Landing Vendedores', icon:'🏠' },
-    { id:'citas',       label:'Panel de Citas',     icon:'📋' },
+    { id:'citas',       label:'Citas de Compradores', icon:'📋' },
   ],
   director: [
     { section:'Dirección' },
@@ -1480,7 +1480,7 @@ const NAV_ROL = {
     { id:'sala',        label:'Sala de Mensajes',   icon:'⚡' },
     { id:'compradores', label:'Landing Compradores',icon:'⊕' },
     { id:'vendedores',  label:'Landing Vendedores', icon:'🏠' },
-    { id:'citas',       label:'Panel de Citas',     icon:'📋' },
+    { id:'citas',       label:'Citas de Compradores', icon:'📋' },
     { id:'progreso',    label:'Portal Progreso',     icon:'◎' },
   ],
   admin: [
@@ -1494,10 +1494,10 @@ const NAV_ROL = {
 ═══════════════════════════════════════════════════ */
 const TOOLS = {
   sala:        { name:'Sala de Mensajes',    url:'https://mensajesmaestros.vercel.app',                  ext:true },
-  compradores: { name:'Landing Compradores', url:'https://captacion.vercel.app',             ext:true },
-  vendedores:  { name:'Landing Vendedores',  url:'https://ahuatlan32m.vercel.app',      ext:true },
-  citas:       { name:'Panel de Citas',      url:'https://citas-vert.vercel.app',                    ext:true },
-  progreso:    { name:'Portal Progreso',      url:'https://captacion.vercel.app',        ext:true },
+  compradores: { name:'Landing Compradores', url:'https://compradorcasa.vercel.app',        ext:true },
+  vendedores:  { name:'Landing Vendedores',  url:'https://captacion.vercel.app',             ext:true },
+  citas:       { name:'Citas de Compradores', url:'https://citas-vert.vercel.app',           ext:true },
+  progreso:    { name:'Portal Progreso',      url:'https://progreso-zeta.vercel.app/',       ext:true },
   opciones:    { name:'Opciones de Compra',  url:'https://opcionesdecompra.vercel.app',     ext:true },
   reportes:    { name:'Reportes',            url:'Reportes.html',                        ext:true },
 };
@@ -2062,6 +2062,7 @@ const STATUS_BADGE = {
 };
 
 let crmState = { tab:'compradores', records:[], editId:null, isNew:false, citaFromLead:null };
+window.crmState = crmState; // compatibilidad controlada para cabina-vendedor.js sin exponer tokens
 // citaFromLead: { folioClienteOrigen, comprador, propiedad, asesor } — se limpia después del POST
 
 /* ─── API helpers — usa el proxy de Vercel ─────────── */
@@ -3415,7 +3416,7 @@ const LABELS = {
   sala:'Sala de Mensajes',
   compradores:'Landing Compradores',
   vendedores:'Landing Vendedores',
-  citas:'Panel de Citas',
+  citas:'Citas de Compradores',
   progreso:'Portal Progreso',
   opciones:'Opciones de Compra',
   reportes:'Reportes',
@@ -4265,7 +4266,7 @@ async function salaLoadContext(force=false){ if(_salaLoaded&&!force)return; _sal
    Los datos ya llegan filtrados por Asesor desde /api/airtable.js
 ═══════════════════════════════════════════════════ */
 const EXP_PORTAL_BASE = 'https://progreso-zeta.vercel.app/';  // portal de progreso del cliente
-const EXP_DOC_BASE    = 'https://progreso-zeta.vercel.app/';  // liga de carga de documentos — apúntala a tu landing real de documentos
+const EXP_DOC_BASE    = 'https://expediente-propietario.vercel.app/';  // liga de carga documental del propietario
 const EXP_SLA = { 'HOT':2, 'WARM':4, 'COLD':8, 'Frío':8, 'Frio':8, '_def':6 }; // días estimados sin contacto antes de alertar
 let _expLoaded = false;
 
