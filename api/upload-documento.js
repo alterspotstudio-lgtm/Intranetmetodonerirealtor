@@ -51,7 +51,7 @@ export default async function handler(req, res) {
   if (!authorized) {
     const { folio: authFolio, token: authToken } = getAuthParams(req);
     if (authFolio && authToken) {
-      authorized = await validateExpedienteToken(req, authFolio, authToken);
+      authorized = validateExpedienteToken(req, authFolio, authToken);
     }
   }
 
@@ -136,23 +136,16 @@ function getAuthParams(req) {
   };
 }
 
-// Valida el par folio+token del expediente reutilizando el endpoint que ya
-// existe y funciona en producción (/api/vendedor-expediente). Si ese endpoint
-// responde 200 para ese folio+token, la subida del propietario queda
-// autorizada. No reimplementamos el esquema del token aquí: usamos la misma
-// fuente de verdad que el portal usa para abrir el expediente.
-async function validateExpedienteToken(req, folio, token) {
-  try {
-    const host = getHeader(req, 'x-forwarded-host') || getHeader(req, 'host');
-    if (!host) return false;
-    const proto = getHeader(req, 'x-forwarded-proto') || 'https';
-    const url = `${proto}://${host}/api/vendedor-expediente`
-      + `?folio=${encodeURIComponent(folio)}&token=${encodeURIComponent(token)}`;
-    const r = await fetch(url, { method: 'GET', headers: { accept: 'application/json' } });
-    return r.ok;
-  } catch (_) {
-    return false;
-  }
+// Valida el par folio+token del expediente recalculando el mismo HMAC
+// determinista que genera /api/activar-expediente. No requiere consultar
+// otro endpoint ni almacenar el token: se recalcula y se compara timing-safe.
+function validateExpedienteToken(req, folio, token) {
+  const secret = process.env.NERI_SESSION_SECRET;
+  if (!secret || !folio || !token) return false;
+  const expected = crypto.createHmac('sha256', secret).update('expediente:' + String(folio)).digest('base64url');
+  const aa = Buffer.from(String(expected));
+  const bb = Buffer.from(String(token));
+  return aa.length === bb.length && crypto.timingSafeEqual(aa, bb);
 }
 
 function sanitize(value) {
