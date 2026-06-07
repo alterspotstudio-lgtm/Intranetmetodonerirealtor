@@ -610,15 +610,50 @@
       navigator.clipboard.writeText(txt).then(ok).catch(function () { window.prompt('Copia el texto:', txt); });
     } else { window.prompt('Copia el texto:', txt); }
   }
+  var ACTIVAR_ENDPOINT = window.ACTIVAR_EXP_ENDPOINT || '/api/activar-expediente';
+
+  /* Asegura que el lead tenga token de expediente. Si falta, lo manda a
+     generar al servidor (que lo firma y lo guarda en Airtable) y devuelve
+     el link ya con token. Si ya existe, devuelve el link al instante.
+     Sin token el portal del propietario se queda en candado, por eso esto
+     corre antes de copiar o abrir. */
+  function ensureExpedienteLink(rec, cb) {
+    var token = fval(rec, 'Token Expediente') || fval(rec, 'Token') || '';
+    if (token) { cb(null, expedienteLink(rec)); return; }
+    var folio = fval(rec, 'Folio') || fval(rec, 'Folio NERI') || fval(rec, 'Folio Vendedor') || '';
+    fetch(ACTIVAR_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + cabSessionToken() },
+      body: JSON.stringify({ folio: folio, recordId: (rec && rec.id) || '' })
+    })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (res) {
+        if (!res.ok || !res.j || !res.j.link) throw new Error((res.j && res.j.error) || 'No se pudo activar el expediente.');
+        // Refresca el token en el registro en memoria para no volver a pedirlo.
+        try { if (rec && rec.fields) { rec.fields['Token Expediente'] = res.j.token; rec.fields['Link Expediente Documental'] = res.j.link; } } catch (_) {}
+        cb(null, res.j.link);
+      })
+      .catch(function (e) { cb(e, null); });
+  }
+
   /* Copiar el link del expediente documental del propietario */
   function cabCopiarExpediente(recId, btn) {
     var rec = getRecord(recId); if (!rec) return;
-    copiarTexto(expedienteLink(rec), btn);
+    if (btn) btn.textContent = 'Generando…';
+    ensureExpedienteLink(rec, function (err, link) {
+      if (err) { if (btn) btn.textContent = 'Error: ' + err.message; return; }
+      copiarTexto(link, btn);
+    });
   }
   /* Abrir el expediente documental en otra pestaña */
   function cabAbrirExpediente(recId) {
     var rec = getRecord(recId); if (!rec) return;
-    window.open(expedienteLink(rec), '_blank', 'noopener');
+    // Abre una pestaña de inmediato (evita el bloqueo de pop-ups) y la redirige al tener el link.
+    var win = window.open('about:blank', '_blank', 'noopener');
+    ensureExpedienteLink(rec, function (err, link) {
+      if (err) { if (win) win.close(); alert('No se pudo abrir el expediente: ' + err.message); return; }
+      if (win) win.location.href = link; else window.open(link, '_blank', 'noopener');
+    });
   }
   /* El ASESOR sube un documento que recibió por otro medio (WhatsApp, correo…) */
   function cabSubirDocAsesor(recId) {
@@ -697,7 +732,6 @@
   }
 
   function inyectarAcciones(recId) {
-    injectStyles();            // garantiza el CSS de los botones aunque la cabina no se haya abierto aún
     var rec = getRecord(recId);
     if (!rec) return;
     var esPropiedad = isPropiedadActiva();
