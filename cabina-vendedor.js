@@ -34,9 +34,9 @@
      AJUSTAR EXP_DOC_BASE al dominio real donde está desplegado
      index_expedientedocumental_propietario.html (sin slash final).
      Se puede sobrescribir desde la sesión antes de cargar este script:
-         window.EXP_DOC_BASE = 'https://expedientedocumentalpropietario.vercel.app';
+         window.EXP_DOC_BASE = 'https://expediente-propietario.vercel.app';
   ----------------------------------------------------------------------- */
-  var EXP_DOC_BASE = window.EXP_DOC_BASE || 'https://expedientedocumentalpropietario.vercel.app';
+  var EXP_DOC_BASE = window.EXP_DOC_BASE || 'https://expediente-propietario.vercel.app';
   /* Endpoint para que el ASESOR suba un documento recibido por otro medio */
   var UPLOAD_DOC_ENDPOINT = window.UPLOAD_DOC_ENDPOINT || '/api/upload-documento';
 
@@ -697,6 +697,7 @@
   }
 
   function inyectarAcciones(recId) {
+    injectStyles();            // garantiza el CSS de los botones aunque la cabina no se haya abierto aún
     var rec = getRecord(recId);
     if (!rec) return;
     var esPropiedad = isPropiedadActiva();
