@@ -4288,7 +4288,9 @@ async function salaLoadContext(force=false){ if(_salaLoaded&&!force)return; _sal
    Los datos ya llegan filtrados por Asesor desde /api/airtable.js
 ═══════════════════════════════════════════════════ */
 const EXP_PORTAL_BASE = 'https://progreso-zeta.vercel.app/';  // portal de progreso del cliente
-const EXP_DOC_BASE    = 'https://expediente-propietario.vercel.app/';  // liga de carga documental del propietario
+const EXP_DOC_BASE    = 'https://expedientedocumentalpropietario.vercel.app/';  // liga de carga documental del propietario
+/* Fuente única: la cabina del vendedor (cabina-vendedor.js) lee este valor */
+try { window.EXP_DOC_BASE = EXP_DOC_BASE; window.EXP_PORTAL_BASE = EXP_PORTAL_BASE; } catch(_){}
 const EXP_SLA = { 'HOT':2, 'WARM':4, 'COLD':8, 'Frío':8, 'Frio':8, '_def':6 }; // días estimados sin contacto antes de alertar
 let _expLoaded = false;
 
