@@ -1328,6 +1328,28 @@ select.form-inp option{background:#111;color:#fff}
 @media(max-width:900px){.admin-zone-tabs{grid-template-columns:1fr}.admin-v9-user-row{grid-template-columns:1fr}.admin-v9-user-actions{justify-content:flex-start}.admin-form-grid{grid-template-columns:1fr}.admin-upload-box{grid-template-columns:1fr}.admin-account-tabs{overflow:auto}.admin-account-content{padding:20px}.admin-account-actions{margin-left:-20px;margin-right:-20px;padding-left:20px;padding-right:20px}}
 @media(max-width:560px){.admin-v9-wrap{padding:18px}.admin-v9-title{font-size:36px}.admin-account-head{padding:22px}.admin-account-title b{font-size:28px}}
 
+/* ════════════════════════════════════════════════════════════
+   UNIFICACIÓN DE IDENTIDAD VISUAL · SISTEMA NERI
+   Normaliza la cabina del asesor y los expedientes al lenguaje
+   editorial NERI: esquinas rectas, superficies planas y oro en
+   línea fina. Elimina degradados glossy, glow radial, sombras
+   profundas y botones dorados rellenos (identidad divergente).
+   Solo neutraliza propiedades visuales: no toca DOM, IDs ni JS.
+   ════════════════════════════════════════════════════════════ */
+.asesor-card,.asesor-section,.asesor-link-box,.asesor-kpi,.asesor-action,.asesor-row,.asesor-lock,.asesor-manual,.asesor-note,.asesor-inp,.asesor-textarea,.exp-sec,.exp-card,.exp-msg,.exp-alert,.exp-ok,.exp-doc,.perfil-closed-card{
+  border-radius:3px;background-image:none;box-shadow:none;
+}
+.asesor-card{background:var(--surface)}
+.exp-card{background:var(--surface)}
+.perfil-closed-card{background:var(--surface)}
+.asesor-card::before{display:none}
+.asesor-gold-btn,.exp-btn{
+  background:var(--golddim);background-image:none;color:var(--gold);
+  border:1px solid var(--goldbdr);border-radius:2px;
+}
+.asesor-gold-btn:hover,.exp-btn:hover{background:var(--goldbdr);color:var(--gold2)}
+.asesor-pill,.exp-pill,.exp-tag,.exp-back{border-radius:2px}
+
 </style>
 </head>
 <body>
@@ -2451,7 +2473,7 @@ function vendedorOpenFicha(recId){
       <!-- SECCIÓN: Sistema (solo lectura) -->
       <div class="fv-sec">
         <div class="fv-sec-title"><em>🔒</em>Sistema</div>
-        <div class="le-banner" style="margin-bottom:10px">Campos generados automáticamente. No se editan desde la intranet.</div>
+        <div class="le-banner" style="margin-bottom:10px">Campos generados automáticamente. No se editan desde el sistema.</div>
         <div class="fv-lock">
           <div class="fv-lock-k">🔒 Folio</div>
           <div class="fv-lock-v">${_esc(folio)}</div>
@@ -2705,7 +2727,7 @@ function _landInput(fl, rec){
         </div>
         <input class="form-inp" type="text" data-attach="${_escAttr(name)}"
                placeholder="O pegar URL pública para reemplazar (opcional)">
-        <div class="le-note">Puedes subir el archivo desde aquí. La intranet lo manda a Vercel Blob y guarda solo la URL en Airtable.</div>
+        <div class="le-note">Puedes subir el archivo desde aquí. El sistema lo resguarda y guarda solo el enlace en el expediente.</div>
       </div>`;
   }
   if(fl.type === 'select'){
@@ -2761,7 +2783,7 @@ function landOpenEditor(recId){
   const secs = LANDING_FORM.map(sec => {
     let inner;
     if(sec.videos){
-      inner = `<div class="le-note" style="margin:0 0 8px">Puedes pegar ID de YouTube o subir el MP4 aquí. La intranet sube el archivo a Blob y guarda la URL en Airtable.</div>`
+      inner = `<div class="le-note" style="margin:0 0 8px">Puedes pegar el ID de YouTube o subir el MP4 aquí. El sistema lo resguarda y guarda solo el enlace en el expediente.</div>`
             + sec.videos.map(v => _landVideoRow(v, rec)).join('');
     } else {
       inner = `<div class="le-grid">${sec.fields.map(fl => _landInput(fl, rec)).join('')}</div>`;
@@ -2776,7 +2798,7 @@ function landOpenEditor(recId){
 
   const lockBlock = `<div class="le-sec">
       <div class="le-sec-title"><span class="le-ico">🔒</span>Folio y enlaces (solo lectura)</div>
-      <div class="le-banner">Estos los arma el sistema solo (folio maestro y links). La intranet nunca los escribe.</div>
+      <div class="le-banner">Estos los arma el sistema solo (folio maestro y enlaces). No se escriben a mano.</div>
       <div style="margin-top:10px">
         ${lockRow('Folio NERI', folioNeri)}
         ${lockRow('Link Comprador (landing)', linkComp)}
@@ -2964,7 +2986,7 @@ function citaOpenFicha(recId){
   // Bloque folio — solo lectura
   const lockHtml = `
     <div class="cita-sec-title"><span>🔒</span>Sistema (solo lectura)</div>
-    <div class="le-banner">El Folio de Cita lo genera Make automáticamente. La intranet nunca lo escribe.</div>
+    <div class="le-banner">El Folio de Cita lo genera el sistema automáticamente. No se escribe a mano.</div>
     ${folioCita ? `<div class="le-lock" style="margin-top:10px">
       <div class="le-lock-k">🔒 Folio Cita</div>
       <div class="le-lock-v">${_esc(folioCita)}</div>
@@ -4144,7 +4166,7 @@ function perfilRenderForm(rec){
             <div class="le-attach">${fotoThumb}<span class="le-vstatus ${foto.has?'on':'off'}">${foto.has?'Cargada':'Vacía'}</span></div>
             <div class="perfil-fv-photo-copy">
               <input class="form-inp perfil-fv-input" type="file" accept="image/*" data-pf-foto>
-              <div class="le-note">La foto se sube desde la intranet a Vercel Blob mediante <b>/api/upload-documento</b>. Airtable guarda solo el enlace final.</div>
+              <div class="le-note">La foto se sube desde el sistema mediante <b>/api/upload-documento</b>. Airtable guarda solo el enlace final.</div>
             </div>
           </div>
         </div>
