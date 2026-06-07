@@ -30,6 +30,18 @@
   /* ── Etapas que habilitan confirmaciones al cliente ── */
   var ETAPAS_FIRMADAS = ['Firma exclusiva', 'Firma venta directa'];
 
+  /* ── EXPEDIENTE DOCUMENTAL DEL PROPIETARIO ──────────────────────────────
+     Este es el portal donde el PROPIETARIO sube sus documentos.
+     NO es el portal de progreso del cliente (ese es otro).
+     AJUSTAR EXP_DOC_BASE al dominio real donde está desplegado
+     index_expedientedocumental_propietario.html (sin slash final).
+     Se puede sobrescribir desde la sesión antes de cargar este script:
+         window.EXP_DOC_BASE = 'https://expediente-propietario.vercel.app';
+  ----------------------------------------------------------------------- */
+  var EXP_DOC_BASE = window.EXP_DOC_BASE || 'https://expediente-propietario.vercel.app';
+  /* Endpoint para que el ASESOR suba un documento recibido por otro medio */
+  var UPLOAD_DOC_ENDPOINT = window.UPLOAD_DOC_ENDPOINT || '/api/upload-documento';
+
   /* ── Datos de checklists / documentos (portados del panel original) ── */
   var CHECKLIST = [
     { n: '01', t: 'Limpieza general completa', s: 'Pisos, vidrios, baños y cocina impecables' },
@@ -576,8 +588,79 @@
   function cabCerrar() { var o = byId('cab-overlay'); if (o) o.classList.remove('on'); }
 
   /* =========================================================================
+     EXPEDIENTE DOCUMENTAL: arma el link del propietario y maneja subidas
+     ========================================================================= */
+  function expedienteLink(rec) {
+    var folio = fval(rec, 'Folio') || '';
+    var token = fval(rec, 'Token Expediente') || fval(rec, 'Token') || '';
+    var url = String(EXP_DOC_BASE).replace(/\/+$/, '') + '/?folio=' + encodeURIComponent(folio);
+    if (token) url += '&token=' + encodeURIComponent(token);
+    return url;
+  }
+  function copiarTexto(txt, btn) {
+    function ok() { if (btn) { var o = btn.textContent; btn.textContent = '✓ Copiado'; setTimeout(function () { btn.textContent = o; }, 1600); } }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(txt).then(ok).catch(function () { window.prompt('Copia el texto:', txt); });
+    } else { window.prompt('Copia el texto:', txt); }
+  }
+  /* Copiar el link del expediente documental del propietario */
+  function cabCopiarExpediente(recId, btn) {
+    var rec = getRecord(recId); if (!rec) return;
+    copiarTexto(expedienteLink(rec), btn);
+  }
+  /* Abrir el expediente documental en otra pestaña */
+  function cabAbrirExpediente(recId) {
+    var rec = getRecord(recId); if (!rec) return;
+    window.open(expedienteLink(rec), '_blank', 'noopener');
+  }
+  /* El ASESOR sube un documento que recibió por otro medio (WhatsApp, correo…) */
+  function cabSubirDocAsesor(recId) {
+    var inp = byId('cab-doc-file-' + recId);
+    if (inp) inp.click();
+  }
+  function cabDocSeleccionado(recId, inputEl) {
+    var file = inputEl && inputEl.files && inputEl.files[0];
+    if (!file) return;
+    var st = byId('cab-doc-status-' + recId);
+    if (st) { st.style.display = 'block'; st.innerHTML = 'Subiendo <b>' + esc(file.name) + '</b>…'; }
+    var rec = getRecord(recId);
+    var folio = (rec ? fval(rec, 'Folio') : '') || '';
+    fetch(UPLOAD_DOC_ENDPOINT + (folio ? ('?folio=' + encodeURIComponent(folio)) : ''), {
+      method: 'POST',
+      headers: { 'Content-Type': file.type || 'application/octet-stream', 'x-content-type': file.type || '', 'x-file-name': encodeURIComponent(file.name) },
+      body: file
+    })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (res) {
+        if (!res.ok || !res.j || !res.j.url) throw new Error((res.j && res.j.error) || 'No se pudo subir el documento.');
+        var url = res.j.url;
+        if (st) st.innerHTML =
+          '<div style="color:var(--gold,#C6A86B);margin-bottom:6px">✓ Documento subido</div>'
+          + '<div style="font-size:11px;color:rgba(255,255,255,.55);word-break:break-all;margin-bottom:8px">' + esc(url) + '</div>'
+          + '<button class="cab-acc-btn ghost" onclick="copiarTextoExpediente(\'' + url.replace(/'/g, "\\'") + '\', this)">Copiar liga · pégala en el campo Documentos</button>';
+      })
+      .catch(function (e) {
+        if (st) st.innerHTML = '<span style="color:#f87171">No se pudo subir: ' + esc(e.message) + '</span>';
+      });
+  }
+
+  /* =========================================================================
      INTEGRACIÓN CON LA FICHA: inyecta la barra de acciones según la etapa
      ========================================================================= */
+  function expedienteHTML(recId) {
+    return ''
+      + '<div class="cab-acc-grid" style="margin-top:8px;flex-direction:column;align-items:stretch">'
+      + '  <div class="cab-acc-title" style="font-size:11px;letter-spacing:1.6px"><em>▸</em> Expediente documental del propietario</div>'
+      + '  <div class="cab-acc-hint">Este es el portal donde <b>el propietario sube sus documentos</b> (no es el portal de progreso del cliente).</div>'
+      + '  <div style="display:flex;gap:8px;flex-wrap:wrap">'
+      + '    <button class="cab-acc-btn" onclick="cabCopiarExpediente(\'' + recId + '\',this)">Copiar link del expediente<small>Para enviarlo al propietario</small></button>'
+      + '    <button class="cab-acc-btn ghost" onclick="cabAbrirExpediente(\'' + recId + '\')">Abrir expediente<small>Vista del propietario</small></button>'
+      + '    <button class="cab-acc-btn ghost" onclick="cabSubirDocAsesor(\'' + recId + '\')">Subir documento yo mismo<small>Si lo recibiste por otro medio</small></button>'
+      + '  </div>'
+      + '  <input type="file" id="cab-doc-file-' + recId + '" style="display:none" onchange="cabDocSeleccionado(\'' + recId + '\',this)">'
+      + '  <div id="cab-doc-status-' + recId + '" style="display:none;margin-top:8px;font-size:12px;color:rgba(255,255,255,.6)"></div>'
+      + '</div>';
+  }
   function accionesHTML(recId, conv) {
     var firmada = ETAPAS_FIRMADAS.indexOf(conv) > -1;
     var head = '<div class="cab-acciones"><div class="cab-acc-title"><em>▸</em> Acciones del proceso</div>';
@@ -594,6 +677,7 @@
       + '<button class="cab-acc-btn" onclick="cabAbrir(\'notaria\',\'' + recId + '\')">Cita en Notaría<small>Formalización · confirmación al cliente</small></button>'
       + '</div>'
       + '<div class="cab-acc-grid" style="margin-top:8px"><button class="cab-acc-btn ghost" onclick="cabAbrir(\'reporte\',\'' + recId + '\')">Reporte semanal (v1)<small>Análisis interno · versión automática viene después</small></button></div>'
+      + expedienteHTML(recId)
       + '</div>';
   }
 
@@ -635,6 +719,11 @@
   window.cabGenProduccion = cabGenProduccion;
   window.cabGenNotaria = cabGenNotaria;
   window.cabGenReporte = cabGenReporte;
+  window.cabCopiarExpediente = cabCopiarExpediente;
+  window.cabAbrirExpediente = cabAbrirExpediente;
+  window.cabSubirDocAsesor = cabSubirDocAsesor;
+  window.cabDocSeleccionado = cabDocSeleccionado;
+  window.copiarTextoExpediente = copiarTexto;
 
   /* Aplicar el patch (con reintento por si este script carga antes) */
   if (!patch()) {
