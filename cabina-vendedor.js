@@ -34,9 +34,9 @@
      AJUSTAR EXP_DOC_BASE al dominio real donde está desplegado
      index_expedientedocumental_propietario.html (sin slash final).
      Se puede sobrescribir desde la sesión antes de cargar este script:
-         window.EXP_DOC_BASE = 'https://expediente-propietario.vercel.app';
+         window.EXP_DOC_BASE = 'https://expedientedocumentalpropietario.vercel.app';
   ----------------------------------------------------------------------- */
-  var EXP_DOC_BASE = window.EXP_DOC_BASE || 'https://expediente-propietario.vercel.app';
+  var EXP_DOC_BASE = window.EXP_DOC_BASE || 'https://expedientedocumentalpropietario.vercel.app';
   /* Endpoint para que el ASESOR suba un documento recibido por otro medio */
   var UPLOAD_DOC_ENDPOINT = window.UPLOAD_DOC_ENDPOINT || '/api/upload-documento';
 
@@ -610,15 +610,41 @@
       navigator.clipboard.writeText(txt).then(ok).catch(function () { window.prompt('Copia el texto:', txt); });
     } else { window.prompt('Copia el texto:', txt); }
   }
+  /* Resuelve el link del expediente.
+     Primero pide a /api/activar-expediente que acuñe (una sola vez) el token
+     y devuelva el link ya armado. Si el endpoint no responde o falla,
+     usa el link local con lo que haya en el registro (degradación elegante). */
+  function resolveExpedienteLink(rec, cb) {
+    var local = expedienteLink(rec);
+    var folio = fval(rec, 'Folio') || fval(rec, 'Folio NERI') || fval(rec, 'Folio Vendedor') || '';
+    if (!folio) { cb(local); return; }
+    var done = false;
+    var fin = function (url) { if (done) return; done = true; cb(url || local); };
+    var timer = setTimeout(function () { fin(local); }, 6000);
+    try {
+      fetch('/api/activar-expediente', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + cabSessionToken() },
+        body: JSON.stringify({ folio: folio })
+      }).then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (d) { clearTimeout(timer); fin(d && d.link ? d.link : local); })
+        .catch(function () { clearTimeout(timer); fin(local); });
+    } catch (_) { clearTimeout(timer); fin(local); }
+  }
   /* Copiar el link del expediente documental del propietario */
   function cabCopiarExpediente(recId, btn) {
     var rec = getRecord(recId); if (!rec) return;
-    copiarTexto(expedienteLink(rec), btn);
+    if (btn) { var prev = btn.textContent; btn.textContent = 'Generando…'; setTimeout(function () { if (btn.textContent === 'Generando…') btn.textContent = prev; }, 6500); }
+    resolveExpedienteLink(rec, function (url) { copiarTexto(url, btn); });
   }
   /* Abrir el expediente documental en otra pestaña */
   function cabAbrirExpediente(recId) {
     var rec = getRecord(recId); if (!rec) return;
-    window.open(expedienteLink(rec), '_blank', 'noopener');
+    var w = window.open('', '_blank', 'noopener');
+    resolveExpedienteLink(rec, function (url) {
+      if (w) { try { w.location.href = url; } catch (_) { window.open(url, '_blank', 'noopener'); } }
+      else { window.open(url, '_blank', 'noopener'); }
+    });
   }
   /* El ASESOR sube un documento que recibió por otro medio (WhatsApp, correo…) */
   function cabSubirDocAsesor(recId) {
@@ -697,7 +723,6 @@
   }
 
   function inyectarAcciones(recId) {
-    injectStyles(); /* garantiza el CSS del panel aunque la cabina no se haya abierto; idempotente */
     var rec = getRecord(recId);
     if (!rec) return;
     var esPropiedad = isPropiedadActiva();
