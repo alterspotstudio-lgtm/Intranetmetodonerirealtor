@@ -592,13 +592,13 @@ select.form-input option{background:#111;color:#fff}
 .at-table thead{position:sticky;top:0;z-index:5}
 .at-table thead tr{background:#0c0c0c}
 .at-table thead th{
-  padding:11px 16px;text-align:left;
+  padding:11px 16px;text-align:center;
   font-size:6px;letter-spacing:3px;text-transform:uppercase;
   font-weight:800;color:var(--w30);white-space:nowrap;
   border-bottom:1px solid var(--border2);
   background:#0c0c0c;
 }
-.at-table thead th:first-child{width:44px;padding-left:20px}
+.at-table thead th:first-child{padding-left:20px}
 .at-table thead th::after{
   content:'';display:block;width:0;height:1px;
   background:var(--gold);margin-top:3px;transition:width .2s;
@@ -614,20 +614,20 @@ select.form-input option{background:#111;color:#fff}
 .at-table tbody td{
   padding:12px 16px;color:var(--w80);
   vertical-align:middle;
+  text-align:center;
 }
 .at-table tbody td:first-child{
-  padding-left:20px;width:44px;
-  color:var(--w30);font-size:14px;
-  opacity:0;transition:opacity .1s,border-left-color .15s;
+  padding-left:20px;
   border-left:2px solid transparent;
 }
 .at-table tbody tr:hover td:first-child{
-  opacity:1;
   border-left-color:var(--gold);
 }
 .at-table tbody td.name{
   font-weight:600;color:var(--white);
   font-size:12px;
+  white-space:nowrap;
+  min-width:130px;
 }
 .at-table tbody td.folio{
   font-family:var(--mono);font-size:10px;
@@ -2124,9 +2124,7 @@ function crmRender(tab, records){
   const cfg = CRM_CFG[tab];
   document.getElementById('crm-count').textContent = records.length + ' registros';
 
-  const ths = ['', ...cfg.cols].map((c,i) =>
-    i===0 ? `<th style="width:44px"></th>` : `<th>${c}</th>`
-  ).join('');
+  const ths = cfg.cols.map(c => `<th>${c}</th>`).join('');
 
   const FOLIO_FIELDS = ['Folio','Folio Cita'];
   const NAME_FIELDS  = ['nombre completo','nombre','comprador','nombre propiedad'];
@@ -2147,8 +2145,7 @@ function crmRender(tab, records){
       const title = cls==='clip' ? ` title="${_escAttr(val)}"` : '';
       return `<td${cls?` class="${cls}"`:''}${title}>${inner}</td>`;
     }).join('');
-    return `<tr onclick="crmOpenRow('${rec.id}')" title="Clic para abrir expediente">
-      <td>◎</td>${cells}</tr>`;
+    return `<tr onclick="crmOpenRow('${rec.id}')" title="Clic para abrir expediente">${cells}</tr>`;
   }).join('') || crmEmptyHtml(tab);
 
   document.getElementById('crm-table-wrap').innerHTML =
