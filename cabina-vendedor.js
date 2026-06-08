@@ -732,6 +732,7 @@
     var prev = inner.querySelector('.cab-acciones');
     if (prev && prev.parentNode) prev.parentNode.removeChild(prev);
     var body = inner.querySelector('.fv-body') || inner;
+    injectStyles();   // asegura el CSS de la cabina también en el panel inline (no solo al abrir modal)
     body.insertAdjacentHTML('beforeend', accionesHTML(recId, conv, esPropiedad));
   }
 
