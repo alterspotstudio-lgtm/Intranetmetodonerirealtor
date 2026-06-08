@@ -1,28 +1,28 @@
 // =============================================================
-//  api/upload-documento.js  —  Método Neri · Expediente
-//  Sube el archivo del documento a Vercel Blob y devuelve { url }.
-//  El archivo NO se guarda en Airtable: en Airtable solo se guarda
-//  la liga (url) que devuelve este endpoint.
+//  api/upload-documento.js  —  Método NERI · Subida de documento a Blob
 //
-//  IMPORTANTE:
-//  Esta función debe correr como Serverless Function de Node.js.
-//  NO debe usar runtime: 'edge', porque @vercel/blob/undici usa módulos
-//  de Node que Edge no soporta en este flujo.
+//  Sube el archivo a Vercel Blob y devuelve { url }. Doble autorización:
+//   - ASESOR: sesión NERI por header Authorization: Bearer <token de sesión>.
+//   - PROPIETARIO: folio + token del expediente en la querystring
+//     (?folio=...&token=...). Así el portal del propietario puede subir
+//     sin necesitar una sesión de asesor.
 //
-//  Variables necesarias en Vercel:
+//  El registro en Airtable lo hace /api/expediente-documentos (no aquí).
+//
+//  Variables Vercel:
 //   - BLOB_READ_WRITE_TOKEN
+//   - NERI_SESSION_SECRET, AIRTABLE_TOKEN, AIRTABLE_BASE
 // =============================================================
 
 import { put } from '@vercel/blob';
 import crypto from 'node:crypto';
 
-// En proyectos tipo Next/Vercel API evita que el body se convierta en JSON.
-// Si Vercel no usa esta opción, no rompe nada; simplemente se ignora.
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
+export const config = { api: { bodyParser: false } };
+
+const BASE = process.env.AIRTABLE_BASE || process.env.AIRTABLE_BASE_ID;
+const AIRTABLE_TOKEN = process.env.AIRTABLE_TOKEN;
+const SECRET = process.env.NERI_SESSION_SECRET;
+const LEADS_TABLE = 'tblQHdwEucTaNrLzm';
 
 const MAX_MB = 50;
 const MAX_BYTES = MAX_MB * 1024 * 1024;
@@ -31,53 +31,30 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-content-type, x-file-name, Authorization');
-
   if (req.method === 'OPTIONS') return res.status(200).end();
-
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Método no permitido' });
-  }
-
-  // ── Autorización dual ────────────────────────────────────────────────
-  //  · Asesor desde la intranet (cabina) → sesión NERI firmada (Bearer).
-  //  · Propietario desde el portal público → folio + token del expediente.
-  //    El portal NO tiene sesión NERI; se autoriza validando folio+token
-  //    contra /api/vendedor-expediente (misma fuente de verdad que usa el
-  //    portal para cargar el expediente). Sin esto, el propietario recibe
-  //    401 en cada subida y la cadena se congela.
-  const session = verifySession(req);
-  let authorized = !!session;
-
-  if (!authorized) {
-    const { folio: authFolio, token: authToken } = getAuthParams(req);
-    if (authFolio && authToken) {
-      authorized = validateExpedienteToken(req, authFolio, authToken);
-    }
-  }
-
-  if (!authorized) {
-    return res.status(401).json({ error: 'Sesión inválida o vencida.' });
-  }
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Método no permitido' });
 
   if (!process.env.BLOB_READ_WRITE_TOKEN) {
-    return res.status(500).json({
-      error: 'Falta la variable de entorno BLOB_READ_WRITE_TOKEN en Vercel.',
-    });
+    return res.status(500).json({ error: 'Falta la variable BLOB_READ_WRITE_TOKEN en Vercel.' });
+  }
+
+  const { folio, doc, filename } = getParams(req);
+
+  // ── Autorización dual ──
+  const session = verifySession(req);
+  if (!session) {
+    const token = getQueryValue(req, 'token');
+    const ok = folio && token ? await ownerAllowed(folio, token) : false;
+    if (!ok) return res.status(401).json({ error: 'No autorizado. Abre el enlace exacto del expediente o inicia sesión.' });
   }
 
   try {
-    const { folio, doc, filename } = getParams(req);
     const contentType = getHeader(req, 'x-content-type') || getHeader(req, 'content-type') || 'application/octet-stream';
-
     const contentLength = Number(getHeader(req, 'content-length') || 0);
-    if (contentLength > MAX_BYTES) {
-      return res.status(413).json({ error: `El archivo supera el límite de ${MAX_MB} MB.` });
-    }
+    if (contentLength > MAX_BYTES) return res.status(413).json({ error: `El archivo supera el límite de ${MAX_MB} MB.` });
 
     const fileBuffer = await readRawBody(req, MAX_BYTES);
-    if (!fileBuffer || fileBuffer.length === 0) {
-      return res.status(400).json({ error: 'No se recibió el archivo.' });
-    }
+    if (!fileBuffer || fileBuffer.length === 0) return res.status(400).json({ error: 'No se recibió el archivo.' });
 
     const safeFolio = sanitize(folio || 'sin-folio');
     const safeDoc = sanitize(doc || 'doc');
@@ -86,11 +63,7 @@ export default async function handler(req, res) {
     const blob = await put(
       `expedientes/${safeFolio}/${safeDoc}-${Date.now()}-${safeFilename}`,
       fileBuffer,
-      {
-        access: 'public',
-        contentType,
-        token: process.env.BLOB_READ_WRITE_TOKEN,
-      }
+      { access: 'public', contentType, token: process.env.BLOB_READ_WRITE_TOKEN }
     );
 
     return res.status(200).json({ url: blob.url, pathname: blob.pathname });
@@ -101,98 +74,73 @@ export default async function handler(req, res) {
   }
 }
 
+/* ───────── autorización del propietario (folio + token) ───────── */
+async function ownerAllowed(folio, token) {
+  if (!SECRET) return false;
+  // 1) token determinista (no requiere Airtable)
+  const deterministic = crypto.createHmac('sha256', SECRET).update('expediente:' + folio).digest('base64url');
+  if (safeEqual(token, deterministic)) return true;
+  // 2) token guardado en el lead (compatibilidad)
+  if (!AIRTABLE_TOKEN || !BASE) return false;
+  try {
+    const formula = "{Folio}='" + String(folio).replace(/'/g, "\\'") + "'";
+    const url = `https://api.airtable.com/v0/${BASE}/${LEADS_TABLE}?maxRecords=1&filterByFormula=${encodeURIComponent(formula)}`;
+    const r = await fetch(url, { headers: { Authorization: 'Bearer ' + AIRTABLE_TOKEN } });
+    if (!r.ok) return false;
+    const data = await r.json();
+    const stored = String(data?.records?.[0]?.fields?.['Token Expediente'] || '').trim();
+    return stored ? safeEqual(token, stored) : false;
+  } catch (_) { return false; }
+}
+
+/* ───────── helpers de request ───────── */
 function getParams(req) {
   const fromQuery = req.query || {};
-
-  // En Vercel/Node normalmente existe req.query. Este fallback cubre casos
-  // donde solo venga req.url como string relativo.
   const host = getHeader(req, 'host') || 'localhost';
   const url = new URL(req.url || '/', `https://${host}`);
-
   return {
     folio: fromQuery.folio || url.searchParams.get('folio'),
     doc: fromQuery.doc || url.searchParams.get('doc'),
     filename: fromQuery.filename || url.searchParams.get('filename'),
   };
 }
-
-function getHeader(req, name) {
-  return req.headers?.[name.toLowerCase()] || req.headers?.[name];
-}
-
-// Lee folio + token de la query SIN consumir el body (que es el archivo).
-function getAuthParams(req) {
+function getQueryValue(req, key) {
   const fromQuery = req.query || {};
   const host = getHeader(req, 'host') || 'localhost';
-  let searchParams;
-  try {
-    searchParams = new URL(req.url || '/', `https://${host}`).searchParams;
-  } catch (_) {
-    searchParams = new URLSearchParams();
-  }
-  return {
-    folio: fromQuery.folio || searchParams.get('folio') || '',
-    token: fromQuery.token || searchParams.get('token') || '',
-  };
+  const url = new URL(req.url || '/', `https://${host}`);
+  return fromQuery[key] || url.searchParams.get(key) || '';
 }
-
-// Valida el par folio+token del expediente recalculando el mismo HMAC
-// determinista que genera /api/activar-expediente. No requiere consultar
-// otro endpoint ni almacenar el token: se recalcula y se compara timing-safe.
-function validateExpedienteToken(req, folio, token) {
-  const secret = process.env.NERI_SESSION_SECRET;
-  if (!secret || !folio || !token) return false;
-  const expected = crypto.createHmac('sha256', secret).update('expediente:' + String(folio)).digest('base64url');
-  const aa = Buffer.from(String(expected));
-  const bb = Buffer.from(String(token));
-  return aa.length === bb.length && crypto.timingSafeEqual(aa, bb);
-}
-
+function getHeader(req, name) { return req.headers?.[name.toLowerCase()] || req.headers?.[name]; }
 function sanitize(value) {
-  return String(value)
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^A-Za-z0-9\-_.]/g, '_')
-    .slice(0, 120);
+  return String(value).normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^A-Za-z0-9\-_.]/g, '_').slice(0, 120);
 }
-
 async function readRawBody(req, limitBytes) {
   if (Buffer.isBuffer(req.body)) return req.body;
   if (typeof req.body === 'string') return Buffer.from(req.body);
   if (req.body instanceof Uint8Array) return Buffer.from(req.body);
-
-  const chunks = [];
-  let total = 0;
-
+  const chunks = []; let total = 0;
   for await (const chunk of req) {
     const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
     total += buffer.length;
-
-    if (total > limitBytes) {
-      throw new Error(`El archivo supera el límite de ${MAX_MB} MB.`);
-    }
-
+    if (total > limitBytes) throw new Error(`El archivo supera el límite de ${MAX_MB} MB.`);
     chunks.push(buffer);
   }
-
   return Buffer.concat(chunks);
 }
-
-
-function verifySession(req){
-  const secret = process.env.NERI_SESSION_SECRET;
-  if(!secret) return null;
+function safeEqual(a, b) {
+  const aa = Buffer.from(String(a)); const bb = Buffer.from(String(b));
+  if (aa.length !== bb.length) return false;
+  return crypto.timingSafeEqual(aa, bb);
+}
+function verifySession(req) {
+  if (!SECRET) return null;
   const raw = req.headers?.authorization || req.headers?.Authorization || '';
   const token = raw.startsWith('Bearer ') ? raw.slice(7) : '';
   const parts = token.split('.');
-  if(parts.length !== 3) return null;
-  const expected = crypto.createHmac('sha256', secret).update(parts[0]+'.'+parts[1]).digest('base64url');
-  const aa = Buffer.from(String(expected));
-  const bb = Buffer.from(String(parts[2]));
-  if(aa.length !== bb.length || !crypto.timingSafeEqual(aa, bb)) return null;
-  try{
-    const payload = JSON.parse(Buffer.from(parts[1], 'base64url').toString('utf8'));
-    if(payload.exp && Date.now() > payload.exp) return null;
-    return payload;
-  }catch(_){ return null; }
+  if (parts.length !== 3) return null;
+  const expected = crypto.createHmac('sha256', SECRET).update(parts[0] + '.' + parts[1]).digest('base64url');
+  const aa = Buffer.from(String(expected)); const bb = Buffer.from(String(parts[2]));
+  if (aa.length !== bb.length || !crypto.timingSafeEqual(aa, bb)) return null;
+  try { const p = JSON.parse(Buffer.from(parts[1], 'base64url').toString('utf8')); if (p.exp && Date.now() > p.exp) return null; return p; }
+  catch (_) { return null; }
 }
