@@ -1537,6 +1537,7 @@ async function enrichIdentity(slug){
     if(f['Nombre'])            SESSION.nombre   = f['Nombre'];
     if(f['Teléfono WhatsApp']) SESSION.whatsapp = String(f['Teléfono WhatsApp']).replace(/\D/g,'');
     if(f['Pixel ID Meta'])     SESSION.pixel    = f['Pixel ID Meta'];
+    if(f['Frase'])             SESSION.frase    = f['Frase'];
     const ciudad = f['Ciudad'] || f['Ciudad (texto viejo)'] || '';
     const puesto = f['Puesto'] || f['Puesto (texto viejo)'] || '';
     if(ciudad || puesto) SESSION.empresa = [puesto, ciudad].filter(Boolean).join(' · ') || SESSION.empresa;
@@ -3369,6 +3370,7 @@ function loadIframe(id, url){
       whatsapp: SESSION.whatsapp || '',
       firma:    (SESSION.nombre||'') + ' · ' + (SESSION.empresa||''),
       pixel:    SESSION.pixel || '',
+      frase:    SESSION.frase || '',
       origen: 'intranet-metodo-neri' // Webhooks Make NO se exponen en frontend
     });
     fullUrl = url + '?' + params.toString();
@@ -4210,6 +4212,7 @@ async function perfilSave(){
     if(fields['Nombre'])            SESSION.nombre   = fields['Nombre'];
     if(fields['Teléfono WhatsApp']) SESSION.whatsapp = String(fields['Teléfono WhatsApp']).replace(/\D/g,'');
     if(fields['Pixel ID Meta'])     SESSION.pixel    = fields['Pixel ID Meta'];
+    if(fields['Frase'])             SESSION.frase    = fields['Frase'];
     if(typeof refreshChrome === 'function') refreshChrome();
     showToast('✓ Perfil actualizado');
     perfilState.editMode = false;
