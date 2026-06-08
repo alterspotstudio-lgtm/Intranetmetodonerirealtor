@@ -587,8 +587,9 @@ select.form-input option{background:#111;color:#fff}
 .at-table-wrap::-webkit-scrollbar{width:4px;height:4px}
 .at-table-wrap::-webkit-scrollbar-thumb{background:var(--w15)}
 
-.at-table{width:100%;border-collapse:collapse;font-size:12px;table-layout:auto}
+.at-table{width:100%;border-collapse:collapse;font-size:12px}
 
+.at-table thead{position:sticky;top:0;z-index:5}
 .at-table thead tr{background:#0c0c0c}
 .at-table thead th{
   padding:11px 16px;text-align:left;
@@ -596,9 +597,8 @@ select.form-input option{background:#111;color:#fff}
   font-weight:800;color:var(--w30);white-space:nowrap;
   border-bottom:1px solid var(--border2);
   background:#0c0c0c;
-  position:sticky;top:0;z-index:5;
 }
-.at-table thead th:first-child{padding-left:20px}
+.at-table thead th:first-child{width:44px;padding-left:20px}
 .at-table thead th::after{
   content:'';display:block;width:0;height:1px;
   background:var(--gold);margin-top:3px;transition:width .2s;
@@ -609,20 +609,24 @@ select.form-input option{background:#111;color:#fff}
 .at-table tbody tr{
   border-bottom:1px solid rgba(255,255,255,.04);
   transition:background .1s;
+  position:relative;
+}
+.at-table tbody tr::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:0;
+  background:var(--gold);transition:width .15s;border-radius:0;
 }
 .at-table tbody tr:hover{background:rgba(255,255,255,.03)}
+.at-table tbody tr:hover::before{width:2px}
 .at-table tbody td{
   padding:12px 16px;color:var(--w80);
   vertical-align:middle;
 }
 .at-table tbody td:first-child{
-  padding-left:20px;
-  border-left:2px solid transparent;
-  transition:border-color .15s;
+  padding-left:20px;width:44px;
+  color:var(--w30);font-size:14px;
+  opacity:0;transition:opacity .1s;
 }
-.at-table tbody tr:hover td:first-child{
-  border-left-color:var(--gold);
-}
+.at-table tbody tr:hover td:first-child{opacity:1}
 .at-table tbody td.name{
   font-weight:600;color:var(--white);
   font-size:12px;
@@ -632,7 +636,7 @@ select.form-input option{background:#111;color:#fff}
   color:var(--gold);letter-spacing:.5px;white-space:nowrap;
 }
 .at-table tbody td.clip{
-  max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
 
 /* Filas alternas muy sutil */
@@ -725,6 +729,11 @@ select.form-input option{background:#111;color:#fff}
 .fk-box{width:min(600px,100%)}
 .fk-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
 .fk-name{font-family:var(--display);font-size:24px;letter-spacing:1px;color:var(--white);line-height:1.1}
+.fk-name-edit{width:100%;background:transparent;border:none;border-bottom:1px solid var(--w15);
+  font-family:var(--display);font-size:24px;letter-spacing:1px;color:var(--white);line-height:1.2;
+  padding:2px 0 6px;outline:none;transition:border-color .2s var(--ease)}
+.fk-name-edit:focus{border-bottom-color:var(--gold)}
+.fk-name-edit::placeholder{color:var(--w30);font-family:var(--display);letter-spacing:1px}
 .fk-folio{font-size:11px;color:var(--gold);letter-spacing:2px;margin-top:6px;font-family:monospace}
 .fk-op{font-size:10px;color:var(--w30);letter-spacing:1px;margin-top:3px;font-family:monospace}
 .fk-tags{display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex-shrink:0}
@@ -1537,7 +1546,6 @@ async function enrichIdentity(slug){
     if(f['Nombre'])            SESSION.nombre   = f['Nombre'];
     if(f['Teléfono WhatsApp']) SESSION.whatsapp = String(f['Teléfono WhatsApp']).replace(/\D/g,'');
     if(f['Pixel ID Meta'])     SESSION.pixel    = f['Pixel ID Meta'];
-    if(f['Frase'])             SESSION.frase    = f['Frase'];
     const ciudad = f['Ciudad'] || f['Ciudad (texto viejo)'] || '';
     const puesto = f['Puesto'] || f['Puesto (texto viejo)'] || '';
     if(ciudad || puesto) SESSION.empresa = [puesto, ciudad].filter(Boolean).join(' · ') || SESSION.empresa;
@@ -2118,7 +2126,9 @@ function crmRender(tab, records){
   const cfg = CRM_CFG[tab];
   document.getElementById('crm-count').textContent = records.length + ' registros';
 
-  const ths = cfg.cols.map(c => `<th>${c}</th>`).join('');
+  const ths = ['', ...cfg.cols].map((c,i) =>
+    i===0 ? `<th style="width:44px"></th>` : `<th>${c}</th>`
+  ).join('');
 
   const FOLIO_FIELDS = ['Folio','Folio Cita'];
   const NAME_FIELDS  = ['nombre completo','nombre','comprador','nombre propiedad'];
@@ -2139,7 +2149,8 @@ function crmRender(tab, records){
       const title = cls==='clip' ? ` title="${_escAttr(val)}"` : '';
       return `<td${cls?` class="${cls}"`:''}${title}>${inner}</td>`;
     }).join('');
-    return `<tr onclick="crmOpenRow('${rec.id}')" title="Clic para abrir expediente">${cells}</tr>`;
+    return `<tr onclick="crmOpenRow('${rec.id}')" title="Clic para abrir expediente">
+      <td>◎</td>${cells}</tr>`;
   }).join('') || crmEmptyHtml(tab);
 
   document.getElementById('crm-table-wrap').innerHTML =
@@ -2591,8 +2602,7 @@ function fichaCopy(btn){
    Folio NERI / Links / contadores son fórmula/Make → bloqueados.        */
 const LANDING_FORM = [
   {title:'Portada', ico:'◫', fields:[
-    {f:'Frase Portada',  type:'text',     full:true},
-    {f:'Frase Inicio',   type:'textarea', full:true},
+    {f:'Frase Inicio',   type:'textarea', full:true, label:'Descripción corta de la casa'},
     {f:'Foto de portada',type:'attach',   full:true, img:true},
   ]},
   {title:'Precio', ico:'$', fields:[
@@ -2680,6 +2690,7 @@ async function uploadBlobFile(file, folio, doc){
 
 function _landInput(fl, rec){
   const name = fl.f;
+  const label = fl.label || fl.f;
   let val = _fval(rec, name);
   const orig = val;
 
@@ -2692,7 +2703,7 @@ function _landInput(fl, rec){
       ? `<span class="le-vstatus on">Cargado${info.count>1?' ('+info.count+')':''}</span>`
       : `<span class="le-vstatus off">Vacío</span>`;
     return `<div class="form-group full">
-        <label class="form-label">${name}</label>
+        <label class="form-label">${label}</label>
         <div class="le-attach">${thumb}${status}</div>
         <div class="le-upload">
           <input class="form-inp" type="file" data-upload-attach="${_escAttr(name)}" data-upload-doc="${_escAttr(name)}" accept="image/*,video/mp4,video/quicktime,application/pdf">
@@ -2705,19 +2716,19 @@ function _landInput(fl, rec){
   if(fl.type === 'select'){
     const os = (fl.opts||[]).map(o => `<option value="${_escAttr(o)}"${val===o?' selected':''}>${o}</option>`).join('');
     return `<div class="form-group${fl.full?' full':''}">
-        <label class="form-label">${name}</label>
+        <label class="form-label">${label}</label>
         <select class="form-inp" data-field="${_escAttr(name)}" data-ftype="select" data-orig="${_escAttr(orig)}">
           <option value="">— Sin selección</option>${os}</select></div>`;
   }
   if(fl.type === 'textarea'){
     return `<div class="form-group${fl.full?' full':''}">
-        <label class="form-label">${name}</label>
+        <label class="form-label">${label}</label>
         <textarea class="form-inp" data-field="${_escAttr(name)}" data-ftype="text" data-orig="${_escAttr(orig)}" rows="2">${_esc(val)}</textarea></div>`;
   }
   const inType = fl.type === 'number' ? 'number' : 'text';
   const ft = fl.type === 'number' ? 'number' : 'text';
   return `<div class="form-group${fl.full?' full':''}">
-      <label class="form-label">${name}</label>
+      <label class="form-label">${label}</label>
       <input class="form-inp" type="${inType}" data-field="${_escAttr(name)}" data-ftype="${ft}" data-orig="${_escAttr(orig)}" value="${_escAttr(val)}"></div>`;
 }
 
@@ -2747,7 +2758,8 @@ function landOpenEditor(recId){
   crmState.isNew  = false;
   document.getElementById('crm-landing-err').textContent = '';
 
-  const nombre   = _fval(rec,'Nombre Propiedad') || 'Propiedad sin nombre';
+  const nombreRaw= _fval(rec,'Nombre Propiedad') || '';
+  const nombre   = nombreRaw || 'Propiedad sin nombre';
   const folioNeri= _fval(rec,'Folio NERI');
   const linkComp = _fval(rec,'Link Comprador');
   const linkPort = _fval(rec,'Link Portal');
@@ -2779,7 +2791,10 @@ function landOpenEditor(recId){
 
   document.getElementById('crm-landing-body').innerHTML = `
     <div style="margin-bottom:4px">
-      <div class="fk-name">${_esc(nombre)}</div>
+      <label class="form-label" style="margin-bottom:4px">Nombre de la propiedad</label>
+      <input class="fk-name-edit" type="text" data-field="Nombre Propiedad" data-ftype="text"
+             data-orig="${_escAttr(nombreRaw)}" value="${_escAttr(nombreRaw)}"
+             placeholder="Escribe el nombre de la propiedad">
       <div class="fk-folio">${folioNeri || '— sin folio aún —'}</div>
     </div>
     ${secs}
@@ -3370,7 +3385,6 @@ function loadIframe(id, url){
       whatsapp: SESSION.whatsapp || '',
       firma:    (SESSION.nombre||'') + ' · ' + (SESSION.empresa||''),
       pixel:    SESSION.pixel || '',
-      frase:    SESSION.frase || '',
       origen: 'intranet-metodo-neri' // Webhooks Make NO se exponen en frontend
     });
     fullUrl = url + '?' + params.toString();
@@ -4006,7 +4020,7 @@ function perfilRenderCard(rec){
           <div class="perfil-closed-name">${_esc(nombre)}</div>
           <div class="perfil-closed-role">${_esc(puesto)} · ${_esc(ciudad)} · ${_esc(tipoReal)}</div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:13px">
-            ${whatsapp ? `<a class="fv-wa-btn" href="${asesorWa(whatsapp, 'Hola, te comparto mi link de captación Método NERI:\n' + (link || '')) }" target="_blank" rel="noopener">↗ WhatsApp</a>` : '<span class="asesor-pill">Sin WhatsApp</span>'}
+            ${whatsapp ? `<a class="fv-wa-btn" href="${asesorWa(whatsapp, 'Hola, te comparto mi link de captación Método NERI.') }" target="_blank" rel="noopener">↗ WhatsApp</a>` : '<span class="asesor-pill">Sin WhatsApp</span>'}
             <span class="asesor-pill">${_esc(estadoReal)}</span>
           </div>
         </div>
@@ -4098,7 +4112,7 @@ function perfilRenderForm(rec){
           <div class="fv-nombre">${_esc(nombre)}</div>
           <div class="fv-wa">
             ${whatsapp ? `<span>${_esc(whatsapp)}</span>` : '<span style="color:var(--w30);font-size:11px">Sin WhatsApp</span>'}
-            ${whatsapp ? `<a class="fv-wa-btn" href="${asesorWa(whatsapp, 'Hola, te comparto mi link de captación Método NERI:\n' + (link || '')) }" target="_blank" rel="noopener">↗ WhatsApp</a>` : ''}
+            ${whatsapp ? `<a class="fv-wa-btn" href="${asesorWa(whatsapp, 'Hola, te comparto mi link de captación Método NERI.') }" target="_blank" rel="noopener">↗ WhatsApp</a>` : ''}
           </div>
           <div class="fv-meta">
             <div class="fv-meta-chip">Cuenta <em>${_esc(cuenta)}</em></div>
@@ -4212,7 +4226,6 @@ async function perfilSave(){
     if(fields['Nombre'])            SESSION.nombre   = fields['Nombre'];
     if(fields['Teléfono WhatsApp']) SESSION.whatsapp = String(fields['Teléfono WhatsApp']).replace(/\D/g,'');
     if(fields['Pixel ID Meta'])     SESSION.pixel    = fields['Pixel ID Meta'];
-    if(fields['Frase'])             SESSION.frase    = fields['Frase'];
     if(typeof refreshChrome === 'function') refreshChrome();
     showToast('✓ Perfil actualizado');
     perfilState.editMode = false;
