@@ -2670,22 +2670,34 @@ function _safeDocKey(s){
     .slice(0,80);
 }
 
+// Cliente de subida directa a Vercel Blob (se carga una sola vez).
+let _blobClientP = null;
+function _blobClient(){
+  return (_blobClientP ||= import('https://esm.sh/@vercel/blob@2.4.0/client'));
+}
+
+// Sube el archivo DIRECTO a Vercel Blob (no pasa por la función → rápido,
+// sin tope de 4.5MB, no bloquea la ficha). Devuelve solo la URL pública.
 async function uploadBlobFile(file, folio, doc){
   if(!file) return null;
-  const qs = new URLSearchParams({
-    folio: folio || 'sin-folio',
-    doc: _safeDocKey(doc || 'archivo'),
-    filename: file.name || 'archivo'
+  const { upload } = await _blobClient();
+  const pathname = 'propiedades/'
+    + _safeDocKey(folio || 'sin-folio') + '/'
+    + _safeDocKey(doc || 'archivo') + '-'
+    + _safeDocKey(file.name || 'archivo');
+  const blob = await upload(pathname, file, {
+    access: 'public',
+    handleUploadUrl: '/api/upload',
+    contentType: file.type || 'application/octet-stream',
+    clientPayload: JSON.stringify({
+      session: (SESSION?.token || ''),
+      folio: folio || '',
+      doc: doc || '',
+      scope: 'asesor'
+    })
   });
-  const r = await fetch('/api/upload-documento?' + qs.toString(), {
-    method:'POST',
-    headers:{ 'x-content-type': file.type || 'application/octet-stream', 'Authorization':'Bearer '+(SESSION?.token||'') },
-    body:file
-  });
-  const data = await r.json().catch(() => ({}));
-  if(!r.ok) throw new Error(data.error || ('No se pudo subir ' + (file.name || 'archivo')));
-  if(!data.url) throw new Error('Blob no devolvió URL para ' + (file.name || 'archivo'));
-  return data.url;
+  if(!blob || !blob.url) throw new Error('No se obtuvo URL para ' + (file.name || 'archivo'));
+  return blob.url;
 }
 
 function _landInput(fl, rec){
@@ -2710,7 +2722,7 @@ function _landInput(fl, rec){
         </div>
         <input class="form-inp" type="text" data-attach="${_escAttr(name)}"
                placeholder="O pegar URL pública para reemplazar (opcional)">
-        <div class="le-note">Puedes subir el archivo desde aquí. La intranet lo manda a Vercel Blob y guarda solo la URL en Airtable.</div>
+        <div class="le-note">Puedes subir el archivo desde aquí. La intranet lo sube directo a Vercel Blob (rápido, sin tope de tamaño) y guarda solo la URL en Airtable.</div>
       </div>`;
   }
   if(fl.type === 'select'){
@@ -2849,14 +2861,14 @@ async function landSave(){
     .filter(el => el.files && el.files[0]);
 
   if(uploadInputs.length){
-    btn.textContent = uploadInputs.length === 1 ? 'Subiendo archivo...' : 'Subiendo archivos...';
-    for(const el of uploadInputs){
+    btn.textContent = uploadInputs.length === 1 ? 'Subiendo archivo…' : 'Subiendo ' + uploadInputs.length + ' archivos…';
+    const subidas = await Promise.all(uploadInputs.map(async el => {
       const name = el.dataset.uploadAttach;
       const doc  = el.dataset.uploadDoc || name;
-      const file = el.files[0];
-      const url = await uploadBlobFile(file, folioUpload, doc);
-      fields[name] = [{ url }];
-    }
+      const url  = await uploadBlobFile(el.files[0], folioUpload, doc);
+      return { name, url };
+    }));
+    subidas.forEach(s => { fields[s.name] = [{ url: s.url }]; });
   }
 
   if(Object.keys(fields).length === 0){
@@ -3906,7 +3918,7 @@ async function asesorLoadHoy(force=false){
    - Lee/edita el registro propio del asesor (por Slug).
    - El asesor edita solo sus 7 datos públicos (tutorial admin).
    - Puesto, Slug, Estado, Tipo, Cuenta y Link Captación: solo lectura.
-   - La Foto se sube a Vercel Blob por /api/upload-documento; Airtable
+   - La Foto se sube directo a Vercel Blob por /api/upload (client upload); Airtable
      guarda solo la URL (mismo patrón que el editor de landing del admin).
 ═══════════════════════════════════════════════════ */
 
@@ -4153,7 +4165,7 @@ function perfilRenderForm(rec){
             <div class="le-attach">${fotoThumb}<span class="le-vstatus ${foto.has?'on':'off'}">${foto.has?'Cargada':'Vacía'}</span></div>
             <div class="perfil-fv-photo-copy">
               <input class="form-inp perfil-fv-input" type="file" accept="image/*" data-pf-foto>
-              <div class="le-note">La foto se sube desde la intranet a Vercel Blob mediante <b>/api/upload-documento</b>. Airtable guarda solo el enlace final.</div>
+              <div class="le-note">La foto se sube directo a Vercel Blob mediante <b>/api/upload</b> (rápido, no bloquea). Airtable guarda solo el enlace final.</div>
             </div>
           </div>
         </div>
