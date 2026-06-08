@@ -598,7 +598,7 @@ select.form-input option{background:#111;color:#fff}
   background:#0c0c0c;
   position:sticky;top:0;z-index:5;
 }
-.at-table thead th:first-child{width:44px;padding-left:20px}
+.at-table thead th:first-child{padding-left:20px}
 .at-table thead th::after{
   content:'';display:block;width:0;height:1px;
   background:var(--gold);margin-top:3px;transition:width .2s;
@@ -622,11 +622,8 @@ select.form-input option{background:#111;color:#fff}
   vertical-align:middle;
 }
 .at-table tbody td:first-child{
-  padding-left:20px;width:44px;
-  color:var(--w30);font-size:14px;
-  opacity:0;transition:opacity .1s;
+  padding-left:20px;
 }
-.at-table tbody tr:hover td:first-child{opacity:1}
 .at-table tbody td.name{
   font-weight:600;color:var(--white);
   font-size:12px;
@@ -2121,9 +2118,7 @@ function crmRender(tab, records){
   const cfg = CRM_CFG[tab];
   document.getElementById('crm-count').textContent = records.length + ' registros';
 
-  const ths = ['', ...cfg.cols].map((c,i) =>
-    i===0 ? `<th style="width:44px"></th>` : `<th>${c}</th>`
-  ).join('');
+  const ths = cfg.cols.map(c => `<th>${c}</th>`).join('');
 
   const FOLIO_FIELDS = ['Folio','Folio Cita'];
   const NAME_FIELDS  = ['nombre completo','nombre','comprador','nombre propiedad'];
@@ -2144,8 +2139,7 @@ function crmRender(tab, records){
       const title = cls==='clip' ? ` title="${_escAttr(val)}"` : '';
       return `<td${cls?` class="${cls}"`:''}${title}>${inner}</td>`;
     }).join('');
-    return `<tr onclick="crmOpenRow('${rec.id}')" title="Clic para abrir expediente">
-      <td>◎</td>${cells}</tr>`;
+    return `<tr onclick="crmOpenRow('${rec.id}')" title="Clic para abrir expediente">${cells}</tr>`;
   }).join('') || crmEmptyHtml(tab);
 
   document.getElementById('crm-table-wrap').innerHTML =
