@@ -1,66 +1,80 @@
 // ───────────────────────────────────────────────────────────────
-//  /api/upload.js   —  Endpoint de subida para la intranet NERI
+//  /api/upload.js   —  Subida DIRECTA a Vercel Blob (client upload)
 //
-//  Qué hace:
-//   1. El asesor elige un archivo (foto o video) en la intranet.
-//   2. El navegador sube el archivo DIRECTO a Vercel Blob (no pasa
-//      por Airtable, así soporta videos pesados sin límite de 4.5MB).
-//   3. Vercel Blob devuelve una URL pública y permanente.
-//   4. La intranet guarda SOLO esa URL en el campo de texto de Airtable.
-//   5. La landing (Link Comprador) lee esa URL y pinta la foto/video.
+//  Por qué existe:
+//   La ruta vieja /api/upload-documento metía el archivo COMPLETO en
+//   memoria dentro de la función (navegador → función → Blob) y chocaba
+//   con el tope de 4.5MB. Eso era lo que alentaba la ficha al subir
+//   fotos y videos.
+//
+//   Aquí el navegador sube el archivo DIRECTO a Vercel Blob usando un
+//   token de un solo uso. El archivo NO pasa por la función → rápido,
+//   sin tope práctico de tamaño, no bloquea la ficha.
+//
+//  Autorización:
+//   La subida directa NO manda header Authorization (la librería arma
+//   su propia petición), así que la sesión del asesor viaja dentro de
+//   clientPayload y se valida en onBeforeGenerateToken. Sin sesión
+//   válida no se emite token y no se sube nada.
 //
 //  Requisitos en Vercel:
-//   - npm i @vercel/blob
-//   - Variable de entorno: BLOB_READ_WRITE_TOKEN  (Storage → Blob → conectar)
-//
-//  Por qué "client upload" (handleUpload): permite subir archivos grandes
-//  (videos verticales) directo al storage sin tocar el límite de la función.
+//   - @vercel/blob (ya en package.json)
+//   - BLOB_READ_WRITE_TOKEN
+//   - NERI_SESSION_SECRET
 // ───────────────────────────────────────────────────────────────
 
 import { handleUpload } from '@vercel/blob/client';
 import crypto from 'node:crypto';
 
-// Carpetas/tipos permitidos. Mantén la lista corta y controlada.
 const TIPOS_PERMITIDOS = [
-  'image/jpeg', 'image/png', 'image/webp',
+  'image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif',
   'video/mp4', 'video/quicktime',
+  'application/pdf',
 ];
-const MAX_MB = 200; // tope por archivo (videos verticales caben de sobra)
+const MAX_MB = 300; // fotos y videos verticales caben de sobra
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Método no permitido' });
   }
   if (!process.env.BLOB_READ_WRITE_TOKEN) {
-    return res.status(500).json({ error:'Falta BLOB_READ_WRITE_TOKEN en Vercel.' });
-  }
-  if (!verifySession(req)) {
-    return res.status(401).json({ error:'Sesión inválida o vencida.' });
+    return res.status(500).json({ error: 'Falta BLOB_READ_WRITE_TOKEN en Vercel.' });
   }
 
   try {
-    const body = req.body;
-
     const result = await handleUpload({
-      body,
+      body: req.body,
       request: req,
 
-      // Se llama ANTES de subir: aquí autorizas y defines reglas.
-      onBeforeGenerateToken: async (pathname /*, clientPayload */) => {
+      // Se llama ANTES de subir. Aquí autorizamos con la sesión que viene
+      // dentro de clientPayload (no por header) y fijamos las reglas.
+      onBeforeGenerateToken: async (pathname, clientPayload) => {
+        let payload = {};
+        try { payload = clientPayload ? JSON.parse(clientPayload) : {}; }
+        catch (_) { payload = {}; }
+
+        const ok = verifySessionToken(payload.session);
+        if (!ok) {
+          throw new Error('Sesión inválida o vencida.');
+        }
+
         return {
           allowedContentTypes: TIPOS_PERMITIDOS,
           maximumSizeInBytes: MAX_MB * 1024 * 1024,
-          addRandomSuffix: true, // evita que dos archivos con el mismo nombre se pisen
-          // tokenPayload opcional: podrías pasar el folio de la propiedad
+          addRandomSuffix: true,
+          tokenPayload: JSON.stringify({
+            folio: payload.folio || '',
+            doc: payload.doc || '',
+            scope: payload.scope || 'asesor',
+          }),
         };
       },
 
-      // Se llama CUANDO TERMINA la subida (Vercel avisa al servidor).
-      // Aquí NO escribimos en Airtable: lo hace la intranet con la URL
-      // que recibe en el navegador, usando su proxy seguro /api/airtable.
+      // Vercel avisa al servidor cuando termina la subida.
+      // No escribimos en Airtable aquí: la intranet guarda la URL que
+      // recibe en el navegador mediante su proxy /api/airtable.
       onUploadCompleted: async ({ blob }) => {
-        // blob.url = URL pública final. Útil para logs.
-        console.log('Archivo subido:', blob.url);
+        console.log('Archivo subido directo:', blob.url);
       },
     });
 
@@ -70,21 +84,21 @@ export default async function handler(req, res) {
   }
 }
 
-
-function verifySession(req){
+// Valida el mismo token de sesión que usa el resto de la intranet,
+// pero leído desde clientPayload en vez del header Authorization.
+function verifySessionToken(token) {
   const secret = process.env.NERI_SESSION_SECRET;
-  if(!secret) return null;
-  const raw = req.headers?.authorization || req.headers?.Authorization || '';
-  const token = raw.startsWith('Bearer ') ? raw.slice(7) : '';
-  const parts = token.split('.');
-  if(parts.length !== 3) return null;
-  const expected = crypto.createHmac('sha256', secret).update(parts[0]+'.'+parts[1]).digest('base64url');
+  if (!secret || !token) return null;
+  const parts = String(token).split('.');
+  if (parts.length !== 3) return null;
+  const expected = crypto.createHmac('sha256', secret)
+    .update(parts[0] + '.' + parts[1]).digest('base64url');
   const aa = Buffer.from(String(expected));
   const bb = Buffer.from(String(parts[2]));
-  if(aa.length !== bb.length || !crypto.timingSafeEqual(aa, bb)) return null;
-  try{
-    const payload = JSON.parse(Buffer.from(parts[1], 'base64url').toString('utf8'));
-    if(payload.exp && Date.now() > payload.exp) return null;
-    return payload;
-  }catch(_){ return null; }
+  if (aa.length !== bb.length || !crypto.timingSafeEqual(aa, bb)) return null;
+  try {
+    const p = JSON.parse(Buffer.from(parts[1], 'base64url').toString('utf8'));
+    if (p.exp && Date.now() > p.exp) return null;
+    return p;
+  } catch (_) { return null; }
 }
