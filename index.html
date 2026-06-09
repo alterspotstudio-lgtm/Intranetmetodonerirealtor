@@ -2675,27 +2675,31 @@ function _blobClient(){
 // sin tope de 4.5MB, no bloquea la ficha). Devuelve solo la URL pública.
 async function uploadBlobFile(file, folio, doc){
   if(!file) return null;
-  // Subida directa al endpoint del servidor (/api/upload-documento).
-  // Usa la sesión en el header Authorization (sí se manda por esta vía) y
-  // evita el "client token" frágil de Vercel Blob y la carga de librería externa.
-  const qs = new URLSearchParams({
-    folio: folio || 'sin-folio',
-    doc: _safeDocKey(doc || 'archivo'),
-    filename: file.name || 'archivo'
-  });
-  const r = await fetch('/api/upload-documento?' + qs.toString(), {
+  // Subida en 2 pasos a iDrive e2: el servidor firma la URL y el navegador
+  // sube el archivo DIRECTO al bucket (no pasa por Vercel → sin tope de 4.5MB).
+  // 1) Pedir URL firmada
+  const pre = await fetch('/api/upload-idrive-url', {
     method:'POST',
-    headers:{
-      'x-content-type': file.type || 'application/octet-stream',
-      'x-file-name': encodeURIComponent(file.name || 'archivo'),
-      'Authorization':'Bearer ' + (SESSION?.token || '')
-    },
-    body:file
+    headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + (SESSION?.token || '') },
+    body: JSON.stringify({
+      filename: file.name || 'archivo',
+      contentType: file.type || 'application/octet-stream',
+      size: file.size || 0,
+      folio: folio || 'sin-folio',
+      doc: doc || 'archivo'
+    })
   });
-  const data = await r.json().catch(() => ({}));
-  if(!r.ok) throw new Error(data.error || ('No se pudo subir ' + (file.name || 'archivo')));
-  if(!data.url) throw new Error('No se obtuvo URL para ' + (file.name || 'archivo'));
-  return data.url;
+  const firma = await pre.json().catch(() => ({}));
+  if(!pre.ok || !firma.uploadUrl) throw new Error(firma.error || ('No se pudo preparar la subida de ' + (file.name || 'archivo')));
+  // 2) Subir el archivo directo al bucket (PUT con el mismo Content-Type firmado)
+  const put = await fetch(firma.uploadUrl, {
+    method:'PUT',
+    headers: firma.headers || { 'Content-Type': file.type || 'application/octet-stream' },
+    body: file
+  });
+  if(!put.ok) throw new Error('El bucket rechazó ' + (file.name || 'archivo') + ' (' + put.status + '). Revisa CORS y credenciales de iDrive.');
+  // 3) Devolver la URL pública final (la que se guarda en Airtable)
+  return firma.url;
 }
 
 function _landInput(fl, rec){

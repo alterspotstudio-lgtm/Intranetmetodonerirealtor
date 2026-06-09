@@ -41,6 +41,8 @@
   var UPLOAD_DOC_ENDPOINT = window.UPLOAD_DOC_ENDPOINT || '/api/upload-documento';
   /* Endpoint que mintea (idempotente) y devuelve el link armado CON token */
   var ACTIVAR_EXP_ENDPOINT = window.ACTIVAR_EXP_ENDPOINT || '/api/activar-expediente';
+  /* Endpoint que firma la subida directa a iDrive e2 (sin tope de 4.5MB) */
+  var IDRIVE_PRESIGN_ENDPOINT = window.IDRIVE_PRESIGN_ENDPOINT || '/api/upload-idrive-url';
 
   /* ── Datos de checklists / documentos (portados del panel original) ── */
   var CHECKLIST = [
@@ -676,15 +678,32 @@
     if (st) { st.style.display = 'block'; st.innerHTML = 'Subiendo <b>' + esc(file.name) + '</b>…'; }
     var rec = getRecord(recId);
     var folio = (rec ? (fval(rec, 'Folio') || fval(rec, 'Folio NERI') || fval(rec, 'Folio Vendedor')) : '') || '';
-    fetch(UPLOAD_DOC_ENDPOINT + (folio ? ('?folio=' + encodeURIComponent(folio)) : ''), {
+    // Subida en 2 pasos a iDrive e2 (directo al bucket, sin tope de 4.5MB de Vercel).
+    fetch(IDRIVE_PRESIGN_ENDPOINT, {
       method: 'POST',
-      headers: { 'Content-Type': file.type || 'application/octet-stream', 'x-content-type': file.type || '', 'x-file-name': encodeURIComponent(file.name), 'Authorization': 'Bearer ' + cabSessionToken() },
-      body: file
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + cabSessionToken() },
+      body: JSON.stringify({
+        filename: file.name || 'documento',
+        contentType: file.type || 'application/octet-stream',
+        size: file.size || 0,
+        folio: folio || 'sin-folio',
+        doc: 'documento-asesor'
+      })
     })
       .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, j: j }; }); })
       .then(function (res) {
-        if (!res.ok || !res.j || !res.j.url) throw new Error((res.j && res.j.error) || 'No se pudo subir el documento.');
-        var url = res.j.url;
+        if (!res.ok || !res.j || !res.j.uploadUrl) throw new Error((res.j && res.j.error) || 'No se pudo preparar la subida.');
+        var firma = res.j;
+        return fetch(firma.uploadUrl, {
+          method: 'PUT',
+          headers: firma.headers || { 'Content-Type': file.type || 'application/octet-stream' },
+          body: file
+        }).then(function (p) {
+          if (!p.ok) throw new Error('El bucket rechazó el archivo (' + p.status + '). Revisa CORS/credenciales de iDrive.');
+          return firma.url;
+        });
+      })
+      .then(function (url) {
         if (st) st.innerHTML =
           '<div style="color:var(--gold,#C6A86B);margin-bottom:6px">✓ Documento subido</div>'
           + '<div style="font-size:11px;color:rgba(255,255,255,.55);word-break:break-all;margin-bottom:8px">' + esc(url) + '</div>'
@@ -733,6 +752,7 @@
   }
 
   function inyectarAcciones(recId) {
+    injectStyles();
     var rec = getRecord(recId);
     if (!rec) return;
     var esPropiedad = isPropiedadActiva();
