@@ -2028,7 +2028,7 @@ const CRM_CFG = {
     label: 'Propiedades',
     dot: 'propiedades',
     landing: true,
-    landingFields: ['Nombre Propiedad','Folio NERI','Folio Vendedor','Link Comprador','Link Portal','Frase Portada','Frase Inicio','Foto de portada','Precio Lista','Precio Minimo','Moneda','Plusvalia Valor','Plusvalia Texto','Video Sala','Video Sala MP4','Video Cocina','Video Cocina MP4','Video Recamara','Video Recamara MP4','Video Jardin','Video Jardin MP4','Video Alberca','Video Alberca MP4','Nombre Video Extra','Video Extra MP4','Tipo de Propiedad','Estado Propiedad','Habitaciones','Banos','Medios Banos','Estacionamientos','Metros Construccion','Metros Terreno','Zona / Colonia','Municipio','Estado / Entidad','Direccion','Link Tour Virtual','Google Maps URL'],
+    landingFields: ['Nombre Propiedad','Folio NERI','Folio Vendedor','Link Comprador','Link Portal','Frase Portada','Frase Inicio','Foto de portada','Precio Lista','Precio Minimo','Moneda','Plusvalia Valor','Plusvalia Texto','Video Sala','Video Sala MP4','Video Sala iDrive','Video Cocina','Video Cocina MP4','Video Cocina iDrive','Video Recamara','Video Recamara MP4','Video Recamara iDrive','Video Jardin','Video Jardin MP4','Video Jardin iDrive','Video Alberca','Video Alberca MP4','Video Alberca iDrive','Nombre Video Extra','Video Extra MP4','Video Extra iDrive','Tipo de Propiedad','Estado Propiedad','Habitaciones','Banos','Medios Banos','Estacionamientos','Metros Construccion','Metros Terreno','Zona / Colonia','Municipio','Estado / Entidad','Direccion','Link Tour Virtual','Google Maps URL'],
     cols: ['Nombre','Tipo','Estado','Zona','Municipio','Precio Lista','Recámaras','Asesor'],
     fields: ['Nombre Propiedad','Tipo de Propiedad','Estado Propiedad','Zona / Colonia','Municipio','Precio Lista','Habitaciones','Asesor'],
     editable: [
@@ -2610,12 +2610,12 @@ const LANDING_FORM = [
     {f:'Plusvalia Texto', type:'textarea', full:true},
   ]},
   {title:'Videos de la landing', ico:'▶', videos:[
-    {room:'Sala',     yt:'Video Sala',         mp4:'Video Sala MP4'},
-    {room:'Cocina',   yt:'Video Cocina',       mp4:'Video Cocina MP4'},
-    {room:'Recámara', yt:'Video Recamara',     mp4:'Video Recamara MP4'},
-    {room:'Jardín',   yt:'Video Jardin',       mp4:'Video Jardin MP4'},
-    {room:'Alberca',  yt:'Video Alberca',      mp4:'Video Alberca MP4'},
-    {room:'Extra',    yt:'Nombre Video Extra', mp4:'Video Extra MP4', extra:true},
+    {room:'Sala',     yt:'Video Sala',         mp4:'Video Sala MP4',     idr:'Video Sala iDrive'},
+    {room:'Cocina',   yt:'Video Cocina',       mp4:'Video Cocina MP4',   idr:'Video Cocina iDrive'},
+    {room:'Recámara', yt:'Video Recamara',     mp4:'Video Recamara MP4', idr:'Video Recamara iDrive'},
+    {room:'Jardín',   yt:'Video Jardin',       mp4:'Video Jardin MP4',   idr:'Video Jardin iDrive'},
+    {room:'Alberca',  yt:'Video Alberca',      mp4:'Video Alberca MP4',  idr:'Video Alberca iDrive'},
+    {room:'Extra',    yt:'Nombre Video Extra', mp4:'Video Extra MP4',    idr:'Video Extra iDrive', extra:true},
   ]},
   {title:'Datos de la casa', ico:'⌂', fields:[
     {f:'Tipo de Propiedad', type:'select', opts:['Casa','Departamento','Terreno','Local','Oficina','Bodega']},
@@ -2665,14 +2665,27 @@ function _safeDocKey(s){
     .slice(0,80);
 }
 
-// Cliente de subida directa a Vercel Blob (se carga una sola vez).
-let _blobClientP = null;
-function _blobClient(){
-  return (_blobClientP ||= import('https://esm.sh/@vercel/blob@2.4.0/client'));
+// Mapa: campo attachment MP4 → campo de texto URL iDrive en Propiedades NERI.
+// Los videos NO se guardan como attachment (el bucket es privado y Airtable no
+// puede descargarlos); se guarda la URL limpia y Make la firma con el proxy.
+const MP4_TO_IDRIVE = {
+  'Video Sala MP4':     'Video Sala iDrive',
+  'Video Cocina MP4':   'Video Cocina iDrive',
+  'Video Recamara MP4': 'Video Recamara iDrive',
+  'Video Jardin MP4':   'Video Jardin iDrive',
+  'Video Alberca MP4':  'Video Alberca iDrive',
+  'Video Extra MP4':    'Video Extra iDrive',
+};
+
+// Envuelve una URL privada de iDrive con el proxy de lectura firmada.
+// Se usa para attachments (fotos): Airtable descarga vía el proxy (302 → URL
+// firmada) y guarda su propia copia, así la imagen queda pública en la landing.
+function _idriveProxyWrap(rawUrl){
+  return location.origin + '/api/idrive-read-url?url=' + encodeURIComponent(rawUrl);
 }
 
-// Sube el archivo DIRECTO a Vercel Blob (no pasa por la función → rápido,
-// sin tope de 4.5MB, no bloquea la ficha). Devuelve solo la URL pública.
+// Sube el archivo DIRECTO a iDrive e2 (no pasa por la función → rápido,
+// sin tope de 4.5MB, no bloquea la ficha). Devuelve solo la URL limpia.
 async function uploadBlobFile(file, folio, doc){
   if(!file) return null;
   // Subida en 2 pasos a iDrive e2: el servidor firma la URL y el navegador
@@ -2724,7 +2737,7 @@ function _landInput(fl, rec){
         </div>
         <input class="form-inp" type="text" data-attach="${_escAttr(name)}"
                placeholder="O pegar URL pública para reemplazar (opcional)">
-        <div class="le-note">Puedes subir el archivo desde aquí. La intranet lo sube directo a Vercel Blob (rápido, sin tope de tamaño) y guarda solo la URL en Airtable.</div>
+        <div class="le-note">Puedes subir el archivo desde aquí. La intranet lo sube directo a iDrive e2 (rápido, sin tope de 4.5MB). Videos: se guarda la URL en su campo iDrive. Fotos: Airtable guarda su propia copia.</div>
       </div>`;
   }
   if(fl.type === 'select'){
@@ -2749,9 +2762,10 @@ function _landInput(fl, rec){
 function _landVideoRow(v, rec){
   const ytVal = _fval(rec, v.yt);
   const info  = _attInfo(rec, v.mp4);
-  const mp4 = info.has
-    ? `<span class="le-vstatus on">MP4 ✓</span>`
-    : `<span class="le-vstatus off">MP4 —</span>`;
+  const idrVal= v.idr ? _fval(rec, v.idr) : '';
+  const mp4 = (idrVal || info.has)
+    ? `<span class="le-vstatus on">Video ✓</span>`
+    : `<span class="le-vstatus off">Video —</span>`;
   const ph = v.extra ? 'Nombre (ej. Estudio)' : 'ID de YouTube';
   return `<div class="le-vrow">
       <span class="le-vroom">${v.room}</span>
@@ -2856,7 +2870,7 @@ async function landSave(){
     if(url) fields[name] = [{ url }];
   });
 
-  // 3) Adjuntos por archivo: sube a Vercel Blob y guarda SOLO la URL en Airtable
+  // 3) Archivos: suben directo a iDrive e2. Videos → URL de texto en campo iDrive. Fotos/PDF → attachment vía proxy firmado.
   const currentRec = crmState.records.find(r => r.id === crmState.editId);
   const folioUpload = _fval(currentRec || {}, 'Folio NERI') || _fval(currentRec || {}, 'Nombre Propiedad') || crmState.editId;
   const uploadInputs = Array.from(document.querySelectorAll('#crm-landing-body [data-upload-attach]'))
@@ -2871,7 +2885,18 @@ async function landSave(){
         const url  = await uploadBlobFile(el.files[0], folioUpload, doc);
         return { name, url };
       }));
-      subidas.forEach(s => { fields[s.name] = [{ url: s.url }]; });
+      subidas.forEach(s => {
+        const idr = MP4_TO_IDRIVE[s.name];
+        if(idr){
+          // Video: URL limpia como TEXTO en el campo iDrive (Make la firma al
+          // mandarla a la landing). El attachment MP4 no se toca.
+          fields[idr] = s.url;
+        } else {
+          // Foto / PDF: attachment vía proxy firmado para que Airtable pueda
+          // descargarlo del bucket privado y guardar su propia copia.
+          fields[s.name] = [{ url: _idriveProxyWrap(s.url) }];
+        }
+      });
     } catch(e){
       errEl.style.color = 'var(--red)';
       errEl.textContent = 'No se pudo subir un archivo: ' + (e && e.message ? e.message : e) + '. Revisa el archivo o tu conexión e inténtalo de nuevo.';
@@ -3927,7 +3952,7 @@ async function asesorLoadHoy(force=false){
    - Lee/edita el registro propio del asesor (por Slug).
    - El asesor edita solo sus 7 datos públicos (tutorial admin).
    - Puesto, Slug, Estado, Tipo, Cuenta y Link Captación: solo lectura.
-   - La Foto se sube directo a Vercel Blob por /api/upload (client upload); Airtable
+   - La Foto se sube directo a iDrive e2 por /api/upload-idrive-url (client upload); Airtable
      guarda solo la URL (mismo patrón que el editor de landing del admin).
 ═══════════════════════════════════════════════════ */
 
@@ -4174,7 +4199,7 @@ function perfilRenderForm(rec){
             <div class="le-attach">${fotoThumb}<span class="le-vstatus ${foto.has?'on':'off'}">${foto.has?'Cargada':'Vacía'}</span></div>
             <div class="perfil-fv-photo-copy">
               <input class="form-inp perfil-fv-input" type="file" accept="image/*" data-pf-foto>
-              <div class="le-note">La foto se sube directo a Vercel Blob mediante <b>/api/upload</b> (rápido, no bloquea). Airtable guarda solo el enlace final.</div>
+              <div class="le-note">La foto se sube directo a iDrive e2 mediante <b>/api/upload-idrive-url</b> (rápido, no bloquea). Airtable guarda su propia copia.</div>
             </div>
           </div>
         </div>
@@ -4226,7 +4251,7 @@ async function perfilSave(){
       if(btn) btn.textContent = 'Subiendo foto…';
       const folioUpload = (SESSION?.slug||'asesor') + '-perfil';
       const url = await uploadBlobFile(fotoEl.files[0], folioUpload, 'Foto');
-      fields['Foto'] = [{ url }];
+      fields['Foto'] = [{ url: _idriveProxyWrap(url) }];
     }
   }catch(e){
     setMsg('Error al subir la foto: '+e.message,'var(--red)');
