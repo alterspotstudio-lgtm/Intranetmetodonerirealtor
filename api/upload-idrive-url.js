@@ -15,11 +15,20 @@ import crypto from 'node:crypto';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
-const MAX_VIDEO_MB = 500;
+const MAX_MB = 500;
 const ALLOWED_TYPES = new Set([
+  // Video
   'video/mp4',
   'video/quicktime',
   'video/x-m4v',
+  // Imágenes
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/heic',
+  'image/heif',
+  // Documentos
+  'application/pdf',
 ]);
 
 export default async function handler(req, res) {
@@ -45,10 +54,10 @@ export default async function handler(req, res) {
     const asesor = cleanPathPart(session.slug || session.user || session.nombre || 'asesor');
 
     if (!ALLOWED_TYPES.has(contentType)) {
-      return res.status(400).json({ error: 'Solo se permiten videos MP4/MOV para IDrive e2.' });
+      return res.status(400).json({ error: 'Tipo de archivo no permitido. Solo video (MP4/MOV), imágenes (JPG/PNG/WEBP/HEIC) o PDF.' });
     }
-    if (size > MAX_VIDEO_MB * 1024 * 1024) {
-      return res.status(413).json({ error: `El video supera el límite operativo de ${MAX_VIDEO_MB} MB.` });
+    if (size > MAX_MB * 1024 * 1024) {
+      return res.status(413).json({ error: `El archivo supera el límite operativo de ${MAX_MB} MB.` });
     }
 
     const ext = extensionFrom(filename, contentType);
