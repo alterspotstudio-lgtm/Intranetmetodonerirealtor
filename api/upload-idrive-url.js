@@ -15,20 +15,19 @@ import crypto from 'node:crypto';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
-const MAX_MB = 500;
-const ALLOWED_TYPES = new Set([
-  // Video
-  'video/mp4',
-  'video/quicktime',
-  'video/x-m4v',
-  // Imágenes
-  'image/jpeg',
-  'image/png',
-  'image/webp',
-  'image/heic',
-  'image/heif',
-  // Documentos
-  'application/pdf',
+// Tipos permitidos y su límite de tamaño en MB.
+// Videos para la landing + imágenes (portada, foto de perfil) + PDFs.
+const ALLOWED_TYPES = new Map([
+  ['video/mp4',        500],
+  ['video/quicktime',  500],
+  ['video/x-m4v',      500],
+  ['image/jpeg',        30],
+  ['image/jpg',         30],
+  ['image/png',         30],
+  ['image/webp',        30],
+  ['image/heic',        30],
+  ['image/heif',        30],
+  ['application/pdf',   50],
 ]);
 
 export default async function handler(req, res) {
@@ -54,10 +53,11 @@ export default async function handler(req, res) {
     const asesor = cleanPathPart(session.slug || session.user || session.nombre || 'asesor');
 
     if (!ALLOWED_TYPES.has(contentType)) {
-      return res.status(400).json({ error: 'Tipo de archivo no permitido. Solo video (MP4/MOV), imágenes (JPG/PNG/WEBP/HEIC) o PDF.' });
+      return res.status(400).json({ error: 'Tipo de archivo no permitido. Solo videos MP4/MOV, imágenes (JPG/PNG/WEBP/HEIC) o PDF.' });
     }
-    if (size > MAX_MB * 1024 * 1024) {
-      return res.status(413).json({ error: `El archivo supera el límite operativo de ${MAX_MB} MB.` });
+    const maxMb = ALLOWED_TYPES.get(contentType);
+    if (size > maxMb * 1024 * 1024) {
+      return res.status(413).json({ error: `El archivo supera el límite operativo de ${maxMb} MB para este tipo.` });
     }
 
     const ext = extensionFrom(filename, contentType);
@@ -145,6 +145,17 @@ function cleanFilename(v){
 function extensionFrom(filename, contentType){
   const m = String(filename).match(/\.[a-zA-Z0-9]{2,6}$/);
   if(m) return m[0].toLowerCase();
-  if(contentType === 'video/quicktime') return '.mov';
-  return '.mp4';
+  const map = {
+    'video/quicktime': '.mov',
+    'video/mp4': '.mp4',
+    'video/x-m4v': '.m4v',
+    'image/jpeg': '.jpg',
+    'image/jpg': '.jpg',
+    'image/png': '.png',
+    'image/webp': '.webp',
+    'image/heic': '.heic',
+    'image/heif': '.heif',
+    'application/pdf': '.pdf',
+  };
+  return map[contentType] || '.bin';
 }
