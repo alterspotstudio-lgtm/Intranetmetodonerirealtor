@@ -39,6 +39,8 @@
   var EXP_DOC_BASE = window.EXP_DOC_BASE || 'https://expedientedocumentalpropietario.vercel.app';
   /* Endpoint para que el ASESOR suba un documento recibido por otro medio */
   var UPLOAD_DOC_ENDPOINT = window.UPLOAD_DOC_ENDPOINT || '/api/upload-documento';
+  /* Endpoint que mintea (idempotente) y devuelve el link armado CON token */
+  var ACTIVAR_EXP_ENDPOINT = window.ACTIVAR_EXP_ENDPOINT || '/api/activar-expediente';
 
   /* ── Datos de checklists / documentos (portados del panel original) ── */
   var CHECKLIST = [
@@ -610,39 +612,47 @@
       navigator.clipboard.writeText(txt).then(ok).catch(function () { window.prompt('Copia el texto:', txt); });
     } else { window.prompt('Copia el texto:', txt); }
   }
-  /* Resuelve el link del expediente.
-     Primero pide a /api/activar-expediente que acuñe (una sola vez) el token
-     y devuelva el link ya armado. Si el endpoint no responde o falla,
-     usa el link local con lo que haya en el registro (degradación elegante). */
-  function resolveExpedienteLink(rec, cb) {
-    var local = expedienteLink(rec);
+  /* Cache de links ya armados, por folio, para no re-mintear en cada clic */
+  var _expLinkCache = {};
+  /* Obtiene el link del expediente CON token. Si el registro ya lo trae armado
+     lo usa; si no, llama al endpoint idempotente que lo mintea y lo devuelve.
+     Cae al link por-folio (sin token) solo si todo lo demás falla. */
+  function obtenerLinkExpediente(rec, cb) {
     var folio = fval(rec, 'Folio') || fval(rec, 'Folio NERI') || fval(rec, 'Folio Vendedor') || '';
-    if (!folio) { cb(local); return; }
-    var done = false;
-    var fin = function (url) { if (done) return; done = true; cb(url || local); };
-    var timer = setTimeout(function () { fin(local); }, 6000);
-    try {
-      fetch('/api/activar-expediente', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + cabSessionToken() },
-        body: JSON.stringify({ folio: folio })
-      }).then(function (r) { return r.ok ? r.json() : null; })
-        .then(function (d) { clearTimeout(timer); fin(d && d.link ? d.link : local); })
-        .catch(function () { clearTimeout(timer); fin(local); });
-    } catch (_) { clearTimeout(timer); fin(local); }
+    if (folio && _expLinkCache[folio]) { cb(_expLinkCache[folio]); return; }
+    var armado = fval(rec, 'Link Expediente Documental') || '';
+    if (armado && /token=/.test(armado)) { if (folio) _expLinkCache[folio] = armado; cb(armado); return; }
+    if (!folio) { cb(expedienteLink(rec)); return; }
+    fetch(ACTIVAR_EXP_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + cabSessionToken() },
+      body: JSON.stringify({ folio: folio })
+    })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (res) {
+        if (res.ok && res.j && res.j.link) { _expLinkCache[folio] = res.j.link; cb(res.j.link); }
+        else cb(expedienteLink(rec));
+      })
+      .catch(function () { cb(expedienteLink(rec)); });
   }
-  /* Copiar el link del expediente documental del propietario */
+  /* Copiar el link del expediente documental del propietario (con token) */
   function cabCopiarExpediente(recId, btn) {
     var rec = getRecord(recId); if (!rec) return;
-    if (btn) { var prev = btn.textContent; btn.textContent = 'Generando…'; setTimeout(function () { if (btn.textContent === 'Generando…') btn.textContent = prev; }, 6500); }
-    resolveExpedienteLink(rec, function (url) { copiarTexto(url, btn); });
+    var orig = btn ? btn.textContent : '';
+    if (btn) { btn.textContent = 'Generando…'; btn.disabled = true; }
+    obtenerLinkExpediente(rec, function (url) {
+      if (btn) { btn.disabled = false; btn.textContent = orig; }
+      copiarTexto(url, btn);
+    });
   }
-  /* Abrir el expediente documental en otra pestaña */
+  /* Abrir el expediente documental en otra pestaña (con token).
+     Se abre la pestaña dentro del gesto del clic para evitar el bloqueo
+     de popups; luego se le asigna la URL ya armada. */
   function cabAbrirExpediente(recId) {
     var rec = getRecord(recId); if (!rec) return;
-    var w = window.open('', '_blank', 'noopener');
-    resolveExpedienteLink(rec, function (url) {
-      if (w) { try { w.location.href = url; } catch (_) { window.open(url, '_blank', 'noopener'); } }
+    var w = window.open('about:blank', '_blank');
+    obtenerLinkExpediente(rec, function (url) {
+      if (w && !w.closed) { w.location.href = url; }
       else { window.open(url, '_blank', 'noopener'); }
     });
   }
@@ -732,7 +742,6 @@
     var prev = inner.querySelector('.cab-acciones');
     if (prev && prev.parentNode) prev.parentNode.removeChild(prev);
     var body = inner.querySelector('.fv-body') || inner;
-    injectStyles();   // asegura el CSS de la cabina también en el panel inline (no solo al abrir modal)
     body.insertAdjacentHTML('beforeend', accionesHTML(recId, conv, esPropiedad));
   }
 
