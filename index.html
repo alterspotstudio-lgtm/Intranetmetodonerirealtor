@@ -1535,7 +1535,8 @@ async function doLogin(){
 async function enrichIdentity(slug){
   if(!slug) return;
   try{
-    const formula = encodeURIComponent(`LOWER({Slug})='${String(slug).toLowerCase()}'`);
+    const safeSlug = String(slug).toLowerCase().replace(/'/g, "\\'");
+    const formula = encodeURIComponent(`LOWER({Slug})='${safeSlug}'`);
     const data = await atFetch(`tblIRPmLIyj8sWyEk?filterByFormula=${formula}&maxRecords=1`);
     const rec = (data.records||[])[0];
     if(!rec) return;
@@ -1546,7 +1547,9 @@ async function enrichIdentity(slug){
     if(f['Pixel ID Meta'])     SESSION.pixel    = f['Pixel ID Meta'];
     const ciudad = f['Ciudad'] || f['Ciudad (texto viejo)'] || '';
     const puesto = f['Puesto'] || f['Puesto (texto viejo)'] || '';
-    if(ciudad || puesto) SESSION.empresa = [puesto, ciudad].filter(Boolean).join(' · ') || SESSION.empresa;
+    const empresa = f['Empresa'] || f['Inmobiliaria'] || '';
+    if(empresa) SESSION.empresa = empresa;
+    else if(ciudad || puesto) SESSION.empresa = [puesto, ciudad].filter(Boolean).join(' · ') || SESSION.empresa;
     refreshChrome();
     showToast('Identidad: '+SESSION.nombre);
   }catch(e){ /* sin conexión: se queda el perfil local */ }
@@ -1727,9 +1730,9 @@ async function loadHoyData(force){
   try{
     const cCfg = CRM_CFG.compradores, kCfg = CRM_CFG.citas, pCfg = CRM_CFG.progreso;
     const [comp, cit, prog] = await Promise.all([
-      atFetch(`${cCfg.tableId}?maxRecords=100`),
-      atFetch(`${kCfg.tableId}?maxRecords=100`),
-      atFetch(`${pCfg.tableId}?maxRecords=100`)
+      atFetch(`${cCfg.tableId}?maxRecords=200`),
+      atFetch(`${kCfg.tableId}?maxRecords=200`),
+      atFetch(`${pCfg.tableId}?maxRecords=200`)
     ]);
     renderHoy(comp.records||[], cit.records||[], prog.records||[]);
   }catch(e){
@@ -1764,7 +1767,7 @@ function renderHoy(comp, cit, prog){
   // KPIs con valores REALES de Airtable
   const hot       = comp.filter(r=>_fval(r,'Clasificación')==='HOT' || _fval(r,'Status del Lead')==='HOT').length;
   const apartados = comp.filter(r=>_fval(r,'Conversión')==='Apartado').length;
-  const dormidos  = comp.filter(r=>{ const d=_daysSince(_fval(r,'Última interacción')); return d!=null && d>=7 && _fval(r,'Conversión')!=='Apartado' && _fval(r,'Conversión')!=='No calificó'; }).length;
+  const dormidos  = comp.filter(r=>{ const d=_daysSince(_fval(r,'Última interacción')); const conv=_fval(r,'Conversión'); return d!=null && d>=7 && conv!=='Apartado' && conv!=='No calificó' && conv!=='Perdido'; }).length;
   _setKpis([
     [activas.length,'Citas activas'],
     [hot,'Leads HOT'],
@@ -2053,8 +2056,8 @@ const STATUS_BADGE = {
   'Cita':'badge-new',
   'Nuevo':'badge-new','Contactado':'badge-contact','Cita agendada':'badge-visit',
   'Visita realizada':'badge-visit','Oferta presentada':'badge-offer',
-  'Apartado':'badge-offer','Cerrado':'badge-close','Perdido':'badge-lost',
-  'Disponible':'badge-active','Vendida':'badge-close','Apartada':'badge-offer',
+  'Apartado':'badge-offer','Apartada':'badge-offer','Cerrado':'badge-close','Perdido':'badge-lost',
+  'Disponible':'badge-active','Vendida':'badge-close',
   'En proceso':'badge-visit','Suspendida':'badge-lost',
   'A — Caliente':'badge-close','B — Tibio':'badge-offer',
   'C — Frío':'badge-visit','D — Descartado':'badge-lost',
@@ -2100,7 +2103,7 @@ async function crmLoad(tab, force=false){
   try {
     // Robusto: sin fields[] (si un nombre no existe, Airtable rechaza TODO con 422)
     // y sin view fija (falla si la vista fue renombrada). Trae todos los campos.
-    const data = await atFetch(`${cfg.tableId}?maxRecords=100`);
+    const data = await atFetch(`${cfg.tableId}?maxRecords=200`);
     crmState.records = data.records || [];
     crmRender(tab, crmState.records);
     const tabCountEl = document.getElementById('tab-count-' + tab);
@@ -2349,7 +2352,7 @@ function vendedorOpenFicha(recId){
   const propCreada= fv('Propiedad Creada');
 
   // WhatsApp link
-  const waClean = wa.replace(/\D/g,'');
+  const waClean = (wa||'').replace(/\D/g,'');
   const waLink  = waClean ? `https://wa.me/52${waClean}` : '';
 
   // Clase de conversión para color
@@ -4354,7 +4357,7 @@ function expFindProgreso(rec){
   const folio=String(_fval(rec,'Folio')||_fval(rec,'Folio del Comprador')||'').trim();
   const nombre=asesorNombre(rec).toLowerCase();
   return d.progreso.find(p=>{
-    const pf=String(_fval(p,'Folio')||'').trim();
+    const pf=String(_fval(p,'Folio')||_fval(p,'Folio del Comprador')||'').trim();
     const pc=String(_fval(p,'Comprador')||'').toLowerCase();
     return (folio&&pf&&pf===folio)||(nombre&&pc&&pc===nombre);
   })||null;
@@ -4455,7 +4458,9 @@ function expRenderFile(tipo, rec){
   const folioParam = folio!=='— sin folio —'?folio:(SESSION?.slug||'');
   const _docTok = _fval(rec,'Token Expediente')||'';
   const docLink=EXP_DOC_BASE+'?folio='+encodeURIComponent(folioParam)+(_docTok?'&token='+encodeURIComponent(_docTok):'');
-  const portalLink=EXP_PORTAL_BASE+'?folio='+encodeURIComponent(folio!=='— sin folio —'?folio:'');
+  // Preferir el folio del registro Progreso cuando exista (resuelve desalineación Capítulo 2)
+  const folioPortal = (prog && _fval(prog,'Folio')) || (folio!=='— sin folio —'?folio:'');
+  const portalLink=folioPortal ? EXP_PORTAL_BASE+'?folio='+encodeURIComponent(folioPortal) : '';
   const safeMsg=asesorEsc(msg).replace(/'/g,"\\'");
   const pct=Math.min(100, (dias!=null&&sla)?Math.round(dias/sla*100):0);
 
@@ -4496,7 +4501,7 @@ function expRenderFile(tipo, rec){
           ${docs.length?docs.map(d=>`<div class="exp-doc"><div class="dn">${asesorEsc(d.n)}</div><div class="ds">${asesorEsc(d.s)}</div></div>`).join(''):'<div class="hoy-empty" style="padding:14px">Sin documentos pendientes registrados. Si la venta requiere papeles, captúralos para que el sistema vigile el riesgo.</div>'}
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">
             <a class="exp-btn" href="${asesorEsc(docLink)}" target="_blank" rel="noopener">Liga de carga para el cliente</a>
-            ${tipo!=='vendedor'?`<a class="exp-btn ghost" href="${asesorEsc(portalLink)}" target="_blank" rel="noopener">Ver portal de progreso</a>`:''}
+            ${tipo!=='vendedor'&&portalLink?`<a class="exp-btn ghost" href="${asesorEsc(portalLink)}" target="_blank" rel="noopener">Ver portal de progreso</a>`:''}
           </div>
           <div style="font-size:10px;color:var(--w45);margin-top:10px;line-height:1.6">El cliente sube sus documentos desde casa con esa liga. Si falta algo, el sistema te alerta aquí mismo.</div>
         </div>
