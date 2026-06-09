@@ -2857,13 +2857,20 @@ async function landSave(){
 
   if(uploadInputs.length){
     btn.textContent = uploadInputs.length === 1 ? 'Subiendo archivo…' : 'Subiendo ' + uploadInputs.length + ' archivos…';
-    const subidas = await Promise.all(uploadInputs.map(async el => {
-      const name = el.dataset.uploadAttach;
-      const doc  = el.dataset.uploadDoc || name;
-      const url  = await uploadBlobFile(el.files[0], folioUpload, doc);
-      return { name, url };
-    }));
-    subidas.forEach(s => { fields[s.name] = [{ url: s.url }]; });
+    try {
+      const subidas = await Promise.all(uploadInputs.map(async el => {
+        const name = el.dataset.uploadAttach;
+        const doc  = el.dataset.uploadDoc || name;
+        const url  = await uploadBlobFile(el.files[0], folioUpload, doc);
+        return { name, url };
+      }));
+      subidas.forEach(s => { fields[s.name] = [{ url: s.url }]; });
+    } catch(e){
+      errEl.style.color = 'var(--red)';
+      errEl.textContent = 'No se pudo subir un archivo: ' + (e && e.message ? e.message : e) + '. Revisa el archivo o tu conexión e inténtalo de nuevo.';
+      btn.textContent = 'Guardar cambios'; btn.disabled = false;
+      return;
+    }
   }
 
   if(Object.keys(fields).length === 0){
@@ -4414,7 +4421,8 @@ function expRenderFile(tipo, rec){
   const tipoLbl = tipo==='vendedor'?'Vendedor · captación':(tipo==='progreso'?'Operación en progreso':'Comprador');
   const docs=expDocsFor(tipo,rec,prog);
   const folioParam = folio!=='— sin folio —'?folio:(SESSION?.slug||'');
-  const docLink=EXP_DOC_BASE+'?folio='+encodeURIComponent(folioParam);
+  const _docTok = _fval(rec,'Token Expediente')||'';
+  const docLink=EXP_DOC_BASE+'?folio='+encodeURIComponent(folioParam)+(_docTok?'&token='+encodeURIComponent(_docTok):'');
   const portalLink=EXP_PORTAL_BASE+'?folio='+encodeURIComponent(folio!=='— sin folio —'?folio:'');
   const safeMsg=asesorEsc(msg).replace(/'/g,"\\'");
   const pct=Math.min(100, (dias!=null&&sla)?Math.round(dias/sla*100):0);
