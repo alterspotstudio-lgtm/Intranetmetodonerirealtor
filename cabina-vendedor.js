@@ -19,11 +19,18 @@
 (function () {
   'use strict';
 
-  /* ── Asesor por defecto (editable en la cabina; el nombre del registro manda) ── */
-  var ASESOR_DEFAULT = Object.assign(
-    { nombre: 'Enrique Martínez Neri', tel: '777 985 5687', inmo: 'Century 21 Haus' },
-    window.CABINA_ASESOR || {}
-  );
+  /* ── Asesor de la sesión (SHELL EN BLANCO: cero datos personales aquí).
+        index.html publica window.CABINA_ASESOR en bootApp()/refreshChrome().
+        Se lee de forma LAZY en cada uso porque este script puede ejecutarse
+        antes de que la sesión esté lista; nunca se congela al cargar. ── */
+  function asesorSesion() {
+    var a = window.CABINA_ASESOR || {};
+    return {
+      nombre: a.nombre || a.name || '',
+      tel: a.tel || a.whatsapp || a.telefono || '',
+      inmo: a.inmo || a.empresa || a.inmobiliaria || ''
+    };
+  }
 
   /* ── Etapas que habilitan confirmaciones al cliente ── */
   var ETAPAS_FIRMADAS = ['Firma exclusiva', 'Firma venta directa'];
@@ -37,8 +44,8 @@
          window.EXP_DOC_BASE = 'https://expedientedocumentalpropietario.vercel.app';
   ----------------------------------------------------------------------- */
   var EXP_DOC_BASE = window.EXP_DOC_BASE || 'https://expedientedocumentalpropietario.vercel.app';
-  /* Endpoint para que el ASESOR suba un documento recibido por otro medio */
-  var UPLOAD_DOC_ENDPOINT = window.UPLOAD_DOC_ENDPOINT || '/api/upload-documento';
+  /* Endpoint que registra el documento en Airtable (Expediente Documentos) */
+  var EXP_DOCS_ENDPOINT = window.EXP_DOCS_ENDPOINT || '/api/expediente-documentos';
   /* Endpoint que mintea (idempotente) y devuelve el link armado CON token */
   var ACTIVAR_EXP_ENDPOINT = window.ACTIVAR_EXP_ENDPOINT || '/api/activar-expediente';
   /* Endpoint que firma la subida directa a iDrive e2 (sin tope de 4.5MB) */
@@ -125,10 +132,11 @@
   var cab = { tipo: null, recId: null, asesor: null, prefill: {}, radioSel: -1, lastCardHTML: '' };
 
   function asesorActual() {
+    var s = asesorSesion();
     return {
-      nombre: byId('cab_g_asesor').value || ASESOR_DEFAULT.nombre,
-      tel: byId('cab_g_tel').value || ASESOR_DEFAULT.tel,
-      inmo: byId('cab_g_inmo').value || ASESOR_DEFAULT.inmo
+      nombre: byId('cab_g_asesor').value || s.nombre,
+      tel: byId('cab_g_tel').value || s.tel,
+      inmo: byId('cab_g_inmo').value || s.inmo
     };
   }
   function byId(id) { return document.getElementById(id); }
@@ -315,7 +323,7 @@
     var zona = fval(rec, 'Zona') || fval(rec, 'Zona / Colonia') || fval(rec, 'Municipio') || '';
     var estado = fval(rec, 'Estado / Entidad') || fval(rec, 'Estado') || fval(rec, 'Estado Propiedad') || '';
     var direccion = [zona, estado].filter(Boolean).join(', ');
-    var asesorNombre = fval(rec, 'Asesor') || ASESOR_DEFAULT.nombre;
+    var asesorNombre = fval(rec, 'Asesor') || asesorSesion().nombre;
     var folio = fval(rec, 'Folio') || fval(rec, 'Folio NERI') || fval(rec, 'Folio Vendedor') || '';
 
     cab.prefill = { propietario: propietario, direccion: direccion, asesor: asesorNombre, folio: folio };
@@ -337,13 +345,14 @@
   }
 
   function asesorBlock() {
-    var a = cab.prefill.asesor || ASESOR_DEFAULT.nombre;
+    var s = asesorSesion();
+    var a = cab.prefill.asesor || s.nombre;
     return ''
       + '<div class="cab-seclabel">Asesor</div>'
       + '<div class="cab-field"><label>Nombre</label><input id="cab_g_asesor" class="prefilled" value="' + esc(a) + '"><div class="cab-prefnote">↳ Tomado del registro · editable</div></div>'
       + '<div class="cab-field-row">'
-      + '  <div class="cab-field"><label>Teléfono</label><input id="cab_g_tel" value="' + esc(ASESOR_DEFAULT.tel) + '"></div>'
-      + '  <div class="cab-field"><label>Inmobiliaria</label><input id="cab_g_inmo" value="' + esc(ASESOR_DEFAULT.inmo) + '"></div>'
+      + '  <div class="cab-field"><label>Teléfono</label><input id="cab_g_tel" value="' + esc(s.tel) + '"></div>'
+      + '  <div class="cab-field"><label>Inmobiliaria</label><input id="cab_g_inmo" value="' + esc(s.inmo) + '"></div>'
       + '</div>';
   }
 
@@ -704,14 +713,59 @@
         });
       })
       .then(function (url) {
-        if (st) st.innerHTML =
-          '<div style="color:var(--gold,#C6A86B);margin-bottom:6px">✓ Documento subido</div>'
-          + '<div style="font-size:11px;color:rgba(255,255,255,.55);word-break:break-all;margin-bottom:8px">' + esc(url) + '</div>'
-          + '<button class="cab-acc-btn ghost" onclick="copiarTextoExpediente(\'' + url.replace(/'/g, "\\'") + '\', this)">Copiar liga · pégala en el campo Documentos</button>';
+        if (st) st.innerHTML = '<div style="color:rgba(255,255,255,.6)">✓ Archivo en el bucket. Registrando en el expediente…</div>';
+        registrarDocExpediente(rec, folio, file, url, st);
       })
       .catch(function (e) {
         if (st) st.innerHTML = '<span style="color:#f87171">No se pudo subir: ' + esc(e.message) + '</span>';
       });
+  }
+  /* Registra automáticamente el documento subido por el ASESOR en Airtable,
+     por la misma puerta que usa el portal del propietario
+     (/api/expediente-documentos · action documento_recibido, auth folio+token).
+     El token se toma del link del expediente ya minteado (idempotente).
+     Si el registro falla, el archivo YA está a salvo en el bucket:
+     se ofrece la liga como rescate manual — nunca se rompe la subida. */
+  function registrarDocExpediente(rec, folio, file, url, st) {
+    function exito() {
+      if (st) st.innerHTML =
+        '<div style="color:var(--gold,#C6A86B);margin-bottom:6px">✓ Documento subido y registrado en el expediente</div>'
+        + '<div style="font-size:11px;color:rgba(255,255,255,.55);word-break:break-all">' + esc(file.name || 'documento') + '</div>';
+    }
+    function rescate(motivo) {
+      if (st) st.innerHTML =
+        '<div style="color:var(--gold,#C6A86B);margin-bottom:6px">✓ Documento subido al bucket</div>'
+        + '<div style="font-size:11px;color:#f87171;margin-bottom:6px">No se pudo registrar en el expediente automáticamente' + (motivo ? ' (' + esc(motivo) + ')' : '') + '.</div>'
+        + '<div style="font-size:11px;color:rgba(255,255,255,.55);word-break:break-all;margin-bottom:8px">' + esc(url) + '</div>'
+        + '<button class="cab-acc-btn ghost" onclick="copiarTextoExpediente(\'' + url.replace(/'/g, "\\'") + '\', this)">Copiar liga · rescate manual</button>';
+    }
+    if (!rec || !folio) { rescate('el registro no tiene folio'); return; }
+    obtenerLinkExpediente(rec, function (link) {
+      var token = '';
+      try { token = new URL(link).searchParams.get('token') || ''; }
+      catch (_) { var m = String(link).match(/[?&]token=([^&]+)/); token = m ? decodeURIComponent(m[1]) : ''; }
+      if (!token) { rescate('sin token de expediente'); return; }
+      fetch(EXP_DOCS_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'documento_recibido',
+          folio: folio,
+          token: token,
+          document_id: 'asesor-' + Date.now().toString(36),
+          tipo_documento: 'Documento del asesor · ' + (file.name || 'archivo'),
+          archivo_url: url,
+          filename: file.name || '',
+          subido_por: 'Asesor'
+        })
+      })
+        .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, j: j }; }); })
+        .then(function (res) {
+          if (res.ok && res.j && res.j.ok) exito();
+          else rescate(res.j && res.j.error);
+        })
+        .catch(function (e) { rescate(e && e.message); });
+    });
   }
 
   /* =========================================================================
