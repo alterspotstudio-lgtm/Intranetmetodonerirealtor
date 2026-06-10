@@ -610,8 +610,24 @@
   /* =========================================================================
      EXPEDIENTE DOCUMENTAL: arma el link del propietario y maneja subidas
      ========================================================================= */
+  /* FOLIO DEL EXPEDIENTE = folio del LEAD VENDEDOR (CVA-…), nunca el de la
+     operación (XXX-V-AAAA-NNN). Cuando la cabina se abre desde la PROPIEDAD,
+     'Folio' trae el folio de operación; el del vendedor vive en
+     'Folio Vendedor'. activar-expediente busca en Leads Vendedores por su
+     Folio, así que con el folio de operación el token jamás se mintea
+     (el bug "sin token de expediente" de la prueba del 9 de junio). */
+  function folioExpediente(rec) {
+    if (!rec) return '';
+    var f = fval(rec, 'Folio Vendedor') || fval(rec, 'Folio Lead Vendedor') || '';
+    if (f) return f;
+    f = fval(rec, 'Folio') || fval(rec, 'Folio NERI') || '';
+    // Si lo único disponible parece folio de operación (lleva el segmento
+    // de tipo: CUER-V-2026-006), no sirve para el expediente del vendedor.
+    if (/^[A-Z]{2,5}-[A-Z]-\d{4}-\d{2,4}$/.test(f)) return '';
+    return f;
+  }
   function expedienteLink(rec) {
-    var folio = fval(rec, 'Folio') || fval(rec, 'Folio NERI') || fval(rec, 'Folio Vendedor') || '';
+    var folio = folioExpediente(rec);
     var token = fval(rec, 'Token Expediente') || fval(rec, 'Token') || '';
     var url = String(EXP_DOC_BASE).replace(/\/+$/, '') + '/?folio=' + encodeURIComponent(folio);
     if (token) url += '&token=' + encodeURIComponent(token);
@@ -629,11 +645,11 @@
      lo usa; si no, llama al endpoint idempotente que lo mintea y lo devuelve.
      Cae al link por-folio (sin token) solo si todo lo demás falla. */
   function obtenerLinkExpediente(rec, cb) {
-    var folio = fval(rec, 'Folio') || fval(rec, 'Folio NERI') || fval(rec, 'Folio Vendedor') || '';
+    var folio = folioExpediente(rec);
     if (folio && _expLinkCache[folio]) { cb(_expLinkCache[folio]); return; }
     var armado = fval(rec, 'Link Expediente Documental') || '';
     if (armado && /token=/.test(armado)) { if (folio) _expLinkCache[folio] = armado; cb(armado); return; }
-    if (!folio) { cb(expedienteLink(rec)); return; }
+    if (!folio) { cb(''); return; }
     fetch(ACTIVAR_EXP_ENDPOINT, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + cabSessionToken() },
@@ -653,6 +669,7 @@
     if (btn) { btn.textContent = 'Generando…'; btn.disabled = true; }
     obtenerLinkExpediente(rec, function (url) {
       if (btn) { btn.disabled = false; btn.textContent = orig; }
+      if (!url) { window.alert('Este registro no tiene folio de vendedor (CVA-…). El expediente vive en el lead vendedor; revisa el campo "Folio Vendedor".'); return; }
       copiarTexto(url, btn);
     });
   }
@@ -663,6 +680,11 @@
     var rec = getRecord(recId); if (!rec) return;
     var w = window.open('about:blank', '_blank');
     obtenerLinkExpediente(rec, function (url) {
+      if (!url) {
+        if (w && !w.closed) w.close();
+        window.alert('Este registro no tiene folio de vendedor (CVA-…). El expediente vive en el lead vendedor; revisa el campo "Folio Vendedor".');
+        return;
+      }
       if (w && !w.closed) { w.location.href = url; }
       else { window.open(url, '_blank', 'noopener'); }
     });
@@ -686,7 +708,15 @@
     var st = byId('cab-doc-status-' + recId);
     if (st) { st.style.display = 'block'; st.innerHTML = 'Subiendo <b>' + esc(file.name) + '</b>…'; }
     var rec = getRecord(recId);
-    var folio = (rec ? (fval(rec, 'Folio') || fval(rec, 'Folio NERI') || fval(rec, 'Folio Vendedor')) : '') || '';
+    // El documento del asesor pertenece al EXPEDIENTE del vendedor:
+    // se sube y se registra bajo el folio del lead vendedor (CVA-…),
+    // el mismo que usa el portal del propietario.
+    var folio = folioExpediente(rec);
+    if (!folio) {
+      if (st) st.innerHTML = '<span style="color:#f87171">Este registro no tiene folio de vendedor (CVA-…). El expediente vive en el lead vendedor; revisa el campo "Folio Vendedor".</span>';
+      if (inputEl) inputEl.value = '';
+      return;
+    }
     // Subida en 2 pasos a iDrive e2 (directo al bucket, sin tope de 4.5MB de Vercel).
     fetch(IDRIVE_PRESIGN_ENDPOINT, {
       method: 'POST',
