@@ -728,6 +728,35 @@ select.form-input option{background:#111;color:#fff}
   align-items:center;justify-content:center;padding:20px;
 }
 .fk-box{width:min(600px,100%)}
+/* Selector de lead para agendar cita (flujo único) */
+.cita-lead-row{width:100%;display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;background:var(--w04);border:1px solid var(--border);border-radius:3px;padding:10px 12px;margin-bottom:6px;cursor:pointer;transition:all .13s}
+.cita-lead-row:hover{border-color:var(--goldbdr);background:var(--golddim)}
+.cita-lead-row b{font-size:12px;color:var(--white);font-weight:700}
+.cita-lead-row span{font-size:10px;color:var(--w50);font-family:monospace;letter-spacing:.5px}
+/* Portal de progreso — la estrella del proceso, mini-stepper tipo Amazon */
+.fk-portal{margin-top:12px;border:1px solid var(--goldbdr);border-top:2px solid var(--gold);border-radius:3px;background:var(--golddim);padding:14px 16px}
+.fk-portal-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:12px}
+.fk-portal-title{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);font-weight:800}
+.fk-portal-pct{font-family:var(--display);font-size:22px;color:var(--white);letter-spacing:1px}
+.fk-steps{display:grid;grid-template-columns:repeat(8,1fr);margin:4px 0 12px}
+.fk-step{position:relative;text-align:center;padding-top:16px}
+.fk-step::before{content:'';position:absolute;top:5px;left:-50%;width:100%;height:2px;background:var(--border2)}
+.fk-step:first-child::before{display:none}
+.fk-step.done::before,.fk-step.now::before{background:var(--gold)}
+.fk-step .d{position:absolute;top:0;left:50%;transform:translateX(-50%);width:11px;height:11px;border-radius:50%;background:var(--ink,#161616);border:2px solid var(--border2);z-index:1;box-sizing:border-box}
+.fk-step.done .d{background:var(--green);border-color:var(--green)}
+.fk-step.now .d{background:var(--gold);border-color:var(--gold);box-shadow:0 0 8px rgba(198,168,107,.55);animation:pulse 2.2s infinite}
+.fk-step .l{display:block;font-size:9px;color:var(--w30);margin-top:3px;line-height:1.2;word-break:break-word}
+.fk-step.done .l{color:var(--w50)}
+.fk-step.now .l{color:var(--gold);font-weight:800}
+.fk-portal-next{font-size:11px;color:var(--w80);margin:0 0 12px;line-height:1.55}
+.fk-portal-next b{color:var(--gold)}
+.fk-portal-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.fk-portal-btn{font-size:10px;letter-spacing:1px;text-transform:uppercase;font-weight:800;padding:8px 14px;border-radius:3px;cursor:pointer;border:1px solid var(--goldbdr);background:transparent;color:var(--gold);text-decoration:none;transition:all .15s}
+.fk-portal-btn:hover{background:var(--golddim)}
+.fk-portal-btn.gold{background:var(--gold);color:#0A0A0A;border-color:var(--gold)}
+.fk-portal-btn.gold:hover{filter:brightness(1.08)}
+.fk-portal-link{font-size:10px;color:var(--w30);word-break:break-all;margin-top:10px;font-family:monospace}
 .fk-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
 .fk-name{font-family:var(--display);font-size:24px;letter-spacing:1px;color:var(--white);line-height:1.1}
 .fk-folio{font-size:11px;color:var(--gold);letter-spacing:2px;margin-top:6px;font-family:monospace}
@@ -2284,17 +2313,20 @@ function crmOpenFicha(recId){
       <div class="fk-msg">${msg ? msg.replace(/</g,'&lt;') : '<span class="fk-empty">Sin definir</span>'}</div>
     </div>`;
 
-  const portalBlock = portalUrl ? `<div class="fk-msg-wrap" style="margin-top:10px">
-      <div class="fk-msg-head"><span>Portal de progreso del cliente</span>
-        <button class="fk-copy" data-msg="${_escAttr(portalUrl)}" onclick="fichaCopy(this)">Copiar</button>
+  const portalBlock = portalUrl ? `<div class="fk-portal" id="fk-portal">
+      <div class="fk-portal-head">
+        <span class="fk-portal-title">◎ Portal de progreso del cliente</span>
+        <span class="fk-portal-pct" id="fk-portal-pct">…</span>
       </div>
-      <div class="fk-msg">
-        <a href="${_escAttr(portalUrl)}" target="_blank" rel="noopener" style="color:var(--gold);word-break:break-all">${_esc(portalUrl)}</a>
-        <div style="font-size:10px;color:var(--w50);margin-top:6px;letter-spacing:.3px">
-          Envíaselo al cliente: ahí sigue su compra paso a paso (tipo Amazon).
-          Se activa automáticamente tras el apartado — puede tardar hasta 15 minutos en aparecer la primera vez.
-        </div>
+      <div class="fk-steps" id="fk-steps">${FASES_CAP2.map(f =>
+        `<div class="fk-step"><span class="d"></span><span class="l">${f}</span></div>`).join('')}</div>
+      <div class="fk-portal-next" id="fk-portal-next">Cargando el estado del portal…</div>
+      <div class="fk-portal-actions">
+        <button class="fk-portal-btn gold" id="fk-portal-wa" style="display:none" onclick="window.open(this.dataset.wa,'_blank','noopener')">Enviar por WhatsApp</button>
+        <button class="fk-portal-btn" data-msg="${_escAttr(portalUrl)}" onclick="fichaCopy(this)">Copiar link</button>
+        <a class="fk-portal-btn" href="${_escAttr(portalUrl)}" target="_blank" rel="noopener">Abrir portal</a>
       </div>
+      <div class="fk-portal-link">${_esc(portalUrl)}</div>
     </div>` : '';
 
   document.getElementById('crm-ficha-body').innerHTML = `
@@ -2325,6 +2357,52 @@ function crmOpenFicha(recId){
   if(portalBtn) portalBtn.style.display='none';
 
   document.getElementById('crm-ficha').style.display = 'flex';
+  if(portalUrl) fichaPintarPortal(rec, folioOp, portalUrl);
+}
+
+/* Fases canónicas del Capítulo 2 (comprador) con su avance acumulado. */
+const FASES_CAP2 = ['Apartado','Expediente','Valuación','Crédito','Escrituración','Firma','Entrega','Completado'];
+const FASES_PCT  = [5,20,35,50,65,80,90,100];
+
+/* Pinta el stepper del portal con datos reales del Portal Progreso.
+   Si Make todavía no crea el registro (corre cada 15 min), el stepper
+   arranca en Apartado y lo avisa — el link ya es válido desde ahora. */
+function fichaPintarPortal(rec, folioOp, portalUrl){
+  asesorTabla('progreso').then(prog => {
+    const p = (prog||[]).find(r => _fval(r,'Folio') === folioOp || _fval(r,'Folio Operación') === folioOp);
+    const fase = (p && _fval(p,'Fase Actual')) || 'Apartado';
+    let idx = FASES_CAP2.indexOf(fase); if(idx < 0) idx = 0;
+
+    const pctEl = document.getElementById('fk-portal-pct');
+    if(pctEl){
+      const pctReal = p ? _fval(p,'% Compra') : '';
+      pctEl.textContent = (pctReal !== '' && pctReal != null ? Math.round(Number(pctReal) <= 1 ? Number(pctReal)*100 : Number(pctReal)) : FASES_PCT[idx]) + '%';
+    }
+
+    const steps = document.querySelectorAll('#fk-steps .fk-step');
+    steps.forEach((el,i) => { el.classList.remove('done','now'); if(i < idx) el.classList.add('done'); else if(i === idx) el.classList.add('now'); });
+
+    const nextEl = document.getElementById('fk-portal-next');
+    if(nextEl){
+      const paso = p ? (_fval(p,'Próximo paso') || '') : '';
+      nextEl.innerHTML = p
+        ? `Fase actual: <b>${_esc(fase)}</b>.` + (paso ? ` Próximo paso: ${_esc(paso)}` : ' Envía el portal al cliente para que siga su compra paso a paso, como un pedido en línea.')
+        : `Fase actual: <b>Apartado</b>. El portal se está activando (Make corre cada 15 min) — el link ya es válido y puedes enviarlo desde ahora.`;
+    }
+
+    const waBtn = document.getElementById('fk-portal-wa');
+    const tel = String(_fval(rec,'Teléfono WhatsApp') || '').replace(/\D/g,'');
+    if(waBtn && tel){
+      const nombre = (_fval(rec,'Nombre Completo') || '').split(' ')[0];
+      const msg = (p && _fval(p,'Mensaje WhatsApp Actualización')) ||
+        `Hola${nombre ? ' ' + nombre : ''}, tu compra ya tiene portal de seguimiento. Aquí puedes ver en qué fase va, paso a paso: ${portalUrl}`;
+      waBtn.dataset.wa = 'https://wa.me/52' + tel + '?text=' + encodeURIComponent(msg);
+      waBtn.style.display = 'inline-block';
+    }
+  }).catch(() => {
+    const nextEl = document.getElementById('fk-portal-next');
+    if(nextEl) nextEl.textContent = 'No se pudo leer el Portal Progreso en este momento — el link de abajo sigue siendo válido.';
+  });
 }
 
 function crmCloseFicha(){ document.getElementById('crm-ficha').style.display = 'none'; }
@@ -2577,6 +2655,15 @@ function vendedorEditFromFicha(){
    y se inyecta en el POST sin que el asesor lo toque.            */
 function fichaAgendarCita(){
   const rec = crmState.records.find(r => r.id === crmState.editId);
+  if(!rec) return;
+  agendarCitaDesdeLead(rec);
+}
+
+/* FLUJO ÚNICO DE CITAS: toda cita nace de un lead comprador con su folio.
+   Lo usan el botón "Agendar visita" de la ficha Y el "+ Nuevo" del tab
+   Citas (vía selector de lead). El alta genérica murió: creaba citas
+   sin folio ni confirmación — la duplicidad de la prueba del 9 de junio. */
+function agendarCitaDesdeLead(rec){
   if(!rec) return;
 
   // Folio correcto: "Folio del Comprador" (lookup de la propiedad) o "Folio Propiedad NERI"
@@ -3143,9 +3230,44 @@ function citaCloseAndClear(){
 }
 
 function citaOpenNew(){
+  /* FLUJO ÚNICO: el alta genérica de citas ya no existe (creaba citas sin
+     folio ni confirmación). Agendar = elegir el lead comprador; el
+     formulario llega pre-llenado y el folio lo asigna Make. */
   crmState.editId = null;
   crmState.isNew  = true;
-  crmBuildModal('NUEVA CITA', CRM_CFG['citas'].editable, {});
+  document.getElementById('crm-cita-err').textContent = '';
+  document.getElementById('crm-cita-ver').style.display = 'none';
+  document.getElementById('crm-cita-body').innerHTML = `
+    <div class="cita-sec-title"><span>◈</span>¿Para qué lead es la visita?</div>
+    <div class="le-banner" style="margin-bottom:10px">Toda cita nace de un lead: así viaja su folio y la confirmación sale sola.</div>
+    <input class="form-inp" id="cita-lead-q" placeholder="Buscar por nombre, folio o propiedad…" oninput="citaLeadFilter()" style="margin-bottom:10px">
+    <div id="cita-lead-list"><div class="hoy-empty">Cargando leads…</div></div>`;
+  document.getElementById('crm-cita').style.display = 'flex';
+  asesorTabla('compradores')
+    .then(recs => { _citaLeadCache = recs || []; citaLeadRender(_citaLeadCache); })
+    .catch(e => { const el=document.getElementById('cita-lead-list'); if(el) el.innerHTML = `<div class="hoy-empty err">No se pudieron cargar los leads: ${_esc(e.message||'error')}</div>`; });
+}
+let _citaLeadCache = [];
+function citaLeadRender(recs){
+  const el = document.getElementById('cita-lead-list'); if(!el) return;
+  if(!recs.length){ el.innerHTML = '<div class="hoy-empty">No hay leads compradores en esta sesión.</div>'; return; }
+  el.innerHTML = recs.slice(0,40).map(r => {
+    const folio = _fval(r,'Folio del Comprador') || _fval(r,'Folio Propiedad NERI') || '';
+    return `<button class="cita-lead-row" onclick="citaLeadPick('${r.id}')">
+      <b>${_esc(_fval(r,'Nombre Completo') || 'Sin nombre')}</b>
+      <span>${_esc(folio || 'sin folio')} · ${_esc(_fval(r,'Propiedad de Interés') || 'sin propiedad')}</span>
+    </button>`;
+  }).join('');
+}
+function citaLeadFilter(){
+  const q = (document.getElementById('cita-lead-q')?.value || '').toLowerCase();
+  citaLeadRender(_citaLeadCache.filter(r =>
+    [_fval(r,'Nombre Completo'), _fval(r,'Folio del Comprador'), _fval(r,'Folio Propiedad NERI'), _fval(r,'Propiedad de Interés')]
+      .join(' ').toLowerCase().includes(q)));
+}
+function citaLeadPick(id){
+  const rec = _citaLeadCache.find(r => r.id === id) || crmState.records.find(r => r.id === id);
+  if(rec) agendarCitaDesdeLead(rec);
 }
 
 /* ─── BUILD MODAL HTML ─────────────────────────────── */
