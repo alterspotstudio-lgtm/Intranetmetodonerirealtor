@@ -2392,6 +2392,31 @@ function crmOpenFicha(recId){
       <div class="fk-portal-link">${_esc(portalUrl)}</div>
     </div>` : '';
 
+  /* ── Expediente documental del COMPRADOR (Capítulo 2, nace en Apartado).
+     Flujo 100% separado del expediente del vendedor. El link y el token
+     viven en el lead comprador; la activación corre en el proyecto
+     expedientecomprador.vercel.app con el mismo Bearer de sesión. */
+  const expLinkPrevio = _fval(rec,'Link Expediente Comprador');
+  const expProgreso   = _fval(rec,'Progreso Expediente Comprador');
+  const expBlock = (enCap2 && folioLead) ? `<div class="fk-portal" id="fk-expc"
+      data-folio="${_escAttr(folioLead)}"
+      data-tel="${_escAttr(String(wa||'').replace(/\D/g,''))}"
+      data-nombre="${_escAttr((nombre||'').split(' ')[0])}">
+      <div class="fk-portal-head">
+        <span class="fk-portal-title">▤ Expediente documental del comprador</span>
+        <span class="fk-portal-pct" id="fk-expc-prog" style="font-size:12px">${_esc(expProgreso||'')}</span>
+      </div>
+      <div class="fk-portal-next" id="fk-expc-status">${expLinkPrevio
+        ? 'Expediente activo. Comparte el link para que el comprador cargue sus documentos.'
+        : 'Activa el expediente para generar el link de carga documental del comprador.'}</div>
+      <div class="fk-portal-actions">
+        <button class="fk-portal-btn gold" id="fk-expc-btn" onclick="fichaActivarExpComprador()">${expLinkPrevio ? 'Re-obtener link' : 'Activar expediente'}</button>
+        <button class="fk-portal-btn" id="fk-expc-copy" style="display:${expLinkPrevio?'inline-block':'none'}" data-msg="${_escAttr(expLinkPrevio||'')}" onclick="fichaCopy(this)">Copiar link</button>
+        <button class="fk-portal-btn" id="fk-expc-wa" style="display:${expLinkPrevio?'inline-block':'none'}" onclick="window.open(this.dataset.wa,'_blank','noopener')" data-wa="${expLinkPrevio ? _escAttr('https://wa.me/52'+String(wa||'').replace(/\D/g,'')+'?text='+encodeURIComponent('Hola'+((nombre||'').split(' ')[0]?' '+(nombre||'').split(' ')[0]:'')+', para avanzar con tu compra carga aquí tus documentos. Es tu expediente privado: '+expLinkPrevio)) : ''}">Enviar por WhatsApp</button>
+      </div>
+      <div class="fk-portal-link" id="fk-expc-link">${_esc(expLinkPrevio||'')}</div>
+    </div>` : '';
+
   document.getElementById('crm-ficha-body').innerHTML = `
     <div class="fk-top">
       <div>
@@ -2413,7 +2438,8 @@ function crmOpenFicha(recId){
 
     <div class="fk-grid">${rows}</div>
     ${msgBlock}
-    ${portalBlock}`;
+    ${portalBlock}
+    ${expBlock}`;
 
   // No mostrar Portal del cliente en ficha de lead comprador.
   const portalBtn = document.getElementById('crm-ficha-portal');
@@ -2466,6 +2492,48 @@ function fichaPintarPortal(rec, folioOp, portalUrl){
     const nextEl = document.getElementById('fk-portal-next');
     if(nextEl) nextEl.textContent = 'No se pudo leer el Portal Progreso en este momento — el link de abajo sigue siendo válido.';
   });
+}
+
+/* ─── EXPEDIENTE DOCUMENTAL DEL COMPRADOR ────────────────────────────
+   Activación desde la ficha del comprador (a partir de Apartado).
+   Corre en el proyecto independiente expedientecomprador.vercel.app —
+   flujo 100% separado del expediente del vendedor. El Bearer es la
+   misma sesión NERI (mismo NERI_SESSION_SECRET en ambos proyectos).  */
+const EXP_COMP_BASE = 'https://expedientecomprador.vercel.app';
+async function fichaActivarExpComprador(){
+  const box = document.getElementById('fk-expc'); if(!box) return;
+  const folio = box.dataset.folio || '';
+  const st  = document.getElementById('fk-expc-status');
+  const lk  = document.getElementById('fk-expc-link');
+  const btn = document.getElementById('fk-expc-btn');
+  const cp  = document.getElementById('fk-expc-copy');
+  const wa  = document.getElementById('fk-expc-wa');
+  if(!folio){ if(st) st.textContent='Este comprador aún no tiene folio de operación.'; return; }
+  if(btn){ btn.disabled = true; btn.textContent = 'Activando…'; }
+  try{
+    const r = await fetch(EXP_COMP_BASE + '/api/activar-expediente-comprador', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer '+(SESSION?.token||'') },
+      body: JSON.stringify({ folio })
+    });
+    const d = await r.json().catch(()=>({}));
+    if(!r.ok || !d.link) throw new Error(d.error || 'No se pudo activar el expediente.');
+    if(st) st.textContent = 'Expediente activo. Comparte el link para que el comprador cargue sus documentos.';
+    if(lk) lk.textContent = d.link;
+    if(cp){ cp.dataset.msg = d.link; cp.style.display = 'inline-block'; }
+    if(wa){
+      const tel = box.dataset.tel || '';
+      const nombre = box.dataset.nombre || '';
+      if(tel){
+        wa.dataset.wa = 'https://wa.me/52' + tel + '?text=' + encodeURIComponent('Hola' + (nombre ? ' ' + nombre : '') + ', para avanzar con tu compra carga aquí tus documentos. Es tu expediente privado: ' + d.link);
+        wa.style.display = 'inline-block';
+      }
+    }
+    if(btn){ btn.disabled = false; btn.textContent = 'Re-obtener link'; }
+  }catch(e){
+    if(st) st.textContent = e.message || 'No se pudo activar el expediente. Intenta de nuevo.';
+    if(btn){ btn.disabled = false; btn.textContent = 'Activar expediente'; }
+  }
 }
 
 function crmCloseFicha(){ document.getElementById('crm-ficha').style.display = 'none'; }
