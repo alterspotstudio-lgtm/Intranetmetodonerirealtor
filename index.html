@@ -4899,7 +4899,11 @@ function expRenderFile(tipo, rec){
   const tipoLbl = tipo==='vendedor'?'Vendedor · captación':(tipo==='progreso'?'Operación en progreso':'Comprador');
   const docs=expDocsFor(tipo,rec,prog);
   const folioParam = folio!=='— sin folio —'?folio:(SESSION?.slug||'');
-  const docLink=EXP_DOC_BASE+'?folio='+encodeURIComponent(folioParam);
+  /* Liga de carga del cliente: SIEMPRE preferir el link ya minteado con token
+     (Link Expediente Documental del lead vendedor). El link por-folio sin token
+     cae en página incompleta — solo es fallback de último recurso. */
+  const linkArmado=_fval(rec,'Link Expediente Documental')||_fval(prog||{},'Link Expediente Documental')||'';
+  const docLink=/token=/.test(linkArmado)?linkArmado:EXP_DOC_BASE+'?folio='+encodeURIComponent(folioParam);
   const portalLink=EXP_PORTAL_BASE+'?folio='+encodeURIComponent(folio!=='— sin folio —'?folio:'');
   const safeMsg=asesorEsc(msg).replace(/'/g,"\\'");
   const pct=Math.min(100, (dias!=null&&sla)?Math.round(dias/sla*100):0);
