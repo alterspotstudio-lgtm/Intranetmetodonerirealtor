@@ -1400,6 +1400,24 @@ select.form-inp option{background:#111;color:#fff}
 .mrv-card{cursor:pointer}
 .mrv-card:hover{border-color:rgba(198,168,107,.35)}
 .mrv-go{font-family:var(--mono);font-size:9px;letter-spacing:1px;color:var(--gold);margin-top:5px;display:block}
+/* ── Mesa de Documentos: fichas tipo documento minimalista ── */
+.mdoc-sec{font-family:var(--mono);font-size:8px;letter-spacing:2.5px;text-transform:uppercase;color:var(--w30);margin:2px 0 10px;border-bottom:1px solid rgba(255,255,255,.07);padding-bottom:6px}
+.mdoc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;margin-bottom:6px}
+.mdoc{position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.1);border-left:3px solid rgba(255,255,255,.18);border-radius:2px;background:rgba(255,255,255,.015);padding:12px 14px 11px}
+.mdoc-fold{position:absolute;top:0;right:0;width:0;height:0;border-style:solid;border-width:0 14px 14px 0;border-color:transparent rgba(255,255,255,.14) transparent transparent}
+.mdoc.revision{border-left-color:var(--gold)}
+.mdoc.revision .mdoc-fold{border-right-color:rgba(198,168,107,.55)}
+.mdoc.revision .mdoc-count{color:var(--gold)}
+.mdoc.completo{border-left-color:var(--green)}
+.mdoc.completo .mdoc-fold{border-right-color:rgba(74,222,128,.55)}
+.mdoc.completo .mdoc-count,.mdoc.completo .mdoc-state{color:var(--green)}
+.mdoc-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.mdoc-name{font-family:Montserrat,sans-serif;font-size:12px;font-weight:600;color:var(--white)}
+.mdoc-count{font-family:var(--mono);font-size:11px;letter-spacing:1px;color:var(--w50);flex:none}
+.mdoc-folio{font-family:var(--mono);font-size:9px;letter-spacing:1px;color:var(--w30);margin-top:3px}
+.mdoc-state{font-family:var(--mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--w50);margin-top:8px}
+.mdoc-nota{font-family:Montserrat,sans-serif;font-size:11px;color:var(--w50);margin-top:6px}
+.mdoc-go{font-family:var(--mono);font-size:9px;letter-spacing:1px;color:var(--gold);margin-top:8px}
 </style>
 </head>
 <body>
@@ -4523,8 +4541,8 @@ async function perfilSave(){
 
 function buildAsesorPropiedadesPanel(){ return `<div class="panel" id="panel-propiedades_asesor"><div class="asesor-body asesor-perfil-page"><div class="fv-box perfil-fv-box"><div class="fv-header"><div><div class="fv-nombre">MIS PROPIEDADES</div><div class="fv-wa"><span>Operaciones vivas · folio · siguiente pendiente</span></div></div><div><div class="fv-folio-lbl">Vista asesor</div><div class="fv-folio">PROPIEDADES</div></div></div><div class="fv-body perfil-fv-body"><div class="fv-sec"><div class="fv-sec-title"><em>⌂</em> Propiedades activas</div><div class="fv-grid" id="asesor-propiedades-list"><div class="hoy-empty">Cargando propiedades reales…</div></div></div><div class="fv-sec"><div class="le-banner">Esta vista debe decirle al asesor qué propiedad mover y qué pendiente resolver. La tabla es secundaria; el expediente vivo es la experiencia principal.</div></div></div></div></div></div>`; }
 async function asesorLoadPropiedades(force=false){ if(_asesorPropsLoaded&&!force) return; _asesorPropsLoaded=true; const el=document.getElementById('asesor-propiedades-list'); if(!el)return; try{ const data=await asesorLoadAll(force); const props=data.propiedades||[]; el.innerHTML=props.length?props.map(p=>`<div class="fv-row full"><div class="fv-row-k">${asesorEsc(_fval(p,'Estado Propiedad')||'Propiedad')}</div><div class="fv-row-v"><strong style="color:var(--white)">${asesorEsc(_fval(p,'Nombre Propiedad')||'Sin nombre')}</strong><br><span style="color:var(--gold);font-family:var(--mono);font-size:11px">${asesorEsc(_fval(p,'Folio NERI')||_fval(p,'Folio Vendedor')||'— sin folio —')}</span><br><span style="color:var(--w50)">${asesorEsc([_fval(p,'Zona / Colonia'),_fval(p,'Municipio'),_fval(p,'Precio Lista')].filter(Boolean).join(' · ')||'Sin datos operativos')}</span></div></div>`).join(''):'<div class="hoy-empty">Sin propiedades reales para esta sesión.</div>'; }catch(e){ el.innerHTML=`<div class="hoy-empty err">No se pudieron cargar propiedades: ${asesorEsc(e.message)}</div>`; } }
-function buildAsesorDocumentosPanel(){ return `<div class="panel" id="panel-documentos_asesor"><div class="asesor-body asesor-perfil-page"><div class="fv-box perfil-fv-box"><div class="fv-header"><div><div class="fv-nombre">MESA DE DOCUMENTOS</div><div class="fv-wa"><span>Qué falta para avanzar, no solo archivos guardados</span></div></div><div><div class="fv-folio-lbl">Vista asesor</div><div class="fv-folio">DOCUMENTOS</div></div></div><div class="fv-body perfil-fv-body"><div class="fv-sec"><div class="fv-sec-title"><em>▤</em> Documentos faltantes / etapa del expediente</div><div class="perfil-fv-locks" id="asesor-documentos-list"><div class="hoy-empty">Cargando documentos reales…</div></div></div><div class="fv-sec"><div class="le-banner">La parte fiscal y documental debe decir: qué falta, en qué etapa afecta y qué acción destraba la operación.</div></div></div></div></div></div>`; }
-async function asesorLoadDocumentos(force=false){ if(_asesorDocsLoaded&&!force)return; _asesorDocsLoaded=true; const el=document.getElementById('asesor-documentos-list'); if(!el)return; try{ const data=await asesorLoadAll(force); mesaPintarLista(data); }catch(e){ el.innerHTML=`<div class="hoy-empty err">No se pudieron cargar documentos: ${asesorEsc(e.message)}</div>`; } }
+function buildAsesorDocumentosPanel(){ return `<div class="panel" id="panel-documentos_asesor"><div class="asesor-body asesor-perfil-page"><div class="fv-box perfil-fv-box"><div class="fv-header"><div><div class="fv-nombre">MESA DE DOCUMENTOS</div><div class="fv-wa"><span>Qué falta para avanzar, no solo archivos guardados</span></div></div><div><div class="fv-folio-lbl">Vista asesor</div><div class="fv-folio">DOCUMENTOS</div></div></div><div class="fv-body perfil-fv-body"><div class="fv-sec"><div class="fv-sec-title" style="display:flex;justify-content:space-between;align-items:center;gap:10px"><span><em>▤</em> Expedientes y documentos por revisar</span><button class="asesor-gold-btn" onclick="asesorLoadDocumentos(true)">Actualizar</button></div><div class="perfil-fv-locks" id="asesor-documentos-list"><div class="hoy-empty">Cargando documentos reales…</div></div></div><div class="fv-sec"><div class="le-banner">La parte fiscal y documental debe decir: qué falta, en qué etapa afecta y qué acción destraba la operación.</div></div></div></div></div></div>`; }
+async function asesorLoadDocumentos(force=false){ if(_asesorDocsLoaded&&!force)return; _asesorDocsLoaded=true; const el=document.getElementById('asesor-documentos-list'); if(!el)return; if(force) el.innerHTML='<div class="hoy-empty">Actualizando documentos…</div>'; try{ const data=await asesorLoadAll(force); mesaPintarLista(data); }catch(e){ el.innerHTML=`<div class="hoy-empty err">No se pudieron cargar documentos: ${asesorEsc(e.message)}</div>`; } }
 /* ══════════ MESA DE REVISIÓN — expediente documental del vendedor ══════════
    El asesor toca la tarjeta de un vendedor en la Mesa de Documentos y revisa su
    expediente: 8 documentos, estado, archivo, Validar / Rechazar con motivo.
@@ -4551,24 +4569,46 @@ function mesaToken(f){
   const m=/[?&]token=([^&\s"']+)/.exec(String(f['Link Expediente Documental']||''));
   return m?decodeURIComponent(m[1]):'';
 }
-/* Pinta la lista de la Mesa de Documentos desde el cache (sin refetch). */
+/* Pinta la lista de la Mesa de Documentos desde el cache (sin refetch).
+   Diseño: fichas tipo documento minimalista, color por estado, ordenadas por
+   última actualización (campo Airtable «Última Actualización Expediente»,
+   fórmula LAST_MODIFIED_TIME) — lo más reciente arriba. */
 function mesaPintarLista(data){
   const el=document.getElementById('asesor-documentos-list'); if(!el)return;
-  const cards=[];
+  /* Estado documental del lead a partir de Progreso Expediente:
+     completo (verde) · revision (oro: hay archivos por revisar) · espera (neutro) */
+  const docState=(estado)=>{
+    if(/completos/i.test(estado)) return 'completo';
+    const m=/recibidos:\s*(\d+)/i.exec(estado);
+    if(m&&Number(m[1])>0) return 'revision';
+    return 'espera';
+  };
+  const ST_LBL={completo:'Expediente completo · validar para cerrar',revision:'Documentos por revisar',espera:'En espera del propietario'};
+  const fmtFecha=(v)=>{ if(!v)return ''; const d=new Date(v); if(isNaN(d))return ''; return d.toLocaleDateString('es-MX',{day:'2-digit',month:'short'})+' · '+d.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'}); };
+
+  const vend=[];
   (data.vendedores||[]).forEach(r=>{
     const f=r.fields||{};
     const exp=f['Token Expediente']||f['Link Expediente Documental']||f['Progreso Expediente'];
     if(!exp&&!f['Documentos'])return;
-    const estado=_fval(r,'Progreso Expediente')||_fval(r,'Conversión')||'Captación';
-    const badge=/completos/i.test(estado)?'badge-close':'badge-lost';
-    const nota=_fval(r,'Documentos')||(exp?'Expediente documental activo.':'');
-    cards.push(`<div class="fv-lock${exp?' mrv-card':''}"${exp?` onclick="mesaOpenRevision('${r.id}')"`:''}><div class="fv-lock-k">Expediente vendedor · ${asesorEsc(asesorNombre(r))}</div><div class="fv-lock-v"><span class="badge ${badge}">${asesorEsc(estado)}</span>${nota?`<br><span style="color:var(--w50);font-family:Montserrat,sans-serif">${asesorEsc(nota)}</span>`:''}${exp?'<span class="mrv-go">Tocar para revisar y validar documentos →</span>':''}</div></div>`);
+    const estado=_fval(r,'Progreso Expediente')||'';
+    const m=/(\d+)\s*\/\s*(\d+)/.exec(estado);
+    const ts=Date.parse(f['Última Actualización Expediente']||'')||Date.parse(f['Fecha de Entrada']||'')||0;
+    vend.push({r,f,exp,estado,st:exp?docState(estado):'espera',n:m?Number(m[1]):0,t:m?Number(m[2]):8,nota:_fval(r,'Documentos')||'',ts});
   });
+  vend.sort((a,b)=>b.ts-a.ts); /* últimas actualizadas hasta arriba */
+
+  const cards=vend.map(v=>`<div class="mdoc ${v.st}${v.exp?' mrv-card':''}"${v.exp?` onclick="mesaOpenRevision('${v.r.id}')"`:''}><div class="mdoc-fold"></div><div class="mdoc-top"><div class="mdoc-name">${asesorEsc(asesorNombre(v.r))}</div><div class="mdoc-count">${v.exp?(v.n+'/'+v.t):'—'}</div></div><div class="mdoc-folio">${asesorEsc(_fval(v.r,'Folio')||'Sin folio')}${v.ts?' · Últ. mov. '+fmtFecha(v.ts):''}</div><div class="mdoc-state">${ST_LBL[v.st]||asesorEsc(v.estado||'Captación')}</div>${v.nota?`<div class="mdoc-nota">${asesorEsc(v.nota)}</div>`:''}${v.exp?'<div class="mdoc-go">Tocar para revisar y validar →</div>':''}</div>`);
+
+  const pend=[];
   (data.progreso||[]).forEach(r=>{
     const p=_fval(r,'Pendientes visibles'); if(!p)return;
-    cards.push(`<div class="fv-lock"><div class="fv-lock-k">Pendientes visibles · ${asesorEsc(asesorNombre(r))}</div><div class="fv-lock-v"><span class="badge badge-lost">${asesorEsc(_fval(r,'Fase Actual')||'Expediente')}</span><br><span style="color:var(--w50);font-family:Montserrat,sans-serif">${asesorEsc(p)}</span></div></div>`);
+    pend.push(`<div class="fv-lock"><div class="fv-lock-k">Pendientes visibles · ${asesorEsc(asesorNombre(r))}</div><div class="fv-lock-v"><span class="badge badge-lost">${asesorEsc(_fval(r,'Fase Actual')||'Expediente')}</span><br><span style="color:var(--w50);font-family:Montserrat,sans-serif">${asesorEsc(p)}</span></div></div>`);
   });
-  el.innerHTML=cards.length?cards.join(''):'<div class="hoy-empty">Sin documentos faltantes registrados para esta sesión.</div>';
+
+  el.innerHTML=(cards.length?`<div class="mdoc-sec">Expedientes de vendedores · lo más reciente arriba</div><div class="mdoc-grid">${cards.join('')}</div>`:'')
+    +(pend.length?`<div class="mdoc-sec" style="margin-top:18px">Pendientes de compradores · informativo</div>${pend.join('')}`:'')
+    +((cards.length||pend.length)?'':'<div class="hoy-empty">Sin documentos faltantes registrados para esta sesión.</div>');
 }
 /* Abre la Mesa de Revisión para un lead vendedor. */
 async function mesaOpenRevision(recId){
@@ -4604,7 +4644,7 @@ function mesaShell(nombre,folio){
   let ovl=document.getElementById('mrv-ovl');
   if(!ovl){
     ovl=document.createElement('div'); ovl.id='mrv-ovl';
-    ovl.innerHTML=`<div class="mrv-box" onclick="event.stopPropagation()"><div class="mrv-head"><div><div class="mrv-title">MESA DE <em>REVISIÓN</em></div><div class="mrv-sub" id="mrv-sub"></div></div><button class="mrv-close" onclick="mesaCerrar()" aria-label="Cerrar">✕</button></div><div class="mrv-body" id="mrv-body"></div></div>`;
+    ovl.innerHTML=`<div class="mrv-box" onclick="event.stopPropagation()"><div class="mrv-head"><div><div class="mrv-title">MESA DE <em>REVISIÓN</em></div><div class="mrv-sub" id="mrv-sub"></div></div><div style="display:flex;gap:8px;flex:none"><button class="mrv-close" onclick="mesaRefrescar(this)" title="Actualizar documentos" aria-label="Actualizar">⟳</button><button class="mrv-close" onclick="mesaCerrar()" aria-label="Cerrar">✕</button></div></div><div class="mrv-body" id="mrv-body"></div></div>`;
     ovl.addEventListener('click',mesaCerrar);
     document.body.appendChild(ovl);
   }
@@ -4613,6 +4653,12 @@ function mesaShell(nombre,folio){
   ovl.style.display='flex'; document.body.style.overflow='hidden';
 }
 function mesaBody(html){ const b=document.getElementById('mrv-body'); if(b) b.innerHTML=html; }
+/* Botón ⟳ del modal: vuelve a leer los documentos del folio sin cerrar la revisión. */
+async function mesaRefrescar(btn){
+  if(!_mrv)return;
+  if(btn){ btn.disabled=true; }
+  try{ await mesaReload(); } finally { if(btn) btn.disabled=false; }
+}
 function mesaCerrar(){
   const ovl=document.getElementById('mrv-ovl'); if(ovl) ovl.style.display='none';
   document.body.style.overflow='';
@@ -4945,9 +4991,28 @@ window.addEventListener('DOMContentLoaded', () => {
   if(sub) sub.textContent = 'Acceso operativo · Control de acceso';
   const footer = document.querySelector('.login-footer');
   if(footer) footer.innerHTML = 'Acceso operativo real<br>Método NERI · Sistema operativo inmobiliario';
-  // IMPORTANTE: por etapa de pruebas reales, no se auto-recupera sesión.
-  // Cada carga empieza en login para evitar accesos arrastrados por sessionStorage/cache del modo anterior.
-  try{ sessionStorage.removeItem(SESSION_STORE_KEY); }catch(_){ }
+  // Recupera la sesión si sigue vigente (el token dura 12 h). Actualizar la página
+  // ya NO saca al asesor: solo se pide login cuando no hay sesión o ya expiró.
+  try{
+    const raw = sessionStorage.getItem(SESSION_STORE_KEY);
+    if(raw){
+      const s = JSON.parse(raw);
+      const parts = String(s && s.token || '').split('.');
+      let payload = null;
+      if(parts.length === 3){
+        try{ payload = JSON.parse(atob(parts[1].replace(/-/g,'+').replace(/_/g,'/'))); }catch(_){ payload = null; }
+      }
+      if(payload && payload.exp && Date.now() < payload.exp){
+        SESSION = s;
+        document.getElementById('screen-login').classList.add('hidden');
+        document.getElementById('screen-app').classList.remove('hidden');
+        bootApp();
+        if(SESSION.rol === 'asesor') enrichIdentity(SESSION.slug);
+      } else {
+        sessionStorage.removeItem(SESSION_STORE_KEY); // expirada: limpia y pide login
+      }
+    }
+  }catch(_){ try{ sessionStorage.removeItem(SESSION_STORE_KEY); }catch(__){} }
 });
 </script>
 <!-- Cabina de acciones del vendedor (Producción, Notaría, Expediente documental, Documentos) -->
