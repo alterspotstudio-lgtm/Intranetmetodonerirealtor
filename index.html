@@ -4957,6 +4957,13 @@ function expRenderFile(tipo, rec){
 }
 
 function goTo(id){
+  // El portal de progreso requiere un folio de operación.
+  // Abrirlo sin folio muestra error inmediato al cliente; se redirige al Centro de Operaciones.
+  if(id === 'progreso'){
+    showToast('El portal se abre desde la ficha de un comprador con apartado — no como herramienta genérica.');
+    goTo('airtable');
+    return;
+  }
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.sb-btn').forEach(b=>b.classList.remove('active'));
   const panel = document.getElementById('panel-'+id);
