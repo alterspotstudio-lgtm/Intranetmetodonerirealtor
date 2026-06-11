@@ -2832,8 +2832,7 @@ function fichaCopy(btn){
    Folio NERI / Links / contadores son fórmula/Make → bloqueados.        */
 const LANDING_FORM = [
   {title:'Portada', ico:'◫', fields:[
-    {f:'Frase Portada',  type:'text',     full:true},
-    {f:'Frase Inicio',   type:'textarea', full:true},
+    {f:'Frase Inicio',   label:'Descripción propiedad corta', type:'textarea', full:true},
     {f:'Foto de portada',type:'attach',   full:true, img:true},
   ]},
   {title:'Precio', ico:'$', fields:[
@@ -2842,8 +2841,14 @@ const LANDING_FORM = [
     {f:'Moneda',        type:'select', opts:['MXN','USD']},
   ]},
   {title:'Plusvalía', ico:'↗', fields:[
-    {f:'Plusvalia Valor', type:'text'},
-    {f:'Plusvalia Texto', type:'textarea', full:true},
+    {f:'Plusvalia Valor', label:'Plusvalía valor', type:'select', opts:['+6% anual','+7% anual','+8% anual','+9% anual','+10% anual','+11% anual','+12% anual']},
+    {f:'Plusvalia Texto', label:'Plusvalía texto', type:'select', full:true, opts:[
+      'Plusvalía anual estimada con base en comportamiento residencial comparable del mercado local.',
+      'Zona con crecimiento residencial sostenido, conectividad activa y demanda constante de vivienda.',
+      'Ubicación consolidada con alta demanda habitacional y conservación patrimonial superior al promedio.',
+      'Zona estratégica con servicios cercanos, movilidad activa y demanda residencial constante.',
+      'Propiedad ubicada en zona con desarrollo sostenido y potencial de conservación patrimonial.'
+    ]},
   ]},
   {title:'Videos de la landing', ico:'▶', videos:[
     {room:'Sala',     yt:'Video Sala',         mp4:'Video Sala MP4'},
@@ -2921,6 +2926,7 @@ async function uploadBlobFile(file, folio, doc){
 
 function _landInput(fl, rec){
   const name = fl.f;
+  const label = fl.label || name;
   let val = _fval(rec, name);
   const orig = val;
 
@@ -2933,7 +2939,7 @@ function _landInput(fl, rec){
       ? `<span class="le-vstatus on">Cargado${info.count>1?' ('+info.count+')':''}</span>`
       : `<span class="le-vstatus off">Vacío</span>`;
     return `<div class="form-group full">
-        <label class="form-label">${name}</label>
+        <label class="form-label">${label}</label>
         <div class="le-attach">${thumb}${status}</div>
         <div class="le-upload">
           <input class="form-inp" type="file" data-upload-attach="${_escAttr(name)}" data-upload-doc="${_escAttr(name)}" accept="image/*,video/mp4,video/quicktime,application/pdf">
@@ -2950,19 +2956,19 @@ function _landInput(fl, rec){
     const extra = (val && !(fl.opts||[]).includes(val))
       ? `<option value="${_escAttr(val)}" selected>${_esc(val)}</option>` : '';
     return `<div class="form-group${fl.full?' full':''}">
-        <label class="form-label">${name}</label>
+        <label class="form-label">${label}</label>
         <select class="form-inp" data-field="${_escAttr(name)}" data-ftype="select" data-orig="${_escAttr(orig)}">
           <option value="">— Sin selección</option>${extra}${os}</select></div>`;
   }
   if(fl.type === 'textarea'){
     return `<div class="form-group${fl.full?' full':''}">
-        <label class="form-label">${name}</label>
+        <label class="form-label">${label}</label>
         <textarea class="form-inp" data-field="${_escAttr(name)}" data-ftype="text" data-orig="${_escAttr(orig)}" rows="2">${_esc(val)}</textarea></div>`;
   }
   const inType = fl.type === 'number' ? 'number' : 'text';
   const ft = fl.type === 'number' ? 'number' : 'text';
   return `<div class="form-group${fl.full?' full':''}">
-      <label class="form-label">${name}</label>
+      <label class="form-label">${label}</label>
       <input class="form-inp" type="${inType}" data-field="${_escAttr(name)}" data-ftype="${ft}" data-orig="${_escAttr(orig)}" value="${_escAttr(val)}"></div>`;
 }
 
