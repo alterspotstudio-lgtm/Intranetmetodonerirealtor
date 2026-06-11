@@ -1359,6 +1359,47 @@ select.form-inp option{background:#111;color:#fff}
 @media(max-width:900px){.admin-zone-tabs{grid-template-columns:1fr}.admin-v9-user-row{grid-template-columns:1fr}.admin-v9-user-actions{justify-content:flex-start}.admin-form-grid{grid-template-columns:1fr}.admin-upload-box{grid-template-columns:1fr}.admin-account-tabs{overflow:auto}.admin-account-content{padding:20px}.admin-account-actions{margin-left:-20px;margin-right:-20px;padding-left:20px;padding-right:20px}}
 @media(max-width:560px){.admin-v9-wrap{padding:18px}.admin-v9-title{font-size:36px}.admin-account-head{padding:22px}.admin-account-title b{font-size:28px}}
 
+
+/* ══ MESA DE REVISIÓN — expediente documental (modal del asesor) ══ */
+#mrv-ovl{position:fixed;inset:0;background:rgba(10,10,10,.92);z-index:1200;display:flex;align-items:flex-end;justify-content:center}
+@media(min-width:720px){#mrv-ovl{align-items:center;padding:32px}}
+.mrv-box{width:100%;max-width:680px;max-height:92vh;display:flex;flex-direction:column;background:#0d0d0d;border:1px solid rgba(198,168,107,.25);border-radius:3px}
+.mrv-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:18px 20px;border-bottom:1px solid rgba(255,255,255,.07)}
+.mrv-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--white)}
+.mrv-title em{color:var(--gold);font-style:normal}
+.mrv-sub{font-family:var(--mono);font-size:10px;color:var(--w50);margin-top:2px;letter-spacing:1px}
+.mrv-close{background:none;border:1px solid rgba(255,255,255,.15);color:var(--w50);border-radius:2px;width:30px;height:30px;font-size:14px;cursor:pointer;flex:none}
+.mrv-close:hover{color:var(--white);border-color:rgba(255,255,255,.35)}
+.mrv-body{overflow-y:auto;padding:14px 20px 20px;display:flex;flex-direction:column;gap:10px}
+.mrv-doc{border:1px solid rgba(255,255,255,.08);border-radius:3px;padding:12px 14px;background:rgba(255,255,255,.015)}
+.mrv-doc-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.mrv-doc-tipo{font-family:Montserrat,sans-serif;font-size:12px;font-weight:600;color:var(--white)}
+.mrv-crit{display:inline-block;margin-left:6px;font-size:8px;letter-spacing:1.5px;color:var(--gold);border:1px solid rgba(198,168,107,.35);border-radius:2px;padding:1px 5px;vertical-align:middle}
+.mrv-st{font-family:var(--mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;border-radius:2px;padding:3px 8px;flex:none}
+.mrv-st.pendiente{color:var(--w50);border:1px solid rgba(255,255,255,.15)}
+.mrv-st.recibido{color:#fbbf24;border:1px solid rgba(251,191,36,.35);background:rgba(251,191,36,.07)}
+.mrv-st.validado{color:var(--green);border:1px solid rgba(74,222,128,.35);background:var(--greendim)}
+.mrv-st.rechazado{color:var(--red);border:1px solid rgba(248,113,113,.35);background:rgba(248,113,113,.07)}
+.mrv-doc-desc{font-size:11px;color:var(--w50);margin-top:5px;font-family:Montserrat,sans-serif}
+.mrv-doc-meta{font-family:var(--mono);font-size:10px;color:var(--w30);margin-top:4px}
+.mrv-motivo{font-size:11px;color:var(--red);margin-top:5px;font-family:Montserrat,sans-serif}
+.mrv-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.mrv-btn{font-family:var(--mono);font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:7px 12px;border-radius:2px;cursor:pointer;background:none;text-decoration:none;display:inline-block}
+.mrv-btn.ver{border:1px solid rgba(255,255,255,.18);color:var(--w50)}
+.mrv-btn.ver:hover{color:var(--white)}
+.mrv-btn.ok{border:1px solid rgba(74,222,128,.4);color:var(--green)}
+.mrv-btn.ok:hover{background:var(--greendim)}
+.mrv-btn.no{border:1px solid rgba(248,113,113,.4);color:var(--red)}
+.mrv-btn.no:hover{background:rgba(248,113,113,.08)}
+.mrv-btn[disabled]{opacity:.4;cursor:wait}
+.mrv-rej{margin-top:10px;border-top:1px solid rgba(255,255,255,.07);padding-top:10px}
+.mrv-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.mrv-chip{font-family:var(--mono);font-size:9px;letter-spacing:1px;padding:5px 9px;border:1px solid rgba(255,255,255,.15);border-radius:2px;color:var(--w50);cursor:pointer;background:none}
+.mrv-chip:hover,.mrv-chip.sel{border-color:rgba(198,168,107,.5);color:var(--gold)}
+.mrv-rej textarea{width:100%;background:#0A0A0A;border:1px solid rgba(255,255,255,.12);border-radius:2px;color:var(--white);font-family:Montserrat,sans-serif;font-size:12px;padding:8px;min-height:54px;resize:vertical}
+.mrv-card{cursor:pointer}
+.mrv-card:hover{border-color:rgba(198,168,107,.35)}
+.mrv-go{font-family:var(--mono);font-size:9px;letter-spacing:1px;color:var(--gold);margin-top:5px;display:block}
 </style>
 </head>
 <body>
@@ -4483,7 +4524,169 @@ async function perfilSave(){
 function buildAsesorPropiedadesPanel(){ return `<div class="panel" id="panel-propiedades_asesor"><div class="asesor-body asesor-perfil-page"><div class="fv-box perfil-fv-box"><div class="fv-header"><div><div class="fv-nombre">MIS PROPIEDADES</div><div class="fv-wa"><span>Operaciones vivas · folio · siguiente pendiente</span></div></div><div><div class="fv-folio-lbl">Vista asesor</div><div class="fv-folio">PROPIEDADES</div></div></div><div class="fv-body perfil-fv-body"><div class="fv-sec"><div class="fv-sec-title"><em>⌂</em> Propiedades activas</div><div class="fv-grid" id="asesor-propiedades-list"><div class="hoy-empty">Cargando propiedades reales…</div></div></div><div class="fv-sec"><div class="le-banner">Esta vista debe decirle al asesor qué propiedad mover y qué pendiente resolver. La tabla es secundaria; el expediente vivo es la experiencia principal.</div></div></div></div></div></div>`; }
 async function asesorLoadPropiedades(force=false){ if(_asesorPropsLoaded&&!force) return; _asesorPropsLoaded=true; const el=document.getElementById('asesor-propiedades-list'); if(!el)return; try{ const data=await asesorLoadAll(force); const props=data.propiedades||[]; el.innerHTML=props.length?props.map(p=>`<div class="fv-row full"><div class="fv-row-k">${asesorEsc(_fval(p,'Estado Propiedad')||'Propiedad')}</div><div class="fv-row-v"><strong style="color:var(--white)">${asesorEsc(_fval(p,'Nombre Propiedad')||'Sin nombre')}</strong><br><span style="color:var(--gold);font-family:var(--mono);font-size:11px">${asesorEsc(_fval(p,'Folio NERI')||_fval(p,'Folio Vendedor')||'— sin folio —')}</span><br><span style="color:var(--w50)">${asesorEsc([_fval(p,'Zona / Colonia'),_fval(p,'Municipio'),_fval(p,'Precio Lista')].filter(Boolean).join(' · ')||'Sin datos operativos')}</span></div></div>`).join(''):'<div class="hoy-empty">Sin propiedades reales para esta sesión.</div>'; }catch(e){ el.innerHTML=`<div class="hoy-empty err">No se pudieron cargar propiedades: ${asesorEsc(e.message)}</div>`; } }
 function buildAsesorDocumentosPanel(){ return `<div class="panel" id="panel-documentos_asesor"><div class="asesor-body asesor-perfil-page"><div class="fv-box perfil-fv-box"><div class="fv-header"><div><div class="fv-nombre">MESA DE DOCUMENTOS</div><div class="fv-wa"><span>Qué falta para avanzar, no solo archivos guardados</span></div></div><div><div class="fv-folio-lbl">Vista asesor</div><div class="fv-folio">DOCUMENTOS</div></div></div><div class="fv-body perfil-fv-body"><div class="fv-sec"><div class="fv-sec-title"><em>▤</em> Documentos faltantes / etapa del expediente</div><div class="perfil-fv-locks" id="asesor-documentos-list"><div class="hoy-empty">Cargando documentos reales…</div></div></div><div class="fv-sec"><div class="le-banner">La parte fiscal y documental debe decir: qué falta, en qué etapa afecta y qué acción destraba la operación.</div></div></div></div></div></div>`; }
-async function asesorLoadDocumentos(force=false){ if(_asesorDocsLoaded&&!force)return; _asesorDocsLoaded=true; const el=document.getElementById('asesor-documentos-list'); if(!el)return; try{ const data=await asesorLoadAll(force); const docs=[]; (data.progreso||[]).forEach(r=>{const p=_fval(r,'Pendientes visibles'); if(p) docs.push({doc:'Pendientes visibles',estado:_fval(r,'Fase Actual')||'Expediente',nota:p,nombre:asesorNombre(r)});}); (data.vendedores||[]).forEach(r=>{const p=_fval(r,'Documentos'); if(p) docs.push({doc:'Documentos vendedor',estado:_fval(r,'Progreso Expediente')||_fval(r,'Conversión')||'Captación',nota:p,nombre:asesorNombre(r)});}); el.innerHTML=docs.length?docs.map(d=>`<div class="fv-lock"><div class="fv-lock-k">${asesorEsc(d.doc)} · ${asesorEsc(d.nombre)}</div><div class="fv-lock-v"><span class="badge badge-lost">${asesorEsc(d.estado)}</span><br><span style="color:var(--w50);font-family:Montserrat,sans-serif">${asesorEsc(d.nota)}</span></div></div>`).join(''):'<div class="hoy-empty">Sin documentos faltantes registrados para esta sesión.</div>'; }catch(e){ el.innerHTML=`<div class="hoy-empty err">No se pudieron cargar documentos: ${asesorEsc(e.message)}</div>`; } }
+async function asesorLoadDocumentos(force=false){ if(_asesorDocsLoaded&&!force)return; _asesorDocsLoaded=true; const el=document.getElementById('asesor-documentos-list'); if(!el)return; try{ const data=await asesorLoadAll(force); mesaPintarLista(data); }catch(e){ el.innerHTML=`<div class="hoy-empty err">No se pudieron cargar documentos: ${asesorEsc(e.message)}</div>`; } }
+/* ══════════ MESA DE REVISIÓN — expediente documental del vendedor ══════════
+   El asesor toca la tarjeta de un vendedor en la Mesa de Documentos y revisa su
+   expediente: 8 documentos, estado, archivo, Validar / Rechazar con motivo.
+   Motor (ya desplegado en el portal): api/expediente-documentos
+     GET  ?folio=&token=                → lista
+     POST {action:'validar'|'rechazar'} → revisión (Bearer de sesión NERI)
+   Separación absoluta de flujos: esta mesa SOLO abre leads VENDEDORES
+   (tblQHdwEucTaNrLzm). Los pendientes de comprador siguen siendo informativos. */
+const MESA_DOCS_BASE=[
+ {id:'escritura',tipo:'Escritura',descripcion:'Documento base que acredita la propiedad.',critico:true},
+ {id:'predial',tipo:'Predial',descripcion:'Boleta o comprobante de predial reciente.',critico:true},
+ {id:'ine',tipo:'Identificación Oficial (INE)',descripcion:'Identificación vigente del propietario.',critico:true},
+ {id:'libertad_gravamen',tipo:'Libertad de Gravamen',descripcion:'Para verificar si la propiedad está libre de gravamen.',critico:true},
+ {id:'agua_luz',tipo:'Agua / Luz',descripcion:'Comprobante de servicios recientes.',critico:false},
+ {id:'constancia_fiscal',tipo:'Constancia Situación Fiscal',descripcion:'Necesaria para revisar correctamente el tema fiscal.',critico:false},
+ {id:'domicilio',tipo:'Comprobante de Domicilio',descripcion:'Comprobante vigente del propietario.',critico:false},
+ {id:'acta_matrimonio',tipo:'Acta de Matrimonio / Régimen Matrimonial',descripcion:'Aplica cuando la situación civil lo requiere.',critico:false}
+];
+let _mrv=null; /* contexto vivo de la revisión: {recId, folio, token, lead, docs, dirty} */
+function mesaApi(){ return String(EXP_DOC_BASE||'').replace(/\/+$/,'')+'/api/expediente-documentos'; }
+function mesaToken(f){
+  const t=String(f['Token Expediente']||'').trim();
+  if(t) return t;
+  const m=/[?&]token=([^&\s"']+)/.exec(String(f['Link Expediente Documental']||''));
+  return m?decodeURIComponent(m[1]):'';
+}
+/* Pinta la lista de la Mesa de Documentos desde el cache (sin refetch). */
+function mesaPintarLista(data){
+  const el=document.getElementById('asesor-documentos-list'); if(!el)return;
+  const cards=[];
+  (data.vendedores||[]).forEach(r=>{
+    const f=r.fields||{};
+    const exp=f['Token Expediente']||f['Link Expediente Documental']||f['Progreso Expediente'];
+    if(!exp&&!f['Documentos'])return;
+    const estado=_fval(r,'Progreso Expediente')||_fval(r,'Conversión')||'Captación';
+    const badge=/completos/i.test(estado)?'badge-close':'badge-lost';
+    const nota=_fval(r,'Documentos')||(exp?'Expediente documental activo.':'');
+    cards.push(`<div class="fv-lock${exp?' mrv-card':''}"${exp?` onclick="mesaOpenRevision('${r.id}')"`:''}><div class="fv-lock-k">Expediente vendedor · ${asesorEsc(asesorNombre(r))}</div><div class="fv-lock-v"><span class="badge ${badge}">${asesorEsc(estado)}</span>${nota?`<br><span style="color:var(--w50);font-family:Montserrat,sans-serif">${asesorEsc(nota)}</span>`:''}${exp?'<span class="mrv-go">Tocar para revisar y validar documentos →</span>':''}</div></div>`);
+  });
+  (data.progreso||[]).forEach(r=>{
+    const p=_fval(r,'Pendientes visibles'); if(!p)return;
+    cards.push(`<div class="fv-lock"><div class="fv-lock-k">Pendientes visibles · ${asesorEsc(asesorNombre(r))}</div><div class="fv-lock-v"><span class="badge badge-lost">${asesorEsc(_fval(r,'Fase Actual')||'Expediente')}</span><br><span style="color:var(--w50);font-family:Montserrat,sans-serif">${asesorEsc(p)}</span></div></div>`);
+  });
+  el.innerHTML=cards.length?cards.join(''):'<div class="hoy-empty">Sin documentos faltantes registrados para esta sesión.</div>';
+}
+/* Abre la Mesa de Revisión para un lead vendedor. */
+async function mesaOpenRevision(recId){
+  const lead=(asesorCache.vendedores||[]).find(r=>r.id===recId);
+  if(!lead){ if(typeof showToast==='function') showToast('No encontré el expediente en esta sesión.'); return; }
+  const f=lead.fields||{};
+  mesaShell(f['Nombre Completo']||'Vendedor', String(f['Folio']||'').trim());
+  const folio=String(f['Folio']||'').trim();
+  if(!folio){ mesaBody('<div class="hoy-empty">Este lead aún no tiene folio; sin folio no existe expediente documental.</div>'); return; }
+  let token=mesaToken(f);
+  if(!token){
+    mesaBody('<div class="hoy-empty">Activando la liga del expediente…</div>');
+    token=await mesaActivar(folio,lead);
+  }
+  if(!token){ mesaBody('<div class="hoy-empty err">No se pudo activar el expediente. Abre la ficha del vendedor para generar la liga de documentos y vuelve aquí.</div>'); return; }
+  _mrv={recId,folio,token,lead,docs:[],dirty:false};
+  mesaBody('<div class="hoy-empty">Cargando documentos del expediente…</div>');
+  await mesaReload();
+}
+/* Si el lead no trae token, lo activa vía la API propia (idempotente) y lo extrae del link. */
+async function mesaActivar(folio,lead){
+  try{
+    const r=await fetch('/api/activar-expediente',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(SESSION?.token||'')},body:JSON.stringify({folio})});
+    const j=await r.json().catch(()=>({}));
+    if(!r.ok||!j.link) return '';
+    if(lead&&lead.fields) lead.fields['Link Expediente Documental']=j.link;
+    const m=/[?&]token=([^&\s"']+)/.exec(j.link);
+    return m?decodeURIComponent(m[1]):'';
+  }catch(_){ return ''; }
+}
+/* Cascarón del modal (se crea una sola vez). */
+function mesaShell(nombre,folio){
+  let ovl=document.getElementById('mrv-ovl');
+  if(!ovl){
+    ovl=document.createElement('div'); ovl.id='mrv-ovl';
+    ovl.innerHTML=`<div class="mrv-box" onclick="event.stopPropagation()"><div class="mrv-head"><div><div class="mrv-title">MESA DE <em>REVISIÓN</em></div><div class="mrv-sub" id="mrv-sub"></div></div><button class="mrv-close" onclick="mesaCerrar()" aria-label="Cerrar">✕</button></div><div class="mrv-body" id="mrv-body"></div></div>`;
+    ovl.addEventListener('click',mesaCerrar);
+    document.body.appendChild(ovl);
+  }
+  const sub=document.getElementById('mrv-sub');
+  if(sub) sub.textContent=nombre+(folio?' · '+folio:'');
+  ovl.style.display='flex'; document.body.style.overflow='hidden';
+}
+function mesaBody(html){ const b=document.getElementById('mrv-body'); if(b) b.innerHTML=html; }
+function mesaCerrar(){
+  const ovl=document.getElementById('mrv-ovl'); if(ovl) ovl.style.display='none';
+  document.body.style.overflow='';
+  if(_mrv&&_mrv.dirty){ mesaCheckinLocal(); mesaPintarLista(asesorCache); }
+  _mrv=null;
+}
+document.addEventListener('keydown',e=>{ const o=document.getElementById('mrv-ovl'); if(e.key==='Escape'&&o&&o.style.display==='flex') mesaCerrar(); });
+/* Carga la lista real del folio y la fusiona con el checklist base de 8. */
+async function mesaReload(){
+  if(!_mrv)return;
+  try{
+    const r=await fetch(mesaApi()+'?folio='+encodeURIComponent(_mrv.folio)+'&token='+encodeURIComponent(_mrv.token));
+    const j=await r.json().catch(()=>({}));
+    if(!r.ok) throw new Error(j.error||'No se pudo leer el expediente.');
+    const porId={}; (j.documents||[]).forEach(d=>{ if(d&&d.id) porId[d.id]=d; });
+    const docs=MESA_DOCS_BASE.map(b=>Object.assign({estado:'Pendiente',archivo_url:'',fecha_carga:'',motivo_rechazo:''},b,porId[b.id]||{}));
+    (j.documents||[]).forEach(d=>{ if(d&&d.id&&!MESA_DOCS_BASE.some(b=>b.id===d.id)) docs.push(d); });
+    _mrv.docs=docs; mesaRender();
+  }catch(e){ mesaBody('<div class="hoy-empty err">'+asesorEsc(e.message)+'</div>'); }
+}
+function mesaRender(){
+  if(!_mrv)return;
+  const total=_mrv.docs.length, recibidos=_mrv.docs.filter(d=>/^(recibido|validado)$/i.test(String(d.estado))).length;
+  const rows=_mrv.docs.map((d,i)=>{
+    const st=String(d.estado||'Pendiente');
+    const cls=st.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    const fecha=d.fecha_carga?new Date(d.fecha_carga).toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric'}):'';
+    const acc=[];
+    if(d.archivo_url) acc.push(`<a class="mrv-btn ver" href="${asesorEsc(d.archivo_url)}" target="_blank" rel="noopener">Ver archivo</a>`);
+    if(d.archivo_url&&!/^validado$/i.test(st)) acc.push(`<button class="mrv-btn ok" onclick="mesaValidar(${i},this)">Validar</button>`);
+    if(d.archivo_url&&!/^rechazado$/i.test(st)) acc.push(`<button class="mrv-btn no" onclick="mesaRejToggle(${i})">Rechazar</button>`);
+    return `<div class="mrv-doc" id="mrv-doc-${i}"><div class="mrv-doc-top"><div class="mrv-doc-tipo">${asesorEsc(d.tipo)}${d.critico?'<span class="mrv-crit">CRÍTICO</span>':''}</div><span class="mrv-st ${cls}">${asesorEsc(st)}</span></div><div class="mrv-doc-desc">${asesorEsc(d.descripcion||'')}</div>${fecha?`<div class="mrv-doc-meta">Cargado: ${fecha}</div>`:''}${d.motivo_rechazo?`<div class="mrv-motivo">Motivo de rechazo: ${asesorEsc(d.motivo_rechazo)}</div>`:''}${acc.length?`<div class="mrv-actions">${acc.join('')}</div>`:''}<div class="mrv-rej" id="mrv-rej-${i}" style="display:none"><div class="mrv-chips">${['Ilegible','Incompleto','Documento equivocado','No vigente'].map(m=>`<button class="mrv-chip" onclick="mesaRejChip(${i},this)">${m}</button>`).join('')}</div><textarea id="mrv-motivo-${i}" placeholder="Motivo del rechazo (el propietario lo verá en su portal)…"></textarea><div class="mrv-actions"><button class="mrv-btn no" onclick="mesaRechazar(${i},this)">Confirmar rechazo</button><button class="mrv-btn ver" onclick="mesaRejToggle(${i},true)">Cancelar</button></div></div></div>`;
+  }).join('');
+  mesaBody(`<div class="mrv-doc-meta" style="margin-top:0">Documentos recibidos: ${recibidos}/${total} · valida o rechaza los que ya tienen archivo.</div>${rows}`);
+}
+function mesaRejToggle(i,hide){
+  const p=document.getElementById('mrv-rej-'+i); if(!p)return;
+  p.style.display=hide?'none':(p.style.display==='none'?'block':'none');
+}
+function mesaRejChip(i,btn){
+  const t=document.getElementById('mrv-motivo-'+i); if(t) t.value=btn.textContent;
+  const wrap=btn.parentElement; if(wrap) wrap.querySelectorAll('.mrv-chip').forEach(c=>c.classList.toggle('sel',c===btn));
+}
+function mesaValidar(i,btn){ mesaAccion(i,'validar','',btn); }
+function mesaRechazar(i,btn){
+  const t=document.getElementById('mrv-motivo-'+i);
+  const motivo=(t&&t.value.trim())||'Documento ilegible o incompleto.';
+  mesaAccion(i,'rechazar',motivo,btn);
+}
+async function mesaAccion(i,action,motivo,btn){
+  if(!_mrv)return; const d=_mrv.docs[i]; if(!d)return;
+  if(btn) btn.disabled=true;
+  try{
+    const r=await fetch(mesaApi(),{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(SESSION?.token||'')},body:JSON.stringify({action,folio:_mrv.folio,document_id:d.id,motivo})});
+    const j=await r.json().catch(()=>({}));
+    if(!r.ok||!j.ok) throw new Error(j.error||'No se pudo guardar la revisión.');
+    d.estado=j.estado||(action==='validar'?'Validado':'Rechazado');
+    d.motivo_rechazo=action==='rechazar'?motivo:'';
+    _mrv.dirty=true; mesaRender();
+    if(typeof showToast==='function') showToast(action==='validar'?'Documento validado.':'Documento rechazado; el propietario verá el motivo en su portal.');
+  }catch(e){
+    if(btn) btn.disabled=false;
+    if(typeof showToast==='function') showToast('Error: '+e.message);
+  }
+}
+/* Al cerrar con cambios: actualiza el check-in local del lead (el servidor ya lo recalculó). */
+function mesaCheckinLocal(){
+  if(!_mrv||!_mrv.lead||!_mrv.lead.fields)return;
+  const total=_mrv.docs.length||8;
+  const rec=_mrv.docs.filter(d=>/^(recibido|validado)$/i.test(String(d.estado))).length;
+  _mrv.lead.fields['Progreso Expediente']=rec>=total
+    ?('Documentos completos ('+total+'/'+total+') · listo para revisión')
+    :('Documentos recibidos: '+rec+'/'+total);
+}
 function buildAsesorReportesPanel(){ return `<div class="panel" id="panel-reportes_asesor"><div class="asesor-body asesor-perfil-page"><div class="fv-box perfil-fv-box"><div class="fv-header"><div><div class="fv-nombre">REPORTES ÚTILES</div><div class="fv-wa"><span>Métricas reales para mejorar, no para confundir</span></div></div><div><div class="fv-folio-lbl">Vista asesor</div><div class="fv-folio">REPORTES</div></div></div><div class="fv-body perfil-fv-body"><div class="fv-sec"><div class="fv-sec-title"><em>◫</em> Resumen operativo</div><div class="fv-nums" id="asesor-reportes-nums"><div class="hoy-empty">Cargando reportes reales…</div></div></div><div class="fv-sec"><div class="le-banner">Estos números vienen de Airtable filtrado por asesor desde el servidor: leads, citas, progreso y propiedades.</div></div></div></div></div></div>`; }
 async function asesorLoadReportes(force=false){ if(_asesorReportsLoaded&&!force)return; _asesorReportsLoaded=true; const el=document.getElementById('asesor-reportes-nums'); if(!el)return; try{ const data=await asesorLoadAll(force); el.innerHTML=[[data.compradores.length+data.vendedores.length,'Leads / captaciones'],[data.citas.filter(r=>['Pendiente','Confirmada','Reagendada'].includes(_fval(r,'Estado Cita'))).length,'Citas activas'],[data.progreso.length,'Operaciones en progreso'],[data.propiedades.length,'Propiedades asignadas']].map(n=>`<div class="fv-num"><div class="fv-num-val">${n[0]}</div><div class="fv-num-lbl">${n[1]}</div></div>`).join(''); }catch(e){ el.innerHTML=`<div class="hoy-empty err">No se pudieron cargar reportes: ${asesorEsc(e.message)}</div>`; } }
 
