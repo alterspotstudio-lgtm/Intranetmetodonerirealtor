@@ -2091,7 +2091,7 @@ const CRM_CFG = {
       {f:'Comprador',                        type:'text'},
       {f:'Propiedad',                        type:'text'},
       {f:'Precio',                           type:'text'},
-      {f:'Fase Actual',                      type:'select', asText:true, opts:['Apartado','Expediente','Valuación','Crédito','Escrituración','Firma','Entrega','Completado']},
+      {f:'Fase Actual',                      type:'select', asText:true, opts:['Apartado','Revisión de compra','Expediente','Preparando documentos','Acuerdo de compra','Revisión en notaría','Últimas confirmaciones','Día de firma','Entrega de llaves','Postcierre']},
       {f:'Asesor',                           type:'text'},
       {f:'WhatsApp Asesor',                  type:'text'},
       {f:'Etiqueta WhatsApp',                type:'text'},
@@ -2128,8 +2128,8 @@ const CRM_CFG = {
     fields: ['Nombre Propiedad','Tipo de Propiedad','Estado Propiedad','Zona / Colonia','Municipio','Precio Lista','Habitaciones','Asesor'],
     editable: [
       {f:'Nombre Propiedad',   type:'text'},
-      {f:'Tipo de Propiedad',  type:'select', opts:['Casa','Departamento','Terreno','Local','Oficina','Bodega']},
-      {f:'Estado Propiedad',   type:'select', opts:['Disponible','Apartada','Vendida','En proceso','Suspendida']},
+      {f:'Tipo de Propiedad',  type:'select', opts:['Casa','Departamento','Terreno','Local comercial','Otro']},
+      {f:'Estado Propiedad',   type:'select', opts:['Activa','Apartada','Vendida','En pausa','Cancelada','Disponible']},
       {f:'Zona / Colonia',     type:'text'},
       {f:'Municipio',          type:'text'},
       {f:'Precio Lista',       type:'text'},
@@ -2850,8 +2850,8 @@ const LANDING_FORM = [
     {room:'Extra',    yt:'Nombre Video Extra', mp4:'Video Extra MP4', extra:true},
   ]},
   {title:'Datos de la casa', ico:'⌂', fields:[
-    {f:'Tipo de Propiedad', type:'select', opts:['Casa','Departamento','Terreno','Local','Oficina','Bodega']},
-    {f:'Estado Propiedad',  type:'select', opts:['Disponible','Apartada','Vendida','En proceso','Suspendida']},
+    {f:'Tipo de Propiedad', type:'select', opts:['Casa','Departamento','Terreno','Local comercial','Otro']},
+    {f:'Estado Propiedad',  type:'select', opts:['Activa','Apartada','Vendida','En pausa','Cancelada','Disponible']},
     {f:'Habitaciones',       type:'number'},
     {f:'Banos',              type:'number'},
     {f:'Medios Banos',       type:'number'},
@@ -2941,10 +2941,14 @@ function _landInput(fl, rec){
   }
   if(fl.type === 'select'){
     const os = (fl.opts||[]).map(o => `<option value="${_escAttr(o)}"${val===o?' selected':''}>${o}</option>`).join('');
+    /* Blindaje: valor de Airtable fuera de la lista local → opción inyectada
+       seleccionada, nunca "Sin selección" con dato real. */
+    const extra = (val && !(fl.opts||[]).includes(val))
+      ? `<option value="${_escAttr(val)}" selected>${_esc(val)}</option>` : '';
     return `<div class="form-group${fl.full?' full':''}">
         <label class="form-label">${name}</label>
         <select class="form-inp" data-field="${_escAttr(name)}" data-ftype="select" data-orig="${_escAttr(orig)}">
-          <option value="">— Sin selección</option>${os}</select></div>`;
+          <option value="">— Sin selección</option>${extra}${os}</select></div>`;
   }
   if(fl.type === 'textarea'){
     return `<div class="form-group${fl.full?' full':''}">
@@ -3346,9 +3350,14 @@ function crmBuildModal(title, editable, values){
     if(type === 'select'){
       const os = (opts||[]).map(o =>
         `<option value="${_escAttr(o)}"${val===o?' selected':''}>${_esc(o)}</option>`).join('');
+      /* Blindaje: si Airtable trae un valor fuera de la lista local, se inyecta
+         como opción seleccionada. El select nunca muestra "Sin selección"
+         cuando el dato sí existe, y guardar no borra el valor real. */
+      const extra = (val && !(opts||[]).includes(val))
+        ? `<option value="${_escAttr(val)}" selected>${_esc(val)}</option>` : '';
       return `<div class="form-group">
         <label class="form-label">${_esc(f)}</label>
-        <select class="form-inp" data-field="${fieldAttr}" data-ftype="select" data-orig="${valueAttr}"><option value="">— Sin selección</option>${os}</select></div>`;
+        <select class="form-inp" data-field="${fieldAttr}" data-ftype="select" data-orig="${valueAttr}"><option value="">— Sin selección</option>${extra}${os}</select></div>`;
     }
     if(type === 'date'){
       // Normaliza lo que haya escrito antes ("12 mayo", "12/05") a YYYY-MM-DD;
