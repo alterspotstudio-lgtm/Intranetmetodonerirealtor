@@ -1538,6 +1538,7 @@ const NAV_ROL = {
     { id:'hoy', label:'Hoy', icon:'⬡', highlight:true },
     { id:'perfil_asesor', label:'Mi Perfil del Asesor', icon:'◉' },
     { id:'airtable', label:'Centro de Operaciones', icon:'◈' },
+    { id:'mapa', label:'Mapa Maestro', icon:'⟁' },
     { id:'expedientes', label:'Expedientes', icon:'❑' },
     { id:'propiedades_asesor', label:'Mis Propiedades', icon:'⌂' },
     { id:'documentos_asesor', label:'Documentos', icon:'▤' },
@@ -1554,6 +1555,7 @@ const NAV_ROL = {
     { section:'Principal' },
     { id:'hoy',         label:'Dashboard',          icon:'⬡' },
     { id:'airtable',    label:'Centro de Operaciones',       icon:'◈', highlight:true },
+    { id:'mapa',        label:'Mapa Maestro',       icon:'⟁' },
     { section:'Equipo' },
     { id:'sala',        label:'Sala de Mensajes',   icon:'⚡' },
     { id:'reportes',    label:'Reportes',           icon:'◫' },
@@ -1566,6 +1568,7 @@ const NAV_ROL = {
     { section:'Dirección' },
     { id:'hoy',         label:'Dashboard',          icon:'⬡' },
     { id:'airtable',    label:'Centro de Operaciones',       icon:'◈', highlight:true },
+    { id:'mapa',        label:'Mapa Maestro',       icon:'⟁' },
     { id:'reportes',    label:'Reportes',           icon:'◫' },
     { section:'Sistema' },
     { id:'sala',        label:'Sala de Mensajes',   icon:'⚡' },
@@ -1718,6 +1721,7 @@ function buildPanels(){
   ca.insertAdjacentHTML('beforeend', buildAsesorReportesPanel());
   ca.insertAdjacentHTML('beforeend', buildAsesorManualesPanel());
   ca.insertAdjacentHTML('beforeend', buildExpedientePanel());
+  ca.insertAdjacentHTML('beforeend', buildMapaPanel());
 
   ca.insertAdjacentHTML('beforeend', buildAirtablePanel());
   ca.insertAdjacentHTML('beforeend', buildSalaMensajesPanel());
@@ -3698,10 +3702,180 @@ function openExternal(id){
 /* ═══════════════════════════════════════════════════
    NAVEGACIÓN
 ═══════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════
+   MAPA MAESTRO DE COMPRAVENTA · paso a paso oficial
+   Fuente canónica: Mapa Maestro de Compraventa (Método NERI).
+   Cada operación real se proyecta sobre las 16 etapas.
+   La etapa actual se deriva de EVIDENCIA en Airtable,
+   nunca de captura manual. Regla: ninguna etapa se brinca.
+═══════════════════════════════════════════════════ */
+const ETAPAS_MAESTRO = [
+  {n:1,  t:'Captación del vendedor',        obj:'Saber si la propiedad se puede trabajar y si el vendedor es viable.', resp:'Asesor', tiempo:'1–3 días', salida:'Vendedor validado · propiedad candidata · se decide tipo de firma.', clave:'INE, CURP, RFC, escritura, predial, agua, precio esperado, adeudos. Bloqueos: sin escritura, intestada, copropietarios, crédito vigente, precio fuera de mercado.'},
+  {n:2,  t:'Validación · firma',            obj:'Formalizar el acuerdo de trabajo con el propietario.', resp:'Asesor + vendedor', tiempo:'1–3 días', salida:'Firma exclusiva o firma de venta directa registrada en el sistema.', clave:'Conversión del lead a Firma exclusiva / Firma venta directa. Sin firma no hay operación.'},
+  {n:3,  t:'Expediente de la propiedad',    obj:'Saber si la casa se puede vender legal y comercialmente.', resp:'Asesor + vendedor · revisión Notaría', tiempo:'3–10 días (con problemas: 15–45+)', salida:'Expediente legal listo · propiedad publicable · riesgos detectados antes de llevar comprador.', clave:'Escritura inscrita, no adeudo predial/agua, plano catastral, libertad de gravamen, régimen de condominio, carta saldo si hay crédito. El portal documental del propietario controla los 8 documentos.'},
+  {n:4,  t:'Publicación y promoción',       obj:'Sacar la propiedad al mercado con datos correctos.', resp:'Asesor', tiempo:'1–3 días para publicar · 7–60 días comerciales', salida:'Propiedad visible · leads de compradores entrando · registro de interesados.', clave:'Fotos, video, precio, ficha técnica, landing de propiedad, guiones de WhatsApp y llamada.'},
+  {n:5,  t:'Lead comprador',                obj:'Identificar si el interesado puede comprar o solo está curioseando.', resp:'Asesor', tiempo:'Mismo día a 2 días', salida:'Comprador calificado · se decide visita o diagnóstico financiero primero.', clave:'Nombre, WhatsApp, presupuesto, forma de pago, tiempo para comprar, si tiene crédito Infonavit / bancario / recurso propio. Clasificación HOT · WARM · COLD.'},
+  {n:6,  t:'Calificación del comprador',    obj:'No llevar visitas sin saber si puede comprar.', resp:'Asesor · apoyo broker / banco / Infonavit', tiempo:'Recurso propio 1–3 d · Infonavit 1–7 d · bancario 3–10 d', salida:'Comprador viable · monto confirmado · forma de pago definida.', clave:'Identificación, comprobante de fondos o precalificación según forma de pago.'},
+  {n:7,  t:'Cita / visita a la propiedad',  obj:'Confirmar interés real.', resp:'Asesor', tiempo:'1–5 días desde comprador viable', salida:'Interesado · descartado · segunda visita · oferta.', clave:'Antes: confirmar horario, asistentes, forma de pago, avisar al propietario, llaves. Después: registrar reacción, objeciones y siguiente acción en <24 h.'},
+  {n:8,  t:'Oferta / negociación',          obj:'Cerrar condiciones claras antes del apartado.', resp:'Asesor', tiempo:'1–5 días', salida:'Oferta aceptada · rechazada · contraoferta · autorización de apartado.', clave:'Precio final, monto de apartado, fecha límite de firma, qué se incluye, penalizaciones, quién paga avalúo / notaría / adeudos, comisión.'},
+  {n:9,  t:'Apartado',                      obj:'Sacar la propiedad del mercado bajo condiciones firmadas.', resp:'Asesor + comprador + vendedor', tiempo:'1–3 días', salida:'Propiedad apartada · comprador comprometido · expediente avanza a crédito / notaría.', clave:'Contrato o recibo de apartado, identificaciones, comprobante de pago, condiciones acordadas, política de devolución.'},
+  {n:10, t:'Expedientes finales',           obj:'Entregar a notaría / institución todo lo que acredita que se puede vender y comprar.', resp:'Vendedor y comprador · control Asesor · validación Notaría', tiempo:'Vendedor 3–10 d · comprador 2–30 d según forma de pago', salida:'Ambas partes listas para escriturar · cálculo fiscal preliminar.', clave:'Vendedor: identidad, fiscal/ISR, CLABE, cónyuge si aplica. Comprador: identidad, domicilio, datos de crédito si aplica.'},
+  {n:11, t:'Crédito / recurso / avalúo',    obj:'Confirmar que el dinero puede llegar a la operación.', resp:'Comprador + banco / Infonavit / notaría según forma de pago', tiempo:'Recurso propio 3–10 d · Infonavit 15–30 d · bancario 20–45 d · avalúo 5–10 d', salida:'Crédito autorizado · instrucción enviada a notaría · fecha tentativa de firma.', clave:'Bloqueos: avalúo bajo, propiedad no cumple, comprador no alcanza, gravamen, diferencias escritura–catastro–realidad.'},
+  {n:12, t:'Notaría',                       obj:'Dar seguridad jurídica y preparar la escritura.', resp:'Notaría · acompaña Asesor', tiempo:'7–20 días con expediente completo', salida:'Proyecto de escritura listo · impuestos calculados · fecha de firma programada.', clave:'Revisión de identidad, capacidad legal, gravámenes, adeudos, régimen matrimonial, avisos preventivos, cálculo de ISR e ISABI.'},
+  {n:13, t:'ISABI / certificados / impuestos', obj:'Pagar el impuesto municipal y cerrar certificados.', resp:'Comprador · gestor notarial · Catastro', tiempo:'Preparación 2–7 días + plazos del municipio', salida:'ISABI pagado · cambio de propietario en trámite · listo para firma.', clave:'Declaración ISABI, copia certificada de escritura, no adeudo predial y agua, plano catastral, avalúo por perito inscrito.'},
+  {n:14, t:'Firma de escritura',            obj:'Formalizar legalmente la compraventa.', resp:'Notaría · participan todas las partes', tiempo:'1 día', salida:'Escritura firmada · pago ejecutado o programado · entrega definida.', clave:'Identificaciones vigentes, proyecto revisado, dispersión confirmada, impuestos calculados, condiciones de entrega confirmadas.'},
+  {n:15, t:'Pago y entrega',                obj:'Entregar posesión física y cerrar la experiencia del cliente.', resp:'Asesor + vendedor + comprador', tiempo:'Recurso propio: 24–72 h post pago · crédito: según dispersión', salida:'Comprador recibe posesión · vendedor entrega · operación comercial cerrada.', clave:'Llaves, controles, recibos de servicios, lectura de medidores, acta de entrega-recepción, fotos de entrega, cambio de titularidad de servicios.'},
+  {n:16, t:'Inscripción / postcierre',      obj:'Confirmar que todo quedó cerrado y documentado.', resp:'Asesor + notaría', tiempo:'30–90 días según Registro', salida:'Operación cerrada · expediente completo · cliente listo para referidos.', clave:'Testimonio inscrito, comprobante de inscripción, cierre de comisión, factura de honorarios, encuesta y seguimiento postventa.'},
+];
+
+/* Fase Actual (Progreso) → etapa del Mapa Maestro en la que ESTÁ la operación */
+const MAPA_FASE_ETAPA = {
+  'Apartado':10, 'Revisión de compra':10, 'Expediente':10, 'Preparando documentos':10,
+  'Acuerdo de compra':11, 'Revisión en notaría':12, 'Últimas confirmaciones':13,
+  'Día de firma':14, 'Entrega de llaves':15, 'Postcierre':16,
+};
+
+let _mapaLoaded=false, _mapaOpSel=null;
+
+function buildMapaPanel(){
+  return `<div class="panel" id="panel-mapa">
+    <style id="mapa-css">
+      #panel-mapa .mapa-body{max-width:980px;margin:0 auto;padding:28px 18px 60px}
+      #panel-mapa .mapa-eyebrow{font-size:10px;letter-spacing:2.2px;text-transform:uppercase;color:var(--gold,#C6A86B);font-weight:900}
+      #panel-mapa .mapa-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(30px,5vw,46px);line-height:.96;color:var(--white,#fff);margin:8px 0 4px}
+      #panel-mapa .mapa-title em{font-style:normal;color:var(--gold,#C6A86B)}
+      #panel-mapa .mapa-regla{font-family:'Cormorant Garamond',serif;font-size:16px;color:rgba(255,255,255,.55);font-style:italic;margin:10px 0 22px;border-left:2px solid var(--gold,#C6A86B);padding-left:12px;line-height:1.5}
+      #panel-mapa .mapa-ops{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:26px}
+      #panel-mapa .mapa-op{border:1px solid rgba(198,168,107,.35);background:transparent;color:rgba(255,255,255,.7);font-size:11px;letter-spacing:.6px;padding:8px 14px;border-radius:2px;cursor:pointer;font-family:Montserrat,sans-serif}
+      #panel-mapa .mapa-op.on{background:var(--gold,#C6A86B);color:#0A0A0A;font-weight:700;border-color:var(--gold,#C6A86B)}
+      #panel-mapa .mapa-chain{position:relative;padding-left:34px}
+      #panel-mapa .mapa-chain::before{content:'';position:absolute;left:11px;top:14px;bottom:14px;width:1px;background:rgba(198,168,107,.25)}
+      #panel-mapa .mapa-step{position:relative;margin-bottom:10px;border:1px solid rgba(255,255,255,.08);border-radius:3px;background:rgba(255,255,255,.02)}
+      #panel-mapa .mapa-step .dot{position:absolute;left:-29px;top:16px;width:13px;height:13px;border-radius:50%;border:2px solid rgba(255,255,255,.22);background:#0A0A0A}
+      #panel-mapa .mapa-step.done .dot{background:var(--gold,#C6A86B);border-color:var(--gold,#C6A86B)}
+      #panel-mapa .mapa-step.cur .dot{border-color:var(--gold,#C6A86B);background:#0A0A0A;box-shadow:0 0 0 3px rgba(198,168,107,.18)}
+      #panel-mapa .mapa-step.cur{border-color:rgba(198,168,107,.55)}
+      #panel-mapa .mapa-step-h{display:flex;align-items:center;gap:12px;padding:13px 16px;cursor:pointer;user-select:none}
+      #panel-mapa .mapa-num{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,.35);min-width:22px}
+      #panel-mapa .mapa-step.done .mapa-num,#panel-mapa .mapa-step.cur .mapa-num{color:var(--gold,#C6A86B)}
+      #panel-mapa .mapa-t{flex:1;font-size:13px;letter-spacing:.4px;color:var(--white,#fff);font-weight:600}
+      #panel-mapa .mapa-step.off .mapa-t{color:rgba(255,255,255,.45);font-weight:400}
+      #panel-mapa .mapa-st{font-size:9px;letter-spacing:1.4px;text-transform:uppercase;font-weight:800}
+      #panel-mapa .mapa-st.done{color:var(--gold,#C6A86B)}
+      #panel-mapa .mapa-st.cur{color:#fff;background:var(--gold,#C6A86B);color:#0A0A0A;padding:3px 8px;border-radius:2px}
+      #panel-mapa .mapa-st.off{color:rgba(255,255,255,.25)}
+      #panel-mapa .mapa-det{display:none;padding:0 16px 16px 50px;font-size:12px;line-height:1.7;color:rgba(255,255,255,.65)}
+      #panel-mapa .mapa-step.open .mapa-det{display:block}
+      #panel-mapa .mapa-det b{color:var(--gold,#C6A86B);font-weight:700}
+      #panel-mapa .mapa-det .row{margin-bottom:6px}
+      #panel-mapa .mapa-foot{margin-top:26px;font-size:11px;color:rgba(255,255,255,.4);line-height:1.7;border-top:1px solid rgba(255,255,255,.08);padding-top:16px}
+    </style>
+    <div class="mapa-body">
+      <div class="mapa-eyebrow">Proceso oficial · Método NERI</div>
+      <div class="mapa-title">MAPA MAESTRO <em>DE COMPRAVENTA</em></div>
+      <div class="mapa-regla">Una operación no debe avanzar por emoción. Debe avanzar por evidencia.<br>Si falta documento, no está listo. Si falta responsable, se pierde. Si falta fecha, se enfría.</div>
+      <div class="mapa-ops" id="mapa-ops"><div class="hoy-empty">Cargando operaciones reales…</div></div>
+      <div class="mapa-chain" id="mapa-chain"></div>
+      <div class="mapa-foot">Ninguna etapa se brinca. La etapa actual se deriva de la evidencia registrada en el sistema (firma, expediente, publicación, citas, apartado y fase del portal) — no de captura manual. Toca cualquier etapa para ver objetivo, responsable, tiempo estimado, salida esperada y claves del trámite.</div>
+    </div>
+  </div>`;
+}
+
+/* Deriva la etapa actual (1–16) de una operación a partir de evidencia */
+function mapaEtapaDe(prop, vendedores, progreso, citas){
+  const folioOp  = _fval(prop,'Folio NERI');
+  const folioVen = _fval(prop,'Folio Vendedor');
+  const nombre   = _fval(prop,'Nombre Propiedad');
+  const lead = folioVen ? (vendedores||[]).find(r=>_fval(r,'Folio')===folioVen) : null;
+  const prog = (progreso||[]).find(r=>_fval(r,'Folio')===folioOp || _fval(r,'Folio')===_fval(prop,'Folio Portal Progreso'));
+  const citasOp = (citas||[]).filter(c=>{
+    const p=_fval(c,'Propiedad')||_fval(c,'Propiedad de Interés')||'';
+    return (nombre && p && p.toLowerCase().includes(nombre.toLowerCase().slice(0,18))) || _fval(c,'Folio Propiedad')===folioOp;
+  });
+  let cur = 1;                                              // hay lead/propiedad: captación
+  const conv = lead ? _fval(lead,'Conversión') : '';
+  if(lead && conv && conv!=='En seguimiento' && conv!=='No calificó') cur = 3;   // firmado → expediente propiedad
+  if(!lead) cur = Math.max(cur, 3);                         // propiedad sin lead ligado: ya pasó captación
+  const expTxt = lead ? _fval(lead,'Progreso Expediente') : '';
+  const expM = expTxt.match(/(\d+)\s*\/\s*8/);
+  if(expM && Number(expM[1])>=8) cur = Math.max(cur, 4);    // 8/8 → publicación
+  const etCom = _fval(prop,'Etapa Comercializacion');
+  if(/Publicación activa|En comercialización/i.test(etCom)) cur = Math.max(cur, 5); // publicada → lead comprador
+  const nLeads = Number(_fval(prop,'Contador Leads'))||0;
+  if(nLeads>0) cur = Math.max(cur, 6);                      // hay interesados → calificación
+  if(citasOp.length) cur = Math.max(cur, 7);                // hay cita → visita
+  if(citasOp.some(c=>_fval(c,'Estado Cita')==='Realizada')) cur = Math.max(cur, 8); // visita hecha → oferta
+  const estado = _fval(prop,'Estado Propiedad');
+  if(estado==='Apartada' || prog) cur = Math.max(cur, 9);   // apartado
+  if(prog){
+    const fase = _fval(prog,'Fase Actual');
+    cur = Math.max(cur, MAPA_FASE_ETAPA[fase]||10);
+  }
+  if(estado==='Vendida') cur = Math.max(cur, 16);
+  return { cur, lead, prog, citas:citasOp.length, conv, fase: prog?_fval(prog,'Fase Actual'):'', expTxt };
+}
+
+async function mapaLoad(force=false){
+  if(_mapaLoaded && !force) return; _mapaLoaded = true;
+  const opsEl=document.getElementById('mapa-ops'), chEl=document.getElementById('mapa-chain');
+  if(!opsEl||!chEl) return;
+  try{
+    const data = await asesorLoadAll(force);
+    const props = data.propiedades||[];
+    if(!props.length){
+      opsEl.innerHTML = '<div class="hoy-empty">Aún no hay operaciones reales. El mapa se muestra como referencia oficial del proceso.</div>';
+      mapaRender(null, data);
+      return;
+    }
+    if(!_mapaOpSel || !props.find(p=>p.id===_mapaOpSel)) _mapaOpSel = props[0].id;
+    opsEl.innerHTML = props.map(p=>{
+      const n=_fval(p,'Nombre Propiedad')||_fval(p,'Folio NERI')||'Sin nombre';
+      return `<button class="mapa-op${p.id===_mapaOpSel?' on':''}" onclick="mapaPick('${p.id}')">${_esc(n)}</button>`;
+    }).join('');
+    mapaRender(props.find(p=>p.id===_mapaOpSel), data);
+  }catch(e){
+    opsEl.innerHTML = `<div class="hoy-empty err">No se pudo cargar el mapa: ${_esc(e.message)}</div>`;
+  }
+}
+function mapaPick(id){
+  _mapaOpSel = id;
+  document.querySelectorAll('#mapa-ops .mapa-op').forEach(b=>b.classList.remove('on'));
+  if(window.event && window.event.target) window.event.target.classList.add('on');
+  const d = asesorCache;
+  if(d && d._loaded){
+    const p=(d.propiedades||[]).find(x=>x.id===id);
+    if(p) mapaRender(p, d);
+  } else { _mapaLoaded=false; mapaLoad(true); }
+}
+function mapaToggle(el){ el.closest('.mapa-step').classList.toggle('open'); }
+
+function mapaRender(prop, data){
+  const chEl=document.getElementById('mapa-chain'); if(!chEl) return;
+  const info = prop ? mapaEtapaDe(prop, data.vendedores, data.progreso, data.citas) : { cur:0 };
+  chEl.innerHTML = ETAPAS_MAESTRO.map(e=>{
+    const cls = !prop ? 'off' : (e.n<info.cur ? 'done' : (e.n===info.cur ? 'cur' : 'off'));
+    const st  = !prop ? '' : (e.n<info.cur ? '<span class="mapa-st done">Completo</span>' : (e.n===info.cur ? '<span class="mapa-st cur">Etapa actual</span>' : '<span class="mapa-st off">No iniciado</span>'));
+    return `<div class="mapa-step ${cls}${e.n===info.cur?' open':''}">
+      <span class="dot"></span>
+      <div class="mapa-step-h" onclick="mapaToggle(this)">
+        <span class="mapa-num">${String(e.n).padStart(2,'0')}</span>
+        <span class="mapa-t">${_esc(e.t)}</span>${st}
+      </div>
+      <div class="mapa-det">
+        <div class="row"><b>Objetivo:</b> ${_esc(e.obj)}</div>
+        <div class="row"><b>Responsable:</b> ${_esc(e.resp)} · <b>Tiempo:</b> ${_esc(e.tiempo)}</div>
+        <div class="row"><b>Salida esperada:</b> ${_esc(e.salida)}</div>
+        <div class="row"><b>Claves:</b> ${_esc(e.clave)}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 const LABELS = {
   hoy:'Inicio',
   administracion:'Control de Mando',
   airtable:'Centro de Operaciones',
+  mapa:'Mapa Maestro de Compraventa',
   expedientes:'Expedientes',
   sala:'Sala de Mensajes',
   compradores:'Landing Compradores',
@@ -4995,6 +5169,7 @@ function goTo(id){
   if(id === 'reportes_asesor') setTimeout(()=>asesorLoadReportes(false), 60);
   if(id === 'sala') setTimeout(()=>salaLoadContext(false), 60);
   if(id === 'expedientes') setTimeout(()=>expLoadIndex(false), 60);
+  if(id === 'mapa') setTimeout(()=>mapaLoad(false), 60);
 }
 
 /* ═══════════════════════════════════════════════════
