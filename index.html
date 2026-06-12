@@ -424,6 +424,13 @@ select.form-input option{background:#111;color:#fff}
   background:rgba(74,222,128,.08);border-color:rgba(74,222,128,.24);color:var(--green);
 }
 .wa-table-link:hover{background:rgba(74,222,128,.14);border-color:rgba(74,222,128,.36);color:var(--green)}
+.owner-wa-link{
+  display:inline-flex;align-items:center;gap:5px;
+  color:var(--gold);font-weight:800;text-decoration:none;
+  border-bottom:1px solid var(--goldbdr);line-height:1.25;
+}
+.owner-wa-link::before{content:'';width:4px;height:4px;border-radius:50%;background:var(--green);flex-shrink:0}
+.owner-wa-link:hover{color:var(--gold2);border-bottom-color:var(--gold2)}
 .price-chip.price-high{background:rgba(201,169,110,.08);border-color:var(--goldbdr);color:var(--gold)}
 .price-chip.price-mid{background:rgba(251,191,36,.08);border-color:rgba(251,191,36,.24);color:#fbbf24}
 .price-chip.price-base{background:rgba(255,255,255,.035);border-color:var(--border);color:var(--w50)}
@@ -2051,8 +2058,8 @@ const CRM_CFG = {
     dot: 'propiedades',
     landing: true,
     landingFields: ['Nombre Propiedad','Folio NERI','Folio Vendedor','Link Comprador','Link Portal','Frase Portada','Frase Inicio','Foto de portada','Precio Lista','Precio Minimo','Moneda','Plusvalia Valor','Plusvalia Texto','Video Sala','Video Sala MP4','Video Cocina','Video Cocina MP4','Video Recamara','Video Recamara MP4','Video Jardin','Video Jardin MP4','Video Alberca','Video Alberca MP4','Nombre Video Extra','Video Extra MP4','Tipo de Propiedad','Estado Propiedad','Habitaciones','Banos','Medios Banos','Estacionamientos','Metros Construccion','Metros Terreno','Zona / Colonia','Municipio','Estado / Entidad','Direccion','Link Tour Virtual','Google Maps URL'],
-    cols: ['Nombre','Tipo','Estado','Zona','Municipio','Precio Lista','Recámaras','Asesor'],
-    fields: ['Nombre Propiedad','Tipo de Propiedad','Estado Propiedad','Zona / Colonia','Municipio','Precio Lista','Habitaciones','Asesor'],
+    cols: ['Propiedad','Tipo','Estado','Zona','Precio Lista','Recámaras','Propietario','Nota'],
+    fields: ['Nombre Propiedad','Tipo de Propiedad','Estado Propiedad','Zona / Colonia','Precio Lista','Habitaciones','Folio Vendedor','Notas Internas'],
     editable: [
       {f:'Nombre Propiedad',   type:'text'},
       {f:'Tipo de Propiedad',  type:'select', opts:['Casa','Departamento','Terreno','Local','Oficina','Bodega']},
@@ -2210,6 +2217,45 @@ function crmDeleteFromIntranet(){
   showToast('✓ Lead eliminado de la intranet');
 }
 
+let crmVendedoresFolioIndex = {};
+
+function crmNormalizeFolio(value){
+  return String(value || '').trim().toUpperCase();
+}
+
+async function crmLoadPropietariosIndex(force=false){
+  if(!force && Object.keys(crmVendedoresFolioIndex).length) return;
+  try{
+    const cfgVend = CRM_CFG.vendedores;
+    const dataVend = await atFetch(`${cfgVend.tableId}?maxRecords=100`);
+    const index = {};
+    (dataVend.records || []).forEach(r => {
+      const folio = crmNormalizeFolio(_fval(r,'Folio'));
+      if(folio) index[folio] = r;
+    });
+    crmVendedoresFolioIndex = index;
+  }catch(e){
+    console.warn('No se pudo cargar índice de propietarios por folio:', e.message);
+    crmVendedoresFolioIndex = {};
+  }
+}
+
+function crmPropietarioData(propRec){
+  const folioVend = crmNormalizeFolio(_fval(propRec,'Folio Vendedor'));
+  const vendRec = folioVend ? crmVendedoresFolioIndex[folioVend] : null;
+  if(!vendRec) return { nombre:'', telefono:'' };
+  return {
+    nombre: _fval(vendRec,'Nombre Completo'),
+    telefono: _fval(vendRec,'Teléfono WhatsApp')
+  };
+}
+
+function crmPropietarioWaHref(propRec){
+  const data = crmPropietarioData(propRec);
+  const phone = crmPhoneForWa(data.telefono);
+  return phone ? 'https://wa.me/' + phone : '';
+}
+
 async function crmLoad(tab, force=false){
   crmState.tab = tab;
   const cfg = CRM_CFG[tab];
@@ -2227,6 +2273,7 @@ async function crmLoad(tab, force=false){
     // Robusto: sin fields[] (si un nombre no existe, Airtable rechaza TODO con 422)
     // y sin view fija (falla si la vista fue renombrada). Trae todos los campos.
     const data = await atFetch(`${cfg.tableId}?maxRecords=100`);
+    if(tab === 'propiedades') await crmLoadPropietariosIndex(force);
     crmState.records = crmSortNewest(tab, crmVisibleRecords(tab, data.records || []));
     crmRender(tab, crmState.records);
     const tabCountEl = document.getElementById('tab-count-' + tab);
@@ -2284,20 +2331,33 @@ function crmRender(tab, records){
       let val = rec.fields?.[fname] ?? '';
       if(typeof val === 'object') val = Array.isArray(val) ? val.map(v=>v?.name||v).join(', ') : (val?.name ?? JSON.stringify(val));
       val = String(val);
+
+      const isPropietario = tab === 'propiedades' && fname === 'Folio Vendedor';
+      const propietario = isPropietario ? crmPropietarioData(rec) : null;
+      if(isPropietario) val = propietario?.nombre || '';
+
       const isBadge = !!STATUS_BADGE[val];
       const isPrice = crmIsPriceField(fname);
       const isVendedorWhatsapp = tab === 'vendedores' && fname === 'Teléfono WhatsApp' && !!val;
       const waHref = isVendedorWhatsapp ? crmVendedorWaHref(rec) : '';
-      const inner = isVendedorWhatsapp && waHref
-        ? `<a class="wa-table-link" href="${_escAttr(waHref)}" target="_blank" rel="noopener" onclick="event.stopPropagation()" title="Abrir WhatsApp con mensaje preparado">WhatsApp</a>`
-        : isPrice && val
-          ? `<span class="price-chip ${crmPriceClass(val)}">${_esc(val)}</span>`
-          : isBadge
-            ? `<span class="badge ${STATUS_BADGE[val]}">${val}</span>`
-            : (val ? _esc(val) : '<span style="color:var(--w20)">—</span>');
+      const ownerWaHref = isPropietario ? crmPropietarioWaHref(rec) : '';
+      const inner = isPropietario
+        ? (val
+          ? (ownerWaHref
+            ? `<a class="owner-wa-link" href="${_escAttr(ownerWaHref)}" target="_blank" rel="noopener" onclick="event.stopPropagation()" title="Abrir WhatsApp con propietario">${_esc(val)}</a>`
+            : _esc(val))
+          : '<span style="color:var(--w20)">—</span>')
+        : isVendedorWhatsapp && waHref
+          ? `<a class="wa-table-link" href="${_escAttr(waHref)}" target="_blank" rel="noopener" onclick="event.stopPropagation()" title="Abrir WhatsApp con mensaje preparado">WhatsApp</a>`
+          : isPrice && val
+            ? `<span class="price-chip ${crmPriceClass(val)}">${_esc(val)}</span>`
+            : isBadge
+              ? `<span class="badge ${STATUS_BADGE[val]}">${val}</span>`
+              : (val ? _esc(val) : '<span style="color:var(--w20)">—</span>');
       let cls = '';
       if(FOLIO_FIELDS.includes(fname)) cls = 'folio';
       else if(NAME_FIELDS.includes(fname.toLowerCase())) cls = 'name';
+      else if(isPropietario) cls = 'name';
       else if(isPrice) cls = 'price';
       else if(!isBadge && val.length > 22) cls = 'clip';
       const title = cls==='clip' ? ` title="${_escAttr(val)}"` : '';
