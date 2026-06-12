@@ -1968,7 +1968,8 @@ const FASES_PROGRESO = [
   { n:'Entrega de llaves',        listo:'Acta de entrega, llaves, finiquito de servicios. ¡Operación cerrada!' },
 ];
 function _faseIndex(nombre){
-  const i = FASES_PROGRESO.findIndex(f=>f.n===nombre);
+  const real = (typeof FASES_ALIAS !== 'undefined' && FASES_ALIAS[nombre]) || nombre;
+  const i = FASES_PROGRESO.findIndex(f=>f.n===real);
   return i<0 ? 0 : i;
 }
 function renderOperaciones(prog){
@@ -2385,6 +2386,7 @@ function crmOpenFicha(recId){
         `<div class="fk-step"><span class="d"></span><span class="l">${f}</span></div>`).join('')}</div>
       <div class="fk-portal-next" id="fk-portal-next">Cargando el estado del portal…</div>
       <div class="fk-portal-actions">
+        <button class="fk-portal-btn gold" id="fk-portal-adv" style="display:none" onclick="fichaAvanzarFase()">Avanzar fase →</button>
         <button class="fk-portal-btn gold" id="fk-portal-wa" style="display:none" onclick="window.open(this.dataset.wa,'_blank','noopener')">Enviar por WhatsApp</button>
         <button class="fk-portal-btn" data-msg="${_escAttr(portalUrl)}" onclick="fichaCopy(this)">Copiar link</button>
         <a class="fk-portal-btn" href="${_escAttr(portalUrl)}" target="_blank" rel="noopener">Abrir portal</a>
@@ -2398,7 +2400,12 @@ function crmOpenFicha(recId){
      expedientecomprador.vercel.app con el mismo Bearer de sesión. */
   const expLinkPrevio = _fval(rec,'Link Expediente Comprador');
   const expProgreso   = _fval(rec,'Progreso Expediente Comprador');
-  const expBlock = (enCap2 && folioLead) ? `<div class="fk-portal" id="fk-expc"
+  /* Interruptor del expediente del comprador: el proyecto
+     expedientecomprador.vercel.app aún no existe (pendiente #7).
+     Cambiar a true cuando ese portal esté desplegado — todo el código
+     de abajo ya queda listo y no hay que tocar nada más. */
+  const EXPC_PORTAL_ACTIVO = false;
+  const expBlock = (EXPC_PORTAL_ACTIVO && enCap2 && folioLead) ? `<div class="fk-portal" id="fk-expc"
       data-folio="${_escAttr(folioLead)}"
       data-tel="${_escAttr(String(wa||'').replace(/\D/g,''))}"
       data-nombre="${_escAttr((nombre||'').split(' ')[0])}">
@@ -2449,18 +2456,50 @@ function crmOpenFicha(recId){
   if(portalUrl) fichaPintarPortal(rec, folioOp, portalUrl);
 }
 
-/* Fases canónicas del Capítulo 2 (comprador) con su avance acumulado. */
-const FASES_CAP2 = ['Apartado','Expediente','Valuación','Crédito','Escrituración','Firma','Entrega','Completado'];
-const FASES_PCT  = [5,20,35,50,65,80,90,100];
+/* Fases canónicas del Capítulo 2 (comprador). EXACTAMENTE las opciones del
+   campo "Fase Actual" en Portal Progreso Clientes (tblyC9VjjtoRKJPQL) y los
+   porcentajes de la fórmula % Compra. No inventar fases aquí: si Airtable
+   cambia, cambiar primero allá. "Expediente" es alias histórico (30%) y
+   "Postcierre" cierra en 100. */
+const FASES_CAP2 = ['Apartado','Revisión de compra','Preparando documentos','Acuerdo de compra','Revisión en notaría','Últimas confirmaciones','Día de firma','Entrega de llaves'];
+const FASES_PCT  = [5,15,30,45,60,75,90,100];
+const FASES_ALIAS = { 'Expediente':'Preparando documentos', 'Postcierre':'Entrega de llaves' };
+/* Próximo paso visible en el portal del cliente, por fase. El sistema lo
+   escribe solo al avanzar — el asesor no redacta nada. */
+const FASES_PASO = {
+  'Apartado':'Enviar el portal de progreso al cliente y confirmar la entrega del apartado.',
+  'Revisión de compra':'Revisar las condiciones de la operación con el comprador y confirmar el camino de pago.',
+  'Preparando documentos':'Reunir y validar la documentación de ambas partes para integrar el expediente.',
+  'Acuerdo de compra':'Formalizar el acuerdo de compraventa entre las partes.',
+  'Revisión en notaría':'La notaría revisa el expediente y prepara la escritura.',
+  'Últimas confirmaciones':'Confirmar fecha, montos y requisitos finales antes de la firma.',
+  'Día de firma':'Acompañar la firma de escritura en notaría.',
+  'Entrega de llaves':'Entrega de llaves realizada. La operación queda cerrada.'
+};
+/* Mensaje de WhatsApp de actualización para el cliente, por fase. */
+const FASES_WA = {
+  'Revisión de compra':'tu compra avanzó: ya estamos en Revisión de compra. Puedes seguir cada paso en tu portal: ',
+  'Preparando documentos':'tu compra avanzó: estamos Preparando documentos. Sigue el avance en tu portal: ',
+  'Acuerdo de compra':'tu compra avanzó: estamos en el Acuerdo de compra. Sigue el avance en tu portal: ',
+  'Revisión en notaría':'tu compra avanzó: tu expediente ya está en Revisión en notaría. Sigue el avance en tu portal: ',
+  'Últimas confirmaciones':'tu compra está en Últimas confirmaciones antes de la firma. Sigue el avance en tu portal: ',
+  'Día de firma':'llegó el Día de firma. Revisa los detalles en tu portal: ',
+  'Entrega de llaves':'¡felicidades! Tu compra llegó a Entrega de llaves. Tu portal queda como constancia del proceso: '
+};
 
 /* Pinta el stepper del portal con datos reales del Portal Progreso.
    Si Make todavía no crea el registro (corre cada 15 min), el stepper
-   arranca en Apartado y lo avisa — el link ya es válido desde ahora. */
+   arranca en Apartado y lo avisa — el link ya es válido desde ahora.
+   Guarda el contexto en _fichaProg para que "Avanzar fase" sepa qué
+   registro mover. */
+let _fichaProg = null;
 function fichaPintarPortal(rec, folioOp, portalUrl){
   asesorTabla('progreso').then(prog => {
     const p = (prog||[]).find(r => _fval(r,'Folio') === folioOp || _fval(r,'Folio Operación') === folioOp);
-    const fase = (p && _fval(p,'Fase Actual')) || 'Apartado';
+    const faseCruda = (p && _fval(p,'Fase Actual')) || 'Apartado';
+    const fase = FASES_ALIAS[faseCruda] || faseCruda;
     let idx = FASES_CAP2.indexOf(fase); if(idx < 0) idx = 0;
+    _fichaProg = p ? { id:p.id, idx, fase:faseCruda, folioOp, portalUrl, leadId:rec.id } : null;
 
     const pctEl = document.getElementById('fk-portal-pct');
     if(pctEl){
@@ -2479,6 +2518,23 @@ function fichaPintarPortal(rec, folioOp, portalUrl){
         : `Fase actual: <b>Apartado</b>. El portal se está activando (Make corre cada 15 min) — el link ya es válido y puedes enviarlo desde ahora.`;
     }
 
+    /* Botón Avanzar fase: solo si el registro de Progreso ya existe y la
+       operación no llegó al final. Avance forward-only, una fase a la vez. */
+    const advBtn = document.getElementById('fk-portal-adv');
+    if(advBtn){
+      if(p && idx < FASES_CAP2.length - 1){
+        advBtn.style.display = 'inline-block';
+        advBtn.textContent = 'Avanzar a: ' + FASES_CAP2[idx+1] + ' →';
+        advBtn.disabled = false;
+      } else if(p && idx === FASES_CAP2.length - 1){
+        advBtn.style.display = 'inline-block';
+        advBtn.textContent = '✓ Operación cerrada';
+        advBtn.disabled = true;
+      } else {
+        advBtn.style.display = 'none';
+      }
+    }
+
     const waBtn = document.getElementById('fk-portal-wa');
     const tel = String(_fval(rec,'Teléfono WhatsApp') || '').replace(/\D/g,'');
     if(waBtn && tel){
@@ -2492,6 +2548,36 @@ function fichaPintarPortal(rec, folioOp, portalUrl){
     const nextEl = document.getElementById('fk-portal-next');
     if(nextEl) nextEl.textContent = 'No se pudo leer el Portal Progreso en este momento — el link de abajo sigue siendo válido.';
   });
+}
+
+/* Avanza la operación EXACTAMENTE una fase (forward-only — el sistema nunca
+   retrocede). Escribe en Portal Progreso: Fase Actual, Próximo paso y
+   Mensaje WhatsApp Actualización, todo de los mapas canónicos — el asesor
+   solo confirma. Al llegar a Entrega de llaves, Make marca la propiedad
+   Vendida (escenario 5365704). */
+async function fichaAvanzarFase(){
+  const ctx = _fichaProg;
+  if(!ctx || !ctx.id) return;
+  const next = FASES_CAP2[ctx.idx + 1];
+  if(!next) return;
+  const actual = FASES_ALIAS[ctx.fase] || ctx.fase;
+  if(!window.confirm('Avanzar la operación ' + ctx.folioOp + ':\n\n' + actual + '  →  ' + next + '\n\nEl portal del cliente se actualiza al momento. ¿Confirmar?')) return;
+  const btn = document.getElementById('fk-portal-adv');
+  if(btn){ btn.disabled = true; btn.textContent = 'Avanzando…'; }
+  try{
+    const fields = { 'Fase Actual': next, 'Próximo paso': FASES_PASO[next] || '' };
+    if(FASES_WA[next]) fields['Mensaje WhatsApp Actualización'] = 'Hola, ' + FASES_WA[next] + ctx.portalUrl;
+    await atFetch(`${CRM_CFG.progreso.tableId}/${ctx.id}`, {
+      method:'PATCH', body: JSON.stringify({ fields, typecast:true })
+    });
+    delete _asesorTblProm['progreso']; // invalida cache para releer la fase real
+    const rec = crmState.records.find(r => r.id === ctx.leadId) || { id: ctx.leadId, fields:{} };
+    fichaPintarPortal(rec, ctx.folioOp, ctx.portalUrl);
+    showToast('✓ Operación en ' + next);
+  }catch(e){
+    if(btn){ btn.disabled = false; btn.textContent = 'Avanzar a: ' + next + ' →'; }
+    window.alert('No se pudo avanzar la fase: ' + (e.message || e));
+  }
 }
 
 /* ─── EXPEDIENTE DOCUMENTAL DEL COMPRADOR ────────────────────────────
