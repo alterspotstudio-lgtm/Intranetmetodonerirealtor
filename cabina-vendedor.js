@@ -19,18 +19,11 @@
 (function () {
   'use strict';
 
-  /* ── Asesor de la sesión (SHELL EN BLANCO: cero datos personales aquí).
-        index.html publica window.CABINA_ASESOR en bootApp()/refreshChrome().
-        Se lee de forma LAZY en cada uso porque este script puede ejecutarse
-        antes de que la sesión esté lista; nunca se congela al cargar. ── */
-  function asesorSesion() {
-    var a = window.CABINA_ASESOR || {};
-    return {
-      nombre: a.nombre || a.name || '',
-      tel: a.tel || a.whatsapp || a.telefono || '',
-      inmo: a.inmo || a.empresa || a.inmobiliaria || ''
-    };
-  }
+  /* ── Asesor por defecto (editable en la cabina; el nombre del registro manda) ── */
+  var ASESOR_DEFAULT = Object.assign(
+    { nombre: 'Enrique Martínez Neri', tel: '777 985 5687', inmo: 'Century 21 Haus' },
+    window.CABINA_ASESOR || {}
+  );
 
   /* ── Etapas que habilitan confirmaciones al cliente ── */
   var ETAPAS_FIRMADAS = ['Firma exclusiva', 'Firma venta directa'];
@@ -44,12 +37,8 @@
          window.EXP_DOC_BASE = 'https://expedientedocumentalpropietario.vercel.app';
   ----------------------------------------------------------------------- */
   var EXP_DOC_BASE = window.EXP_DOC_BASE || 'https://expedientedocumentalpropietario.vercel.app';
-  /* Endpoint que registra el documento en Airtable (Expediente Documentos) */
-  var EXP_DOCS_ENDPOINT = window.EXP_DOCS_ENDPOINT || '/api/expediente-documentos';
-  /* Endpoint que mintea (idempotente) y devuelve el link armado CON token */
-  var ACTIVAR_EXP_ENDPOINT = window.ACTIVAR_EXP_ENDPOINT || '/api/activar-expediente';
-  /* Endpoint que firma la subida directa a iDrive e2 (sin tope de 4.5MB) */
-  var IDRIVE_PRESIGN_ENDPOINT = window.IDRIVE_PRESIGN_ENDPOINT || '/api/upload-idrive-url';
+  /* Endpoint para que el ASESOR suba un documento recibido por otro medio */
+  var UPLOAD_DOC_ENDPOINT = window.UPLOAD_DOC_ENDPOINT || '/api/upload-documento';
 
   /* ── Datos de checklists / documentos (portados del panel original) ── */
   var CHECKLIST = [
@@ -132,11 +121,10 @@
   var cab = { tipo: null, recId: null, asesor: null, prefill: {}, radioSel: -1, lastCardHTML: '' };
 
   function asesorActual() {
-    var s = asesorSesion();
     return {
-      nombre: byId('cab_g_asesor').value || s.nombre,
-      tel: byId('cab_g_tel').value || s.tel,
-      inmo: byId('cab_g_inmo').value || s.inmo
+      nombre: byId('cab_g_asesor').value || ASESOR_DEFAULT.nombre,
+      tel: byId('cab_g_tel').value || ASESOR_DEFAULT.tel,
+      inmo: byId('cab_g_inmo').value || ASESOR_DEFAULT.inmo
     };
   }
   function byId(id) { return document.getElementById(id); }
@@ -323,7 +311,7 @@
     var zona = fval(rec, 'Zona') || fval(rec, 'Zona / Colonia') || fval(rec, 'Municipio') || '';
     var estado = fval(rec, 'Estado / Entidad') || fval(rec, 'Estado') || fval(rec, 'Estado Propiedad') || '';
     var direccion = [zona, estado].filter(Boolean).join(', ');
-    var asesorNombre = fval(rec, 'Asesor') || asesorSesion().nombre;
+    var asesorNombre = fval(rec, 'Asesor') || ASESOR_DEFAULT.nombre;
     var folio = fval(rec, 'Folio') || fval(rec, 'Folio NERI') || fval(rec, 'Folio Vendedor') || '';
 
     cab.prefill = { propietario: propietario, direccion: direccion, asesor: asesorNombre, folio: folio };
@@ -345,14 +333,13 @@
   }
 
   function asesorBlock() {
-    var s = asesorSesion();
-    var a = cab.prefill.asesor || s.nombre;
+    var a = cab.prefill.asesor || ASESOR_DEFAULT.nombre;
     return ''
       + '<div class="cab-seclabel">Asesor</div>'
       + '<div class="cab-field"><label>Nombre</label><input id="cab_g_asesor" class="prefilled" value="' + esc(a) + '"><div class="cab-prefnote">↳ Tomado del registro · editable</div></div>'
       + '<div class="cab-field-row">'
-      + '  <div class="cab-field"><label>Teléfono</label><input id="cab_g_tel" value="' + esc(s.tel) + '"></div>'
-      + '  <div class="cab-field"><label>Inmobiliaria</label><input id="cab_g_inmo" value="' + esc(s.inmo) + '"></div>'
+      + '  <div class="cab-field"><label>Teléfono</label><input id="cab_g_tel" value="' + esc(ASESOR_DEFAULT.tel) + '"></div>'
+      + '  <div class="cab-field"><label>Inmobiliaria</label><input id="cab_g_inmo" value="' + esc(ASESOR_DEFAULT.inmo) + '"></div>'
       + '</div>';
   }
 
@@ -610,24 +597,8 @@
   /* =========================================================================
      EXPEDIENTE DOCUMENTAL: arma el link del propietario y maneja subidas
      ========================================================================= */
-  /* FOLIO DEL EXPEDIENTE = folio del LEAD VENDEDOR (CVA-…), nunca el de la
-     operación (XXX-V-AAAA-NNN). Cuando la cabina se abre desde la PROPIEDAD,
-     'Folio' trae el folio de operación; el del vendedor vive en
-     'Folio Vendedor'. activar-expediente busca en Leads Vendedores por su
-     Folio, así que con el folio de operación el token jamás se mintea
-     (el bug "sin token de expediente" de la prueba del 9 de junio). */
-  function folioExpediente(rec) {
-    if (!rec) return '';
-    var f = fval(rec, 'Folio Vendedor') || fval(rec, 'Folio Lead Vendedor') || '';
-    if (f) return f;
-    f = fval(rec, 'Folio') || fval(rec, 'Folio NERI') || '';
-    // Si lo único disponible parece folio de operación (lleva el segmento
-    // de tipo: CUER-V-2026-006), no sirve para el expediente del vendedor.
-    if (/^[A-Z]{2,5}-[A-Z]-\d{4}-\d{2,4}$/.test(f)) return '';
-    return f;
-  }
   function expedienteLink(rec) {
-    var folio = folioExpediente(rec);
+    var folio = fval(rec, 'Folio') || fval(rec, 'Folio NERI') || fval(rec, 'Folio Vendedor') || '';
     var token = fval(rec, 'Token Expediente') || fval(rec, 'Token') || '';
     var url = String(EXP_DOC_BASE).replace(/\/+$/, '') + '/?folio=' + encodeURIComponent(folio);
     if (token) url += '&token=' + encodeURIComponent(token);
@@ -639,55 +610,15 @@
       navigator.clipboard.writeText(txt).then(ok).catch(function () { window.prompt('Copia el texto:', txt); });
     } else { window.prompt('Copia el texto:', txt); }
   }
-  /* Cache de links ya armados, por folio, para no re-mintear en cada clic */
-  var _expLinkCache = {};
-  /* Obtiene el link del expediente CON token. Si el registro ya lo trae armado
-     lo usa; si no, llama al endpoint idempotente que lo mintea y lo devuelve.
-     Cae al link por-folio (sin token) solo si todo lo demás falla. */
-  function obtenerLinkExpediente(rec, cb) {
-    var folio = folioExpediente(rec);
-    if (folio && _expLinkCache[folio]) { cb(_expLinkCache[folio]); return; }
-    var armado = fval(rec, 'Link Expediente Documental') || '';
-    if (armado && /token=/.test(armado)) { if (folio) _expLinkCache[folio] = armado; cb(armado); return; }
-    if (!folio) { cb(''); return; }
-    fetch(ACTIVAR_EXP_ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + cabSessionToken() },
-      body: JSON.stringify({ folio: folio })
-    })
-      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, j: j }; }); })
-      .then(function (res) {
-        if (res.ok && res.j && res.j.link) { _expLinkCache[folio] = res.j.link; cb(res.j.link); }
-        else cb(expedienteLink(rec));
-      })
-      .catch(function () { cb(expedienteLink(rec)); });
-  }
-  /* Copiar el link del expediente documental del propietario (con token) */
+  /* Copiar el link del expediente documental del propietario */
   function cabCopiarExpediente(recId, btn) {
     var rec = getRecord(recId); if (!rec) return;
-    var orig = btn ? btn.textContent : '';
-    if (btn) { btn.textContent = 'Generando…'; btn.disabled = true; }
-    obtenerLinkExpediente(rec, function (url) {
-      if (btn) { btn.disabled = false; btn.textContent = orig; }
-      if (!url) { window.alert('Este registro no tiene folio de vendedor (CVA-…). El expediente vive en el lead vendedor; revisa el campo "Folio Vendedor".'); return; }
-      copiarTexto(url, btn);
-    });
+    copiarTexto(expedienteLink(rec), btn);
   }
-  /* Abrir el expediente documental en otra pestaña (con token).
-     Se abre la pestaña dentro del gesto del clic para evitar el bloqueo
-     de popups; luego se le asigna la URL ya armada. */
+  /* Abrir el expediente documental en otra pestaña */
   function cabAbrirExpediente(recId) {
     var rec = getRecord(recId); if (!rec) return;
-    var w = window.open('about:blank', '_blank');
-    obtenerLinkExpediente(rec, function (url) {
-      if (!url) {
-        if (w && !w.closed) w.close();
-        window.alert('Este registro no tiene folio de vendedor (CVA-…). El expediente vive en el lead vendedor; revisa el campo "Folio Vendedor".');
-        return;
-      }
-      if (w && !w.closed) { w.location.href = url; }
-      else { window.open(url, '_blank', 'noopener'); }
-    });
+    window.open(expedienteLink(rec), '_blank', 'noopener');
   }
   /* El ASESOR sube un documento que recibió por otro medio (WhatsApp, correo…) */
   function cabSubirDocAsesor(recId) {
@@ -708,94 +639,24 @@
     var st = byId('cab-doc-status-' + recId);
     if (st) { st.style.display = 'block'; st.innerHTML = 'Subiendo <b>' + esc(file.name) + '</b>…'; }
     var rec = getRecord(recId);
-    // El documento del asesor pertenece al EXPEDIENTE del vendedor:
-    // se sube y se registra bajo el folio del lead vendedor (CVA-…),
-    // el mismo que usa el portal del propietario.
-    var folio = folioExpediente(rec);
-    if (!folio) {
-      if (st) st.innerHTML = '<span style="color:#f87171">Este registro no tiene folio de vendedor (CVA-…). El expediente vive en el lead vendedor; revisa el campo "Folio Vendedor".</span>';
-      if (inputEl) inputEl.value = '';
-      return;
-    }
-    // Subida en 2 pasos a iDrive e2 (directo al bucket, sin tope de 4.5MB de Vercel).
-    fetch(IDRIVE_PRESIGN_ENDPOINT, {
+    var folio = (rec ? (fval(rec, 'Folio') || fval(rec, 'Folio NERI') || fval(rec, 'Folio Vendedor')) : '') || '';
+    fetch(UPLOAD_DOC_ENDPOINT + (folio ? ('?folio=' + encodeURIComponent(folio)) : ''), {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + cabSessionToken() },
-      body: JSON.stringify({
-        filename: file.name || 'documento',
-        contentType: file.type || 'application/octet-stream',
-        size: file.size || 0,
-        folio: folio || 'sin-folio',
-        doc: 'documento-asesor'
-      })
+      headers: { 'Content-Type': file.type || 'application/octet-stream', 'x-content-type': file.type || '', 'x-file-name': encodeURIComponent(file.name), 'Authorization': 'Bearer ' + cabSessionToken() },
+      body: file
     })
       .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, j: j }; }); })
       .then(function (res) {
-        if (!res.ok || !res.j || !res.j.uploadUrl) throw new Error((res.j && res.j.error) || 'No se pudo preparar la subida.');
-        var firma = res.j;
-        return fetch(firma.uploadUrl, {
-          method: 'PUT',
-          headers: firma.headers || { 'Content-Type': file.type || 'application/octet-stream' },
-          body: file
-        }).then(function (p) {
-          if (!p.ok) throw new Error('El bucket rechazó el archivo (' + p.status + '). Revisa CORS/credenciales de iDrive.');
-          return firma.url;
-        });
-      })
-      .then(function (url) {
-        if (st) st.innerHTML = '<div style="color:rgba(255,255,255,.6)">✓ Archivo en el bucket. Registrando en el expediente…</div>';
-        registrarDocExpediente(rec, folio, file, url, st);
+        if (!res.ok || !res.j || !res.j.url) throw new Error((res.j && res.j.error) || 'No se pudo subir el documento.');
+        var url = res.j.url;
+        if (st) st.innerHTML =
+          '<div style="color:var(--gold,#C6A86B);margin-bottom:6px">✓ Documento subido</div>'
+          + '<div style="font-size:11px;color:rgba(255,255,255,.55);word-break:break-all;margin-bottom:8px">' + esc(url) + '</div>'
+          + '<button class="cab-acc-btn ghost" onclick="copiarTextoExpediente(\'' + url.replace(/'/g, "\\'") + '\', this)">Copiar liga · pégala en el campo Documentos</button>';
       })
       .catch(function (e) {
         if (st) st.innerHTML = '<span style="color:#f87171">No se pudo subir: ' + esc(e.message) + '</span>';
       });
-  }
-  /* Registra automáticamente el documento subido por el ASESOR en Airtable,
-     por la misma puerta que usa el portal del propietario
-     (/api/expediente-documentos · action documento_recibido, auth folio+token).
-     El token se toma del link del expediente ya minteado (idempotente).
-     Si el registro falla, el archivo YA está a salvo en el bucket:
-     se ofrece la liga como rescate manual — nunca se rompe la subida. */
-  function registrarDocExpediente(rec, folio, file, url, st) {
-    function exito() {
-      if (st) st.innerHTML =
-        '<div style="color:var(--gold,#C6A86B);margin-bottom:6px">✓ Documento subido y registrado en el expediente</div>'
-        + '<div style="font-size:11px;color:rgba(255,255,255,.55);word-break:break-all">' + esc(file.name || 'documento') + '</div>';
-    }
-    function rescate(motivo) {
-      if (st) st.innerHTML =
-        '<div style="color:var(--gold,#C6A86B);margin-bottom:6px">✓ Documento subido al bucket</div>'
-        + '<div style="font-size:11px;color:#f87171;margin-bottom:6px">No se pudo registrar en el expediente automáticamente' + (motivo ? ' (' + esc(motivo) + ')' : '') + '.</div>'
-        + '<div style="font-size:11px;color:rgba(255,255,255,.55);word-break:break-all;margin-bottom:8px">' + esc(url) + '</div>'
-        + '<button class="cab-acc-btn ghost" onclick="copiarTextoExpediente(\'' + url.replace(/'/g, "\\'") + '\', this)">Copiar liga · rescate manual</button>';
-    }
-    if (!rec || !folio) { rescate('el registro no tiene folio'); return; }
-    obtenerLinkExpediente(rec, function (link) {
-      var token = '';
-      try { token = new URL(link).searchParams.get('token') || ''; }
-      catch (_) { var m = String(link).match(/[?&]token=([^&]+)/); token = m ? decodeURIComponent(m[1]) : ''; }
-      if (!token) { rescate('sin token de expediente'); return; }
-      fetch(EXP_DOCS_ENDPOINT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'documento_recibido',
-          folio: folio,
-          token: token,
-          document_id: 'asesor-' + Date.now().toString(36),
-          tipo_documento: 'Documento del asesor · ' + (file.name || 'archivo'),
-          archivo_url: url,
-          filename: file.name || '',
-          subido_por: 'Asesor'
-        })
-      })
-        .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, j: j }; }); })
-        .then(function (res) {
-          if (res.ok && res.j && res.j.ok) exito();
-          else rescate(res.j && res.j.error);
-        })
-        .catch(function (e) { rescate(e && e.message); });
-    });
   }
 
   /* =========================================================================
@@ -836,7 +697,6 @@
   }
 
   function inyectarAcciones(recId) {
-    injectStyles();
     var rec = getRecord(recId);
     if (!rec) return;
     var esPropiedad = isPropiedadActiva();
@@ -850,17 +710,23 @@
   }
 
   /* Wrap de landOpenEditor: la cabina vive en Propiedades, no en Leads Vendedores. */
-  function patch() {
-    if (typeof window.landOpenEditor === 'function' && !window.landOpenEditor.__cabPatched) {
-      var orig = window.landOpenEditor;
-      window.landOpenEditor = function (recId) {
+  function wrapFn(name) {
+    if (typeof window[name] === 'function' && !window[name].__cabPatched) {
+      var orig = window[name];
+      window[name] = function (recId) {
         orig.apply(this, arguments);
         try { inyectarAcciones(recId); } catch (e) { /* silencioso */ }
       };
-      window.landOpenEditor.__cabPatched = true;
+      window[name].__cabPatched = true;
       return true;
     }
     return false;
+  }
+  /* La cabina vive en ambas fichas: Propiedades (landOpenEditor) y Lead Vendedor (vendedorOpenFicha). */
+  function patch() {
+    var a = wrapFn('landOpenEditor');
+    var b = wrapFn('vendedorOpenFicha');
+    return a && b;
   }
 
   /* Exponer API global mínima usada por los onclick */
