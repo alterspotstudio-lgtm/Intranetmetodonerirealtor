@@ -2635,6 +2635,7 @@ function vendedorOpenFicha(recId){
     <div class="fv-body">
 
       ${rielVendedorHTML(rec)}
+      ${vendedorAccionesPropiedadHTML(rec)}
 
       <!-- SECCIÓN: La propiedad -->
       <div class="fv-sec">
@@ -2697,6 +2698,31 @@ function vendedorOpenFicha(recId){
 
   document.getElementById('crm-fv-inner').innerHTML = html;
   document.getElementById('crm-ficha-vendedor').style.display = 'flex';
+}
+
+function vendedorAccionesPropiedadHTML(rec){
+  return `<div class="fv-sec cab-acciones" id="fv-acciones-propiedad">
+    <div class="fv-sec-title"><em>▦</em>Acciones de la propiedad</div>
+    <div class="fv-actions-prop-grid">
+      <div class="fv-action-block gold">
+        <div class="fv-action-block-title">Oferta formal</div>
+        <div class="fv-action-block-copy">Presentación al propietario. Sin enviar automático.</div>
+      </div>
+      <div class="fv-action-block">
+        <div class="fv-action-block-title">Cita en notaría</div>
+        <div class="fv-action-block-copy">Visible para el asesor cuando aplique la operación.</div>
+      </div>
+      <div class="fv-action-block">
+        <div class="fv-action-block-title">Promesa de compraventa</div>
+        <div class="fv-action-block-copy">Bloque visual del proceso. Sin conexión nueva.</div>
+      </div>
+      <div class="fv-action-block gold">
+        <div class="fv-action-block-title">Producción inmobiliaria</div>
+        <div class="fv-action-block-copy">Foto y video de la propiedad.</div>
+      </div>
+    </div>
+    <div class="fv-action-note">Ajuste visual: estos bloques no escriben datos ni cambian conexiones. Las acciones automáticas siguen viviendo en el flujo existente.</div>
+  </div>`;
 }
 
 function crmBadgeForConv(conv){
@@ -2827,9 +2853,9 @@ function fichaCopy(btn){
    Folio NERI / Links / contadores son fórmula/Make → bloqueados.        */
 const LANDING_FORM = [
   {title:'Portada', ico:'◫', fields:[
-    {f:'Frase Portada',  type:'text',     full:true},
-    {f:'Frase Inicio',   type:'textarea', full:true},
-    {f:'Foto de portada',type:'attach',   full:true, img:true},
+    {f:'Nombre Propiedad', type:'text',     full:true, label:'PROPIEDAD'},
+    {f:'Frase Inicio',     type:'textarea', full:true, label:'DESCRIPCIÓN CORTA PROPIEDAD'},
+    {f:'Foto de portada',  type:'attach',   full:true, img:true},
   ]},
   {title:'Precio', ico:'$', fields:[
     {f:'Precio Lista',  type:'number'},
@@ -2916,6 +2942,7 @@ async function uploadBlobFile(file, folio, doc){
 
 function _landInput(fl, rec){
   const name = fl.f;
+  const label = fl.label || name;
   let val = _fval(rec, name);
   const orig = val;
 
@@ -2928,7 +2955,7 @@ function _landInput(fl, rec){
       ? `<span class="le-vstatus on">Cargado${info.count>1?' ('+info.count+')':''}</span>`
       : `<span class="le-vstatus off">Vacío</span>`;
     return `<div class="form-group full">
-        <label class="form-label">${name}</label>
+        <label class="form-label">${label}</label>
         <div class="le-attach">${thumb}${status}</div>
         <div class="le-upload">
           <input class="form-inp" type="file" data-upload-attach="${_escAttr(name)}" data-upload-doc="${_escAttr(name)}" accept="image/*,video/mp4,video/quicktime,application/pdf">
@@ -2941,19 +2968,19 @@ function _landInput(fl, rec){
   if(fl.type === 'select'){
     const os = (fl.opts||[]).map(o => `<option value="${_escAttr(o)}"${val===o?' selected':''}>${o}</option>`).join('');
     return `<div class="form-group${fl.full?' full':''}">
-        <label class="form-label">${name}</label>
+        <label class="form-label">${label}</label>
         <select class="form-inp" data-field="${_escAttr(name)}" data-ftype="select" data-orig="${_escAttr(orig)}">
           <option value="">— Sin selección</option>${os}</select></div>`;
   }
   if(fl.type === 'textarea'){
     return `<div class="form-group${fl.full?' full':''}">
-        <label class="form-label">${name}</label>
+        <label class="form-label">${label}</label>
         <textarea class="form-inp" data-field="${_escAttr(name)}" data-ftype="text" data-orig="${_escAttr(orig)}" rows="2">${_esc(val)}</textarea></div>`;
   }
   const inType = fl.type === 'number' ? 'number' : 'text';
   const ft = fl.type === 'number' ? 'number' : 'text';
   return `<div class="form-group${fl.full?' full':''}">
-      <label class="form-label">${name}</label>
+      <label class="form-label">${label}</label>
       <input class="form-inp" type="${inType}" data-field="${_escAttr(name)}" data-ftype="${ft}" data-orig="${_escAttr(orig)}" value="${_escAttr(val)}"></div>`;
 }
 
@@ -4765,6 +4792,14 @@ window.addEventListener('DOMContentLoaded', () => {
 .riel-btn.ghost:hover{border-color:var(--gold)}
 .riel-status{font:500 11px Montserrat,sans-serif;color:var(--gold);margin-top:10px;min-height:14px}
 .riel-note{font:400 11px Montserrat,sans-serif;color:var(--w50);line-height:1.6}
+  .fv-actions-prop-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .fv-action-block{min-height:72px;padding:14px 16px;border:1px solid var(--border2);background:rgba(255,255,255,.018);border-radius:3px;display:flex;flex-direction:column;justify-content:center}
+  .fv-action-block.gold{background:rgba(201,169,110,.82);border-color:rgba(229,204,154,.75);color:#080808}
+  .fv-action-block-title{font-size:8px;letter-spacing:2.2px;text-transform:uppercase;font-weight:900;color:inherit}
+  .fv-action-block-copy{font-size:10px;line-height:1.45;color:var(--w40);margin-top:5px;font-weight:400}
+  .fv-action-block.gold .fv-action-block-copy{color:rgba(0,0,0,.68);font-weight:500}
+  .fv-action-note{font-size:10px;color:var(--w30);line-height:1.55;margin-top:10px}
+  @media(max-width:720px){.fv-actions-prop-grid{grid-template-columns:1fr}}
 </style>
 <script>
 /* Riel del proceso — lead VENDEDOR. Etapa derivada de los datos, nunca de clics. */
