@@ -253,6 +253,11 @@
 .cab-acc-btn small{display:block;font-size:8px;font-weight:500;letter-spacing:.5px;text-transform:none;opacity:.75;margin-top:3px;}
 .cab-acc-btn.locked{background:transparent;color:rgba(255,255,255,.35);border:1px dashed rgba(255,255,255,.18);cursor:not-allowed;}
 .cab-acc-btn.locked:hover{background:transparent;}
+#cab-evlink{display:none;border:1px solid rgba(198,168,107,.30);border-radius:4px;background:rgba(198,168,107,.06);padding:13px 14px;margin-bottom:12px;}
+.cab-ev-lbl{font-size:8px;letter-spacing:2.5px;text-transform:uppercase;color:#C6A86B;font-weight:700;}
+.cab-ev-url{font-family:'DM Mono',monospace;font-size:10px;color:#fff;margin-top:7px;word-break:break-all;line-height:1.5;}
+.cab-ev-row{display:flex;gap:8px;margin-top:10px;}
+.cab-ev-folio{font-size:8px;letter-spacing:1px;color:rgba(255,255,255,.4);margin-top:8px;line-height:1.5;}
 .cab-acc-locked{padding:12px 14px;border:1px dashed rgba(255,255,255,.14);border-radius:4px;font-size:11px;color:rgba(255,255,255,.4);line-height:1.5;}
 @media(max-width:760px){
   #cab-shell{flex-direction:column;height:96vh;width:98vw;}
@@ -326,9 +331,13 @@
     byId('cab-empty').style.display = 'flex';
     byId('cab-card-slot').innerHTML = '';
     byId('cab-wa').style.display = 'none';
+    var evSlot = byId('cab-evlink'); if (evSlot) { evSlot.style.display = 'none'; evSlot.innerHTML = ''; }
+    cab.lastLink = '';
 
     if (tipo === 'produccion') renderFormProduccion();
     else if (tipo === 'notaria') renderFormNotaria();
+    else if (tipo === 'promesa') renderFormPromesa();
+    else if (tipo === 'oferta') renderFormOferta();
     else if (tipo === 'reporte') renderFormReporte();
 
     byId('cab-overlay').classList.add('on');
@@ -390,6 +399,37 @@
       + '<button class="cab-btn-gen" onclick="cabGenNotaria()">↳ Generar confirmación</button>'
       + '<button class="cab-btn-print" id="cab_bn_print" onclick="cabImprimir()">⬇ Guardar / Imprimir</button>'
       + '<button class="cab-btn-wa" id="cab_bn_wa" onclick="cabCopiarWA()">● Copiar mensaje WhatsApp</button>';
+  }
+
+  /* ── FORM: Promesa de Compraventa ── */
+  function renderFormPromesa() {
+    byId('cab-form-sub').textContent = 'Promesa de Compraventa · confirmación a las partes';
+    var p = cab.prefill;
+    byId('cab-scroll').innerHTML =
+      asesorBlock()
+      + '<div class="cab-seclabel">Firma</div>'
+      + '<div class="cab-field"><label>Cliente / Partes</label><input id="cab_m_cliente" class="prefilled" value="' + esc(p.propietario) + '"><div class="cab-prefnote">↳ Del registro · agrega a la otra parte si aplica</div></div>'
+      + '<div class="cab-field-row"><div class="cab-field"><label>Fecha</label><input id="cab_m_fecha" placeholder="Lunes 2 de junio"></div><div class="cab-field"><label>Hora</label><input id="cab_m_hora" placeholder="11:00 am"></div></div>'
+      + '<div class="cab-field"><label>Lugar de la firma</label><input id="cab_m_lugar" placeholder="Oficina, notaría o domicilio"></div>'
+      + '<div class="cab-field"><label>Notas para el cliente</label><textarea id="cab_m_notas" placeholder="Llevar identificación oficial vigente..."></textarea></div>'
+      + '<button class="cab-btn-gen" onclick="cabGenPromesa()">↳ Generar confirmación</button>'
+      + '<button class="cab-btn-wa" id="cab_bm_wa" onclick="cabCopiarWA()" style="display:none">● Copiar mensaje WhatsApp</button>';
+  }
+
+  /* ── FORM: Oferta Formal ── */
+  function renderFormOferta() {
+    byId('cab-form-sub').textContent = 'Oferta Formal · presentación al propietario';
+    var p = cab.prefill;
+    byId('cab-scroll').innerHTML =
+      asesorBlock()
+      + '<div class="cab-seclabel">Oferta</div>'
+      + '<div class="cab-field"><label>Propietario</label><input id="cab_o_prop" class="prefilled" value="' + esc(p.propietario) + '"><div class="cab-prefnote">↳ Del registro</div></div>'
+      + '<div class="cab-field"><label>Monto de la oferta</label><input id="cab_o_monto" placeholder="$3,850,000 MXN"></div>'
+      + '<div class="cab-field"><label>Condiciones</label><textarea id="cab_o_cond" placeholder="Forma de pago, crédito, plazos, contingencias..."></textarea></div>'
+      + '<div class="cab-field-row"><div class="cab-field"><label>Vigencia</label><input id="cab_o_vig" placeholder="72 horas a partir de hoy"></div><div class="cab-field"><label>Fecha de presentación</label><input id="cab_o_fecha" placeholder="Viernes 12 de junio"></div></div>'
+      + '<div class="cab-field"><label>Notas para el propietario</label><textarea id="cab_o_notas" placeholder="Contexto de la oferta, perfil del comprador..."></textarea></div>'
+      + '<button class="cab-btn-gen" onclick="cabGenOferta()">↳ Generar oferta</button>'
+      + '<button class="cab-btn-wa" id="cab_bo_wa" onclick="cabCopiarWA()" style="display:none">● Copiar mensaje WhatsApp</button>';
   }
 
   /* ── FORM: Reporte (v1 manual; la versión con datos reales/campañas viene después) ── */
@@ -483,6 +523,11 @@
     var msg = 'Hola ' + n0 + ' 🏡\n\nLlegó el momento que estábamos esperando — pronto damos a conocer a la estrella de este proceso: *su propiedad*.\n\n📅 *Fecha:* ' + fecha + '\n🕐 *Hora de llegada del equipo:* ' + hora + '\n⏱ *Duración estimada:* ' + dur + '\n\nLe comparto la confirmación con todo lo que necesitamos tener listo para que su propiedad luzca en su mejor versión.\n\nCualquier ajuste, con gusto lo atendemos con anticipación.\n\n— ' + a.nombre + '\n📲 ' + a.tel + '\n*Método Neri · Sistema de Control de Calidad Inmobiliaria*';
     showWA(msg);
     showActionButtons('cab_bp_print', 'cab_bp_wa');
+    cabCrearEvento('Producción Inmobiliaria', { fields: { 'Cliente': prop, 'Propiedad': dir, 'Lugar': dir, 'Fecha': fecha, 'Hora': hora, 'Notas': 'Duración estimada: ' + dur } }, function (err, ev) {
+      if (err || !ev) { showEventoError(); return; }
+      showEventoLink(ev.link, ev.folio);
+      showWA(msg + '\n\n🔗 *Su confirmación en línea (siempre actualizada):*\n' + ev.link);
+    });
   }
 
   function cabGenNotaria() {
@@ -516,6 +561,69 @@
     var msg = 'Hola ' + n0 + ',\n\nTodo está listo para su cita en notaría. Le confirmo los datos:\n\n📅 *Fecha:* ' + fecha + '\n🕐 *Hora:* ' + hora + '\n🏛 *Notaría:* ' + notaria + '\n📍 *Dirección:* ' + dir + '\n\nLe recomiendo llegar 10 minutos antes. En la tarjeta adjunta encontrará la lista completa de documentos que debe llevar.\n\nCualquier ajuste, con gusto lo coordino con anticipación.\n\n— ' + a.nombre + '\n📲 ' + a.tel + '\n*Método Neri · Sistema de Control de Calidad Inmobiliaria*';
     showWA(msg);
     showActionButtons('cab_bn_print', 'cab_bn_wa');
+    cabCrearEvento('Firma en Notaría', { fields: { 'Cliente': cliente, 'Propiedad': cab.prefill.direccion || '', 'Lugar': notaria + (dir !== '—' ? ' · ' + dir : ''), 'Fecha': fecha, 'Hora': hora, 'Notas': 'Recibe: ' + notario + (ref !== '—' ? ' · Referencia: ' + ref : '') } }, function (err, ev) {
+      if (err || !ev) { showEventoError(); return; }
+      showEventoLink(ev.link, ev.folio);
+      showWA(msg + '\n\n🔗 *Su confirmación en línea (siempre actualizada):*\n' + ev.link);
+    });
+  }
+
+  function cabGenPromesa() {
+    var a = asesorActual();
+    var cliente = byId('cab_m_cliente').value || '—';
+    var fecha = byId('cab_m_fecha').value || '—';
+    var hora = byId('cab_m_hora').value || '—';
+    var lugar = byId('cab_m_lugar').value || '—';
+    var notas = byId('cab_m_notas').value || '';
+    var html = '<div class="cab-card" id="cab-card">'
+      + cardHeader(a, 'Promesa de Compraventa', 'CONFIRMACIÓN DE FIRMA', 'Formalización del acuerdo entre las partes.')
+      + '<div class="cab-c-body">' + secbar('Datos de la firma')
+      + '<div class="cab-dgrid"><div class="cab-dcell"><div class="cab-dlbl">Cliente</div><div class="cab-dval gold">' + esc(cliente) + '</div></div>'
+      + '<div class="cab-dcell"><div class="cab-dlbl">Lugar</div><div class="cab-dval">' + esc(lugar) + '</div></div>'
+      + '<div class="cab-dcell"><div class="cab-dlbl">Fecha</div><div class="cab-dval">' + esc(fecha) + '</div></div>'
+      + '<div class="cab-dcell"><div class="cab-dlbl">Hora</div><div class="cab-dval">' + esc(hora) + '</div></div></div>'
+      + (notas ? '<div class="cab-c-sp"></div>' + secbar('Notas') + '<div class="cab-analysis"><div class="cab-an-txt">' + esc(notas) + '</div></div>' : '')
+      + '</div>' + cardFooter(a, 'Método Neri · Acompañamiento hasta la firma') + '</div>';
+    showCard(html);
+    var n0 = cliente.split(' ')[0];
+    var msg = 'Hola ' + n0 + ',\n\nTodo está listo para la firma de la promesa de compraventa. Le confirmo los datos:\n\n📅 *Fecha:* ' + fecha + '\n🕐 *Hora:* ' + hora + '\n📍 *Lugar:* ' + lugar + '\n\nCualquier ajuste, con gusto lo coordino con anticipación.\n\n— ' + a.nombre + '\n📲 ' + a.tel + '\n*Método Neri · Sistema de Control de Calidad Inmobiliaria*';
+    showWA(msg);
+    showActionButtons('cab_bm_wa', 'cab_bm_wa');
+    cabCrearEvento('Promesa de Compraventa', { fields: { 'Cliente': cliente, 'Propiedad': cab.prefill.direccion || '', 'Lugar': lugar, 'Fecha': fecha, 'Hora': hora, 'Notas': notas } }, function (err, ev) {
+      if (err || !ev) { showEventoError(); return; }
+      showEventoLink(ev.link, ev.folio);
+      showWA(msg + '\n\n🔗 *Su confirmación en línea (siempre actualizada):*\n' + ev.link);
+    });
+  }
+
+  function cabGenOferta() {
+    var a = asesorActual();
+    var prop = byId('cab_o_prop').value || '—';
+    var monto = byId('cab_o_monto').value || '—';
+    var cond = byId('cab_o_cond').value || '';
+    var vig = byId('cab_o_vig').value || '';
+    var fecha = byId('cab_o_fecha').value || '—';
+    var notas = byId('cab_o_notas').value || '';
+    var html = '<div class="cab-card" id="cab-card">'
+      + cardHeader(a, 'Oferta Formal', 'OFERTA DE COMPRA', 'Presentada formalmente para su revisión y decisión.')
+      + '<div class="cab-c-body">' + secbar('La oferta')
+      + '<div class="cab-dgrid"><div class="cab-dcell"><div class="cab-dlbl">Propietario</div><div class="cab-dval gold">' + esc(prop) + '</div></div>'
+      + '<div class="cab-dcell"><div class="cab-dlbl">Monto</div><div class="cab-dval gold">' + esc(monto) + '</div></div>'
+      + '<div class="cab-dcell"><div class="cab-dlbl">Presentada</div><div class="cab-dval">' + esc(fecha) + '</div></div>'
+      + (vig ? '<div class="cab-dcell"><div class="cab-dlbl">Vigencia</div><div class="cab-dval">' + esc(vig) + '</div></div>' : '') + '</div>'
+      + (cond ? '<div class="cab-c-sp"></div>' + secbar('Condiciones') + '<div class="cab-analysis"><div class="cab-an-txt">' + esc(cond) + '</div></div>' : '')
+      + (notas ? '<div class="cab-c-sp"></div>' + secbar('Notas') + '<div class="cab-analysis"><div class="cab-an-txt">' + esc(notas) + '</div></div>' : '')
+      + '</div>' + cardFooter(a, 'Método Neri · Decisiones con información, sin presión') + '</div>';
+    showCard(html);
+    var n0 = prop.split(' ')[0];
+    var msg = 'Hola ' + n0 + ',\n\nLe presento formalmente una oferta de compra por su propiedad:\n\n💰 *Monto:* ' + monto + (vig ? '\n⏳ *Vigencia:* ' + vig : '') + '\n\nEn el link encontrará el detalle completo con las condiciones. Tómese el tiempo que necesite; estoy para resolver cualquier duda y la decisión es completamente suya.\n\n— ' + a.nombre + '\n📲 ' + a.tel + '\n*Método Neri · Decisiones con información, sin presión*';
+    showWA(msg);
+    showActionButtons('cab_bo_wa', 'cab_bo_wa');
+    cabCrearEvento('Oferta Formal', { estado: 'Enviada', fields: { 'Cliente': prop, 'Propiedad': cab.prefill.direccion || '', 'Monto Oferta': monto, 'Condiciones Oferta': cond, 'Vigencia Oferta': vig, 'Fecha': fecha, 'Notas': notas } }, function (err, ev) {
+      if (err || !ev) { showEventoError(); return; }
+      showEventoLink(ev.link, ev.folio);
+      showWA(msg + '\n\n🔗 *Vea la oferta completa aquí:*\n' + ev.link);
+    });
   }
 
   function cabGenReporte() {
@@ -559,6 +667,62 @@
     var p = byId(printId), w = byId(waId);
     if (p) p.style.display = 'block';
     if (w) w.style.display = 'block';
+  }
+
+  /* ── EVENTOS OPERACIÓN: registro en Airtable + link vivo (Confirmacion.html) ── */
+  var EV_TABLE = 'tblaYhT3EUT0m5FYV';
+  var EV_PREF = { 'Producción Inmobiliaria': 'PROD', 'Promesa de Compraventa': 'PROM', 'Firma en Notaría': 'NOT', 'Oferta Formal': 'OFE' };
+  function cabFolioEvento(tipo) {
+    var p = EV_PREF[tipo] || 'EV';
+    return 'EV-' + p + '-' + (new Date()).getFullYear() + '-' + String(Math.floor(1000 + Math.random() * 9000));
+  }
+  function cabCrearEvento(tipo, datos, cb) {
+    if (typeof window.atFetch !== 'function') { cb(new Error('atFetch no disponible')); return; }
+    var folio = cabFolioEvento(tipo);
+    var a = asesorActual();
+    var fields = {
+      'Folio Evento': folio,
+      'Tipo Evento': tipo,
+      'Estado': datos.estado || 'Pendiente',
+      'Asesor': a.nombre || '',
+      'WhatsApp Asesor': String(a.tel || '').replace(/\D/g, ''),
+      'Folio Lead Origen': (cab.prefill && cab.prefill.folio) || ''
+    };
+    Object.keys(datos.fields || {}).forEach(function (k) { fields[k] = datos.fields[k]; });
+    window.atFetch(EV_TABLE, { method: 'POST', body: JSON.stringify({ fields: fields, typecast: true }) })
+      .then(function () { cb(null, { folio: folio, link: location.origin + '/Confirmacion.html?evento=' + folio }); })
+      .catch(function (e) { cb(e); });
+  }
+  function showEventoLink(link, folio) {
+    var slot = byId('cab-evlink');
+    if (!slot) {
+      slot = document.createElement('div'); slot.id = 'cab-evlink';
+      var wa = byId('cab-wa'); wa.parentNode.insertBefore(slot, wa);
+    }
+    slot.innerHTML = '<div class="cab-ev-lbl">Link de confirmación · vivo</div>'
+      + '<div class="cab-ev-url">' + esc(link) + '</div>'
+      + '<div class="cab-ev-row"><button class="cab-wa-copy" onclick="cabCopiarLink(this)">● Copiar link</button>'
+      + '<a class="cab-wa-copy" style="text-decoration:none" href="' + esc(link) + '" target="_blank" rel="noopener">↗ Abrir</a></div>'
+      + '<div class="cab-ev-folio">' + esc(folio) + ' · Cambia el Estado en Eventos Operación y el link del cliente se actualiza solo.</div>';
+    slot.style.display = 'block';
+    cab.lastLink = link;
+  }
+  function showEventoError() {
+    var slot = byId('cab-evlink');
+    if (!slot) {
+      slot = document.createElement('div'); slot.id = 'cab-evlink';
+      var wa = byId('cab-wa'); wa.parentNode.insertBefore(slot, wa);
+    }
+    slot.innerHTML = '<div class="cab-ev-lbl">Link de confirmación</div>'
+      + '<div class="cab-ev-folio" style="margin-top:7px">No se pudo crear el evento en Airtable. Revisa tu sesión e intenta de nuevo.</div>';
+    slot.style.display = 'block';
+  }
+  function cabCopiarLink(btn) {
+    if (!cab.lastLink) return;
+    navigator.clipboard.writeText(cab.lastLink).then(function () {
+      var o = btn.textContent; btn.textContent = '✓ Copiado';
+      setTimeout(function () { btn.textContent = o; }, 2000);
+    });
   }
 
   /* ── Toggles / radio ── */
@@ -706,6 +870,10 @@
       + '<div class="cab-acc-grid">'
       + accBtn('produccion', 'Producción Inmobiliaria', 'Foto y video · confirmación al propietario', docsOk, 'Se libera con el expediente 8/8 validado')
       + accBtn('notaria', 'Cita en Notaría', 'Formalización · confirmación al cliente', esPropiedad, 'Se libera en el cierre de la operación')
+      + '</div>'
+      + '<div class="cab-acc-grid" style="margin-top:8px">'
+      + accBtn('oferta', 'Oferta Formal', 'Presentación al propietario · link vivo', docsOk, 'Se libera con el expediente 8/8 validado')
+      + accBtn('promesa', 'Promesa de Compraventa', 'Firma del acuerdo · confirmación a las partes', esPropiedad, 'Se libera en el cierre de la operación')
       + '</div>'
       + '<div class="cab-acc-grid" style="margin-top:8px">' + accBtn('reporte', 'Reporte semanal (v1)', 'Análisis interno · versión automática viene después', docsOk, 'Se libera con el expediente 8/8 validado', true) + '</div>'
       + expedienteHTML(recId)
