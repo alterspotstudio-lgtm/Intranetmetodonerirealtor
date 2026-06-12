@@ -592,13 +592,13 @@ select.form-input option{background:#111;color:#fff}
 .at-table thead{position:sticky;top:0;z-index:5}
 .at-table thead tr{background:#0c0c0c}
 .at-table thead th{
-  padding:11px 16px;text-align:left;
-  font-size:6px;letter-spacing:3px;text-transform:uppercase;
-  font-weight:800;color:var(--w30);white-space:nowrap;
+  padding:13px 16px;text-align:left;
+  font-size:8px;letter-spacing:3.5px;text-transform:uppercase;
+  font-weight:900;color:var(--w50);white-space:nowrap;
   border-bottom:1px solid var(--border2);
   background:#0c0c0c;
 }
-.at-table thead th:first-child{padding-left:20px}
+.at-table thead th:first-child{padding-left:16px}
 .at-table thead th::after{
   content:'';display:block;width:0;height:1px;
   background:var(--gold);margin-top:3px;transition:width .2s;
@@ -614,16 +614,17 @@ select.form-input option{background:#111;color:#fff}
 .at-table tbody td{
   padding:12px 16px;color:var(--w80);
   vertical-align:middle;
+  white-space:nowrap;
 }
 .at-table tbody td:first-child{
-  padding-left:20px;
-  border-left:2px solid transparent;
-  transition:border-color .15s;
+  padding-left:16px;
+  box-shadow:inset 0 0 0 transparent;
+  transition:box-shadow .15s;
 }
-.at-table tbody tr:hover td:first-child{border-left-color:var(--gold)}
+.at-table tbody tr:hover td:first-child{box-shadow:inset 2px 0 0 var(--gold)}
 .at-table tbody td.name{
-  font-weight:600;color:var(--white);
-  font-size:12px;
+  font-weight:700;color:var(--white);
+  font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px;
 }
 .at-table tbody td.folio{
   font-family:var(--mono);font-size:10px;
@@ -848,6 +849,15 @@ select.form-input option{background:#111;color:#fff}
 .btn-ghost:hover{border-color:var(--goldbdr);color:var(--gold)}
 .btn-cita{background:transparent;border-color:#3b82f6;color:#3b82f6}
 .btn-cita:hover{background:rgba(59,130,246,.12);border-color:#60a5fa;color:#60a5fa}
+.btn-danger{background:rgba(248,113,113,.08);border-color:rgba(248,113,113,.35);color:var(--red)}
+.btn-danger:hover{background:rgba(248,113,113,.16);border-color:rgba(248,113,113,.55);color:#fecaca}
+.crm-delete-zone{
+  grid-column:1/-1;margin-top:14px;padding:16px 0 0;
+  border-top:1px solid rgba(248,113,113,.22);
+  display:flex;align-items:flex-start;justify-content:space-between;gap:14px;
+}
+.crm-delete-title{font-size:8px;letter-spacing:2.5px;text-transform:uppercase;color:var(--red);font-weight:900;margin-bottom:5px}
+.crm-delete-copy{font-size:11px;color:var(--w50);line-height:1.6;font-weight:300;max-width:330px}
 
 /* ── Inputs del modal ── */
 .form-inp{
@@ -2075,6 +2085,41 @@ async function atFetch(path, opts={}){
 }
 
 /* ─── LOAD RECORDS ─────────────────────────────────── */
+const CRM_DELETED_LOCAL_KEY = 'NERI_INTRANEТ_DELETED_LEADS_V1'.replace('Т','T');
+function crmDeleteAllowed(tab){
+  return tab === 'compradores' || tab === 'vendedores';
+}
+function crmDeletedMap(){
+  try { return JSON.parse(localStorage.getItem(CRM_DELETED_LOCAL_KEY) || '{}') || {}; }
+  catch(e){ return {}; }
+}
+function crmSaveDeletedMap(map){
+  try { localStorage.setItem(CRM_DELETED_LOCAL_KEY, JSON.stringify(map || {})); }
+  catch(e){}
+}
+function crmVisibleRecords(tab, records){
+  if(!crmDeleteAllowed(tab)) return records || [];
+  const map = crmDeletedMap();
+  const hidden = map[tab] || {};
+  return (records || []).filter(r => !hidden[r.id]);
+}
+function crmDeleteFromIntranet(){
+  if(crmState.isNew || !crmDeleteAllowed(crmState.tab) || !crmState.editId) return;
+  const rec = crmState.records.find(r => r.id === crmState.editId);
+  const nombre = rec ? (_fval(rec,'Nombre Completo') || 'este lead') : 'este lead';
+  if(!confirm('¿Eliminar "' + nombre + '" de la intranet?')) return;
+  const map = crmDeletedMap();
+  if(!map[crmState.tab]) map[crmState.tab] = {};
+  map[crmState.tab][crmState.editId] = Date.now();
+  crmSaveDeletedMap(map);
+  crmState.records = crmState.records.filter(r => r.id !== crmState.editId);
+  crmCloseModal();
+  crmRender(crmState.tab, crmState.records);
+  const tabCountEl = document.getElementById('tab-count-' + crmState.tab);
+  if(tabCountEl) tabCountEl.textContent = crmState.records.length;
+  showToast('✓ Lead eliminado de la intranet');
+}
+
 async function crmLoad(tab, force=false){
   crmState.tab = tab;
   const cfg = CRM_CFG[tab];
@@ -2092,7 +2137,7 @@ async function crmLoad(tab, force=false){
     // Robusto: sin fields[] (si un nombre no existe, Airtable rechaza TODO con 422)
     // y sin view fija (falla si la vista fue renombrada). Trae todos los campos.
     const data = await atFetch(`${cfg.tableId}?maxRecords=100`);
-    crmState.records = data.records || [];
+    crmState.records = crmVisibleRecords(tab, data.records || []);
     crmRender(tab, crmState.records);
     const tabCountEl = document.getElementById('tab-count-' + tab);
     if(tabCountEl) tabCountEl.textContent = crmState.records.length;
@@ -3087,7 +3132,16 @@ function crmBuildModal(title, editable, values){
       <input class="form-inp" type="text" data-field="${fieldAttr}" data-orig="${valueAttr}" value="${valueAttr}"></div>`;
   }).join('');
 
-  document.getElementById('crm-modal-fields').innerHTML = html;
+  const deleteZone = (!crmState.isNew && crmDeleteAllowed(crmState.tab)) ? `
+    <div class="crm-delete-zone">
+      <div>
+        <div class="crm-delete-title">Zona de eliminación</div>
+        <div class="crm-delete-copy">Retira este lead de la intranet. Úsalo solo cuando ya no deba aparecer en tu vista de trabajo.</div>
+      </div>
+      <button class="btn btn-danger" onclick="crmDeleteFromIntranet()">Eliminar lead</button>
+    </div>` : '';
+
+  document.getElementById('crm-modal-fields').innerHTML = html + deleteZone;
   document.getElementById('crm-modal').style.display = 'flex';
 }
 
