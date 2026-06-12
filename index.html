@@ -408,23 +408,25 @@ select.form-input option{background:#111;color:#fff}
   transition:all .15s;
 }
 .hi-wa:hover{background:rgba(74,222,128,.2)}
-.wa-table-link{
-  display:inline-flex;align-items:center;justify-content:center;gap:6px;
-  padding:6px 12px;border-radius:999px;white-space:nowrap;
-  background:var(--greendim);border:1px solid rgba(74,222,128,.30);
-  color:var(--green);font-size:8px;letter-spacing:1.4px;
-  text-transform:uppercase;font-weight:800;text-decoration:none;
-}
-.wa-table-link:hover{background:rgba(74,222,128,.18);border-color:rgba(74,222,128,.48)}
+.wa-table-link,
 .price-chip{
-  display:inline-flex;align-items:center;justify-content:center;
-  padding:4px 10px;border-radius:999px;white-space:nowrap;
-  font-family:var(--mono);font-size:10px;letter-spacing:.2px;font-weight:800;
+  display:inline-flex;align-items:center;justify-content:center;gap:4px;
+  padding:3px 10px;border-radius:3px;white-space:nowrap;
+  font-size:7px;letter-spacing:1.5px;text-transform:uppercase;font-weight:800;
   border:1px solid var(--border2);background:rgba(255,255,255,.035);color:var(--w50);
+  text-decoration:none;line-height:1.1;
 }
-.price-chip.price-high{background:rgba(201,169,110,.12);border-color:var(--goldbdr);color:var(--gold)}
+.wa-table-link::before,
+.price-chip::before{
+  content:'';width:4px;height:4px;border-radius:50%;background:currentColor;flex-shrink:0;
+}
+.wa-table-link{
+  background:rgba(74,222,128,.08);border-color:rgba(74,222,128,.24);color:var(--green);
+}
+.wa-table-link:hover{background:rgba(74,222,128,.14);border-color:rgba(74,222,128,.36);color:var(--green)}
+.price-chip.price-high{background:rgba(201,169,110,.08);border-color:var(--goldbdr);color:var(--gold)}
 .price-chip.price-mid{background:rgba(251,191,36,.08);border-color:rgba(251,191,36,.24);color:#fbbf24}
-.price-chip.price-base{background:rgba(255,255,255,.035);border-color:var(--border);color:var(--w65,rgba(255,255,255,.65))}
+.price-chip.price-base{background:rgba(255,255,255,.035);border-color:var(--border);color:var(--w50)}
 .price-chip.price-unknown{background:rgba(255,255,255,.02);border-color:var(--border);color:var(--w30)}
 .at-table tbody td.price{white-space:nowrap}
 .hi-pill.amber{background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.35);color:#fbbf24}
