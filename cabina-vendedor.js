@@ -21,7 +21,7 @@
 
   /* ── Asesor por defecto (editable en la cabina; el nombre del registro manda) ── */
   var ASESOR_DEFAULT = Object.assign(
-    { nombre: 'Enrique Martínez Neri', tel: '777 985 5687', inmo: 'Century 21 Haus' },
+    { nombre: 'Enrique Martínez Neri', tel: '777 985 5687', inmo: '' },
     window.CABINA_ASESOR || {}
   );
 
@@ -316,7 +316,7 @@
     // Datos que la intranet ya conoce → cero captura doble
     var propietario = fval(rec, 'Nombre Completo') || fval(rec, 'Nombre Propietario') || fval(rec, 'Propietario') || fval(rec, 'Nombre Propiedad') || '';
     var zona = fval(rec, 'Zona') || fval(rec, 'Zona / Colonia') || fval(rec, 'Municipio') || '';
-    var estado = fval(rec, 'Estado / Entidad') || fval(rec, 'Estado') || fval(rec, 'Estado Propiedad') || '';
+    var estado = fval(rec, 'Estado / Entidad') || '';
     var direccion = [zona, estado].filter(Boolean).join(', ');
     var asesorNombre = fval(rec, 'Asesor') || ASESOR_DEFAULT.nombre;
     var folio = fval(rec, 'Folio') || fval(rec, 'Folio NERI') || fval(rec, 'Folio Vendedor') || '';
@@ -333,6 +333,11 @@
     byId('cab-wa').style.display = 'none';
     var evSlot = byId('cab-evlink'); if (evSlot) { evSlot.style.display = 'none'; evSlot.innerHTML = ''; }
     cab.lastLink = '';
+
+    var conTarjeta = (tipo === 'reporte');
+    byId('cab-card-slot').style.display = conTarjeta ? '' : 'none';
+    var prevLbl = document.querySelector('#cab-preview .cab-prev-lbl');
+    if (prevLbl) prevLbl.textContent = conTarjeta ? 'Vista previa \u00b7 Tarjeta exportable' : 'Confirmaci\u00f3n al cliente \u00b7 Link vivo';
 
     if (tipo === 'produccion') renderFormProduccion();
     else if (tipo === 'notaria') renderFormNotaria();
@@ -370,11 +375,10 @@
       + '<div class="cab-field"><label>Propietario</label><input id="cab_p_prop" class="prefilled" value="' + esc(p.propietario) + '"><div class="cab-prefnote">↳ Del registro</div></div>'
       + '<div class="cab-field"><label>Dirección / Zona</label><input id="cab_p_dir" class="prefilled" value="' + esc(p.direccion) + '"><div class="cab-prefnote">↳ Del registro · completa si falta calle</div></div>'
       + '<div class="cab-field-row"><div class="cab-field"><label>Fecha</label><input id="cab_p_fecha" placeholder="Lunes 2 de junio"></div><div class="cab-field"><label>Hora</label><input id="cab_p_hora" placeholder="10:00 am"></div></div>'
-      + '<div class="cab-field"><label>Duración</label><select id="cab_p_dur"><option value="">Seleccionar...</option><option>1 hora aprox.</option><option>1.5 horas aprox.</option><option>2 horas aprox.</option><option>2.5 horas aprox.</option><option>3 horas aprox.</option></select></div>'
+      + '<div class="cab-field"><label>Duración</label><select id="cab_p_dur"><option>1 hora aprox.</option><option>1.5 horas aprox.</option><option>2 horas aprox.</option><option>2.5 horas aprox.</option><option>3 horas aprox.</option></select></div>'
       + '<div class="cab-seclabel">Preparación</div><div class="cab-checkgrid">' + checks + '</div>'
       + '<div class="cab-seclabel">Producción</div>' + prods
       + '<button class="cab-btn-gen" onclick="cabGenProduccion()">↳ Generar confirmación</button>'
-      + '<button class="cab-btn-print" id="cab_bp_print" onclick="cabImprimir()">⬇ Guardar / Imprimir</button>'
       + '<button class="cab-btn-wa" id="cab_bp_wa" onclick="cabCopiarWA()">● Copiar mensaje WhatsApp</button>';
   }
 
@@ -397,7 +401,6 @@
       + '<div class="cab-field"><label>Referencia / Cómo llegar</label><input id="cab_n_ref" placeholder="Frente al parque, piso 3..."></div>'
       + '<div class="cab-seclabel">Documentos requeridos</div>' + docs
       + '<button class="cab-btn-gen" onclick="cabGenNotaria()">↳ Generar confirmación</button>'
-      + '<button class="cab-btn-print" id="cab_bn_print" onclick="cabImprimir()">⬇ Guardar / Imprimir</button>'
       + '<button class="cab-btn-wa" id="cab_bn_wa" onclick="cabCopiarWA()">● Copiar mensaje WhatsApp</button>';
   }
 
@@ -523,7 +526,7 @@
     var msg = 'Hola ' + n0 + ' 🏡\n\nLlegó el momento que estábamos esperando — pronto damos a conocer a la estrella de este proceso: *su propiedad*.\n\n📅 *Fecha:* ' + fecha + '\n🕐 *Hora de llegada del equipo:* ' + hora + '\n⏱ *Duración estimada:* ' + dur + '\n\nLe comparto la confirmación con todo lo que necesitamos tener listo para que su propiedad luzca en su mejor versión.\n\nCualquier ajuste, con gusto lo atendemos con anticipación.\n\n— ' + a.nombre + '\n📲 ' + a.tel + '\n*Método Neri · Sistema de Control de Calidad Inmobiliaria*';
     showWA(msg);
     showActionButtons('cab_bp_print', 'cab_bp_wa');
-    cabCrearEvento('Producción Inmobiliaria', { fields: { 'Cliente': prop, 'Propiedad': dir, 'Lugar': dir, 'Fecha': fecha, 'Hora': hora, 'Notas': 'Duración estimada: ' + dur } }, function (err, ev) {
+    cabCrearEvento('Producción Inmobiliaria', { estado: 'Confirmada', fields: { 'Cliente': prop, 'Propiedad': dir, 'Lugar': dir, 'Fecha': fecha, 'Hora': hora, 'Notas': 'Duración estimada: ' + dur } }, function (err, ev) {
       if (err || !ev) { showEventoError(); return; }
       showEventoLink(ev.link, ev.folio);
       showWA(msg + '\n\n🔗 *Su confirmación en línea (siempre actualizada):*\n' + ev.link);
@@ -561,7 +564,7 @@
     var msg = 'Hola ' + n0 + ',\n\nTodo está listo para su cita en notaría. Le confirmo los datos:\n\n📅 *Fecha:* ' + fecha + '\n🕐 *Hora:* ' + hora + '\n🏛 *Notaría:* ' + notaria + '\n📍 *Dirección:* ' + dir + '\n\nLe recomiendo llegar 10 minutos antes. En la tarjeta adjunta encontrará la lista completa de documentos que debe llevar.\n\nCualquier ajuste, con gusto lo coordino con anticipación.\n\n— ' + a.nombre + '\n📲 ' + a.tel + '\n*Método Neri · Sistema de Control de Calidad Inmobiliaria*';
     showWA(msg);
     showActionButtons('cab_bn_print', 'cab_bn_wa');
-    cabCrearEvento('Firma en Notaría', { fields: { 'Cliente': cliente, 'Propiedad': cab.prefill.direccion || '', 'Lugar': notaria + (dir !== '—' ? ' · ' + dir : ''), 'Fecha': fecha, 'Hora': hora, 'Notas': 'Recibe: ' + notario + (ref !== '—' ? ' · Referencia: ' + ref : '') } }, function (err, ev) {
+    cabCrearEvento('Firma en Notaría', { estado: 'Confirmada', fields: { 'Cliente': cliente, 'Propiedad': cab.prefill.direccion || '', 'Lugar': notaria + (dir !== '—' ? ' · ' + dir : ''), 'Fecha': fecha, 'Hora': hora, 'Notas': 'Recibe: ' + notario + (ref !== '—' ? ' · Referencia: ' + ref : '') } }, function (err, ev) {
       if (err || !ev) { showEventoError(); return; }
       showEventoLink(ev.link, ev.folio);
       showWA(msg + '\n\n🔗 *Su confirmación en línea (siempre actualizada):*\n' + ev.link);
@@ -589,7 +592,7 @@
     var msg = 'Hola ' + n0 + ',\n\nTodo está listo para la firma de la promesa de compraventa. Le confirmo los datos:\n\n📅 *Fecha:* ' + fecha + '\n🕐 *Hora:* ' + hora + '\n📍 *Lugar:* ' + lugar + '\n\nCualquier ajuste, con gusto lo coordino con anticipación.\n\n— ' + a.nombre + '\n📲 ' + a.tel + '\n*Método Neri · Sistema de Control de Calidad Inmobiliaria*';
     showWA(msg);
     showActionButtons('cab_bm_wa', 'cab_bm_wa');
-    cabCrearEvento('Promesa de Compraventa', { fields: { 'Cliente': cliente, 'Propiedad': cab.prefill.direccion || '', 'Lugar': lugar, 'Fecha': fecha, 'Hora': hora, 'Notas': notas } }, function (err, ev) {
+    cabCrearEvento('Promesa de Compraventa', { estado: 'Confirmada', fields: { 'Cliente': cliente, 'Propiedad': cab.prefill.direccion || '', 'Lugar': lugar, 'Fecha': fecha, 'Hora': hora, 'Notas': notas } }, function (err, ev) {
       if (err || !ev) { showEventoError(); return; }
       showEventoLink(ev.link, ev.folio);
       showWA(msg + '\n\n🔗 *Su confirmación en línea (siempre actualizada):*\n' + ev.link);
