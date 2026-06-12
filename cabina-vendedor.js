@@ -526,7 +526,7 @@
     var msg = 'Hola ' + n0 + ' 🏡\n\nLlegó el momento que estábamos esperando — pronto damos a conocer a la estrella de este proceso: *su propiedad*.\n\n📅 *Fecha:* ' + fecha + '\n🕐 *Hora de llegada del equipo:* ' + hora + '\n⏱ *Duración estimada:* ' + dur + '\n\nLe comparto la confirmación con todo lo que necesitamos tener listo para que su propiedad luzca en su mejor versión.\n\nCualquier ajuste, con gusto lo atendemos con anticipación.\n\n— ' + a.nombre + '\n📲 ' + a.tel + '\n*Método Neri · Sistema de Control de Calidad Inmobiliaria*';
     showWA(msg);
     showActionButtons('cab_bp_print', 'cab_bp_wa');
-    cabCrearEvento('Producción Inmobiliaria', { estado: 'Confirmada', fields: { 'Cliente': prop, 'Propiedad': dir, 'Lugar': dir, 'Fecha': fecha, 'Hora': hora, 'Notas': 'Duración estimada: ' + dur } }, function (err, ev) {
+    cabCrearEvento('Producción Inmobiliaria', { estado: 'Confirmada', fields: { 'Cliente': prop, 'Propiedad': dir, 'Lugar': dir, 'Fecha': fecha, 'Hora': hora, 'Notas': 'Duración estimada: ' + dur + (function(){ var p = CHECKLIST.filter(function(it,i){ return byId('cab_pc'+i) && byId('cab_pc'+i).checked; }).map(function(it){ return it.t; }); return p.length ? '\nCómo preparar la propiedad: ' + p.join(', ') + '.' : ''; })() } }, function (err, ev) {
       if (err || !ev) { showEventoError(); return; }
       showEventoLink(ev.link, ev.folio);
       showWA(msg + '\n\n🔗 *Su confirmación en línea (siempre actualizada):*\n' + ev.link);
