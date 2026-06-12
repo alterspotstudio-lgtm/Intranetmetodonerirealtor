@@ -431,6 +431,7 @@ select.form-input option{background:#111;color:#fff}
 }
 .owner-wa-link::before{content:'';width:4px;height:4px;border-radius:50%;background:var(--green);flex-shrink:0}
 .owner-wa-link:hover{color:var(--gold2);border-bottom-color:var(--gold2)}
+.price-chip{font-family:var(--mono);font-size:9px;letter-spacing:.2px;text-transform:none}
 .price-chip.price-high{background:rgba(201,169,110,.08);border-color:var(--goldbdr);color:var(--gold)}
 .price-chip.price-mid{background:rgba(251,191,36,.08);border-color:rgba(251,191,36,.24);color:#fbbf24}
 .price-chip.price-base{background:rgba(255,255,255,.035);border-color:var(--border);color:var(--w50)}
@@ -2058,8 +2059,8 @@ const CRM_CFG = {
     dot: 'propiedades',
     landing: true,
     landingFields: ['Nombre Propiedad','Folio NERI','Folio Vendedor','Link Comprador','Link Portal','Frase Portada','Frase Inicio','Foto de portada','Precio Lista','Precio Minimo','Moneda','Plusvalia Valor','Plusvalia Texto','Video Sala','Video Sala MP4','Video Cocina','Video Cocina MP4','Video Recamara','Video Recamara MP4','Video Jardin','Video Jardin MP4','Video Alberca','Video Alberca MP4','Nombre Video Extra','Video Extra MP4','Tipo de Propiedad','Estado Propiedad','Habitaciones','Banos','Medios Banos','Estacionamientos','Metros Construccion','Metros Terreno','Zona / Colonia','Municipio','Estado / Entidad','Direccion','Link Tour Virtual','Google Maps URL'],
-    cols: ['Propiedad','Tipo','Estado','Zona','Precio Lista','Recámaras','Propietario','Nota'],
-    fields: ['Nombre Propiedad','Tipo de Propiedad','Estado Propiedad','Zona / Colonia','Precio Lista','Habitaciones','Folio Vendedor','Notas Internas'],
+    cols: ['Propiedad','Tipo','Estado','Zona','Precio Lista','Dirección','Propietario','Nota'],
+    fields: ['Nombre Propiedad','Tipo de Propiedad','Estado Propiedad','Zona / Colonia','Precio Lista','Direccion','Folio Vendedor','Notas Internas'],
     editable: [
       {f:'Nombre Propiedad',   type:'text'},
       {f:'Tipo de Propiedad',  type:'select', opts:['Casa','Departamento','Terreno','Local','Oficina','Bodega']},
@@ -2187,6 +2188,15 @@ function crmPriceNumber(raw){
     else if(unit === 'k' || unit === 'mil') n *= 1000;
     return n;
   }));
+}
+
+function crmFormatPriceDisplay(raw){
+  const original = String(raw || '').trim();
+  if(!original) return '';
+  const n = crmPriceNumber(original);
+  if(!n) return original;
+  const rounded = Math.round(n);
+  return '$' + rounded.toLocaleString('es-MX');
 }
 
 function crmPriceClass(value){
@@ -2350,7 +2360,7 @@ function crmRender(tab, records){
         : isVendedorWhatsapp && waHref
           ? `<a class="wa-table-link" href="${_escAttr(waHref)}" target="_blank" rel="noopener" onclick="event.stopPropagation()" title="Abrir WhatsApp con mensaje preparado">WhatsApp</a>`
           : isPrice && val
-            ? `<span class="price-chip ${crmPriceClass(val)}">${_esc(val)}</span>`
+            ? `<span class="price-chip ${crmPriceClass(val)}">${_esc(crmFormatPriceDisplay(val))}</span>`
             : isBadge
               ? `<span class="badge ${STATUS_BADGE[val]}">${val}</span>`
               : (val ? _esc(val) : '<span style="color:var(--w20)">—</span>');
