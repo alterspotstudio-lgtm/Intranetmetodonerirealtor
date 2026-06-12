@@ -408,6 +408,14 @@ select.form-input option{background:#111;color:#fff}
   transition:all .15s;
 }
 .hi-wa:hover{background:rgba(74,222,128,.2)}
+.wa-table-link{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  padding:6px 12px;border-radius:999px;white-space:nowrap;
+  background:var(--greendim);border:1px solid rgba(74,222,128,.30);
+  color:var(--green);font-size:8px;letter-spacing:1.4px;
+  text-transform:uppercase;font-weight:800;text-decoration:none;
+}
+.wa-table-link:hover{background:rgba(74,222,128,.18);border-color:rgba(74,222,128,.48)}
 .hi-pill.amber{background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.35);color:#fbbf24}
 
 /* Briefing cálido */
@@ -1956,8 +1964,8 @@ const CRM_CFG = {
     label: 'Leads Vendedores',
     dot: 'vendedores',
     ficha: 'vendedor',
-    cols: ['Folio','Nombre','Tipo','Zona','Precio','Conversión','Asesor','Fecha'],
-    fields: ['Folio','Nombre Completo','Tipo de Propiedad','Zona','Precio Estimado','Conversión','Asesor','Fecha de Entrada'],
+    cols: ['Folio','Nombre','Tipo','Zona','Precio','Conversión','WhatsApp','Fecha'],
+    fields: ['Folio','Nombre Completo','Tipo de Propiedad','Zona','Precio Estimado','Conversión','Teléfono WhatsApp','Fecha de Entrada'],
     fichaExtra: [
       'Teléfono WhatsApp','Fuente','Estado','Hora de Entrada',
       'Habitaciones','Baños','Medios Baños','Estacionamientos',
@@ -2155,6 +2163,30 @@ async function crmLoad(tab, force=false){
   }
 }
 
+/* ─── WhatsApp vendedor en tabla ───────────────────── */
+function crmPhoneForWa(num){
+  const clean = String(num || '').replace(/\D/g,'');
+  if(!clean) return '';
+  if(clean.startsWith('52') && clean.length >= 12) return clean;
+  if(clean.length === 10) return '52' + clean;
+  return clean;
+}
+function crmVendedorWaMessage(rec){
+  const nombreCompleto = (_fval(rec,'Nombre Completo') || '').trim();
+  const nombre = nombreCompleto ? nombreCompleto.split(/\s+/)[0] : '';
+  const asesor = _fval(rec,'Asesor') || (typeof SESSION !== 'undefined' && SESSION?.nombre) || 'su asesor';
+  const tipo = (_fval(rec,'Tipo de Propiedad') || 'propiedad').toLowerCase();
+  const zona = _fval(rec,'Zona');
+  return 'Hola ' + nombre + ', soy ' + asesor + '. Recibí su solicitud para vender su ' + tipo +
+    (zona ? ' en ' + zona : '') +
+    '. Me gustaría agendar una visita breve esta semana para conocer la propiedad y presentarle el plan de venta. ¿Qué día le acomoda?';
+}
+function crmVendedorWaHref(rec){
+  const phone = crmPhoneForWa(_fval(rec,'Teléfono WhatsApp'));
+  if(!phone) return '';
+  return 'https://wa.me/' + phone + '?text=' + encodeURIComponent(crmVendedorWaMessage(rec));
+}
+
 /* ─── RENDER TABLE ─────────────────────────────────── */
 function crmRender(tab, records){
   const cfg = CRM_CFG[tab];
@@ -2171,9 +2203,13 @@ function crmRender(tab, records){
       if(typeof val === 'object') val = Array.isArray(val) ? val.map(v=>v?.name||v).join(', ') : (val?.name ?? JSON.stringify(val));
       val = String(val);
       const isBadge = !!STATUS_BADGE[val];
-      const inner = isBadge
-        ? `<span class="badge ${STATUS_BADGE[val]}">${val}</span>`
-        : (val ? _esc(val) : '<span style="color:var(--w20)">—</span>');
+      const isVendedorWhatsapp = tab === 'vendedores' && fname === 'Teléfono WhatsApp' && !!val;
+      const waHref = isVendedorWhatsapp ? crmVendedorWaHref(rec) : '';
+      const inner = isVendedorWhatsapp && waHref
+        ? `<a class="wa-table-link" href="${_escAttr(waHref)}" target="_blank" rel="noopener" onclick="event.stopPropagation()" title="Abrir WhatsApp con mensaje preparado">WhatsApp</a>`
+        : isBadge
+          ? `<span class="badge ${STATUS_BADGE[val]}">${val}</span>`
+          : (val ? _esc(val) : '<span style="color:var(--w20)">—</span>');
       let cls = '';
       if(FOLIO_FIELDS.includes(fname)) cls = 'folio';
       else if(NAME_FIELDS.includes(fname.toLowerCase())) cls = 'name';
