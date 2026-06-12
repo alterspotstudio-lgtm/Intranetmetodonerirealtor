@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Confirmación de cita</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@1,400&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --black:#0A0A0A; --black-2:#111111; --black-3:#181818; --black-4:#1E1E1E;
+  --gold:#C6A86B; --gold-light:#E2C98A; --gold-dim:rgba(198,168,107,0.10);
+  --gold-border:rgba(198,168,107,0.22); --gold-strong:rgba(198,168,107,0.45);
+  --w100:rgba(255,255,255,1); --w60:rgba(255,255,255,0.60);
+  --w35:rgba(255,255,255,0.35); --w18:rgba(255,255,255,0.18);
+  --w8:rgba(255,255,255,0.08); --w4:rgba(255,255,255,0.04);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Montserrat',sans-serif;background:var(--black);color:var(--w100);min-height:100vh;}
+.wrap{width:100%;max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;}
+
+/* ── NAV (branding del asesor — neutral, sin marca fija) ── */
+.nav{display:flex;align-items:center;gap:12px;padding:18px 22px;border-bottom:1px solid var(--gold-border);background:var(--black-2);}
+.nav-logo{height:34px;max-width:140px;object-fit:contain;display:none;}
+.nav-fallback{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--gold);}
+.nav-meta{margin-left:auto;text-align:right;}
+.nav-meta .nm-name{font-size:11px;font-weight:600;color:var(--w100);letter-spacing:.4px;}
+.nav-meta .nm-sub{font-size:9px;color:var(--w35);letter-spacing:.5px;margin-top:1px;}
+
+/* ── ESTADOS DE PANTALLA ── */
+.screen{display:none;flex:1;}
+.screen.active{display:flex;flex-direction:column;}
+
+/* loading */
+#scr-loading{align-items:center;justify-content:center;gap:14px;padding:60px 22px;}
+.spinner{width:34px;height:34px;border:2px solid var(--w8);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-txt{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--w35);font-weight:700;}
+
+/* error */
+#scr-error{align-items:center;justify-content:center;gap:14px;padding:60px 30px;text-align:center;}
+.err-icon{font-family:'Bebas Neue',sans-serif;font-size:54px;color:var(--gold);opacity:.5;}
+.err-title{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;color:var(--w100);}
+.err-sub{font-size:12px;color:var(--w60);line-height:1.6;max-width:300px;}
+
+/* ── HERO (foto de la propiedad) ── */
+.hero{position:relative;width:100%;aspect-ratio:16/10;background:var(--black-3);overflow:hidden;}
+.hero img,.hero video{width:100%;height:100%;object-fit:cover;display:block;}
+.hero::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(10,10,10,.92),rgba(10,10,10,.15) 55%,transparent);}
+.hero-tag{position:absolute;top:16px;left:18px;z-index:2;font-size:8px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--gold);background:rgba(10,10,10,.55);border:1px solid var(--gold-border);padding:5px 11px;border-radius:3px;}
+.hero-info{position:absolute;left:18px;right:18px;bottom:16px;z-index:2;}
+.hero-prop{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:1px;line-height:1;color:var(--w100);}
+
+/* ── BLOQUE ESTADO ── */
+.estado-bar{display:flex;align-items:center;gap:12px;padding:18px 22px;border-bottom:1px solid var(--w4);}
+.estado-badge{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:8px 16px;border-radius:4px;}
+.badge-pend{background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.25);color:#fbbf24;}
+.badge-conf{background:rgba(74,222,128,.10);border:1px solid rgba(74,222,128,.28);color:#4ade80;}
+.badge-real{background:var(--gold-dim);border:1px solid var(--gold-border);color:var(--gold);}
+.badge-canc{background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.25);color:#f87171;}
+.badge-reag{background:rgba(96,165,250,.08);border:1px solid rgba(96,165,250,.25);color:#60a5fa;}
+.estado-note{font-size:11px;color:var(--w60);line-height:1.4;}
+
+/* ── DATOS DE LA CITA ── */
+.body{padding:22px;display:flex;flex-direction:column;gap:0;}
+.sec-label{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--gold-dim);}
+.data-grid{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--w8);border-radius:4px;overflow:hidden;}
+.data-cell{padding:13px 16px;border-right:1px solid var(--w4);border-bottom:1px solid var(--w4);}
+.data-cell:nth-child(even){border-right:none;}
+.data-cell.full{grid-column:1/-1;border-right:none;}
+.d-lbl{font-size:8px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--w18);margin-bottom:5px;}
+.d-val{font-size:14px;font-weight:500;color:var(--w100);line-height:1.3;}
+.d-val.gold{color:var(--gold-light);}
+
+.notas{margin-top:18px;padding:14px 16px;background:var(--black-3);border:1px solid var(--w8);border-radius:4px;}
+.notas .d-lbl{margin-bottom:7px;}
+.notas-txt{font-size:13px;color:var(--w60);line-height:1.6;white-space:pre-wrap;}
+
+/* ── ASESOR ── */
+.asesor-card{margin:22px;margin-top:8px;padding:18px;background:var(--black-2);border:1px solid var(--gold-border);border-radius:6px;display:flex;align-items:center;gap:14px;}
+.asesor-foto{width:52px;height:52px;border-radius:50%;object-fit:cover;border:1px solid var(--gold-strong);display:none;flex-shrink:0;}
+.asesor-foto-fb{width:52px;height:52px;border-radius:50%;background:var(--gold-dim);border:1px solid var(--gold-border);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold);flex-shrink:0;}
+.asesor-info{flex:1;min-width:0;}
+.asesor-name{font-size:14px;font-weight:600;color:var(--w100);}
+.asesor-frase{font-family:'Cormorant Garamond','Georgia',serif;font-style:italic;font-size:13px;color:var(--w35);margin-top:2px;}
+
+.wa-btn{display:flex;align-items:center;justify-content:center;gap:8px;margin:0 22px 26px;padding:14px;background:#25D366;color:#06351b;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;border-radius:5px;text-decoration:none;transition:filter .15s;}
+.wa-btn:hover{filter:brightness(1.06);}
+
+.foot{margin-top:auto;padding:18px 22px 26px;border-top:1px solid var(--w4);text-align:center;}
+.foot-txt{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--w18);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- NAV: branding del asesor (neutral) -->
+  <div class="nav">
+    <img id="navLogo" class="nav-logo" alt="">
+    <span id="navFallback" class="nav-fallback">Cita</span>
+    <div class="nav-meta">
+      <div id="navName" class="nm-name">Confirmación de cita</div>
+      <div id="navSub" class="nm-sub">Detalle de tu visita</div>
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  <div id="scr-loading" class="screen active">
+    <div class="spinner"></div>
+    <div class="loading-txt">Cargando tu cita</div>
+  </div>
+
+  <!-- ERROR -->
+  <div id="scr-error" class="screen">
+    <div class="err-icon">!</div>
+    <div class="err-title">No encontramos esta cita</div>
+    <div class="err-sub">El enlace puede haber expirado o ser incorrecto. Contacta a tu asesor para que te comparta uno nuevo.</div>
+  </div>
+
+  <!-- MAIN -->
+  <div id="scr-main" class="screen">
+    <div class="hero" id="hero">
+      <img id="heroImg" alt="" style="display:none">
+      <span class="hero-tag">Cita de visita</span>
+      <div class="hero-info"><div class="hero-prop" id="heroProp">Propiedad</div></div>
+    </div>
+
+    <div class="estado-bar">
+      <span id="estadoBadge" class="estado-badge badge-pend">Pendiente</span>
+      <span id="estadoNote" class="estado-note"></span>
+    </div>
+
+    <div class="body">
+      <div class="sec-label">Detalle de la cita</div>
+      <div class="data-grid">
+        <div class="data-cell"><div class="d-lbl">Fecha</div><div class="d-val gold" id="vFecha">—</div></div>
+        <div class="data-cell"><div class="d-lbl">Hora</div><div class="d-val gold" id="vHora">—</div></div>
+        <div class="data-cell"><div class="d-lbl">Tipo de cita</div><div class="d-val" id="vTipo">—</div></div>
+        <div class="data-cell"><div class="d-lbl">Atiende</div><div class="d-val" id="vAsesor">—</div></div>
+        <div class="data-cell full"><div class="d-lbl">A nombre de</div><div class="d-val" id="vComprador">—</div></div>
+      </div>
+
+      <div class="notas" id="notasWrap" style="display:none">
+        <div class="d-lbl">Notas de tu asesor</div>
+        <div class="notas-txt" id="vNotas"></div>
+      </div>
+    </div>
+
+    <div class="sec-label" style="margin:0 22px 14px">Tu asesor</div>
+    <div class="asesor-card">
+      <img id="asesorFoto" class="asesor-foto" alt="">
+      <div id="asesorFotoFb" class="asesor-foto-fb">A</div>
+      <div class="asesor-info">
+        <div class="asesor-name" id="asesorName">Asesor responsable</div>
+        <div class="asesor-frase" id="asesorFrase">Acompañamiento inmobiliario</div>
+      </div>
+    </div>
+
+    <a id="waBtn" class="wa-btn" href="#" target="_blank" rel="noopener">Escribir por WhatsApp</a>
+
+    <div class="foot"><div class="foot-txt">Confirmación de cita</div></div>
+  </div>
+
+</div>
+
+<script>
+/* ════════════════════════════════════════════════════════════
+   cita.html — Página pública de cita del comprador
+   · NEUTRAL: ninguna marca fija; arriba va el branding del asesor.
+   · Se alimenta del MISMO webhook de Make que el landing del comprador
+     (un solo webhook). Aquí se llama con ?cita=FOLIO en vez de ?folio=.
+   · Solo LEE. Nunca escribe el folio (eso lo hace Make).
+   · Si Make aún no responde, la página NO se rompe: muestra error limpio.
+   · Modo preview sin Make: abrir con ?demo=1
+   ════════════════════════════════════════════════════════════ */
+
+/* ── UN SOLO WEBHOOK (el mismo del landing del comprador, extendido
+      para responder ?cita=FOLIO). Cambia esta URL si Make usa otra. ── */
+var WEBHOOK = "https://hook.us2.make.com/r7y2xb19jdqybqco8ig0b7gtup8qfcvu";
+
+/* Config con valores por defecto (fallbacks) — se sobreescriben con lo que mande Make */
+var C = {
+  folioCita:"", comprador:"", propiedad:"", foto:"",
+  fecha:"", hora:"", tipo:"", estado:"Pendiente", notas:"",
+  asesor:"", asesorFoto:"", asesorFrase:"", logo:"", independiente:false, wa:""
+};
+
+/* ── helpers ── */
+function leerParam(name){ try{ return new URLSearchParams(location.search).get(name)||""; }catch(e){ return ""; } }
+function tieneValor(v){ return v!==undefined && v!==null && String(v).trim()!=="" && String(v).trim()!=="-"; }
+function txt(id,v){ var el=document.getElementById(id); if(el) el.textContent=v; }
+function esVideo(url){ return /\.(mp4|webm|ogg)(\?|#|$)/i.test(url||'') || /\/video\/upload\//i.test(url||''); }
+function iconoCasa(){
+  var s="<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='#C6A86B' stroke-width='1.5'><path d='M3 11l9-7 9 7'/><path d='M5 10v9h14v-9'/></svg>";
+  return 'data:image/svg+xml,'+encodeURIComponent(s);
+}
+function show(id){
+  ['scr-loading','scr-error','scr-main'].forEach(function(s){
+    document.getElementById(s).classList.toggle('active', s===id);
+  });
+}
+
+/* ── mapeo del JSON de Make → C (con alias, igual que el landing) ── */
+function aplicarDatos(d){
+  if(!d || typeof d!=='object') return;
+  if(tieneValor(d.folioCita||d.folio_cita||d.folio))                 C.folioCita = String(d.folioCita||d.folio_cita||d.folio).trim();
+  if(tieneValor(d.comprador||d.cliente))                              C.comprador = String(d.comprador||d.cliente).trim();
+  if(tieneValor(d.propiedad||d.nombrePropiedad||d.nombre))            C.propiedad = String(d.propiedad||d.nombrePropiedad||d.nombre).trim();
+  if(tieneValor(d.fotoPropiedad||d.portada||d.fotoPortada||d.foto))   C.foto      = String(d.fotoPropiedad||d.portada||d.fotoPortada||d.foto).trim();
+  if(tieneValor(d.fecha||d.fechaCita))                                C.fecha     = String(d.fecha||d.fechaCita).trim();
+  if(tieneValor(d.hora))                                              C.hora      = String(d.hora).trim();
+  if(tieneValor(d.tipo||d.tipoCita))                                  C.tipo      = String(d.tipo||d.tipoCita).trim();
+  if(tieneValor(d.estado||d.estadoCita))                              C.estado    = String(d.estado||d.estadoCita).trim();
+  if(tieneValor(d.notas||d.notasCita))                                C.notas     = String(d.notas||d.notasCita).trim();
+  if(tieneValor(d.asesor||d.asesorNombre))                            C.asesor    = String(d.asesor||d.asesorNombre).trim();
+  if(tieneValor(d.asesorFoto))                                        C.asesorFoto= String(d.asesorFoto).trim();
+  if(tieneValor(d.asesorFrase))                                       C.asesorFrase=String(d.asesorFrase).trim();
+  if(tieneValor(d.logo||d.logoEmpresa||d.logoEmpresaUrl))             C.logo      = String(d.logo||d.logoEmpresa||d.logoEmpresaUrl).trim();
+  if(d.independiente!==undefined){
+    var i=String(d.independiente).toLowerCase();
+    C.independiente = (i==='true'||i==='1'||i==='si'||i==='sí'||i.indexOf('independiente')>=0);
+  }
+  if(tieneValor(d.wa||d.whatsapp||d.asesorWhatsapp))                  C.wa        = String(d.wa||d.whatsapp||d.asesorWhatsapp).replace(/\D/g,'');
+}
+
+/* ── estado → badge ── */
+var ESTADOS = {
+  'Pendiente':  {cls:'badge-pend', note:'Tu cita está registrada. Tu asesor la confirmará pronto.'},
+  'Confirmada': {cls:'badge-conf', note:'¡Confirmada! Te esperamos el día y hora indicados.'},
+  'Realizada':  {cls:'badge-real', note:'Esta cita ya se realizó. Gracias por tu visita.'},
+  'Cancelada':  {cls:'badge-canc', note:'Esta cita fue cancelada. Escribe a tu asesor para reagendar.'},
+  'Reagendada': {cls:'badge-reag', note:'Tu cita fue reagendada. Revisa la nueva fecha y hora.'}
+};
+
+/* ── pintar ── */
+function pintar(){
+  /* nav / branding */
+  var logoEl=document.getElementById('navLogo'), fbEl=document.getElementById('navFallback');
+  var logoSrc = C.independiente ? iconoCasa() : (C.logo||'');
+  if(logoSrc){ logoEl.src=logoSrc; logoEl.style.display='block'; fbEl.style.display='none'; }
+  else{ logoEl.style.display='none'; fbEl.style.display='inline'; }
+  txt('navName', C.asesor || 'Confirmación de cita');
+  txt('navSub', C.asesor ? 'Tu asesor inmobiliario' : 'Detalle de tu visita');
+
+  /* hero / propiedad */
+  txt('heroProp', C.propiedad || 'Tu propiedad de interés');
+  var hero=document.getElementById('hero'), img=document.getElementById('heroImg');
+  if(C.foto){
+    if(esVideo(C.foto)){
+      img.style.display='none';
+      var v=document.createElement('video');
+      v.src=C.foto; v.autoplay=true; v.muted=true; v.loop=true; v.playsInline=true;
+      v.style.cssText='width:100%;height:100%;object-fit:cover';
+      hero.insertBefore(v, hero.firstChild.nextSibling);
+    }else{ img.src=C.foto; img.style.display='block'; }
+  }
+
+  /* estado */
+  var info = ESTADOS[C.estado] || ESTADOS['Pendiente'];
+  var badge=document.getElementById('estadoBadge');
+  badge.className='estado-badge '+info.cls;
+  badge.textContent=C.estado || 'Pendiente';
+  txt('estadoNote', info.note);
+
+  /* datos */
+  txt('vFecha', C.fecha || '—');
+  txt('vHora', C.hora || '—');
+  txt('vTipo', C.tipo || 'Visita');
+  txt('vAsesor', C.asesor || '—');
+  txt('vComprador', C.comprador || '—');
+
+  if(C.notas){ document.getElementById('notasWrap').style.display='block'; txt('vNotas', C.notas); }
+
+  /* asesor */
+  txt('asesorName', C.asesor || 'Asesor responsable');
+  txt('asesorFrase', C.asesorFrase || 'Acompañamiento inmobiliario');
+  var af=document.getElementById('asesorFoto'), afb=document.getElementById('asesorFotoFb');
+  if(C.asesorFoto){ af.src=C.asesorFoto; af.style.display='block'; afb.style.display='none'; }
+  else{ af.style.display='none'; afb.style.display='flex'; afb.textContent=(C.asesor||'A').charAt(0).toUpperCase(); }
+
+  /* whatsapp */
+  var waBtn=document.getElementById('waBtn');
+  if(C.wa){
+    var msg='Hola '+(C.asesor||'')+', te escribo sobre mi cita';
+    if(C.propiedad) msg+=' para '+C.propiedad;
+    if(C.fecha) msg+=' el '+C.fecha;
+    msg+='.';
+    waBtn.href='https://wa.me/'+C.wa+'?text='+encodeURIComponent(msg);
+    waBtn.textContent='Escribir a '+(C.asesor||'tu asesor');
+    waBtn.style.display='flex';
+  }else{ waBtn.style.display='none'; }
+
+  show('scr-main');
+}
+
+/* ── datos demo (solo ?demo=1) — para previsualizar sin Make ── */
+var DEMO = {
+  folioCita:"CUER-V-2026-003-01-C01", comprador:"Ana María Hernández",
+  propiedad:"Casa Jacarandas", portada:"",
+  fecha:"Viernes 12 de junio, 2026", hora:"5:00 p.m.",
+  tipo:"Visita presencial", estado:"Confirmada",
+  notas:"Llega 10 minutos antes. Estacionamiento disponible dentro del fraccionamiento.",
+  asesor:"Diana Salgado", asesorFrase:"Asesora inmobiliaria · Cuernavaca",
+  independiente:true, wa:"7771234567"
+};
+
+/* ── arranque ── */
+function boot(){
+  if(leerParam('demo')==='1'){ aplicarDatos(DEMO); pintar(); return; }
+  var folio = leerParam('cita');
+  if(!folio){ show('scr-error'); return; }
+
+  var listo=false, guarda=setTimeout(function(){ if(!listo){ listo=true; show('scr-error'); } }, 7000);
+  fetch(WEBHOOK + '?cita=' + encodeURIComponent(folio), { method:'GET', cache:'no-store' })
+    .then(function(r){ return r.text(); })
+    .then(function(t){
+      if(listo) return; listo=true; clearTimeout(guarda);
+      var data=null; try{ data=JSON.parse(t); }catch(e){}
+      /* Make puede devolver el objeto directo, un array, o {records:[...]} */
+      if(Array.isArray(data)) data=data[0];
+      if(data && data.records && data.records[0]) data=data.records[0].fields||data.records[0];
+      if(data && (data.fields)) data=data.fields;
+      if(data && (tieneValor(data.folioCita||data.folio_cita||data.folio||data.estado||data.estadoCita||data.fecha||data.fechaCita))){
+        aplicarDatos(data); pintar();
+      }else{ show('scr-error'); }
+    })
+    .catch(function(){ if(!listo){ listo=true; clearTimeout(guarda); show('scr-error'); } });
+}
+if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', boot); } else { boot(); }
+</script>
+</body>
+</html>
