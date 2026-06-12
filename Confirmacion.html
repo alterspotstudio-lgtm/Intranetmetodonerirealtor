@@ -3,215 +3,244 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="robots" content="noindex,nofollow">
+<meta name="robots" content="noindex">
 <title>Confirmación · Método NERI</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:ital@1&family=Montserrat:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
-  --black:#0A0A0A; --panel:#111111; --panel2:#0d0d0d;
-  --gold:#C6A86B; --gold-light:#E2C98A;
+  --black:#0A0A0A; --black-2:#111111; --black-3:#161616;
+  --gold:#C6A86B; --gold-light:#E2C98A; --gold-strong:rgba(198,168,107,.55);
   --gold-dim:rgba(198,168,107,.08); --gold-border:rgba(198,168,107,.30);
-  --border:rgba(255,255,255,.08);
-  --w100:#FFFFFF; --w70:rgba(255,255,255,.70); --w50:rgba(255,255,255,.50); --w30:rgba(255,255,255,.30);
-  --green:#4ade80; --amber:#fbbf24; --red:#f87171; --violet:#a78bfa;
+  --w100:#FFFFFF; --w70:rgba(255,255,255,.70); --w60:rgba(255,255,255,.60);
+  --w50:rgba(255,255,255,.50); --w35:rgba(255,255,255,.35); --w30:rgba(255,255,255,.30);
+  --w18:rgba(255,255,255,.18); --w8:rgba(255,255,255,.08); --w4:rgba(255,255,255,.04);
 }
-*{margin:0;padding:0;box-sizing:border-box;}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased;}
 body{font-family:'Montserrat',sans-serif;background:var(--black);color:var(--w100);min-height:100vh;}
-a{color:inherit;}
+.shell{max-width:680px;margin:0 auto;background:var(--black);min-height:100vh;display:flex;flex-direction:column;}
 
-/* nav */
-.nav{display:flex;align-items:center;justify-content:space-between;padding:16px 22px;border-bottom:1px solid var(--border);}
-.nav-brand{font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:2.5px;color:var(--gold);}
+/* ── NAV ── */
+.nav{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;}
 .nav-logo{height:30px;display:none;}
+.nav-casa{width:30px;height:30px;display:block;color:var(--gold);}
 .nav-asesor{text-align:right;}
-.nav-name{font-size:11px;font-weight:600;letter-spacing:.5px;}
-.nav-sub{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--w30);margin-top:2px;}
+.nav-name{font-size:13px;font-weight:600;color:var(--w100);}
+.nav-sub{font-size:10px;color:var(--w50);margin-top:1px;}
 
-/* pantallas */
-.scr{display:none;}
-.scr.active{display:block;}
-#scr-loading{padding:120px 24px;text-align:center;}
-.load-mark{font-family:'Bebas Neue',sans-serif;font-size:40px;letter-spacing:5px;color:var(--gold);opacity:.5;}
-.load-txt{margin-top:14px;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--w30);}
-#scr-error{padding:100px 24px;text-align:center;}
-.err-icon{font-family:'Bebas Neue',sans-serif;font-size:50px;color:var(--gold);opacity:.45;}
-.err-title{font-family:'Bebas Neue',sans-serif;font-size:23px;letter-spacing:2px;margin-top:10px;}
-.err-sub{font-size:12px;color:var(--w50);margin-top:10px;line-height:1.6;max-width:340px;margin-left:auto;margin-right:auto;}
+/* ── PANTALLAS ── */
+.scr{display:none;flex:1;}
+.scr.active{display:flex;flex-direction:column;}
+#scr-loading{align-items:center;justify-content:center;gap:14px;padding:60px 22px;}
+.spinner{width:34px;height:34px;border:2px solid var(--w8);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.load-txt{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--w35);font-weight:700;}
+#scr-error{align-items:center;justify-content:center;gap:14px;padding:60px 30px;text-align:center;}
+.err-icon{font-family:'Bebas Neue',sans-serif;font-size:54px;color:var(--gold);opacity:.5;}
+.err-title{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;color:var(--w100);}
+.err-sub{font-size:12px;color:var(--w60);line-height:1.6;max-width:300px;}
 
-/* contenido */
-.wrap{max-width:560px;margin:0 auto;padding:26px 20px 60px;}
-.eyebrow{font-size:8px;letter-spacing:3.5px;text-transform:uppercase;color:var(--gold);font-weight:700;}
-.titulo{font-family:'Bebas Neue',sans-serif;font-size:34px;letter-spacing:1.5px;line-height:1.05;margin-top:8px;}
-.frase{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:16px;color:var(--w50);margin-top:8px;line-height:1.45;}
+/* ── HERO ── */
+.hero{position:relative;width:100%;aspect-ratio:16/10;background:var(--black-3);overflow:hidden;}
+.hero img{width:100%;height:100%;object-fit:cover;display:block;}
+.hero::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(10,10,10,.92),rgba(10,10,10,.15) 55%,transparent);}
+.hero-tag{position:absolute;top:16px;left:18px;z-index:2;font-size:8px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--gold);background:rgba(10,10,10,.55);border:1px solid var(--gold-border);padding:5px 11px;border-radius:3px;}
+.hero-info{position:absolute;left:18px;right:18px;bottom:16px;z-index:2;}
+.hero-prop{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:1px;line-height:1;color:var(--w100);}
+.hero-frase{font-family:'Cormorant Garamond','Georgia',serif;font-style:italic;font-size:14px;color:var(--w70);margin-top:7px;line-height:1.45;}
+/* hero sin foto */
+.hero.sin-foto{aspect-ratio:auto;padding:26px 20px 22px;overflow:visible;}
+.hero.sin-foto::after{display:none;}
+.hero.sin-foto .hero-tag{position:static;display:inline-block;margin-bottom:14px;}
+.hero.sin-foto .hero-info{position:static;border-left:2px solid var(--gold);padding-left:14px;}
 
-.hero{margin-top:20px;border:1px solid var(--border);border-radius:2px;overflow:hidden;position:relative;background:var(--panel2);}
-.hero img,.hero video{width:100%;height:200px;object-fit:cover;display:block;}
-.hero-prop{position:absolute;left:14px;bottom:12px;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;background:rgba(10,10,10,.82);padding:6px 12px;border-left:2px solid var(--gold);}
-.hero.sin-foto{padding:22px 16px;}
-.hero.sin-foto .hero-prop{position:static;background:transparent;padding:0;border-left:2px solid var(--gold);padding-left:12px;}
+/* ── ESTADO ── */
+.estado-bar{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--w4);}
+.estado-badge{flex-shrink:0;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:6px 12px;border-radius:3px;}
+.b-pend{background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.25);color:#fbbf24;}
+.b-conf{background:rgba(74,222,128,.10);border:1px solid rgba(74,222,128,.28);color:#4ade80;}
+.b-real{background:var(--gold-dim);border:1px solid var(--gold-border);color:var(--gold);}
+.b-canc{background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.25);color:#f87171;}
+.b-reag{background:rgba(96,165,250,.08);border:1px solid rgba(96,165,250,.25);color:#60a5fa;}
+.estado-note{font-size:11px;color:var(--w60);line-height:1.4;}
 
-/* badge estado */
-.estado{display:flex;align-items:center;gap:10px;margin-top:18px;border:1px solid var(--border);border-radius:2px;padding:13px 15px;background:var(--panel);}
-.badge{font-size:8px;letter-spacing:2px;text-transform:uppercase;font-weight:700;padding:5px 12px;border-radius:2px;border:1px solid;white-space:nowrap;}
-.b-pend{color:var(--amber);border-color:rgba(251,191,36,.35);background:rgba(251,191,36,.07);}
-.b-conf{color:var(--green);border-color:rgba(74,222,128,.35);background:rgba(74,222,128,.07);}
-.b-real{color:var(--gold);border-color:var(--gold-border);background:var(--gold-dim);}
-.b-canc{color:var(--red);border-color:rgba(248,113,113,.35);background:rgba(248,113,113,.07);}
-.b-reag{color:var(--violet);border-color:rgba(167,139,250,.35);background:rgba(167,139,250,.07);}
-.estado-note{font-size:11px;color:var(--w70);line-height:1.5;}
+/* ── CUERPO ── */
+.body{padding:22px 20px 6px;display:flex;flex-direction:column;}
+.sec-label{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--gold-dim);}
+.data-grid{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--w8);border-radius:4px;overflow:hidden;margin-bottom:24px;}
+.data-cell{padding:13px 16px;border-right:1px solid var(--w4);border-bottom:1px solid var(--w4);}
+.data-cell:nth-child(even){border-right:none;}
+.data-cell.full{grid-column:1/-1;border-right:none;}
+.d-lbl{font-size:8px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--w30);margin-bottom:5px;}
+.d-val{font-size:14px;font-weight:500;color:var(--w100);line-height:1.35;}
+.d-val.gold{color:var(--gold-light);}
+.d-val.monto{font-family:'Bebas Neue',sans-serif;font-size:38px;letter-spacing:1px;color:var(--gold-light);line-height:1;}
 
-/* detalle */
-.detalle{margin-top:18px;border:1px solid var(--border);border-radius:2px;background:var(--panel);}
-.d-row{display:grid;grid-template-columns:110px 1fr;gap:10px;padding:13px 15px;border-bottom:1px solid var(--border);}
-.d-row:last-child{border-bottom:none;}
-.d-k{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--w30);font-weight:700;padding-top:2px;}
-.d-v{font-size:13px;color:var(--w100);line-height:1.5;}
-.d-v.mono{font-family:'DM Mono',monospace;font-size:12px;letter-spacing:1px;color:var(--gold);}
-
-/* oferta */
-.oferta-monto{margin-top:18px;border:1px solid var(--gold-border);border-radius:2px;background:var(--gold-dim);padding:22px 18px;text-align:center;}
-.om-lbl{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);font-weight:700;}
-.om-val{font-family:'Bebas Neue',sans-serif;font-size:44px;letter-spacing:2px;color:var(--w100);margin-top:6px;line-height:1;}
-.om-vig{font-size:10px;color:var(--w50);margin-top:8px;letter-spacing:.5px;}
-
-/* notas */
-.notas{margin-top:18px;border-left:2px solid var(--gold);background:var(--panel);padding:14px 16px;border-radius:2px;}
-.notas-t{font-size:8px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);font-weight:700;}
-.notas-x{font-size:12px;color:var(--w70);line-height:1.65;margin-top:7px;white-space:pre-line;}
-
-/* asesor */
-.asesor{display:flex;align-items:center;gap:14px;margin-top:22px;border:1px solid var(--border);border-radius:2px;padding:15px;background:var(--panel);}
-.as-foto{width:50px;height:50px;border-radius:50%;object-fit:cover;border:1px solid var(--gold-border);display:none;}
-.as-fb{width:50px;height:50px;border-radius:50%;background:var(--gold-dim);border:1px solid var(--gold-border);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--gold);flex-shrink:0;}
-.as-name{font-size:13px;font-weight:600;}
-.as-rol{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--w30);margin-top:3px;}
-
-/* acciones */
-.acciones{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap;}
-.btn{flex:1;min-width:160px;text-align:center;padding:14px 16px;border-radius:2px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;text-decoration:none;border:1px solid var(--gold-border);}
-.btn-gold{background:var(--gold);color:var(--black);border-color:var(--gold);}
-.btn-ghost{background:transparent;color:var(--gold);}
-.btn-gold:hover{background:var(--gold-light);}
-.btn-ghost:hover{background:var(--gold-dim);}
-
-.folio-pie{margin-top:26px;text-align:center;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--w30);}
-.pie{margin-top:8px;text-align:center;font-size:8px;letter-spacing:2.5px;text-transform:uppercase;color:var(--w30);}
-
-/* impresión / PDF */
-@media print{
-  body{background:#fff;color:#111;}
-  .nav,.acciones,.pie{display:none!important;}
-  .wrap{max-width:100%;padding:0;}
-  .titulo,.hero-prop,.om-val{color:#111;}
-  .estado,.detalle,.notas,.asesor,.oferta-monto,.hero{border-color:#ccc;background:#fff;}
-  .d-v,.estado-note,.notas-x,.as-name{color:#222;}
-  .eyebrow,.d-v.mono,.om-lbl,.notas-t{color:#8a6d3b;}
+/* ── PREPARACIÓN ── */
+.prep-grid{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--w8);border-radius:4px;overflow:hidden;margin-bottom:24px;}
+.prep-it{display:flex;align-items:baseline;gap:10px;padding:12px 16px;border-right:1px solid var(--w4);border-bottom:1px solid var(--w4);}
+.prep-it:nth-child(even){border-right:none;}
+.prep-n{font-family:'DM Mono',monospace;font-size:11px;color:var(--gold);flex-shrink:0;}
+.prep-x{font-size:12.5px;color:var(--w70);line-height:1.45;}
+@media(max-width:520px){
+  .prep-grid{grid-template-columns:1fr;}
+  .prep-it{border-right:none;}
 }
-@media(max-width:420px){ .titulo{font-size:28px;} .om-val{font-size:36px;} .d-row{grid-template-columns:1fr;gap:3px;} }
+
+/* ── NOTAS ── */
+.notas{margin-bottom:24px;padding:14px 16px;background:var(--black-3);border:1px solid var(--w8);border-radius:4px;}
+.notas .d-lbl{margin-bottom:7px;color:var(--gold);}
+.notas-txt{font-size:13px;color:var(--w60);line-height:1.6;white-space:pre-wrap;}
+
+/* ── ASESOR ── */
+.asesor-wrap{padding:0 20px;}
+.asesor-card{padding:18px;background:var(--black-2);border:1px solid var(--gold-border);border-radius:6px;display:flex;align-items:center;gap:14px;margin-bottom:22px;}
+.asesor-foto{width:52px;height:52px;border-radius:50%;object-fit:cover;border:1px solid var(--gold-strong);display:none;flex-shrink:0;}
+.asesor-fb{width:52px;height:52px;border-radius:50%;background:var(--gold-dim);border:1px solid var(--gold-border);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold);flex-shrink:0;}
+.asesor-info{flex:1;min-width:0;}
+.asesor-name{font-size:14px;font-weight:600;color:var(--w100);}
+.asesor-frase{font-family:'Cormorant Garamond','Georgia',serif;font-style:italic;font-size:13px;color:var(--w35);margin-top:2px;line-height:1.4;}
+
+/* ── ACCIONES ── */
+.wa-btn{display:flex;align-items:center;justify-content:center;gap:8px;margin:0 20px 12px;padding:14px;background:#25D366;color:#06351b;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;border-radius:5px;text-decoration:none;transition:filter .15s;}
+.wa-btn:hover{filter:brightness(1.06);}
+.pdf-btn{display:block;margin:0 20px 26px;padding:12px;width:calc(100% - 40px);background:transparent;border:1px solid var(--w8);color:var(--w50);font-family:'Montserrat',sans-serif;font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;border-radius:5px;cursor:pointer;transition:border-color .15s,color .15s;}
+.pdf-btn:hover{border-color:var(--gold-border);color:var(--gold);}
+
+/* ── PIE ── */
+.foot{padding:0 20px 28px;text-align:center;}
+.foot-folio{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--w30);}
+.foot-txt{font-size:8px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:var(--w18);margin-top:8px;}
+
+/* ── IMPRESIÓN / PDF ── */
+@media print{
+  body,.shell{background:#fff;color:#111;}
+  .nav,.wa-btn,.pdf-btn{display:none!important;}
+  .hero::after{display:none;}
+  .hero-prop,.d-val,.asesor-name{color:#111;}
+  .hero-frase,.estado-note,.notas-txt,.prep-x{color:#444;}
+  .hero-tag,.sec-label,.d-lbl,.prep-n,.foot-folio{color:#8a6d3b;}
+  .data-grid,.prep-grid,.notas,.asesor-card,.estado-bar{border-color:#ccc;background:#fff;}
+}
+@media(max-width:420px){ .hero-prop{font-size:26px;} .d-val.monto{font-size:32px;} }
 </style>
 </head>
 <body>
+<div class="shell">
 
-<nav class="nav">
-  <div>
-    <img class="nav-logo" id="navLogo" alt="">
-    <span class="nav-brand" id="navFallback">MÉTODO NERI</span>
+  <nav class="nav">
+    <div>
+      <img class="nav-logo" id="navLogo" alt="">
+      <svg class="nav-casa" id="navCasa" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9h13v-9"/></svg>
+    </div>
+    <div class="nav-asesor">
+      <div class="nav-name" id="navName">Confirmación</div>
+      <div class="nav-sub" id="navSub">Operación inmobiliaria</div>
+    </div>
+  </nav>
+
+  <div class="scr active" id="scr-loading">
+    <div class="spinner"></div>
+    <div class="load-txt">Cargando confirmación</div>
   </div>
-  <div class="nav-asesor">
-    <div class="nav-name" id="navName">Confirmación</div>
-    <div class="nav-sub" id="navSub">Operación inmobiliaria</div>
+
+  <div class="scr" id="scr-error">
+    <div class="err-icon">◇</div>
+    <div class="err-title">No encontramos este evento</div>
+    <div class="err-sub">El link no es válido o el evento ya no está disponible. Escríbele a tu asesor para recibir el link correcto.</div>
   </div>
-</nav>
 
-<div class="scr active" id="scr-loading">
-  <div class="load-mark">NERI</div>
-  <div class="load-txt">Cargando confirmación…</div>
-</div>
-
-<div class="scr" id="scr-error">
-  <div class="err-icon">◇</div>
-  <div class="err-title">No encontramos este evento</div>
-  <div class="err-sub">El link no es válido o el evento ya no está disponible. Escríbele a tu asesor para recibir el link correcto.</div>
-</div>
-
-<div class="scr" id="scr-main">
-  <div class="wrap">
-    <div class="eyebrow" id="evEyebrow">Confirmación</div>
-    <h1 class="titulo" id="evTitulo">—</h1>
-    <div class="frase" id="evFrase"></div>
+  <div class="scr" id="scr-main">
 
     <div class="hero" id="hero">
       <img id="heroImg" alt="" style="display:none">
-      <div class="hero-prop" id="heroProp">—</div>
-    </div>
-
-    <div class="estado">
-      <span class="badge b-pend" id="evBadge">—</span>
-      <span class="estado-note" id="evNote"></span>
-    </div>
-
-    <div class="oferta-monto" id="ofertaBox" style="display:none">
-      <div class="om-lbl">Monto de la oferta</div>
-      <div class="om-val" id="ofMonto">—</div>
-      <div class="om-vig" id="ofVigencia"></div>
-    </div>
-
-    <div class="detalle" id="detalle"></div>
-
-    <div class="notas" id="notasBox" style="display:none">
-      <div class="notas-t" id="notasT">Notas de tu asesor</div>
-      <div class="notas-x" id="notasX"></div>
-    </div>
-
-    <div class="asesor" id="asesorBox" style="display:none">
-      <img class="as-foto" id="asFoto" alt="">
-      <div class="as-fb" id="asFb">N</div>
-      <div>
-        <div class="as-name" id="asName">—</div>
-        <div class="as-rol">Tu asesor inmobiliario</div>
+      <span class="hero-tag" id="heroTag">Confirmación</span>
+      <div class="hero-info">
+        <div class="hero-prop" id="heroProp">—</div>
+        <div class="hero-frase" id="heroFrase"></div>
       </div>
     </div>
 
-    <div class="acciones">
-      <a class="btn btn-gold" id="btnWa" target="_blank" rel="noopener" style="display:none">Responder por WhatsApp</a>
-      <button class="btn btn-ghost" onclick="window.print()">Descargar PDF</button>
+    <div class="estado-bar">
+      <span class="estado-badge b-pend" id="evBadge">—</span>
+      <span class="estado-note" id="evNote"></span>
     </div>
 
-    <div class="folio-pie" id="evFolio"></div>
-    <div class="pie">Método NERI · Sistema operativo inmobiliario</div>
+    <div class="body">
+      <div class="sec-label" id="detLabel">Detalle de la cita</div>
+      <div class="data-grid" id="dataGrid"></div>
+
+      <div id="prepWrap" style="display:none">
+        <div class="sec-label">Cómo preparar la propiedad</div>
+        <div class="prep-grid" id="prepGrid"></div>
+      </div>
+
+      <div class="notas" id="notasBox" style="display:none">
+        <div class="d-lbl">Notas de tu asesor</div>
+        <div class="notas-txt" id="notasX"></div>
+      </div>
+    </div>
+
+    <div class="asesor-wrap" id="asesorWrap" style="display:none">
+      <div class="sec-label">Tu asesor</div>
+      <div class="asesor-card">
+        <img class="asesor-foto" id="asFoto" alt="">
+        <div class="asesor-fb" id="asFb">N</div>
+        <div class="asesor-info">
+          <div class="asesor-name" id="asName">—</div>
+          <div class="asesor-frase" id="asFrase">Acompañamiento inmobiliario</div>
+        </div>
+      </div>
+    </div>
+
+    <a class="wa-btn" id="btnWa" target="_blank" rel="noopener" style="display:none">Confirmar por WhatsApp</a>
+    <button class="pdf-btn" onclick="window.print()">Descargar PDF</button>
+
+    <div class="foot">
+      <div class="foot-folio" id="evFolio"></div>
+      <div class="foot-txt">Método NERI · Sistema operativo inmobiliario</div>
+    </div>
+
   </div>
 </div>
 
 <script>
-/* ══ Webhook de Make: responde JSON por ?evento=FOLIO ══ */
+/* ════════════════════════════════════════════════════════════
+   Confirmacion.html — Landing pública de eventos de la operación
+   (Producción · Promesa · Notaría · Oferta) · Método NERI
+   Lee ?evento=FOLIO y consulta el webhook de Eventos Operación.
+   ════════════════════════════════════════════════════════════ */
 var WEBHOOK = "https://hook.us2.make.com/5ixjyngdawk1wstore3xg91xmiwym5i9";
 
-/* Plantilla en blanco: TODO se pinta desde Make. Sin datos personales fijos. */
 var C = {
   folio:"", tipo:"", estado:"", propiedad:"", cliente:"", fecha:"", hora:"", lugar:"",
-  notas:"", asesor:"", asesorFoto:"", wa:"", foto:"", logo:"", independiente:false,
+  notas:"", asesor:"", asesorFoto:"", asesorFrase:"", wa:"", foto:"", logo:"", independiente:false,
   montoOferta:"", condicionesOferta:"", vigenciaOferta:""
 };
 
-function tv(v){ return v!==undefined && v!==null && String(v).trim()!=="" && String(v).trim()!=="-"; }
-function txt(id,v){ var el=document.getElementById(id); if(el) el.textContent=v; }
-function show(id){ ['scr-loading','scr-error','scr-main'].forEach(function(s){ document.getElementById(s).classList.toggle('active', s===id); }); }
-function esc(s){ var d=document.createElement('div'); d.textContent=String(s==null?'':s); return d.innerHTML; }
+function tv(v){ return v !== undefined && v !== null && String(v).trim() !== "" && String(v).trim() !== "—"; }
+function txt(id, v){ document.getElementById(id).textContent = v; }
+function show(id){
+  ['scr-loading','scr-error','scr-main'].forEach(function(s){
+    document.getElementById(s).classList.toggle('active', s === id);
+  });
+}
 
 function aplicar(d){
-  if(!d || typeof d!=='object') return;
+  if(!d || typeof d !== 'object') return;
   if(tv(d.folioEvento||d.folio))            C.folio   = String(d.folioEvento||d.folio).trim();
   if(tv(d.tipo||d.tipoEvento))              C.tipo    = String(d.tipo||d.tipoEvento).trim();
   if(tv(d.estado))                          C.estado  = String(d.estado).trim();
-  if(tv(d.propiedad||d.nombrePropiedad))    C.propiedad = String(d.propiedad||d.nombrePropiedad).trim();
-  if(tv(d.cliente||d.propietario||d.comprador)) C.cliente = String(d.cliente||d.propietario||d.comprador).trim();
+  if(tv(d.propiedad))                       C.propiedad = String(d.propiedad).trim();
+  if(tv(d.cliente||d.para))                 C.cliente = String(d.cliente||d.para).trim();
   if(tv(d.fecha))                           C.fecha   = String(d.fecha).trim();
   if(tv(d.hora))                            C.hora    = String(d.hora).trim();
   if(tv(d.lugar||d.direccion||d.notaria))   C.lugar   = String(d.lugar||d.direccion||d.notaria).trim();
   if(tv(d.notas))                           C.notas   = String(d.notas).trim();
   if(tv(d.asesor||d.asesorNombre))          C.asesor  = String(d.asesor||d.asesorNombre).trim();
   if(tv(d.asesorFoto))                      C.asesorFoto = String(d.asesorFoto).trim();
+  if(tv(d.asesorFrase||d.frase))            C.asesorFrase = String(d.asesorFrase||d.frase).trim();
   if(tv(d.wa||d.whatsapp||d.asesorWhatsapp))C.wa      = String(d.wa||d.whatsapp||d.asesorWhatsapp).replace(/\D/g,'');
   if(tv(d.foto||d.fotoPropiedad||d.portada))C.foto    = String(d.foto||d.fotoPropiedad||d.portada).trim();
   if(tv(d.logo||d.logoEmpresa))             C.logo    = String(d.logo||d.logoEmpresa).trim();
@@ -223,13 +252,13 @@ function aplicar(d){
 
 /* ── Copy por tipo de evento ── */
 var TIPOS = {
-  'Producción Inmobiliaria': { eyebrow:'Confirmación de cita', titulo:'Producción Inmobiliaria',
+  'Producción Inmobiliaria': { eyebrow:'Producción inmobiliaria', titulo:'Sesión de foto y video', detLabel:'Detalle de la sesión',
     frase:'¡Es hora de brillar! Hoy tu casa es la estrella del proceso. Nos vemos en la cita de producción inmobiliaria para capturar su mejor versión y venderla como se merece.', esCita:true },
-  'Promesa de Compraventa':  { eyebrow:'Confirmación de firma', titulo:'Firma de Promesa de Compraventa',
+  'Promesa de Compraventa':  { eyebrow:'Confirmación de firma', titulo:'Firma de Promesa de Compraventa', detLabel:'Detalle de la firma',
     frase:'Formalización del acuerdo entre las partes.', esCita:true },
-  'Firma en Notaría':        { eyebrow:'Confirmación de firma', titulo:'Firma en Notaría',
+  'Firma en Notaría':        { eyebrow:'Confirmación de firma', titulo:'Firma en Notaría', detLabel:'Detalle de la firma',
     frase:'Cierre y escrituración de la operación.', esCita:true },
-  'Oferta Formal':           { eyebrow:'Oferta formal de compra', titulo:'Oferta de Compra',
+  'Oferta Formal':           { eyebrow:'Oferta formal de compra', titulo:'Oferta de Compra', detLabel:'Detalle de la oferta',
     frase:'Presentada formalmente para tu revisión y decisión.', esCita:false }
 };
 
@@ -248,82 +277,109 @@ var ESTADOS_OFERTA = {
   'Rechazada':    {cls:'b-canc', note:'Oferta declinada. Tu asesor sigue trabajando la operación.'}
 };
 
-function dRow(k,v,mono){
-  return '<div class="d-row"><div class="d-k">'+esc(k)+'</div><div class="d-v'+(mono?' mono':'')+'">'+esc(v)+'</div></div>';
+function cell(lbl, val, cls, full){
+  var d = document.createElement('div'); d.className = 'data-cell' + (full ? ' full' : '');
+  var l = document.createElement('div'); l.className = 'd-lbl'; l.textContent = lbl;
+  var v = document.createElement('div'); v.className = 'd-val' + (cls ? ' ' + cls : ''); v.textContent = val;
+  d.appendChild(l); d.appendChild(v);
+  return d;
 }
 
 function pintar(){
-  var t = TIPOS[C.tipo] || { eyebrow:'Confirmación', titulo:(C.tipo||'Evento de la operación'), frase:'', esCita:true };
+  var t = TIPOS[C.tipo] || TIPOS['Producción Inmobiliaria'];
 
-  /* nav / branding */
-  var logoEl=document.getElementById('navLogo'), fbEl=document.getElementById('navFallback');
-  if(C.logo && !C.independiente){ logoEl.src=C.logo; logoEl.style.display='block'; fbEl.style.display='none'; }
-  txt('navName', C.asesor || 'Confirmación');
-  txt('navSub', C.asesor ? 'Tu asesor inmobiliario' : 'Operación inmobiliaria');
-
-  /* encabezado */
-  txt('evEyebrow', t.eyebrow);
-  txt('evTitulo', t.titulo);
-  txt('evFrase', t.frase);
+  /* nav: logo de inmobiliaria o casita */
+  if(C.logo && !C.independiente){
+    var lg = document.getElementById('navLogo');
+    lg.src = C.logo; lg.style.display = 'block';
+    document.getElementById('navCasa').style.display = 'none';
+  }
+  if(C.asesor){ txt('navName', C.asesor); txt('navSub', 'Tu asesor inmobiliario'); }
 
   /* hero */
-  var hero=document.getElementById('hero'), img=document.getElementById('heroImg');
-  txt('heroProp', C.propiedad || 'Tu propiedad');
-  if(C.foto){ img.src=C.foto; img.style.display='block'; } else { hero.classList.add('sin-foto'); }
+  txt('heroTag', t.eyebrow);
+  txt('heroProp', C.propiedad || t.titulo);
+  txt('heroFrase', t.frase);
+  if(C.foto){
+    var hi = document.getElementById('heroImg');
+    hi.src = C.foto; hi.style.display = 'block';
+  } else {
+    document.getElementById('hero').classList.add('sin-foto');
+  }
 
   /* estado */
   var mapa = t.esCita ? ESTADOS_CITA : ESTADOS_OFERTA;
   var e = mapa[C.estado] || mapa[Object.keys(mapa)[0]];
-  var badge=document.getElementById('evBadge');
+  var badge = document.getElementById('evBadge');
   badge.textContent = C.estado || Object.keys(mapa)[0];
-  badge.className = 'badge ' + e.cls;
+  badge.className = 'estado-badge ' + e.cls;
   txt('evNote', e.note);
 
-  /* oferta */
-  if(!t.esCita){
-    document.getElementById('ofertaBox').style.display='block';
-    txt('ofMonto', C.montoOferta || '—');
-    txt('ofVigencia', C.vigenciaOferta ? ('Vigencia de la oferta: ' + C.vigenciaOferta) : '');
-  }
-
   /* detalle */
-  var det = '';
-  if(C.cliente) det += dRow(t.esCita ? 'Para' : 'Propietario', C.cliente);
+  txt('detLabel', t.detLabel);
+  var g = document.getElementById('dataGrid');
   if(t.esCita){
-    if(C.fecha) det += dRow('Fecha', C.fecha);
-    if(C.hora)  det += dRow('Hora', C.hora);
-    if(C.lugar) det += dRow('Lugar', C.lugar);
+    if(C.fecha) g.appendChild(cell('Fecha', C.fecha, 'gold'));
+    if(C.hora)  g.appendChild(cell('Hora', C.hora, 'gold'));
+    if(C.lugar) g.appendChild(cell('Lugar', C.lugar, '', true));
+    if(C.cliente) g.appendChild(cell('A nombre de', C.cliente, '', true));
+    if(C.propiedad && C.propiedad !== C.lugar) g.appendChild(cell('Propiedad', C.propiedad, '', true));
   } else {
-    if(C.condicionesOferta) det += dRow('Condiciones', C.condicionesOferta);
-    if(C.fecha) det += dRow('Presentada', C.fecha);
+    if(C.montoOferta) g.appendChild(cell('Monto de la oferta', C.montoOferta, 'monto', true));
+    if(C.fecha) g.appendChild(cell('Presentada', C.fecha, 'gold'));
+    if(C.vigenciaOferta) g.appendChild(cell('Vigencia', C.vigenciaOferta, 'gold'));
+    if(C.condicionesOferta) g.appendChild(cell('Condiciones', C.condicionesOferta, '', true));
+    if(C.cliente) g.appendChild(cell('Propietario', C.cliente, '', true));
+    if(C.propiedad) g.appendChild(cell('Propiedad', C.propiedad, '', true));
   }
-  if(C.propiedad) det += dRow('Propiedad', C.propiedad);
-  document.getElementById('detalle').innerHTML = det || dRow('Detalle','Tu asesor compartirá los datos en breve.');
+  if(!g.children.length) g.appendChild(cell('Detalle', 'Tu asesor compartirá los datos en breve.', '', true));
 
-  /* notas */
-  if(C.notas){
-    document.getElementById('notasBox').style.display='block';
-    txt('notasX', C.notas);
+  /* preparación + notas */
+  var notasTxt = C.notas || '', prepItems = [];
+  var pm = notasTxt.indexOf('Cómo preparar la propiedad:');
+  if(pm > -1){
+    prepItems = notasTxt.slice(pm + 27).replace(/\.\s*$/,'').split(',').map(function(x){return x.trim();}).filter(Boolean);
+    notasTxt = notasTxt.slice(0, pm).replace(/[\u00b7\s]+$/,'').trim();
+  }
+  if(prepItems.length){
+    document.getElementById('prepWrap').style.display = 'block';
+    var pg = document.getElementById('prepGrid');
+    prepItems.forEach(function(it, i){
+      var d = document.createElement('div'); d.className = 'prep-it';
+      var n = document.createElement('span'); n.className = 'prep-n'; n.textContent = (i < 9 ? '0' : '') + (i + 1);
+      var x = document.createElement('span'); x.className = 'prep-x'; x.textContent = it;
+      d.appendChild(n); d.appendChild(x); pg.appendChild(d);
+    });
+  }
+  if(notasTxt){
+    document.getElementById('notasBox').style.display = 'block';
+    txt('notasX', notasTxt);
   }
 
   /* asesor */
   if(C.asesor){
-    document.getElementById('asesorBox').style.display='flex';
+    document.getElementById('asesorWrap').style.display = 'block';
     txt('asName', C.asesor);
-    var fb=document.getElementById('asFb');
+    if(C.asesorFrase) txt('asFrase', C.asesorFrase);
+    var fb = document.getElementById('asFb');
     fb.textContent = C.asesor.trim().charAt(0).toUpperCase() || 'N';
-    if(C.asesorFoto){ var af=document.getElementById('asFoto'); af.src=C.asesorFoto; af.style.display='block'; fb.style.display='none'; }
+    if(C.asesorFoto){
+      var af = document.getElementById('asFoto');
+      af.src = C.asesorFoto; af.style.display = 'block'; fb.style.display = 'none';
+    }
   }
 
   /* WhatsApp */
   if(C.wa){
-    var btn=document.getElementById('btnWa');
+    var btn = document.getElementById('btnWa');
     var msg = t.esCita
-      ? ('Hola' + (C.asesor?' '+C.asesor:'') + ', te escribo por el evento ' + (C.folio||'') + ' (' + t.titulo + ').')
-      : ('Hola' + (C.asesor?' '+C.asesor:'') + ', revisé la oferta ' + (C.folio||'') + ' y quiero platicarla contigo.');
+      ? ('Hola' + (C.asesor ? ' ' + C.asesor : '') + ', te escribo por el evento ' + (C.folio || '') + ' (' + t.titulo + ').')
+      : ('Hola' + (C.asesor ? ' ' + C.asesor : '') + ', revisé la oferta ' + (C.folio || '') + ' y quiero platicarla contigo.');
     btn.href = 'https://wa.me/' + C.wa + '?text=' + encodeURIComponent(msg);
-    btn.style.display='block';
-    btn.textContent = t.esCita ? 'Confirmar por WhatsApp' : 'Responder a tu asesor';
+    btn.style.display = 'flex';
+    btn.textContent = t.esCita
+      ? ('Confirmar' + (C.asesor ? ' a ' + C.asesor.split(' ')[0] : '') + ' por WhatsApp')
+      : 'Responder a tu asesor';
   }
 
   txt('evFolio', C.folio ? ('FOLIO · ' + C.folio) : '');
