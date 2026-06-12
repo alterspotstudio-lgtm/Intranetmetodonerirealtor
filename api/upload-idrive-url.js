@@ -15,19 +15,13 @@ import crypto from 'node:crypto';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
-// Tipos permitidos y su límite de tamaño en MB.
-// Videos para la landing + imágenes (portada, foto de perfil) + PDFs.
-const ALLOWED_TYPES = new Map([
-  ['video/mp4',        500],
-  ['video/quicktime',  500],
-  ['video/x-m4v',      500],
-  ['image/jpeg',        30],
-  ['image/jpg',         30],
-  ['image/png',         30],
-  ['image/webp',        30],
-  ['image/heic',        30],
-  ['image/heif',        30],
-  ['application/pdf',   50],
+const MAX_VIDEO_MB = 500;
+const MAX_PDF_MB = 15;
+const ALLOWED_TYPES = new Set([
+  'video/mp4',
+  'video/quicktime',
+  'video/x-m4v',
+  'application/pdf', // contratos firmados (riel del vendedor) y documentos PDF
 ]);
 
 export default async function handler(req, res) {
@@ -53,11 +47,12 @@ export default async function handler(req, res) {
     const asesor = cleanPathPart(session.slug || session.user || session.nombre || 'asesor');
 
     if (!ALLOWED_TYPES.has(contentType)) {
-      return res.status(400).json({ error: 'Tipo de archivo no permitido. Solo videos MP4/MOV, imágenes (JPG/PNG/WEBP/HEIC) o PDF.' });
+      return res.status(400).json({ error: 'Solo se permiten videos MP4/MOV o documentos PDF para IDrive e2.' });
     }
-    const maxMb = ALLOWED_TYPES.get(contentType);
+    const isPdf = contentType === 'application/pdf';
+    const maxMb = isPdf ? MAX_PDF_MB : MAX_VIDEO_MB;
     if (size > maxMb * 1024 * 1024) {
-      return res.status(413).json({ error: `El archivo supera el límite operativo de ${maxMb} MB para este tipo.` });
+      return res.status(413).json({ error: `El archivo supera el límite operativo de ${maxMb} MB.` });
     }
 
     const ext = extensionFrom(filename, contentType);
@@ -145,17 +140,7 @@ function cleanFilename(v){
 function extensionFrom(filename, contentType){
   const m = String(filename).match(/\.[a-zA-Z0-9]{2,6}$/);
   if(m) return m[0].toLowerCase();
-  const map = {
-    'video/quicktime': '.mov',
-    'video/mp4': '.mp4',
-    'video/x-m4v': '.m4v',
-    'image/jpeg': '.jpg',
-    'image/jpg': '.jpg',
-    'image/png': '.png',
-    'image/webp': '.webp',
-    'image/heic': '.heic',
-    'image/heif': '.heif',
-    'application/pdf': '.pdf',
-  };
-  return map[contentType] || '.bin';
+  if(contentType === 'application/pdf') return '.pdf';
+  if(contentType === 'video/quicktime') return '.mov';
+  return '.mp4';
 }
