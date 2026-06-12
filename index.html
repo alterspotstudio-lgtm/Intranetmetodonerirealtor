@@ -77,7 +77,7 @@ body::after{
   line-height:1;pointer-events:none;user-select:none;letter-spacing:-8px;
 }
 .ll-tag{
-  font-size:10px;letter-spacing:3px;text-transform:uppercase;
+  font-size:7px;letter-spacing:5px;text-transform:uppercase;
   color:var(--gold);font-weight:800;margin-bottom:22px;
   display:flex;align-items:center;gap:12px;
 }
@@ -108,11 +108,11 @@ body::after{
   font-family:var(--display);font-size:36px;letter-spacing:6px;
   color:var(--gold);margin-bottom:4px;
 }
-.lc-sub{font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--w30);font-weight:700;margin-bottom:32px}
+.lc-sub{font-size:7px;letter-spacing:3.5px;text-transform:uppercase;color:var(--w30);font-weight:700;margin-bottom:32px}
 .lc-sep{width:40px;height:1px;background:var(--goldbdr);margin:0 0 28px}
 
 .form-label{
-  display:block;font-size:10px;letter-spacing:1.5px;
+  display:block;font-size:7px;letter-spacing:2.5px;
   text-transform:uppercase;color:var(--gold);font-weight:800;margin-bottom:6px;
 }
 .form-input{
@@ -159,12 +159,7 @@ select.form-input option{background:#111;color:#fff}
   position:fixed;inset:0;display:grid;
   grid-template-columns:var(--sidebar) 1fr;
   grid-template-rows:var(--topbar) 1fr;
-  transition:grid-template-columns .2s var(--ease,ease);
 }
-#screen-app.sb-collapsed{grid-template-columns:0 1fr}
-#screen-app.sb-collapsed .sidebar{width:0;min-width:0;border-right:none;overflow:hidden}
-.tb-burger{background:none;border:none;color:var(--w50);font-size:16px;cursor:pointer;padding:0 10px 0 0;line-height:1;transition:color .15s}
-.tb-burger:hover{color:var(--gold)}
 
 /* ─ SIDEBAR ─ */
 .sidebar{
@@ -178,7 +173,7 @@ select.form-input option{background:#111;color:#fff}
   font-family:var(--display);font-size:26px;letter-spacing:6px;
   color:var(--gold);line-height:1;
 }
-.sb-sys{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--w30);font-weight:700;margin-top:1px}
+.sb-sys{font-size:6px;letter-spacing:3px;text-transform:uppercase;color:var(--w30);font-weight:700;margin-top:1px}
 
 .sb-user{
   margin-top:12px;padding:10px 12px;
@@ -187,7 +182,7 @@ select.form-input option{background:#111;color:#fff}
   position:relative;cursor:pointer;
 }
 .sb-user-name{font-size:11px;font-weight:700;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.sb-user-role{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--w50);margin-top:2px;font-weight:700}
+.sb-user-role{font-size:7px;letter-spacing:1.5px;text-transform:uppercase;color:var(--w50);margin-top:2px;font-weight:700}
 .sb-user-dot{
   position:absolute;right:10px;top:50%;transform:translateY(-50%);
   width:6px;height:6px;border-radius:50%;background:var(--green);
@@ -198,7 +193,7 @@ select.form-input option{background:#111;color:#fff}
 .sb-nav::-webkit-scrollbar{width:0}
 
 .sb-section{
-  font-size:10px;letter-spacing:2px;text-transform:uppercase;
+  font-size:6px;letter-spacing:3px;text-transform:uppercase;
   color:var(--w30);font-weight:800;
   margin:14px 4px 6px;display:flex;align-items:center;gap:8px;
 }
@@ -223,13 +218,13 @@ select.form-input option{background:#111;color:#fff}
 .sb-btn{position:relative}
 .sb-icon{font-size:13px;min-width:16px;text-align:center;opacity:.6;flex-shrink:0}
 .sb-btn.active .sb-icon{opacity:1;color:var(--gold)}
-.sb-lbl{font-size:10px;letter-spacing:1px;text-transform:uppercase;font-weight:700;flex:1;line-height:1.2}
+.sb-lbl{font-size:8px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;flex:1;line-height:1.2}
 
 .sb-footer{padding:12px 10px;border-top:1px solid var(--border);flex-shrink:0}
 .sb-logout{
   width:100%;padding:9px;background:transparent;
   border:1px solid var(--border2);color:var(--w30);border-radius:var(--r);
-  font-size:10px;letter-spacing:3px;text-transform:uppercase;font-weight:800;
+  font-size:6px;letter-spacing:3px;text-transform:uppercase;font-weight:800;
   cursor:pointer;transition:all .15s;
 }
 .sb-logout:hover{border-color:var(--red);color:var(--red)}
@@ -243,7 +238,7 @@ select.form-input option{background:#111;color:#fff}
 .tb-left{display:flex;align-items:center;gap:10px}
 .tb-crumb{font-family:var(--display);font-size:15px;letter-spacing:3px;color:var(--gold)}
 .tb-sep{width:1px;height:12px;background:var(--border2)}
-.tb-label{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--w50);font-weight:600}
+.tb-label{font-size:7px;letter-spacing:3px;text-transform:uppercase;color:var(--w50);font-weight:600}
 .tb-right{display:flex;align-items:center;gap:14px}
 .tb-clock{font-family:var(--mono);font-size:12px;color:var(--w30);letter-spacing:1px}
 .tb-status{display:flex;align-items:center;gap:6px;font-size:8px;color:var(--w50);letter-spacing:.5px;font-weight:600}
@@ -269,12 +264,12 @@ select.form-input option{background:#111;color:#fff}
 .it-dot.r{background:#ff5f57}
 .it-dot.y{background:#febc2e}
 .it-dot.g{background:#28c840}
-.it-name{font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);font-weight:800}
+.it-name{font-size:7px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);font-weight:800}
 .it-url{font-family:var(--mono);font-size:10px;color:var(--w30);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:320px}
 .it-actions{display:flex;gap:6px;flex-shrink:0}
 .it-btn{
   padding:5px 10px;background:transparent;border:1px solid var(--border2);
-  border-radius:var(--r);font-size:10px;letter-spacing:1.5px;
+  border-radius:var(--r);font-size:7px;letter-spacing:1.5px;
   text-transform:uppercase;font-weight:700;color:var(--w50);cursor:pointer;
   transition:all .13s;
 }
@@ -298,7 +293,7 @@ select.form-input option{background:#111;color:#fff}
 .ip-btn{
   margin-top:8px;padding:11px 22px;
   background:var(--gold);color:#050505;border:none;border-radius:var(--r);
-  font-size:10px;letter-spacing:3px;text-transform:uppercase;font-weight:800;
+  font-size:7px;letter-spacing:3px;text-transform:uppercase;font-weight:800;
   cursor:pointer;transition:background .15s;
 }
 .ip-btn:hover{background:var(--gold2)}
@@ -309,7 +304,7 @@ select.form-input option{background:#111;color:#fff}
 .hoy-body{flex:1;overflow-y:auto;padding:28px}
 
 .ph-head{margin-bottom:28px}
-.ph-eyebrow{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:10px}
+.ph-eyebrow{font-size:6px;letter-spacing:5px;text-transform:uppercase;color:var(--gold);font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:10px}
 .ph-eyebrow::before{content:'';width:20px;height:1px;background:var(--gold);display:block;flex-shrink:0}
 .ph-title{font-family:var(--display);font-size:clamp(40px,5vw,68px);letter-spacing:3px;line-height:.86;margin-bottom:8px}
 .ph-title em{color:var(--gold);font-style:normal}
@@ -322,7 +317,7 @@ select.form-input option{background:#111;color:#fff}
 }
 .hoy-name{font-family:var(--display);font-size:22px;letter-spacing:2px}
 .hoy-role{font-size:10px;color:var(--w50);margin-top:3px;font-weight:300}
-.pill{display:inline-block;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:3px 10px;border-radius:999px;font-weight:800}
+.pill{display:inline-block;font-size:6px;letter-spacing:1.5px;text-transform:uppercase;padding:3px 10px;border-radius:999px;font-weight:800}
 .pill-green{background:var(--greendim);border:1px solid rgba(74,222,128,.25);color:var(--green)}
 .pill-gold{background:var(--golddim);border:1px solid var(--goldbdr);color:var(--gold)}
 
@@ -342,12 +337,12 @@ select.form-input option{background:#111;color:#fff}
   font-family:var(--display);font-size:64px;color:rgba(201,169,110,.05);
   position:absolute;right:-2px;bottom:-12px;line-height:1;pointer-events:none;letter-spacing:-2px;
 }
-.tc-tag{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);font-weight:800;margin-bottom:7px}
+.tc-tag{font-size:6px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);font-weight:800;margin-bottom:7px}
 .tc-title{font-family:var(--display);font-size:18px;letter-spacing:1.5px;line-height:1.1;margin-bottom:6px}
 .tc-desc{font-size:10px;color:var(--w50);font-weight:300;line-height:1.7}
 .tc-action{
   margin-top:14px;display:flex;align-items:center;gap:6px;
-  font-size:10px;letter-spacing:2.5px;text-transform:uppercase;
+  font-size:6px;letter-spacing:2.5px;text-transform:uppercase;
   color:var(--gold);font-weight:800;
 }
 .tc-arrow{transition:transform .15s;font-size:13px}
@@ -370,7 +365,7 @@ select.form-input option{background:#111;color:#fff}
 }
 .kpi{background:var(--surface);padding:18px 20px}
 .kpi-num{font-family:var(--display);font-size:42px;letter-spacing:1px;line-height:.9;color:var(--gold)}
-.kpi-lbl{font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--w50);font-weight:700;margin-top:8px}
+.kpi-lbl{font-size:7px;letter-spacing:2.5px;text-transform:uppercase;color:var(--w50);font-weight:700;margin-top:8px}
 
 .hoy-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px}
 .hoy-col{border:1px solid var(--border);border-radius:var(--r);background:var(--surface);overflow:hidden}
@@ -399,15 +394,15 @@ select.form-input option{background:#111;color:#fff}
 .hi-sub{font-size:10px;color:var(--w50);font-weight:300;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:240px}
 .hi-meta{text-align:right;flex-shrink:0}
 .hi-when{font-family:var(--mono);font-size:10px;color:var(--w50);margin-bottom:5px;white-space:nowrap}
-.hi-today{font-size:10px;letter-spacing:1.5px;background:var(--gold);color:#060606;padding:2px 6px;border-radius:999px;font-weight:800}
-.hi-pill{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:3px 8px;border-radius:999px;font-weight:800;white-space:nowrap}
+.hi-today{font-size:6px;letter-spacing:1.5px;background:var(--gold);color:#060606;padding:2px 6px;border-radius:999px;font-weight:800}
+.hi-pill{font-size:6px;letter-spacing:1.5px;text-transform:uppercase;padding:3px 8px;border-radius:999px;font-weight:800;white-space:nowrap}
 .hi-pill.gold{background:var(--golddim);border:1px solid var(--goldbdr);color:var(--gold)}
 .hi-pill.green{background:var(--greendim);border:1px solid rgba(74,222,128,.25);color:var(--green)}
 .hi-pill.red{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3);color:var(--red)}
 .hi-go{font-size:15px;color:var(--w30);transition:all .15s;flex-shrink:0}
 .hi-actions{display:flex;align-items:center;gap:10px;flex-shrink:0}
 .hi-wa{
-  font-size:10px;letter-spacing:1.5px;text-transform:uppercase;font-weight:800;
+  font-size:7px;letter-spacing:1.5px;text-transform:uppercase;font-weight:800;
   padding:6px 11px;border-radius:999px;text-decoration:none;white-space:nowrap;
   background:var(--greendim);border:1px solid rgba(74,222,128,.3);color:var(--green);
   transition:all .15s;
@@ -426,7 +421,7 @@ select.form-input option{background:#111;color:#fff}
 
 /* Operaciones — encabezado */
 .hoy-ops-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin:30px 0 14px;flex-wrap:wrap}
-.hoy-ops-eyebrow{font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);font-weight:800}
+.hoy-ops-eyebrow{font-size:7px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);font-weight:800}
 .hoy-ops-title{font-family:var(--display);font-size:24px;letter-spacing:2px;margin-top:4px}
 .hoy-ops-hint{font-size:10px;color:var(--w50);font-weight:300;max-width:280px;text-align:right}
 
@@ -442,13 +437,13 @@ select.form-input option{background:#111;color:#fff}
 .op-link:hover{text-decoration:underline}
 .op-pct{text-align:right;flex-shrink:0}
 .op-pct span{font-family:var(--display);font-size:30px;color:var(--gold);line-height:1}
-.op-pct small{display:block;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--w50);font-weight:700;margin-top:3px}
+.op-pct small{display:block;font-size:7px;letter-spacing:2px;text-transform:uppercase;color:var(--w50);font-weight:700;margin-top:3px}
 
 /* Stepper estilo Amazon */
 .op-steps{display:flex;align-items:flex-start;gap:0;margin-bottom:14px}
 .step{display:flex;flex-direction:column;align-items:center;gap:7px;text-align:center;flex:0 0 auto;width:46px}
 .step-dot{width:13px;height:13px;border-radius:50%;border:2px solid var(--w15);background:var(--surface);transition:all .2s}
-.step-lbl{font-size:10px;letter-spacing:.3px;color:var(--w30);line-height:1.25;text-transform:uppercase;font-weight:700}
+.step-lbl{font-size:6px;letter-spacing:.3px;color:var(--w30);line-height:1.25;text-transform:uppercase;font-weight:700}
 .step-bar{flex:1;height:2px;background:var(--w08);margin-top:6px;border-radius:2px;min-width:8px}
 .step.done .step-dot{background:var(--gold);border-color:var(--gold)}
 .step.done .step-lbl{color:var(--w50)}
@@ -464,7 +459,7 @@ select.form-input option{background:#111;color:#fff}
 .op-next{border-left-color:var(--green)}
 .op-docs{border-left-color:var(--gold)}
 .op-pend{border-left-color:#fbbf24}
-.op-next-lbl,.op-docs-lbl,.op-pend-lbl{display:block;font-size:10px;letter-spacing:2px;text-transform:uppercase;font-weight:800;color:var(--w50);margin-bottom:4px}
+.op-next-lbl,.op-docs-lbl,.op-pend-lbl{display:block;font-size:7px;letter-spacing:2px;text-transform:uppercase;font-weight:800;color:var(--w50);margin-bottom:4px}
 .op-next-lbl{color:var(--green)}
 .op-docs-lbl{color:var(--gold)}
 .op-pend-lbl{color:#fbbf24}
@@ -506,7 +501,7 @@ select.form-input option{background:#111;color:#fff}
 }
 .at-title em{color:var(--gold);font-style:normal}
 .at-title-sub{
-  font-size:10px;letter-spacing:3px;text-transform:uppercase;
+  font-size:7px;letter-spacing:3px;text-transform:uppercase;
   color:var(--w30);font-weight:700;font-family:'Montserrat',sans-serif;
   margin-left:4px;align-self:center;
 }
@@ -515,7 +510,7 @@ select.form-input option{background:#111;color:#fff}
 /* Botones header */
 .at-btn{
   padding:8px 16px;border:1px solid var(--border2);background:transparent;
-  border-radius:2px;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;
+  border-radius:2px;font-size:7px;letter-spacing:2.5px;text-transform:uppercase;
   font-weight:700;color:var(--w50);cursor:pointer;transition:all .15s;
   display:flex;align-items:center;gap:6px;
 }
@@ -530,7 +525,7 @@ select.form-input option{background:#111;color:#fff}
 .at-tabs{display:flex;gap:0;margin-top:2px}
 .at-tab{
   padding:11px 20px 12px;background:transparent;border:none;
-  font-size:10px;letter-spacing:2.5px;text-transform:uppercase;
+  font-size:7px;letter-spacing:2.5px;text-transform:uppercase;
   font-weight:700;color:var(--w30);cursor:pointer;
   border-bottom:2px solid transparent;transition:all .15s;
   display:flex;align-items:center;gap:8px;position:relative;
@@ -592,18 +587,18 @@ select.form-input option{background:#111;color:#fff}
 .at-table-wrap::-webkit-scrollbar{width:4px;height:4px}
 .at-table-wrap::-webkit-scrollbar-thumb{background:var(--w15)}
 
-.at-table{width:100%;border-collapse:collapse;font-size:12px;table-layout:auto}
+.at-table{width:100%;border-collapse:collapse;font-size:12px}
 
+.at-table thead{position:sticky;top:0;z-index:5}
 .at-table thead tr{background:#0c0c0c}
 .at-table thead th{
   padding:11px 16px;text-align:left;
-  font-size:10px;letter-spacing:3px;text-transform:uppercase;
+  font-size:6px;letter-spacing:3px;text-transform:uppercase;
   font-weight:800;color:var(--w30);white-space:nowrap;
   border-bottom:1px solid var(--border2);
   background:#0c0c0c;
-  position:sticky;top:0;z-index:5;
 }
-.at-table thead th:first-child{padding-left:20px}
+.at-table thead th:first-child{width:44px;padding-left:20px}
 .at-table thead th::after{
   content:'';display:block;width:0;height:1px;
   background:var(--gold);margin-top:3px;transition:width .2s;
@@ -614,20 +609,24 @@ select.form-input option{background:#111;color:#fff}
 .at-table tbody tr{
   border-bottom:1px solid rgba(255,255,255,.04);
   transition:background .1s;
+  position:relative;
+}
+.at-table tbody tr::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:0;
+  background:var(--gold);transition:width .15s;border-radius:0;
 }
 .at-table tbody tr:hover{background:rgba(255,255,255,.03)}
+.at-table tbody tr:hover::before{width:2px}
 .at-table tbody td{
   padding:12px 16px;color:var(--w80);
   vertical-align:middle;
 }
 .at-table tbody td:first-child{
-  padding-left:20px;
-  border-left:2px solid transparent;
-  transition:border-color .15s;
+  padding-left:20px;width:44px;
+  color:var(--w30);font-size:14px;
+  opacity:0;transition:opacity .1s;
 }
-.at-table tbody tr:hover td:first-child{
-  border-left-color:var(--gold);
-}
+.at-table tbody tr:hover td:first-child{opacity:1}
 .at-table tbody td.name{
   font-weight:600;color:var(--white);
   font-size:12px;
@@ -637,7 +636,7 @@ select.form-input option{background:#111;color:#fff}
   color:var(--gold);letter-spacing:.5px;white-space:nowrap;
 }
 .at-table tbody td.clip{
-  max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
 
 /* Filas alternas muy sutil */
@@ -648,7 +647,7 @@ select.form-input option{background:#111;color:#fff}
 .badge{
   display:inline-flex;align-items:center;gap:4px;
   padding:3px 10px;border-radius:3px;
-  font-size:10px;letter-spacing:1.5px;text-transform:uppercase;font-weight:800;
+  font-size:7px;letter-spacing:1.5px;text-transform:uppercase;font-weight:800;
   white-space:nowrap;
 }
 .badge::before{content:'';width:4px;height:4px;border-radius:50%;background:currentColor;flex-shrink:0}
@@ -728,35 +727,6 @@ select.form-input option{background:#111;color:#fff}
   align-items:center;justify-content:center;padding:20px;
 }
 .fk-box{width:min(600px,100%)}
-/* Selector de lead para agendar cita (flujo único) */
-.cita-lead-row{width:100%;display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;background:var(--w04);border:1px solid var(--border);border-radius:3px;padding:10px 12px;margin-bottom:6px;cursor:pointer;transition:all .13s}
-.cita-lead-row:hover{border-color:var(--goldbdr);background:var(--golddim)}
-.cita-lead-row b{font-size:12px;color:var(--white);font-weight:700}
-.cita-lead-row span{font-size:10px;color:var(--w50);font-family:monospace;letter-spacing:.5px}
-/* Portal de progreso — la estrella del proceso, mini-stepper tipo Amazon */
-.fk-portal{margin-top:12px;border:1px solid var(--goldbdr);border-top:2px solid var(--gold);border-radius:3px;background:var(--golddim);padding:14px 16px}
-.fk-portal-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:12px}
-.fk-portal-title{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);font-weight:800}
-.fk-portal-pct{font-family:var(--display);font-size:22px;color:var(--white);letter-spacing:1px}
-.fk-steps{display:grid;grid-template-columns:repeat(8,1fr);margin:4px 0 12px}
-.fk-step{position:relative;text-align:center;padding-top:16px}
-.fk-step::before{content:'';position:absolute;top:5px;left:-50%;width:100%;height:2px;background:var(--border2)}
-.fk-step:first-child::before{display:none}
-.fk-step.done::before,.fk-step.now::before{background:var(--gold)}
-.fk-step .d{position:absolute;top:0;left:50%;transform:translateX(-50%);width:11px;height:11px;border-radius:50%;background:var(--ink,#161616);border:2px solid var(--border2);z-index:1;box-sizing:border-box}
-.fk-step.done .d{background:var(--green);border-color:var(--green)}
-.fk-step.now .d{background:var(--gold);border-color:var(--gold);box-shadow:0 0 8px rgba(198,168,107,.55);animation:pulse 2.2s infinite}
-.fk-step .l{display:block;font-size:9px;color:var(--w30);margin-top:3px;line-height:1.2;word-break:break-word}
-.fk-step.done .l{color:var(--w50)}
-.fk-step.now .l{color:var(--gold);font-weight:800}
-.fk-portal-next{font-size:11px;color:var(--w80);margin:0 0 12px;line-height:1.55}
-.fk-portal-next b{color:var(--gold)}
-.fk-portal-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.fk-portal-btn{font-size:10px;letter-spacing:1px;text-transform:uppercase;font-weight:800;padding:8px 14px;border-radius:3px;cursor:pointer;border:1px solid var(--goldbdr);background:transparent;color:var(--gold);text-decoration:none;transition:all .15s}
-.fk-portal-btn:hover{background:var(--golddim)}
-.fk-portal-btn.gold{background:var(--gold);color:#0A0A0A;border-color:var(--gold)}
-.fk-portal-btn.gold:hover{filter:brightness(1.08)}
-.fk-portal-link{font-size:10px;color:var(--w30);word-break:break-all;margin-top:10px;font-family:monospace}
 .fk-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
 .fk-name{font-family:var(--display);font-size:24px;letter-spacing:1px;color:var(--white);line-height:1.1}
 .fk-folio{font-size:11px;color:var(--gold);letter-spacing:2px;margin-top:6px;font-family:monospace}
@@ -817,7 +787,7 @@ select.form-input option{background:#111;color:#fff}
 .le-upload input[type="file"]::file-selector-button{
   margin-right:10px;padding:6px 10px;border:1px solid var(--goldbdr);
   background:var(--golddim);color:var(--gold);border-radius:2px;
-  font-size:10px;letter-spacing:1.5px;text-transform:uppercase;font-weight:800;cursor:pointer;
+  font-size:7px;letter-spacing:1.5px;text-transform:uppercase;font-weight:800;cursor:pointer;
 }
 .le-upload input[type="file"]::file-selector-button:hover{background:rgba(201,169,110,.18)}
 .le-vroom{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--w50)}
@@ -873,7 +843,7 @@ select.form-input option{background:#111;color:#fff}
 
 /* ── Botones del modal ── */
 .btn{
-  padding:10px 20px;border-radius:2px;font-size:10px;letter-spacing:2.5px;
+  padding:10px 20px;border-radius:2px;font-size:7px;letter-spacing:2.5px;
   text-transform:uppercase;font-weight:800;cursor:pointer;
   transition:all .15s;border:1px solid transparent;
 }
@@ -904,7 +874,7 @@ select.form-inp{
 }
 select.form-inp option{background:#111;color:#fff}
 .form-group{display:flex;flex-direction:column;gap:5px}
-.form-group label{font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);font-weight:800}
+.form-group label{font-size:7px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);font-weight:800}
 
 /* ══════════════════════════════════════════
    NOTIFICACIÓN TOAST
@@ -934,7 +904,7 @@ select.form-inp option{background:#111;color:#fff}
   padding:20px 24px;margin-bottom:20px;
   display:grid;grid-template-columns:1fr auto;gap:12px;align-items:start;
 }
-.cita-folio-tag{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);font-weight:800;margin-bottom:6px}
+.cita-folio-tag{font-size:7px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);font-weight:800;margin-bottom:6px}
 .cita-nombre{font-family:var(--display);font-size:26px;letter-spacing:2px;color:var(--white);line-height:1.1}
 .cita-propiedad{font-size:11px;color:var(--w50);margin-top:5px;display:flex;align-items:center;gap:6px}
 .cita-folio-code{font-family:var(--mono);font-size:11px;color:var(--gold);letter-spacing:1.5px;
@@ -999,7 +969,6 @@ select.form-inp option{background:#111;color:#fff}
 }
 .fv-box{
   width:min(680px,100%);margin:auto;
-  max-height:92vh;overflow-y:auto;scrollbar-width:thin;
   animation:fadeUp .25s var(--ease);
 }
 /* Header de la ficha */
@@ -1033,12 +1002,12 @@ select.form-inp option{background:#111;color:#fff}
   padding:6px 14px;border:1px solid var(--goldbdr);border-radius:2px;
   background:rgba(201,169,110,.06);white-space:nowrap;text-align:center;
 }
-.fv-folio-lbl{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--w30);margin-bottom:4px;font-weight:700}
+.fv-folio-lbl{font-size:7px;letter-spacing:2px;text-transform:uppercase;color:var(--w30);margin-bottom:4px;font-weight:700}
 .fv-meta{
   margin-top:8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
 }
 .fv-meta-chip{
-  font-size:10px;letter-spacing:1.5px;text-transform:uppercase;
+  font-size:7px;letter-spacing:1.5px;text-transform:uppercase;
   color:var(--w30);font-weight:700;
   display:flex;align-items:center;gap:5px;
 }
@@ -1090,7 +1059,7 @@ select.form-inp option{background:#111;color:#fff}
   gap:3px;
 }
 .fv-num-val{font-family:var(--display);font-size:28px;color:var(--gold);letter-spacing:1px;line-height:1}
-.fv-num-lbl{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--w30);font-weight:700;text-align:center}
+.fv-num-lbl{font-size:7px;letter-spacing:1.5px;text-transform:uppercase;color:var(--w30);font-weight:700;text-align:center}
 .fv-num.empty .fv-num-val{color:var(--w20);font-size:18px}
 
 /* Bloque de conversión (highlight) */
@@ -1117,7 +1086,7 @@ select.form-inp option{background:#111;color:#fff}
 .fv-lock-v{font-size:11px;font-family:var(--mono);color:var(--w50)}
 .fv-lock-badge{
   display:inline-flex;align-items:center;gap:4px;
-  padding:2px 8px;border-radius:999px;font-size:10px;letter-spacing:1px;
+  padding:2px 8px;border-radius:999px;font-size:7px;letter-spacing:1px;
   font-weight:700;text-transform:uppercase;
 }
 .fv-lock-badge.on{background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.3);color:#34d399}
@@ -1162,10 +1131,10 @@ select.form-inp option{background:#111;color:#fff}
 .admin-base-body{flex:1;overflow-y:auto;min-height:100%;background:#080808}
 .admin-card-sub{font-size:9px;color:var(--w30);letter-spacing:1.6px;text-transform:uppercase;margin-top:6px;line-height:1.6}
 .admin-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:18px;padding-top:18px;border-top:1px solid var(--border)}
-.admin-badge{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:5px 8px;font-size:10px;letter-spacing:1.4px;text-transform:uppercase;font-weight:900;white-space:nowrap;border:1px solid var(--border2);background:rgba(255,255,255,.035);color:var(--w55)}
+.admin-badge{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:5px 8px;font-size:6px;letter-spacing:1.4px;text-transform:uppercase;font-weight:900;white-space:nowrap;border:1px solid var(--border2);background:rgba(255,255,255,.035);color:var(--w55)}
 .admin-badge::before{content:'';width:4px;height:4px;border-radius:50%;background:currentColor}.ab-activo{color:var(--green);background:rgba(74,222,128,.08);border-color:rgba(74,222,128,.22)}.ab-pendiente{color:#fbbf24;background:rgba(251,191,36,.08);border-color:rgba(251,191,36,.22)}.ab-inactivo{color:var(--red);background:rgba(248,113,113,.08);border-color:rgba(248,113,113,.22)}
 .admin-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.admin-form-grid .full{grid-column:1/-1}.admin-empty{border:1px dashed var(--border2);background:rgba(255,255,255,.018);border-radius:3px;padding:36px 20px;text-align:center;color:var(--w40);font-size:12px;line-height:1.8}.admin-empty .big{font-size:34px;opacity:.25;margin-bottom:5px}
-.admin-upload-box{border:1px solid var(--border);background:rgba(255,255,255,.025);border-radius:3px;padding:12px;display:grid;grid-template-columns:82px 1fr;gap:12px;align-items:center}.admin-upload-preview{width:82px;height:82px;border-radius:4px;border:1px solid var(--border2);background:rgba(255,255,255,.035);display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--gold);font-size:26px;font-weight:900}.admin-upload-preview img{width:100%;height:100%;object-fit:cover;display:block}.admin-upload-actions{display:flex;flex-direction:column;gap:8px;min-width:0}.admin-upload-actions input[type="file"]{font-size:10px;color:var(--w50);border:1px solid var(--border2);border-radius:3px;padding:10px;background:rgba(0,0,0,.2)}.admin-upload-actions input[type="file"]::file-selector-button{border:1px solid var(--goldbdr);background:var(--golddim);color:var(--gold);border-radius:999px;padding:7px 10px;margin-right:10px;font-size:8px;text-transform:uppercase;letter-spacing:1.4px;font-weight:900;cursor:pointer}.admin-upload-hint{font-size:9px;color:var(--w45);line-height:1.5}.admin-upload-remove{align-self:flex-start;background:transparent;border:1px solid var(--border2);color:var(--w45);border-radius:999px;padding:6px 10px;font-size:10px;letter-spacing:1.4px;text-transform:uppercase;font-weight:900;cursor:pointer}.admin-upload-remove:hover{border-color:var(--goldbdr);color:var(--gold);background:var(--golddim)}
+.admin-upload-box{border:1px solid var(--border);background:rgba(255,255,255,.025);border-radius:3px;padding:12px;display:grid;grid-template-columns:82px 1fr;gap:12px;align-items:center}.admin-upload-preview{width:82px;height:82px;border-radius:4px;border:1px solid var(--border2);background:rgba(255,255,255,.035);display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--gold);font-size:26px;font-weight:900}.admin-upload-preview img{width:100%;height:100%;object-fit:cover;display:block}.admin-upload-actions{display:flex;flex-direction:column;gap:8px;min-width:0}.admin-upload-actions input[type="file"]{font-size:10px;color:var(--w50);border:1px solid var(--border2);border-radius:3px;padding:10px;background:rgba(0,0,0,.2)}.admin-upload-actions input[type="file"]::file-selector-button{border:1px solid var(--goldbdr);background:var(--golddim);color:var(--gold);border-radius:999px;padding:7px 10px;margin-right:10px;font-size:8px;text-transform:uppercase;letter-spacing:1.4px;font-weight:900;cursor:pointer}.admin-upload-hint{font-size:9px;color:var(--w45);line-height:1.5}.admin-upload-remove{align-self:flex-start;background:transparent;border:1px solid var(--border2);color:var(--w45);border-radius:999px;padding:6px 10px;font-size:7px;letter-spacing:1.4px;text-transform:uppercase;font-weight:900;cursor:pointer}.admin-upload-remove:hover{border-color:var(--goldbdr);color:var(--gold);background:var(--golddim)}
 @media(max-width:980px){.admin-form-grid{grid-template-columns:1fr}}@media(max-width:560px){.admin-upload-box{grid-template-columns:1fr}.admin-upload-preview{width:100%;height:140px}}
 
 /* ═══════════════════════════════════════════════════
@@ -1173,24 +1142,24 @@ select.form-inp option{background:#111;color:#fff}
    No toca Administración Base. Solo agrega la cara operativa del asesor.
 ═══════════════════════════════════════════════════ */
 .role-switch{display:flex;gap:6px;align-items:center;margin-right:10px}
-.role-switch button{border:1px solid var(--border2);background:rgba(255,255,255,.035);color:var(--w50);border-radius:999px;padding:7px 10px;font-size:10px;letter-spacing:1.4px;text-transform:uppercase;font-weight:900;cursor:pointer;transition:.15s var(--ease)}
+.role-switch button{border:1px solid var(--border2);background:rgba(255,255,255,.035);color:var(--w50);border-radius:999px;padding:7px 10px;font-size:7px;letter-spacing:1.4px;text-transform:uppercase;font-weight:900;cursor:pointer;transition:.15s var(--ease)}
 .role-switch button:hover,.role-switch button.active{border-color:var(--goldbdr);background:var(--golddim);color:var(--gold)}
 .asesor-body{padding:26px;min-height:100%;overflow:auto;animation:fadeUp .35s var(--ease)}
 .asesor-hero{display:grid;grid-template-columns:1.15fr .85fr;gap:14px;margin-bottom:14px}
 .asesor-card{border:1px solid var(--border);background:linear-gradient(145deg,rgba(255,255,255,.045),rgba(255,255,255,.018));border-radius:18px;padding:20px;position:relative;overflow:hidden}
 .asesor-card::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 20% 0%,rgba(201,169,110,.14),transparent 36%);pointer-events:none}
-.asesor-eyebrow{font-size:10px;letter-spacing:2.6px;text-transform:uppercase;color:var(--gold);font-weight:900;margin-bottom:10px;position:relative;z-index:1}
+.asesor-eyebrow{font-size:7px;letter-spacing:2.6px;text-transform:uppercase;color:var(--gold);font-weight:900;margin-bottom:10px;position:relative;z-index:1}
 .asesor-title{font-family:var(--display);font-size:52px;line-height:.92;letter-spacing:.5px;position:relative;z-index:1}
 .asesor-title em{font-style:normal;color:var(--gold)}
 .asesor-sub{font-size:12px;color:var(--w50);line-height:1.65;max-width:640px;margin-top:12px;position:relative;z-index:1}
 .asesor-link-box{position:relative;z-index:1;margin-top:18px;border:1px solid var(--goldbdr);background:var(--golddim);border-radius:14px;padding:13px 14px;display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center}
-.asesor-link-box small{font-size:10px;letter-spacing:1.8px;text-transform:uppercase;color:var(--gold);font-weight:900;display:block;margin-bottom:5px}
+.asesor-link-box small{font-size:7px;letter-spacing:1.8px;text-transform:uppercase;color:var(--gold);font-weight:900;display:block;margin-bottom:5px}
 .asesor-link-box code{font-family:var(--mono);font-size:10px;color:var(--w80);word-break:break-all}
 .asesor-gold-btn{border:1px solid var(--goldbdr);background:linear-gradient(135deg,rgba(201,169,110,.95),rgba(229,204,154,.82));color:#17120a;border-radius:999px;padding:10px 14px;font-size:8px;letter-spacing:1.4px;text-transform:uppercase;font-weight:900;cursor:pointer;white-space:nowrap}
 .asesor-kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;position:relative;z-index:1}
 .asesor-kpi{background:rgba(0,0,0,.28);border:1px solid var(--border);border-radius:14px;padding:15px}
 .asesor-kpi b{font-family:var(--display);font-size:38px;line-height:1;color:var(--gold);display:block}
-.asesor-kpi span{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--w50);font-weight:900;line-height:1.4}
+.asesor-kpi span{font-size:7px;letter-spacing:1.5px;text-transform:uppercase;color:var(--w50);font-weight:900;line-height:1.4}
 .asesor-section{border:1px solid var(--border);background:var(--surface);border-radius:18px;padding:18px;margin-bottom:14px}
 .asesor-sec-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:14px;border-bottom:1px solid var(--border);padding-bottom:14px}
 .asesor-sec-title{font-family:var(--display);font-size:30px;line-height:1;letter-spacing:.5px}.asesor-sec-title em{font-style:normal;color:var(--gold)}
@@ -1198,9 +1167,9 @@ select.form-inp option{background:#111;color:#fff}
 .asesor-action-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 .asesor-action{border:1px solid var(--border);background:rgba(255,255,255,.025);border-radius:16px;padding:15px;text-align:left;cursor:pointer;transition:.14s var(--ease);min-height:128px;display:flex;flex-direction:column;justify-content:space-between}
 .asesor-action:hover{border-color:var(--goldbdr);background:var(--golddim);transform:translateY(-1px)}
-.asesor-action .tag{font-size:10px;letter-spacing:1.8px;text-transform:uppercase;color:var(--gold);font-weight:900}.asesor-action b{font-size:13px;line-height:1.35;color:var(--white);display:block;margin-top:6px}.asesor-action p{font-size:10px;color:var(--w50);line-height:1.55;margin-top:8px}.asesor-action .go{font-size:10px;color:var(--gold);font-weight:900;margin-top:14px}
-.asesor-list{display:grid;gap:8px}.asesor-row{border:1px solid var(--border);background:rgba(255,255,255,.022);border-radius:14px;padding:13px 14px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}.asesor-row b{font-size:12px;color:var(--white)}.asesor-row p{font-size:10px;color:var(--w50);line-height:1.55;margin-top:4px}.asesor-row .meta{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end}.asesor-pill{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--border2);background:rgba(255,255,255,.035);border-radius:999px;padding:6px 9px;font-size:10px;letter-spacing:1.4px;text-transform:uppercase;font-weight:900;color:var(--w55);white-space:nowrap}.asesor-pill.gold{border-color:var(--goldbdr);background:var(--golddim);color:var(--gold)}.asesor-pill.green{border-color:rgba(74,222,128,.25);background:rgba(74,222,128,.08);color:var(--green)}.asesor-pill.red{border-color:rgba(248,113,113,.25);background:rgba(248,113,113,.08);color:var(--red)}
-.asesor-two{display:grid;grid-template-columns:1fr 1fr;gap:14px}.asesor-form{display:grid;grid-template-columns:1fr 1fr;gap:12px}.asesor-form .full{grid-column:1/-1}.asesor-inp,.asesor-textarea{width:100%;background:rgba(0,0,0,.22);border:1px solid var(--border2);border-radius:12px;color:var(--white);padding:12px;font-size:12px;outline:none}.asesor-textarea{min-height:90px;resize:vertical}.asesor-label{font-size:10px;letter-spacing:1.6px;text-transform:uppercase;color:var(--w40);font-weight:900;margin-bottom:6px;display:block}.asesor-lock{border:1px dashed var(--border2);background:rgba(255,255,255,.018);border-radius:12px;padding:12px}.asesor-lock small{font-size:10px;letter-spacing:1.6px;text-transform:uppercase;color:var(--w35);font-weight:900;display:block;margin-bottom:5px}.asesor-lock b{font-family:var(--mono);font-size:11px;color:var(--gold);word-break:break-word}
+.asesor-action .tag{font-size:6px;letter-spacing:1.8px;text-transform:uppercase;color:var(--gold);font-weight:900}.asesor-action b{font-size:13px;line-height:1.35;color:var(--white);display:block;margin-top:6px}.asesor-action p{font-size:10px;color:var(--w50);line-height:1.55;margin-top:8px}.asesor-action .go{font-size:10px;color:var(--gold);font-weight:900;margin-top:14px}
+.asesor-list{display:grid;gap:8px}.asesor-row{border:1px solid var(--border);background:rgba(255,255,255,.022);border-radius:14px;padding:13px 14px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}.asesor-row b{font-size:12px;color:var(--white)}.asesor-row p{font-size:10px;color:var(--w50);line-height:1.55;margin-top:4px}.asesor-row .meta{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end}.asesor-pill{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--border2);background:rgba(255,255,255,.035);border-radius:999px;padding:6px 9px;font-size:7px;letter-spacing:1.4px;text-transform:uppercase;font-weight:900;color:var(--w55);white-space:nowrap}.asesor-pill.gold{border-color:var(--goldbdr);background:var(--golddim);color:var(--gold)}.asesor-pill.green{border-color:rgba(74,222,128,.25);background:rgba(74,222,128,.08);color:var(--green)}.asesor-pill.red{border-color:rgba(248,113,113,.25);background:rgba(248,113,113,.08);color:var(--red)}
+.asesor-two{display:grid;grid-template-columns:1fr 1fr;gap:14px}.asesor-form{display:grid;grid-template-columns:1fr 1fr;gap:12px}.asesor-form .full{grid-column:1/-1}.asesor-inp,.asesor-textarea{width:100%;background:rgba(0,0,0,.22);border:1px solid var(--border2);border-radius:12px;color:var(--white);padding:12px;font-size:12px;outline:none}.asesor-textarea{min-height:90px;resize:vertical}.asesor-label{font-size:7px;letter-spacing:1.6px;text-transform:uppercase;color:var(--w40);font-weight:900;margin-bottom:6px;display:block}.asesor-lock{border:1px dashed var(--border2);background:rgba(255,255,255,.018);border-radius:12px;padding:12px}.asesor-lock small{font-size:7px;letter-spacing:1.6px;text-transform:uppercase;color:var(--w35);font-weight:900;display:block;margin-bottom:5px}.asesor-lock b{font-family:var(--mono);font-size:11px;color:var(--gold);word-break:break-word}
 .asesor-manual-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.asesor-manual{border:1px solid var(--border);background:rgba(255,255,255,.025);border-radius:14px;padding:14px}.asesor-manual b{font-size:12px;display:block;color:var(--white);margin-bottom:7px}.asesor-manual span{font-size:10px;color:var(--w50);line-height:1.55}.asesor-note{border:1px solid var(--goldbdr);background:var(--golddim);border-radius:14px;padding:14px;font-size:11px;color:var(--w70);line-height:1.7}
 
 /* Perfil del asesor con patrón visual de Lead Vendedores */
@@ -1228,7 +1197,7 @@ select.form-inp option{background:#111;color:#fff}
 .perfil-closed-frase p{font-size:18px;line-height:1.5;color:#fff;margin:0}
 .perfil-closed-data{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(255,255,255,.06)}
 .perfil-closed-data div{background:rgba(8,8,8,.92);padding:14px 16px}
-.perfil-closed-data small{display:block;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--w30);font-weight:900;margin-bottom:5px}
+.perfil-closed-data small{display:block;font-size:7px;letter-spacing:2px;text-transform:uppercase;color:var(--w30);font-weight:900;margin-bottom:5px}
 .perfil-closed-data span{display:block;font-size:12px;color:var(--w80);font-family:var(--mono);word-break:break-word}
 .perfil-closed-admin{border-top:1px solid rgba(201,169,110,.18);background:rgba(0,0,0,.22)}
 .perfil-closed-admin summary{cursor:pointer;list-style:none;padding:14px 28px;color:var(--w50);font-size:8px;letter-spacing:2.6px;text-transform:uppercase;font-weight:900}
@@ -1237,7 +1206,7 @@ select.form-inp option{background:#111;color:#fff}
 .perfil-closed-admin[open] summary:before{content:'−'}
 .perfil-closed-admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(255,255,255,.06);border-top:1px solid rgba(255,255,255,.06)}
 .perfil-closed-admin-grid div{background:rgba(8,8,8,.94);padding:13px 16px}
-.perfil-closed-admin-grid small{display:block;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--w30);font-weight:900;margin-bottom:5px}
+.perfil-closed-admin-grid small{display:block;font-size:7px;letter-spacing:2px;text-transform:uppercase;color:var(--w30);font-weight:900;margin-bottom:5px}
 .perfil-closed-admin-grid span{display:block;font-size:11px;color:var(--w65);font-family:var(--mono);word-break:break-word}
 .perfil-closed-actions{display:flex;gap:10px;align-items:center;justify-content:flex-end;padding:16px 28px;border-top:1px solid rgba(201,169,110,.16);background:rgba(8,8,8,.72)}
 .perfil-closed-actions .status{margin-right:auto;color:var(--w50);font-size:12px}
@@ -1261,22 +1230,22 @@ select.form-inp option{background:#111;color:#fff}
 .exp-card .ribbon{position:absolute;top:0;right:0;width:4px;height:100%}
 .exp-card .ribbon.red{background:var(--red)}.exp-card .ribbon.gold{background:var(--gold)}.exp-card .ribbon.green{background:var(--green)}
 .exp-card .ec-top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
-.exp-card .ec-tipo{font-size:10px;letter-spacing:1.8px;text-transform:uppercase;font-weight:900;color:var(--gold)}
+.exp-card .ec-tipo{font-size:6px;letter-spacing:1.8px;text-transform:uppercase;font-weight:900;color:var(--gold)}
 .exp-card .ec-folio{font-family:var(--mono);font-size:9px;color:var(--w45)}
 .exp-card .ec-name{font-size:15px;color:var(--white);font-weight:600;margin-bottom:6px}
 .exp-card .ec-stage{font-size:10px;color:var(--w55);line-height:1.5}
 .exp-card .ec-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:12px}
-.exp-pill{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--border2);background:rgba(255,255,255,.035);border-radius:999px;padding:5px 9px;font-size:10px;letter-spacing:1.2px;text-transform:uppercase;font-weight:900;color:var(--w55);white-space:nowrap}
+.exp-pill{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--border2);background:rgba(255,255,255,.035);border-radius:999px;padding:5px 9px;font-size:7px;letter-spacing:1.2px;text-transform:uppercase;font-weight:900;color:var(--w55);white-space:nowrap}
 .exp-pill.gold{border-color:var(--goldbdr);background:var(--golddim);color:var(--gold)}
 .exp-pill.red{border-color:rgba(248,113,113,.28);background:rgba(248,113,113,.09);color:var(--red)}
 .exp-file{display:grid;grid-template-columns:1.4fr .9fr;gap:14px}
 .exp-col{display:grid;gap:14px;align-content:start}
 .exp-sec{border:1px solid var(--border);background:var(--surface);border-radius:18px;padding:18px}
-.exp-sec-t{font-size:10px;letter-spacing:2.2px;text-transform:uppercase;color:var(--gold);font-weight:900;margin-bottom:14px}
+.exp-sec-t{font-size:7px;letter-spacing:2.2px;text-transform:uppercase;color:var(--gold);font-weight:900;margin-bottom:14px}
 .exp-id{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start}
 .exp-id .name{font-family:var(--display);font-size:30px;line-height:1;letter-spacing:.5px;color:var(--white)}
 .exp-id .folio{font-family:var(--mono);font-size:11px;color:var(--gold);margin-top:8px}
-.exp-tag{display:inline-block;font-size:10px;letter-spacing:1.6px;text-transform:uppercase;font-weight:900;padding:5px 10px;border-radius:999px;border:1px solid var(--goldbdr);background:var(--golddim);color:var(--gold)}
+.exp-tag{display:inline-block;font-size:7px;letter-spacing:1.6px;text-transform:uppercase;font-weight:900;padding:5px 10px;border-radius:999px;border:1px solid var(--goldbdr);background:var(--golddim);color:var(--gold)}
 .exp-step{display:flex;gap:0;margin-top:6px;flex-wrap:wrap}
 .exp-step .s{flex:1;min-width:64px;text-align:center;position:relative;padding-top:22px}
 .exp-step .s::before{content:'';position:absolute;top:6px;left:50%;width:100%;height:2px;background:var(--border2)}
@@ -1285,13 +1254,13 @@ select.form-inp option{background:#111;color:#fff}
 .exp-step .s.done .dot{background:var(--gold);border-color:var(--gold)}
 .exp-step .s.done::before{background:var(--gold)}
 .exp-step .s.now .dot{background:var(--gold);border-color:var(--gold);box-shadow:0 0 0 4px var(--golddim)}
-.exp-step .s small{font-size:10px;letter-spacing:.6px;text-transform:uppercase;color:var(--w45);font-weight:900}
+.exp-step .s small{font-size:7px;letter-spacing:.6px;text-transform:uppercase;color:var(--w45);font-weight:900}
 .exp-step .s.now small{color:var(--gold)}.exp-step .s.done small{color:var(--w70)}
 .exp-kv{display:grid;gap:10px}
 .exp-kv .row{border-left:2px solid var(--border2);padding:2px 0 2px 12px}
 .exp-kv .row.alert{border-left-color:var(--red)}
 .exp-kv .row.play{border-left-color:var(--gold)}
-.exp-kv .k{font-size:10px;letter-spacing:1.6px;text-transform:uppercase;color:var(--w40);font-weight:900;margin-bottom:4px}
+.exp-kv .k{font-size:7px;letter-spacing:1.6px;text-transform:uppercase;color:var(--w40);font-weight:900;margin-bottom:4px}
 .exp-kv .val{font-size:13px;color:var(--white);line-height:1.55}
 .exp-kv .val.muted{color:var(--w45);font-style:italic}
 .exp-msg{border:1px solid var(--goldbdr);background:var(--golddim);border-radius:14px;padding:14px;margin-top:14px}
@@ -1315,7 +1284,7 @@ select.form-inp option{background:#111;color:#fff}
 .crm-empty-premium .crm-empty-text{font-family:var(--display);font-size:24px;letter-spacing:.5px;color:var(--white)}
 .crm-empty-premium .crm-empty-sub{font-size:12px;color:var(--w50);line-height:1.7;max-width:420px}
 .crm-empty-link{margin-top:14px;border:1px solid var(--goldbdr);background:var(--golddim);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;align-items:center;max-width:460px}
-.crm-empty-link span{font-size:10px;letter-spacing:1.8px;text-transform:uppercase;color:var(--gold);font-weight:900}
+.crm-empty-link span{font-size:7px;letter-spacing:1.8px;text-transform:uppercase;color:var(--gold);font-weight:900}
 .crm-empty-link code{font-family:var(--mono);font-size:11px;color:var(--w80);word-break:break-all}
 
 
@@ -1349,75 +1318,16 @@ select.form-inp option{background:#111;color:#fff}
 .admin-v9-create{border:1px solid var(--gold);background:linear-gradient(180deg,#e2c88d,#c9a96e);color:#050505;border-radius:3px;padding:15px 22px;font-size:9px;letter-spacing:2.8px;text-transform:uppercase;font-weight:900;cursor:pointer;box-shadow:0 18px 42px rgba(201,169,110,.12);transition:transform .15s,filter .15s;min-width:230px}.admin-v9-create:hover{filter:brightness(1.08);transform:translateY(-1px)}
 .admin-v9-section{margin-top:18px}.admin-v9-sec-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:14px}.admin-v9-sec-title{font-family:var(--display);font-size:36px;letter-spacing:2px;line-height:1}.admin-v9-sec-title em{color:var(--gold);font-style:normal}.admin-v9-sec-sub{font-size:10px;color:var(--w40);letter-spacing:1.4px;text-transform:uppercase;margin-top:5px;line-height:1.6}
 .admin-v9-ficha{border:1px solid var(--goldbdr);background:linear-gradient(180deg,rgba(201,169,110,.055),rgba(255,255,255,.018));border-radius:4px;overflow:hidden}.admin-v9-panel-body{padding:16px}
-.admin-v9-users{display:grid;grid-template-columns:1fr;gap:8px}.admin-v9-user-row{border:1px solid var(--border);background:rgba(255,255,255,.02);padding:11px;border-radius:3px;display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;cursor:pointer}.admin-v9-user-row:hover{border-color:var(--goldbdr);background:var(--golddim)}.admin-v9-user-name{font-size:12px;font-weight:900}.admin-v9-user-meta{font-size:9px;color:var(--w50);line-height:1.6;margin-top:4px}.admin-v9-user-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.admin-v9-smallbtn{border:1px solid var(--border2);background:transparent;color:var(--w50);border-radius:2px;padding:6px 9px;font-size:10px;letter-spacing:1.4px;text-transform:uppercase;font-weight:900;cursor:pointer}.admin-v9-smallbtn:hover{border-color:var(--goldbdr);color:var(--gold);background:var(--golddim)}
+.admin-v9-users{display:grid;grid-template-columns:1fr;gap:8px}.admin-v9-user-row{border:1px solid var(--border);background:rgba(255,255,255,.02);padding:11px;border-radius:3px;display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;cursor:pointer}.admin-v9-user-row:hover{border-color:var(--goldbdr);background:var(--golddim)}.admin-v9-user-name{font-size:12px;font-weight:900}.admin-v9-user-meta{font-size:9px;color:var(--w50);line-height:1.6;margin-top:4px}.admin-v9-user-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.admin-v9-smallbtn{border:1px solid var(--border2);background:transparent;color:var(--w50);border-radius:2px;padding:6px 9px;font-size:7px;letter-spacing:1.4px;text-transform:uppercase;font-weight:900;cursor:pointer}.admin-v9-smallbtn:hover{border-color:var(--goldbdr);color:var(--gold);background:var(--golddim)}
 .admin-v9-empty{border:1px dashed var(--border2);background:rgba(255,255,255,.018);border-radius:3px;padding:42px 20px;text-align:center;color:var(--w40);font-size:12px;line-height:1.8}.admin-v9-empty b{color:var(--gold);display:block;font-family:var(--display);font-size:30px;letter-spacing:2px;margin-bottom:6px}
 .admin-control-compact{padding:0;margin-bottom:20px;background:transparent;border:none}.admin-control-compact:after{display:none}.admin-control-compact .admin-v9-top{align-items:center;border-bottom:1px solid var(--border);padding-bottom:18px}.admin-control-compact .admin-v9-title{margin:0;font-size:44px}
-.admin-zona-simple{margin-top:0}.admin-zone-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:0 0 22px}.admin-zone-tab{min-height:92px;text-align:left;border:1px solid var(--border);background:linear-gradient(180deg,rgba(255,255,255,.032),rgba(255,255,255,.012));color:var(--w70);padding:18px 20px;border-radius:3px;font-size:11px;letter-spacing:.2px;text-transform:none;font-weight:700;cursor:pointer;position:relative;overflow:hidden;transition:all .16s var(--ease);display:flex;flex-direction:column;justify-content:space-between}.admin-zone-tab::before{content:'Cuenta';font-size:10px;letter-spacing:2.8px;text-transform:uppercase;color:var(--gold);font-weight:900}.admin-zone-tab::after{content:'→';position:absolute;right:18px;bottom:15px;color:var(--gold);opacity:.55;font-size:14px}.admin-zone-tab:hover{border-color:var(--goldbdr);background:var(--golddim);transform:translateY(-1px)}.admin-zone-tab.active{border-color:var(--gold);background:linear-gradient(180deg,rgba(201,169,110,.15),rgba(201,169,110,.045));box-shadow:inset 2px 0 0 var(--gold);color:var(--white)}
+.admin-zona-simple{margin-top:0}.admin-zone-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:0 0 22px}.admin-zone-tab{min-height:92px;text-align:left;border:1px solid var(--border);background:linear-gradient(180deg,rgba(255,255,255,.032),rgba(255,255,255,.012));color:var(--w70);padding:18px 20px;border-radius:3px;font-size:11px;letter-spacing:.2px;text-transform:none;font-weight:700;cursor:pointer;position:relative;overflow:hidden;transition:all .16s var(--ease);display:flex;flex-direction:column;justify-content:space-between}.admin-zone-tab::before{content:'Cuenta';font-size:7px;letter-spacing:2.8px;text-transform:uppercase;color:var(--gold);font-weight:900}.admin-zone-tab::after{content:'→';position:absolute;right:18px;bottom:15px;color:var(--gold);opacity:.55;font-size:14px}.admin-zone-tab:hover{border-color:var(--goldbdr);background:var(--golddim);transform:translateY(-1px)}.admin-zone-tab.active{border-color:var(--gold);background:linear-gradient(180deg,rgba(201,169,110,.15),rgba(201,169,110,.045));box-shadow:inset 2px 0 0 var(--gold);color:var(--white)}
 .admin-zone-section{border-top:1px solid var(--border);padding-top:22px}.admin-zone-section .admin-v9-sec-head{margin-bottom:14px}.admin-zone-section .admin-v9-sec-title{font-size:34px}.admin-zone-count{display:none}
 .admin-user-closed-row{cursor:default;border-radius:3px;padding:14px 16px}.admin-user-closed-row:hover{background:rgba(255,255,255,.02)}.admin-v9-user-actions .badge-close{background:rgba(74,222,128,.1);border-color:rgba(74,222,128,.28);color:var(--green)}.admin-v9-user-actions .badge-lost{background:rgba(248,113,113,.09);border-color:rgba(248,113,113,.28);color:var(--red)}.admin-v9-smallbtn.danger:hover{border-color:rgba(248,113,113,.45);color:var(--red);background:rgba(248,113,113,.08)}
-.admin-account-modal{position:fixed;inset:0;z-index:930;background:rgba(0,0,0,.90);backdrop-filter:blur(14px);display:flex;align-items:center;justify-content:center;padding:22px}.admin-account-box{width:min(920px,100%);max-height:92vh;overflow:auto;background:linear-gradient(180deg,#141414,#0c0c0c);border:1px solid var(--goldbdr);border-top:2px solid var(--gold);border-radius:3px;box-shadow:0 36px 90px rgba(0,0,0,.72)}.admin-account-head{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;padding:26px 30px 20px;border-bottom:1px solid var(--border);position:relative;overflow:hidden}.admin-account-head::after{content:'CUENTA';position:absolute;right:-12px;bottom:-36px;font-family:var(--display);font-size:118px;letter-spacing:6px;color:rgba(201,169,110,.04);pointer-events:none}.admin-account-title{position:relative;z-index:1}.admin-account-title b{display:block;font-family:var(--display);font-size:34px;letter-spacing:3px;line-height:1;color:#fff}.admin-account-title span{display:block;margin-top:7px;font-size:8px;letter-spacing:2.4px;text-transform:uppercase;color:var(--gold);font-weight:900}.admin-account-close{position:relative;z-index:1;background:transparent;border:1px solid var(--border2);color:var(--w45);width:30px;height:30px;border-radius:2px;cursor:pointer}.admin-account-close:hover{border-color:var(--goldbdr);color:var(--gold)}.admin-account-tabs{display:flex;gap:0;padding:0 26px;border-bottom:1px solid var(--border);background:#0b0b0b}.admin-account-tab{border:0;background:transparent;color:var(--w35);padding:14px 18px 13px;font-size:10px;letter-spacing:2.4px;text-transform:uppercase;font-weight:900;cursor:pointer;position:relative}.admin-account-tab::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--gold);transform:scaleX(0);transition:.18s}.admin-account-tab.active{color:#fff}.admin-account-tab.active::after{transform:scaleX(1)}.admin-account-content{padding:24px 30px}.admin-form-tab-panel{display:none}.admin-form-tab-panel.active{display:block}.admin-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.admin-form-grid .full{grid-column:1/-1}.admin-upload-box{display:grid;grid-template-columns:86px 1fr;gap:14px;align-items:center;border:1px solid var(--border);background:rgba(255,255,255,.02);border-radius:3px;padding:13px}.admin-upload-preview{width:66px;height:66px;border:1px dashed var(--border2);border-radius:3px;display:flex;align-items:center;justify-content:center;color:var(--gold);overflow:hidden;background:#090909}.admin-upload-preview img{width:100%;height:100%;object-fit:cover}.admin-upload-actions input[type=file]{font-size:10px;color:var(--w45);max-width:100%}.admin-account-actions{display:flex;align-items:center;gap:8px;justify-content:flex-end;margin:24px -30px -24px;padding:18px 30px;border-top:1px solid var(--border);background:rgba(0,0,0,.22)}
+.admin-account-modal{position:fixed;inset:0;z-index:930;background:rgba(0,0,0,.90);backdrop-filter:blur(14px);display:flex;align-items:center;justify-content:center;padding:22px}.admin-account-box{width:min(920px,100%);max-height:92vh;overflow:auto;background:linear-gradient(180deg,#141414,#0c0c0c);border:1px solid var(--goldbdr);border-top:2px solid var(--gold);border-radius:3px;box-shadow:0 36px 90px rgba(0,0,0,.72)}.admin-account-head{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;padding:26px 30px 20px;border-bottom:1px solid var(--border);position:relative;overflow:hidden}.admin-account-head::after{content:'CUENTA';position:absolute;right:-12px;bottom:-36px;font-family:var(--display);font-size:118px;letter-spacing:6px;color:rgba(201,169,110,.04);pointer-events:none}.admin-account-title{position:relative;z-index:1}.admin-account-title b{display:block;font-family:var(--display);font-size:34px;letter-spacing:3px;line-height:1;color:#fff}.admin-account-title span{display:block;margin-top:7px;font-size:8px;letter-spacing:2.4px;text-transform:uppercase;color:var(--gold);font-weight:900}.admin-account-close{position:relative;z-index:1;background:transparent;border:1px solid var(--border2);color:var(--w45);width:30px;height:30px;border-radius:2px;cursor:pointer}.admin-account-close:hover{border-color:var(--goldbdr);color:var(--gold)}.admin-account-tabs{display:flex;gap:0;padding:0 26px;border-bottom:1px solid var(--border);background:#0b0b0b}.admin-account-tab{border:0;background:transparent;color:var(--w35);padding:14px 18px 13px;font-size:7px;letter-spacing:2.4px;text-transform:uppercase;font-weight:900;cursor:pointer;position:relative}.admin-account-tab::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--gold);transform:scaleX(0);transition:.18s}.admin-account-tab.active{color:#fff}.admin-account-tab.active::after{transform:scaleX(1)}.admin-account-content{padding:24px 30px}.admin-form-tab-panel{display:none}.admin-form-tab-panel.active{display:block}.admin-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.admin-form-grid .full{grid-column:1/-1}.admin-upload-box{display:grid;grid-template-columns:86px 1fr;gap:14px;align-items:center;border:1px solid var(--border);background:rgba(255,255,255,.02);border-radius:3px;padding:13px}.admin-upload-preview{width:66px;height:66px;border:1px dashed var(--border2);border-radius:3px;display:flex;align-items:center;justify-content:center;color:var(--gold);overflow:hidden;background:#090909}.admin-upload-preview img{width:100%;height:100%;object-fit:cover}.admin-upload-actions input[type=file]{font-size:10px;color:var(--w45);max-width:100%}.admin-account-actions{display:flex;align-items:center;gap:8px;justify-content:flex-end;margin:24px -30px -24px;padding:18px 30px;border-top:1px solid var(--border);background:rgba(0,0,0,.22)}
 @media(max-width:900px){.admin-zone-tabs{grid-template-columns:1fr}.admin-v9-user-row{grid-template-columns:1fr}.admin-v9-user-actions{justify-content:flex-start}.admin-form-grid{grid-template-columns:1fr}.admin-upload-box{grid-template-columns:1fr}.admin-account-tabs{overflow:auto}.admin-account-content{padding:20px}.admin-account-actions{margin-left:-20px;margin-right:-20px;padding-left:20px;padding-right:20px}}
 @media(max-width:560px){.admin-v9-wrap{padding:18px}.admin-v9-title{font-size:36px}.admin-account-head{padding:22px}.admin-account-title b{font-size:28px}}
 
-
-/* ══ MESA DE REVISIÓN — expediente documental (modal del asesor) ══ */
-#mrv-ovl{position:fixed;inset:0;background:rgba(10,10,10,.92);z-index:1200;display:flex;align-items:flex-end;justify-content:center}
-@media(min-width:720px){#mrv-ovl{align-items:center;padding:32px}}
-.mrv-box{width:100%;max-width:680px;max-height:92vh;display:flex;flex-direction:column;background:#0d0d0d;border:1px solid rgba(198,168,107,.25);border-radius:3px}
-.mrv-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:18px 20px;border-bottom:1px solid rgba(255,255,255,.07)}
-.mrv-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--white)}
-.mrv-title em{color:var(--gold);font-style:normal}
-.mrv-sub{font-family:var(--mono);font-size:10px;color:var(--w50);margin-top:2px;letter-spacing:1px}
-.mrv-close{background:none;border:1px solid rgba(255,255,255,.15);color:var(--w50);border-radius:2px;width:30px;height:30px;font-size:14px;cursor:pointer;flex:none}
-.mrv-close:hover{color:var(--white);border-color:rgba(255,255,255,.35)}
-.mrv-body{overflow-y:auto;padding:14px 20px 20px;display:flex;flex-direction:column;gap:10px}
-.mrv-doc{border:1px solid rgba(255,255,255,.08);border-radius:3px;padding:12px 14px;background:rgba(255,255,255,.015)}
-.mrv-doc-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
-.mrv-doc-tipo{font-family:Montserrat,sans-serif;font-size:12px;font-weight:600;color:var(--white)}
-.mrv-crit{display:inline-block;margin-left:6px;font-size:8px;letter-spacing:1.5px;color:var(--gold);border:1px solid rgba(198,168,107,.35);border-radius:2px;padding:1px 5px;vertical-align:middle}
-.mrv-st{font-family:var(--mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;border-radius:2px;padding:3px 8px;flex:none}
-.mrv-st.pendiente{color:var(--w50);border:1px solid rgba(255,255,255,.15)}
-.mrv-st.recibido{color:#fbbf24;border:1px solid rgba(251,191,36,.35);background:rgba(251,191,36,.07)}
-.mrv-st.validado{color:var(--green);border:1px solid rgba(74,222,128,.35);background:var(--greendim)}
-.mrv-st.rechazado{color:var(--red);border:1px solid rgba(248,113,113,.35);background:rgba(248,113,113,.07)}
-.mrv-doc-desc{font-size:11px;color:var(--w50);margin-top:5px;font-family:Montserrat,sans-serif}
-.mrv-doc-meta{font-family:var(--mono);font-size:10px;color:var(--w30);margin-top:4px}
-.mrv-motivo{font-size:11px;color:var(--red);margin-top:5px;font-family:Montserrat,sans-serif}
-.mrv-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-.mrv-btn{font-family:var(--mono);font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:7px 12px;border-radius:2px;cursor:pointer;background:none;text-decoration:none;display:inline-block}
-.mrv-btn.ver{border:1px solid rgba(255,255,255,.18);color:var(--w50)}
-.mrv-btn.ver:hover{color:var(--white)}
-.mrv-btn.ok{border:1px solid rgba(74,222,128,.4);color:var(--green)}
-.mrv-btn.ok:hover{background:var(--greendim)}
-.mrv-btn.no{border:1px solid rgba(248,113,113,.4);color:var(--red)}
-.mrv-btn.no:hover{background:rgba(248,113,113,.08)}
-.mrv-btn[disabled]{opacity:.4;cursor:wait}
-.mrv-rej{margin-top:10px;border-top:1px solid rgba(255,255,255,.07);padding-top:10px}
-.mrv-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
-.mrv-chip{font-family:var(--mono);font-size:9px;letter-spacing:1px;padding:5px 9px;border:1px solid rgba(255,255,255,.15);border-radius:2px;color:var(--w50);cursor:pointer;background:none}
-.mrv-chip:hover,.mrv-chip.sel{border-color:rgba(198,168,107,.5);color:var(--gold)}
-.mrv-rej textarea{width:100%;background:#0A0A0A;border:1px solid rgba(255,255,255,.12);border-radius:2px;color:var(--white);font-family:Montserrat,sans-serif;font-size:12px;padding:8px;min-height:54px;resize:vertical}
-.mrv-card{cursor:pointer}
-.mrv-card:hover{border-color:rgba(198,168,107,.35)}
-.mrv-go{font-family:var(--mono);font-size:9px;letter-spacing:1px;color:var(--gold);margin-top:5px;display:block}
-/* ── Mesa de Documentos: fichas tipo documento minimalista ── */
-.mdoc-sec{font-family:var(--mono);font-size:8px;letter-spacing:2.5px;text-transform:uppercase;color:var(--w30);margin:2px 0 10px;border-bottom:1px solid rgba(255,255,255,.07);padding-bottom:6px}
-.mdoc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;margin-bottom:6px}
-.mdoc{position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.1);border-left:3px solid rgba(255,255,255,.18);border-radius:2px;background:rgba(255,255,255,.015);padding:12px 14px 11px}
-.mdoc-fold{position:absolute;top:0;right:0;width:0;height:0;border-style:solid;border-width:0 14px 14px 0;border-color:transparent rgba(255,255,255,.14) transparent transparent}
-.mdoc.revision{border-left-color:var(--gold)}
-.mdoc.revision .mdoc-fold{border-right-color:rgba(198,168,107,.55)}
-.mdoc.revision .mdoc-count{color:var(--gold)}
-.mdoc.completo{border-left-color:var(--green)}
-.mdoc.completo .mdoc-fold{border-right-color:rgba(74,222,128,.55)}
-.mdoc.completo .mdoc-count,.mdoc.completo .mdoc-state{color:var(--green)}
-.mdoc-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
-.mdoc-name{font-family:Montserrat,sans-serif;font-size:12px;font-weight:600;color:var(--white)}
-.mdoc-count{font-family:var(--mono);font-size:11px;letter-spacing:1px;color:var(--w50);flex:none}
-.mdoc-folio{font-family:var(--mono);font-size:9px;letter-spacing:1px;color:var(--w30);margin-top:3px}
-.mdoc-state{font-family:var(--mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--w50);margin-top:8px}
-.mdoc-nota{font-family:Montserrat,sans-serif;font-size:11px;color:var(--w50);margin-top:6px}
-.mdoc-go{font-family:var(--mono);font-size:9px;letter-spacing:1px;color:var(--gold);margin-top:8px}
 </style>
 </head>
 <body>
@@ -1492,7 +1402,6 @@ select.form-inp option{background:#111;color:#fff}
   <!-- TOPBAR -->
   <div class="topbar">
     <div class="tb-left">
-      <button class="tb-burger" onclick="toggleSidebar()" title="Mostrar / ocultar menú">☰</button>
       <span class="tb-crumb">NERI</span>
       <span class="tb-sep"></span>
       <span class="tb-label" id="tb-label">Sistema Operativo</span>
@@ -1538,7 +1447,6 @@ const NAV_ROL = {
     { id:'hoy', label:'Hoy', icon:'⬡', highlight:true },
     { id:'perfil_asesor', label:'Mi Perfil del Asesor', icon:'◉' },
     { id:'airtable', label:'Centro de Operaciones', icon:'◈' },
-    { id:'mapa', label:'Mapa Maestro', icon:'⟁' },
     { id:'expedientes', label:'Expedientes', icon:'❑' },
     { id:'propiedades_asesor', label:'Mis Propiedades', icon:'⌂' },
     { id:'documentos_asesor', label:'Documentos', icon:'▤' },
@@ -1555,7 +1463,6 @@ const NAV_ROL = {
     { section:'Principal' },
     { id:'hoy',         label:'Dashboard',          icon:'⬡' },
     { id:'airtable',    label:'Centro de Operaciones',       icon:'◈', highlight:true },
-    { id:'mapa',        label:'Mapa Maestro',       icon:'⟁' },
     { section:'Equipo' },
     { id:'sala',        label:'Sala de Mensajes',   icon:'⚡' },
     { id:'reportes',    label:'Reportes',           icon:'◫' },
@@ -1568,7 +1475,6 @@ const NAV_ROL = {
     { section:'Dirección' },
     { id:'hoy',         label:'Dashboard',          icon:'⬡' },
     { id:'airtable',    label:'Centro de Operaciones',       icon:'◈', highlight:true },
-    { id:'mapa',        label:'Mapa Maestro',       icon:'⟁' },
     { id:'reportes',    label:'Reportes',           icon:'◫' },
     { section:'Sistema' },
     { id:'sala',        label:'Sala de Mensajes',   icon:'⚡' },
@@ -1635,7 +1541,6 @@ async function enrichIdentity(slug){
     if(f['Nombre'])            SESSION.nombre   = f['Nombre'];
     if(f['Teléfono WhatsApp']) SESSION.whatsapp = String(f['Teléfono WhatsApp']).replace(/\D/g,'');
     if(f['Pixel ID Meta'])     SESSION.pixel    = f['Pixel ID Meta'];
-    if(f['Frase'])             SESSION.frase    = f['Frase'];
     const ciudad = f['Ciudad'] || f['Ciudad (texto viejo)'] || '';
     const puesto = f['Puesto'] || f['Puesto (texto viejo)'] || '';
     if(ciudad || puesto) SESSION.empresa = [puesto, ciudad].filter(Boolean).join(' · ') || SESSION.empresa;
@@ -1646,9 +1551,6 @@ async function enrichIdentity(slug){
 
 function refreshChrome(){
   const s = SESSION; if(!s) return;
-  // Identidad viva para cabina-vendedor.js: cada asesor genera tarjetas con SUS datos
-  // (nombre, WhatsApp e inmobiliaria reales de la sesión), nunca datos quemados.
-  window.CABINA_ASESOR = { nombre: s.nombre || '', tel: s.whatsapp || '', inmo: s.empresa || '' };
   const a=document.getElementById('sb-name'); if(a) a.textContent=s.nombre;
   const b=document.getElementById('sb-role'); if(b) b.textContent=s.rol.toUpperCase()+' · '+s.empresa;
   const c=document.getElementById('tb-user'); if(c) c.textContent=s.nombre;
@@ -1671,8 +1573,6 @@ function doLogout(){
 ═══════════════════════════════════════════════════ */
 function bootApp(){
   const s = SESSION;
-  // Identidad inicial para cabina-vendedor.js (se refina cuando enrichIdentity responde)
-  window.CABINA_ASESOR = { nombre: s.nombre || '', tel: s.whatsapp || '', inmo: s.empresa || '' };
   document.getElementById('sb-name').textContent = s.nombre;
   document.getElementById('sb-role').textContent = s.rol.toUpperCase() + ' · ' + s.empresa;
   document.getElementById('tb-user').textContent = s.nombre;
@@ -1721,7 +1621,6 @@ function buildPanels(){
   ca.insertAdjacentHTML('beforeend', buildAsesorReportesPanel());
   ca.insertAdjacentHTML('beforeend', buildAsesorManualesPanel());
   ca.insertAdjacentHTML('beforeend', buildExpedientePanel());
-  ca.insertAdjacentHTML('beforeend', buildMapaPanel());
 
   ca.insertAdjacentHTML('beforeend', buildAirtablePanel());
   ca.insertAdjacentHTML('beforeend', buildSalaMensajesPanel());
@@ -1824,12 +1723,11 @@ async function loadHoyData(force){
   const rb = document.getElementById('hoy-refresh'); if(rb) rb.classList.add('spin');
   try{
     const cCfg = CRM_CFG.compradores, kCfg = CRM_CFG.citas, pCfg = CRM_CFG.progreso;
-    // allSettled: si una tabla falla, el dashboard se pinta con las otras dos.
-    const [comp, cit, prog] = (await Promise.allSettled([
-      atFetch(`${cCfg.tableId}?maxRecords=200`),
-      atFetch(`${kCfg.tableId}?maxRecords=200`),
-      atFetch(`${pCfg.tableId}?maxRecords=200`)
-    ])).map(r => r.status==='fulfilled' ? r.value : { records: [] });
+    const [comp, cit, prog] = await Promise.all([
+      atFetch(`${cCfg.tableId}?maxRecords=100`),
+      atFetch(`${kCfg.tableId}?maxRecords=100`),
+      atFetch(`${pCfg.tableId}?maxRecords=100`)
+    ]);
     renderHoy(comp.records||[], cit.records||[], prog.records||[]);
   }catch(e){
     const a = document.getElementById('hoy-agenda');
@@ -1968,8 +1866,7 @@ const FASES_PROGRESO = [
   { n:'Entrega de llaves',        listo:'Acta de entrega, llaves, finiquito de servicios. ¡Operación cerrada!' },
 ];
 function _faseIndex(nombre){
-  const real = (typeof FASES_ALIAS !== 'undefined' && FASES_ALIAS[nombre]) || nombre;
-  const i = FASES_PROGRESO.findIndex(f=>f.n===real);
+  const i = FASES_PROGRESO.findIndex(f=>f.n===nombre);
   return i<0 ? 0 : i;
 }
 function renderOperaciones(prog){
@@ -2044,7 +1941,7 @@ const CRM_CFG = {
       {f:'Riesgo principal',      type:'text'},
       {f:'Estado emocional',      type:'text'},
       {f:'Siguiente jugada',      type:'text'},
-      {f:'Última interacción',    type:'date'},
+      {f:'Última interacción',    type:'text'},
       {f:'Método / Crédito',      type:'text'},
       {f:'Asesor',                type:'text'},
       {f:'Score del Lead',        type:'text'},
@@ -2062,7 +1959,7 @@ const CRM_CFG = {
       'Habitaciones','Baños','Medios Baños','Estacionamientos',
       'Tiempo de Venta','Razón de Venta',
       'Diagnóstico Fiscal','Detalle Fiscal',
-      'Progreso Expediente','Documentos','Propiedad Creada'
+      'Progreso Expediente','Documentos','Propiedad Creada','Contrato Firmado'
     ],
     editable: [
       {f:'Nombre Completo',    type:'text'},
@@ -2096,7 +1993,7 @@ const CRM_CFG = {
       {f:'Comprador',                        type:'text'},
       {f:'Propiedad',                        type:'text'},
       {f:'Precio',                           type:'text'},
-      {f:'Fase Actual',                      type:'select', asText:true, opts:['Apartado','Revisión de compra','Expediente','Preparando documentos','Acuerdo de compra','Revisión en notaría','Últimas confirmaciones','Día de firma','Entrega de llaves','Postcierre']},
+      {f:'Fase Actual',                      type:'select', asText:true, opts:['Apartado','Expediente','Valuación','Crédito','Escrituración','Firma','Entrega','Completado']},
       {f:'Asesor',                           type:'text'},
       {f:'WhatsApp Asesor',                  type:'text'},
       {f:'Etiqueta WhatsApp',                type:'text'},
@@ -2133,8 +2030,8 @@ const CRM_CFG = {
     fields: ['Nombre Propiedad','Tipo de Propiedad','Estado Propiedad','Zona / Colonia','Municipio','Precio Lista','Habitaciones','Asesor'],
     editable: [
       {f:'Nombre Propiedad',   type:'text'},
-      {f:'Tipo de Propiedad',  type:'select', opts:['Casa','Departamento','Terreno','Local comercial','Otro']},
-      {f:'Estado Propiedad',   type:'select', opts:['Activa','Apartada','Vendida','En pausa','Cancelada','Disponible']},
+      {f:'Tipo de Propiedad',  type:'select', opts:['Casa','Departamento','Terreno','Local','Oficina','Bodega']},
+      {f:'Estado Propiedad',   type:'select', opts:['Disponible','Apartada','Vendida','En proceso','Suspendida']},
       {f:'Zona / Colonia',     type:'text'},
       {f:'Municipio',          type:'text'},
       {f:'Precio Lista',       type:'text'},
@@ -2200,7 +2097,7 @@ async function crmLoad(tab, force=false){
   try {
     // Robusto: sin fields[] (si un nombre no existe, Airtable rechaza TODO con 422)
     // y sin view fija (falla si la vista fue renombrada). Trae todos los campos.
-    const data = await atFetch(`${cfg.tableId}?maxRecords=200`);
+    const data = await atFetch(`${cfg.tableId}?maxRecords=100`);
     crmState.records = data.records || [];
     crmRender(tab, crmState.records);
     const tabCountEl = document.getElementById('tab-count-' + tab);
@@ -2224,7 +2121,9 @@ function crmRender(tab, records){
   const cfg = CRM_CFG[tab];
   document.getElementById('crm-count').textContent = records.length + ' registros';
 
-  const ths = cfg.cols.map(c => `<th>${c}</th>`).join('');
+  const ths = ['', ...cfg.cols].map((c,i) =>
+    i===0 ? `<th style="width:44px"></th>` : `<th>${c}</th>`
+  ).join('');
 
   const FOLIO_FIELDS = ['Folio','Folio Cita'];
   const NAME_FIELDS  = ['nombre completo','nombre','comprador','nombre propiedad'];
@@ -2245,7 +2144,8 @@ function crmRender(tab, records){
       const title = cls==='clip' ? ` title="${_escAttr(val)}"` : '';
       return `<td${cls?` class="${cls}"`:''}${title}>${inner}</td>`;
     }).join('');
-    return `<tr onclick="crmOpenRow('${rec.id}')" title="Clic para abrir expediente">${cells}</tr>`;
+    return `<tr onclick="crmOpenRow('${rec.id}')" title="Clic para abrir expediente">
+      <td>◎</td>${cells}</tr>`;
   }).join('') || crmEmptyHtml(tab);
 
   document.getElementById('crm-table-wrap').innerHTML =
@@ -2352,15 +2252,9 @@ function crmOpenFicha(recId){
   const wa     = _fval(rec,'Teléfono WhatsApp');
 
   const sd = v => v ? v : '<span class="fk-empty">Sin definir</span>';
-  // El portal del cliente nace en "Apartado" (Capítulo 2). Make lo crea en
-  // su corrida de hasta 15 min; el link es determinístico por folio de
-  // operación, así que se muestra desde la conversión con esa nota.
-  const convLead  = _fval(rec,'Conversión');
-  const faseLead  = _fval(rec,'Fase Actual');
-  const enCap2    = !!faseLead || convLead === 'Apartado';
-  const portalUrl = (enCap2 && folioOp)
-    ? String(cfg.portalBase || 'https://progreso-zeta.vercel.app/').replace(/\/+$/,'') + '/?folio=' + encodeURIComponent(folioOp)
-    : '';
+  // Un lead comprador todavía NO tiene portal de cliente.
+  // El portal nace hasta Apartado → Portal Progreso Clientes.
+  const portalUrl = ''; // intencional: no mostrar portal en ficha de lead
 
   const rows = [
     ['Riesgo principal',     _fval(rec,'Riesgo principal')],
@@ -2376,53 +2270,6 @@ function crmOpenFicha(recId){
       </div>
       <div class="fk-msg">${msg ? msg.replace(/</g,'&lt;') : '<span class="fk-empty">Sin definir</span>'}</div>
     </div>`;
-
-  const portalBlock = portalUrl ? `<div class="fk-portal" id="fk-portal">
-      <div class="fk-portal-head">
-        <span class="fk-portal-title">◎ Portal de progreso del cliente</span>
-        <span class="fk-portal-pct" id="fk-portal-pct">…</span>
-      </div>
-      <div class="fk-steps" id="fk-steps">${FASES_CAP2.map(f =>
-        `<div class="fk-step"><span class="d"></span><span class="l">${f}</span></div>`).join('')}</div>
-      <div class="fk-portal-next" id="fk-portal-next">Cargando el estado del portal…</div>
-      <div class="fk-portal-actions">
-        <button class="fk-portal-btn gold" id="fk-portal-adv" style="display:none" onclick="fichaAvanzarFase()">Avanzar fase →</button>
-        <button class="fk-portal-btn gold" id="fk-portal-wa" style="display:none" onclick="window.open(this.dataset.wa,'_blank','noopener')">Enviar por WhatsApp</button>
-        <button class="fk-portal-btn" data-msg="${_escAttr(portalUrl)}" onclick="fichaCopy(this)">Copiar link</button>
-        <a class="fk-portal-btn" href="${_escAttr(portalUrl)}" target="_blank" rel="noopener">Abrir portal</a>
-      </div>
-      <div class="fk-portal-link">${_esc(portalUrl)}</div>
-    </div>` : '';
-
-  /* ── Expediente documental del COMPRADOR (Capítulo 2, nace en Apartado).
-     Flujo 100% separado del expediente del vendedor. El link y el token
-     viven en el lead comprador; la activación corre en el proyecto
-     expedientecomprador.vercel.app con el mismo Bearer de sesión. */
-  const expLinkPrevio = _fval(rec,'Link Expediente Comprador');
-  const expProgreso   = _fval(rec,'Progreso Expediente Comprador');
-  /* Interruptor del expediente del comprador: el proyecto
-     expedientecomprador.vercel.app aún no existe (pendiente #7).
-     Cambiar a true cuando ese portal esté desplegado — todo el código
-     de abajo ya queda listo y no hay que tocar nada más. */
-  const EXPC_PORTAL_ACTIVO = false;
-  const expBlock = (EXPC_PORTAL_ACTIVO && enCap2 && folioLead) ? `<div class="fk-portal" id="fk-expc"
-      data-folio="${_escAttr(folioLead)}"
-      data-tel="${_escAttr(String(wa||'').replace(/\D/g,''))}"
-      data-nombre="${_escAttr((nombre||'').split(' ')[0])}">
-      <div class="fk-portal-head">
-        <span class="fk-portal-title">▤ Expediente documental del comprador</span>
-        <span class="fk-portal-pct" id="fk-expc-prog" style="font-size:12px">${_esc(expProgreso||'')}</span>
-      </div>
-      <div class="fk-portal-next" id="fk-expc-status">${expLinkPrevio
-        ? 'Expediente activo. Comparte el link para que el comprador cargue sus documentos.'
-        : 'Activa el expediente para generar el link de carga documental del comprador.'}</div>
-      <div class="fk-portal-actions">
-        <button class="fk-portal-btn gold" id="fk-expc-btn" onclick="fichaActivarExpComprador()">${expLinkPrevio ? 'Re-obtener link' : 'Activar expediente'}</button>
-        <button class="fk-portal-btn" id="fk-expc-copy" style="display:${expLinkPrevio?'inline-block':'none'}" data-msg="${_escAttr(expLinkPrevio||'')}" onclick="fichaCopy(this)">Copiar link</button>
-        <button class="fk-portal-btn" id="fk-expc-wa" style="display:${expLinkPrevio?'inline-block':'none'}" onclick="window.open(this.dataset.wa,'_blank','noopener')" data-wa="${expLinkPrevio ? _escAttr('https://wa.me/52'+String(wa||'').replace(/\D/g,'')+'?text='+encodeURIComponent('Hola'+((nombre||'').split(' ')[0]?' '+(nombre||'').split(' ')[0]:'')+', para avanzar con tu compra carga aquí tus documentos. Es tu expediente privado: '+expLinkPrevio)) : ''}">Enviar por WhatsApp</button>
-      </div>
-      <div class="fk-portal-link" id="fk-expc-link">${_esc(expLinkPrevio||'')}</div>
-    </div>` : '';
 
   document.getElementById('crm-ficha-body').innerHTML = `
     <div class="fk-top">
@@ -2444,186 +2291,16 @@ function crmOpenFicha(recId){
     </div>
 
     <div class="fk-grid">${rows}</div>
-    ${msgBlock}
-    ${portalBlock}
-    ${expBlock}`;
+    ${msgBlock}`;
 
   // No mostrar Portal del cliente en ficha de lead comprador.
   const portalBtn = document.getElementById('crm-ficha-portal');
   if(portalBtn) portalBtn.style.display='none';
 
   document.getElementById('crm-ficha').style.display = 'flex';
-  if(portalUrl) fichaPintarPortal(rec, folioOp, portalUrl);
-}
-
-/* Fases canónicas del Capítulo 2 (comprador). EXACTAMENTE las opciones del
-   campo "Fase Actual" en Portal Progreso Clientes (tblyC9VjjtoRKJPQL) y los
-   porcentajes de la fórmula % Compra. No inventar fases aquí: si Airtable
-   cambia, cambiar primero allá. "Expediente" es alias histórico (30%) y
-   "Postcierre" cierra en 100. */
-const FASES_CAP2 = ['Apartado','Revisión de compra','Preparando documentos','Acuerdo de compra','Revisión en notaría','Últimas confirmaciones','Día de firma','Entrega de llaves'];
-const FASES_PCT  = [5,15,30,45,60,75,90,100];
-const FASES_ALIAS = { 'Expediente':'Preparando documentos', 'Postcierre':'Entrega de llaves' };
-/* Próximo paso visible en el portal del cliente, por fase. El sistema lo
-   escribe solo al avanzar — el asesor no redacta nada. */
-const FASES_PASO = {
-  'Apartado':'Enviar el portal de progreso al cliente y confirmar la entrega del apartado.',
-  'Revisión de compra':'Revisar las condiciones de la operación con el comprador y confirmar el camino de pago.',
-  'Preparando documentos':'Reunir y validar la documentación de ambas partes para integrar el expediente.',
-  'Acuerdo de compra':'Formalizar el acuerdo de compraventa entre las partes.',
-  'Revisión en notaría':'La notaría revisa el expediente y prepara la escritura.',
-  'Últimas confirmaciones':'Confirmar fecha, montos y requisitos finales antes de la firma.',
-  'Día de firma':'Acompañar la firma de escritura en notaría.',
-  'Entrega de llaves':'Entrega de llaves realizada. La operación queda cerrada.'
-};
-/* Mensaje de WhatsApp de actualización para el cliente, por fase. */
-const FASES_WA = {
-  'Revisión de compra':'tu compra avanzó: ya estamos en Revisión de compra. Puedes seguir cada paso en tu portal: ',
-  'Preparando documentos':'tu compra avanzó: estamos Preparando documentos. Sigue el avance en tu portal: ',
-  'Acuerdo de compra':'tu compra avanzó: estamos en el Acuerdo de compra. Sigue el avance en tu portal: ',
-  'Revisión en notaría':'tu compra avanzó: tu expediente ya está en Revisión en notaría. Sigue el avance en tu portal: ',
-  'Últimas confirmaciones':'tu compra está en Últimas confirmaciones antes de la firma. Sigue el avance en tu portal: ',
-  'Día de firma':'llegó el Día de firma. Revisa los detalles en tu portal: ',
-  'Entrega de llaves':'¡felicidades! Tu compra llegó a Entrega de llaves. Tu portal queda como constancia del proceso: '
-};
-
-/* Pinta el stepper del portal con datos reales del Portal Progreso.
-   Si Make todavía no crea el registro (corre cada 15 min), el stepper
-   arranca en Apartado y lo avisa — el link ya es válido desde ahora.
-   Guarda el contexto en _fichaProg para que "Avanzar fase" sepa qué
-   registro mover. */
-let _fichaProg = null;
-function fichaPintarPortal(rec, folioOp, portalUrl){
-  asesorTabla('progreso').then(prog => {
-    const p = (prog||[]).find(r => _fval(r,'Folio') === folioOp || _fval(r,'Folio Operación') === folioOp);
-    const faseCruda = (p && _fval(p,'Fase Actual')) || 'Apartado';
-    const fase = FASES_ALIAS[faseCruda] || faseCruda;
-    let idx = FASES_CAP2.indexOf(fase); if(idx < 0) idx = 0;
-    _fichaProg = p ? { id:p.id, idx, fase:faseCruda, folioOp, portalUrl, leadId:rec.id } : null;
-
-    const pctEl = document.getElementById('fk-portal-pct');
-    if(pctEl){
-      const pctReal = p ? _fval(p,'% Compra') : '';
-      pctEl.textContent = (pctReal !== '' && pctReal != null ? Math.round(Number(pctReal) <= 1 ? Number(pctReal)*100 : Number(pctReal)) : FASES_PCT[idx]) + '%';
-    }
-
-    const steps = document.querySelectorAll('#fk-steps .fk-step');
-    steps.forEach((el,i) => { el.classList.remove('done','now'); if(i < idx) el.classList.add('done'); else if(i === idx) el.classList.add('now'); });
-
-    const nextEl = document.getElementById('fk-portal-next');
-    if(nextEl){
-      const paso = p ? (_fval(p,'Próximo paso') || '') : '';
-      nextEl.innerHTML = p
-        ? `Fase actual: <b>${_esc(fase)}</b>.` + (paso ? ` Próximo paso: ${_esc(paso)}` : ' Envía el portal al cliente para que siga su compra paso a paso, como un pedido en línea.')
-        : `Fase actual: <b>Apartado</b>. El portal se está activando (Make corre cada 15 min) — el link ya es válido y puedes enviarlo desde ahora.`;
-    }
-
-    /* Botón Avanzar fase: solo si el registro de Progreso ya existe y la
-       operación no llegó al final. Avance forward-only, una fase a la vez. */
-    const advBtn = document.getElementById('fk-portal-adv');
-    if(advBtn){
-      if(p && idx < FASES_CAP2.length - 1){
-        advBtn.style.display = 'inline-block';
-        advBtn.textContent = 'Avanzar a: ' + FASES_CAP2[idx+1] + ' →';
-        advBtn.disabled = false;
-      } else if(p && idx === FASES_CAP2.length - 1){
-        advBtn.style.display = 'inline-block';
-        advBtn.textContent = '✓ Operación cerrada';
-        advBtn.disabled = true;
-      } else {
-        advBtn.style.display = 'none';
-      }
-    }
-
-    const waBtn = document.getElementById('fk-portal-wa');
-    const tel = String(_fval(rec,'Teléfono WhatsApp') || '').replace(/\D/g,'');
-    if(waBtn && tel){
-      const nombre = (_fval(rec,'Nombre Completo') || '').split(' ')[0];
-      const msg = (p && _fval(p,'Mensaje WhatsApp Actualización')) ||
-        `Hola${nombre ? ' ' + nombre : ''}, tu compra ya tiene portal de seguimiento. Aquí puedes ver en qué fase va, paso a paso: ${portalUrl}`;
-      waBtn.dataset.wa = 'https://wa.me/52' + tel + '?text=' + encodeURIComponent(msg);
-      waBtn.style.display = 'inline-block';
-    }
-  }).catch(() => {
-    const nextEl = document.getElementById('fk-portal-next');
-    if(nextEl) nextEl.textContent = 'No se pudo leer el Portal Progreso en este momento — el link de abajo sigue siendo válido.';
-  });
-}
-
-/* Avanza la operación EXACTAMENTE una fase (forward-only — el sistema nunca
-   retrocede). Escribe en Portal Progreso: Fase Actual, Próximo paso y
-   Mensaje WhatsApp Actualización, todo de los mapas canónicos — el asesor
-   solo confirma. Al llegar a Entrega de llaves, Make marca la propiedad
-   Vendida (escenario 5365704). */
-async function fichaAvanzarFase(){
-  const ctx = _fichaProg;
-  if(!ctx || !ctx.id) return;
-  const next = FASES_CAP2[ctx.idx + 1];
-  if(!next) return;
-  const actual = FASES_ALIAS[ctx.fase] || ctx.fase;
-  if(!window.confirm('Avanzar la operación ' + ctx.folioOp + ':\n\n' + actual + '  →  ' + next + '\n\nEl portal del cliente se actualiza al momento. ¿Confirmar?')) return;
-  const btn = document.getElementById('fk-portal-adv');
-  if(btn){ btn.disabled = true; btn.textContent = 'Avanzando…'; }
-  try{
-    const fields = { 'Fase Actual': next, 'Próximo paso': FASES_PASO[next] || '' };
-    if(FASES_WA[next]) fields['Mensaje WhatsApp Actualización'] = 'Hola, ' + FASES_WA[next] + ctx.portalUrl;
-    await atFetch(`${CRM_CFG.progreso.tableId}/${ctx.id}`, {
-      method:'PATCH', body: JSON.stringify({ fields, typecast:true })
-    });
-    delete _asesorTblProm['progreso']; // invalida cache para releer la fase real
-    const rec = crmState.records.find(r => r.id === ctx.leadId) || { id: ctx.leadId, fields:{} };
-    fichaPintarPortal(rec, ctx.folioOp, ctx.portalUrl);
-    showToast('✓ Operación en ' + next);
-  }catch(e){
-    if(btn){ btn.disabled = false; btn.textContent = 'Avanzar a: ' + next + ' →'; }
-    window.alert('No se pudo avanzar la fase: ' + (e.message || e));
-  }
-}
-
-/* ─── EXPEDIENTE DOCUMENTAL DEL COMPRADOR ────────────────────────────
-   Activación desde la ficha del comprador (a partir de Apartado).
-   Corre en el proyecto independiente expedientecomprador.vercel.app —
-   flujo 100% separado del expediente del vendedor. El Bearer es la
-   misma sesión NERI (mismo NERI_SESSION_SECRET en ambos proyectos).  */
-const EXP_COMP_BASE = 'https://expedientecomprador.vercel.app';
-async function fichaActivarExpComprador(){
-  const box = document.getElementById('fk-expc'); if(!box) return;
-  const folio = box.dataset.folio || '';
-  const st  = document.getElementById('fk-expc-status');
-  const lk  = document.getElementById('fk-expc-link');
-  const btn = document.getElementById('fk-expc-btn');
-  const cp  = document.getElementById('fk-expc-copy');
-  const wa  = document.getElementById('fk-expc-wa');
-  if(!folio){ if(st) st.textContent='Este comprador aún no tiene folio de operación.'; return; }
-  if(btn){ btn.disabled = true; btn.textContent = 'Activando…'; }
-  try{
-    const r = await fetch(EXP_COMP_BASE + '/api/activar-expediente-comprador', {
-      method:'POST',
-      headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer '+(SESSION?.token||'') },
-      body: JSON.stringify({ folio })
-    });
-    const d = await r.json().catch(()=>({}));
-    if(!r.ok || !d.link) throw new Error(d.error || 'No se pudo activar el expediente.');
-    if(st) st.textContent = 'Expediente activo. Comparte el link para que el comprador cargue sus documentos.';
-    if(lk) lk.textContent = d.link;
-    if(cp){ cp.dataset.msg = d.link; cp.style.display = 'inline-block'; }
-    if(wa){
-      const tel = box.dataset.tel || '';
-      const nombre = box.dataset.nombre || '';
-      if(tel){
-        wa.dataset.wa = 'https://wa.me/52' + tel + '?text=' + encodeURIComponent('Hola' + (nombre ? ' ' + nombre : '') + ', para avanzar con tu compra carga aquí tus documentos. Es tu expediente privado: ' + d.link);
-        wa.style.display = 'inline-block';
-      }
-    }
-    if(btn){ btn.disabled = false; btn.textContent = 'Re-obtener link'; }
-  }catch(e){
-    if(st) st.textContent = e.message || 'No se pudo activar el expediente. Intenta de nuevo.';
-    if(btn){ btn.disabled = false; btn.textContent = 'Activar expediente'; }
-  }
 }
 
 function crmCloseFicha(){ document.getElementById('crm-ficha').style.display = 'none'; }
-function toggleSidebar(){ const app=document.getElementById('screen-app'); if(app) app.classList.toggle('sb-collapsed'); }
 
 /* ─── FICHA PREMIUM — LEAD VENDEDOR ──────────────────────────────────
    Diseño orientado al asesor: origen del lead arriba, propiedad en el
@@ -2670,11 +2347,6 @@ function vendedorOpenFicha(recId){
   const progExp   = fv('Progreso Expediente');
   const docs      = fv('Documentos');
   const propCreada= fv('Propiedad Creada');
-  // Expediente documental del propietario: el link debe verse AQUÍ,
-  // sin entrar a editar. Si la firma existe y aún no hay link, se
-  // activa automáticamente vía /api/activar-expediente (idempotente).
-  const linkDocs  = fv('Link Expediente Documental') || fv('Link Documentos');
-  const convFirmada = (conv === 'Firma exclusiva' || conv === 'Firma venta directa');
 
   // WhatsApp link
   const waClean = wa.replace(/\D/g,'');
@@ -2734,6 +2406,8 @@ function vendedorOpenFicha(recId){
     <!-- BODY -->
     <div class="fv-body">
 
+      ${rielVendedorHTML(rec)}
+
       <!-- SECCIÓN: La propiedad -->
       <div class="fv-sec">
         <div class="fv-sec-title"><em>◈</em>La propiedad</div>
@@ -2772,15 +2446,6 @@ function vendedorOpenFicha(recId){
             ${convDesc ? `<div class="fv-conv-desc">${convDesc}</div>` : ''}
           </div>
         </div>
-        ${convFirmada ? `<div class="fv-grid" style="margin-top:2px">
-          <div class="fv-row full">
-            <div class="fv-row-k">Liga de documentos</div>
-            <div class="fv-row-v long" id="fv-expdoc-link">${linkDocs
-              ? `<a href="${_escAttr(linkDocs)}" target="_blank" rel="noopener" style="color:var(--gold);word-break:break-all">${_esc(linkDocs)}</a>
-                 <button class="fk-copy" style="margin-left:8px" data-l="${_escAttr(linkDocs)}" onclick="fvCopiarLiga(this)">Copiar</button>`
-              : '<span class="fv-row-v empty">Generando liga del expediente…</span>'}</div>
-          </div>
-        </div>` : ''}
         ${progExp ? `<div class="fv-grid" style="margin-top:2px">${row('Progreso expediente', progExp, true)}</div>` : ''}
         ${docs    ? `<div class="fv-grid" style="margin-top:2px"><div class="fv-row full"><div class="fv-row-k">Documentos</div><div class="fv-row-v long">${_esc(docs)}</div></div></div>` : ''}
       </div>
@@ -2804,48 +2469,6 @@ function vendedorOpenFicha(recId){
 
   document.getElementById('crm-fv-inner').innerHTML = html;
   document.getElementById('crm-ficha-vendedor').style.display = 'flex';
-
-  // Si hay firma y aún no existe el link, mintearlo ahora (idempotente):
-  // escribe Token Expediente + Link Expediente Documental en el lead y
-  // lo pinta en la ficha sin que el asesor tenga que entrar a editar.
-  if(convFirmada && !linkDocs && folio && folio !== '— sin folio —'){
-    fvActivarExpediente(recId, fv('Folio'));
-  }
-}
-
-/* Activa (o recupera) el expediente documental del propietario por folio
-   del LEAD VENDEDOR y pinta la liga en la ficha cerrada. Idempotente. */
-function fvActivarExpediente(recId, folio){
-  const slot = document.getElementById('fv-expdoc-link');
-  if(!slot || !folio) return;
-  fetch('/api/activar-expediente', {
-    method:'POST',
-    headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer '+(SESSION?.token||'') },
-    body: JSON.stringify({ folio })
-  })
-  .then(r => r.json().catch(()=>({})).then(j => ({ ok:r.ok, j })))
-  .then(({ok, j}) => {
-    if(ok && j && j.link){
-      const rec = crmState.records.find(r => r.id === recId);
-      if(rec && rec.fields) rec.fields['Link Expediente Documental'] = j.link;
-      slot.innerHTML =
-        `<a href="${_escAttr(j.link)}" target="_blank" rel="noopener" style="color:var(--gold);word-break:break-all">${_esc(j.link)}</a>
-         <button class="fk-copy" style="margin-left:8px" data-l="${_escAttr(j.link)}" onclick="fvCopiarLiga(this)">Copiar</button>`;
-    } else {
-      slot.innerHTML = '<span class="fv-row-v empty">No se pudo generar la liga'+(j&&j.error?(': '+_esc(j.error)):'')+'. Reabre la ficha para reintentar.</span>';
-    }
-  })
-  .catch(() => {
-    slot.innerHTML = '<span class="fv-row-v empty">Sin conexión para generar la liga. Reabre la ficha para reintentar.</span>';
-  });
-}
-function fvCopiarLiga(btn){
-  const t = btn?.dataset?.l || '';
-  if(!t) return;
-  navigator.clipboard?.writeText(t).then(()=>{
-    const o = btn.textContent; btn.textContent = '✓ Copiado';
-    setTimeout(()=>{ btn.textContent = o; }, 1600);
-  }, ()=>{ window.prompt('Copia la liga:', t); });
 }
 
 function crmBadgeForConv(conv){
@@ -2873,15 +2496,6 @@ function vendedorEditFromFicha(){
 function fichaAgendarCita(){
   const rec = crmState.records.find(r => r.id === crmState.editId);
   if(!rec) return;
-  agendarCitaDesdeLead(rec);
-}
-
-/* FLUJO ÚNICO DE CITAS: toda cita nace de un lead comprador con su folio.
-   Lo usan el botón "Agendar visita" de la ficha Y el "+ Nuevo" del tab
-   Citas (vía selector de lead). El alta genérica murió: creaba citas
-   sin folio ni confirmación — la duplicidad de la prueba del 9 de junio. */
-function agendarCitaDesdeLead(rec){
-  if(!rec) return;
 
   // Folio correcto: "Folio del Comprador" (lookup de la propiedad) o "Folio Propiedad NERI"
   // El campo primario "Folio" suele estar vacío en Leads Compradores — no usarlo
@@ -2897,9 +2511,8 @@ function agendarCitaDesdeLead(rec){
   // Guardar contexto para que citaSave() lo incluya en el POST
   crmState.citaFromLead = { folioClienteOrigen, comprador, propiedad, asesor };
 
-  // NO se cierra la ficha: el modal de cita (z-index 915) abre ENCIMA de la
-  // ficha (910). Si el asesor cancela la cita, la ficha sigue abierta detrás
-  // y no pierde el contexto del lead.
+  // Cerrar la ficha y abrir el modal de cita en modo nuevo, pre-rellenado
+  crmCloseFicha();
 
   // Reutilizar el modal existente de cita: modo creación
   crmState.isNew  = true;
@@ -2986,7 +2599,8 @@ function fichaCopy(btn){
    Folio NERI / Links / contadores son fórmula/Make → bloqueados.        */
 const LANDING_FORM = [
   {title:'Portada', ico:'◫', fields:[
-    {f:'Frase Inicio',   label:'Descripción propiedad corta', type:'textarea', full:true},
+    {f:'Frase Portada',  type:'text',     full:true},
+    {f:'Frase Inicio',   type:'textarea', full:true},
     {f:'Foto de portada',type:'attach',   full:true, img:true},
   ]},
   {title:'Precio', ico:'$', fields:[
@@ -2995,14 +2609,8 @@ const LANDING_FORM = [
     {f:'Moneda',        type:'select', opts:['MXN','USD']},
   ]},
   {title:'Plusvalía', ico:'↗', fields:[
-    {f:'Plusvalia Valor', label:'Plusvalía valor', type:'select', opts:['+6% anual','+7% anual','+8% anual','+9% anual','+10% anual','+11% anual','+12% anual']},
-    {f:'Plusvalia Texto', label:'Plusvalía texto', type:'select', full:true, opts:[
-      'Plusvalía anual estimada con base en comportamiento residencial comparable del mercado local.',
-      'Zona con crecimiento residencial sostenido, conectividad activa y demanda constante de vivienda.',
-      'Ubicación consolidada con alta demanda habitacional y conservación patrimonial superior al promedio.',
-      'Zona estratégica con servicios cercanos, movilidad activa y demanda residencial constante.',
-      'Propiedad ubicada en zona con desarrollo sostenido y potencial de conservación patrimonial.'
-    ]},
+    {f:'Plusvalia Valor', type:'text'},
+    {f:'Plusvalia Texto', type:'textarea', full:true},
   ]},
   {title:'Videos de la landing', ico:'▶', videos:[
     {room:'Sala',     yt:'Video Sala',         mp4:'Video Sala MP4'},
@@ -3013,8 +2621,8 @@ const LANDING_FORM = [
     {room:'Extra',    yt:'Nombre Video Extra', mp4:'Video Extra MP4', extra:true},
   ]},
   {title:'Datos de la casa', ico:'⌂', fields:[
-    {f:'Tipo de Propiedad', type:'select', opts:['Casa','Departamento','Terreno','Local comercial','Otro']},
-    {f:'Estado Propiedad',  type:'select', opts:['Activa','Apartada','Vendida','En pausa','Cancelada','Disponible']},
+    {f:'Tipo de Propiedad', type:'select', opts:['Casa','Departamento','Terreno','Local','Oficina','Bodega']},
+    {f:'Estado Propiedad',  type:'select', opts:['Disponible','Apartada','Vendida','En proceso','Suspendida']},
     {f:'Habitaciones',       type:'number'},
     {f:'Banos',              type:'number'},
     {f:'Medios Banos',       type:'number'},
@@ -3080,7 +2688,6 @@ async function uploadBlobFile(file, folio, doc){
 
 function _landInput(fl, rec){
   const name = fl.f;
-  const label = fl.label || name;
   let val = _fval(rec, name);
   const orig = val;
 
@@ -3093,7 +2700,7 @@ function _landInput(fl, rec){
       ? `<span class="le-vstatus on">Cargado${info.count>1?' ('+info.count+')':''}</span>`
       : `<span class="le-vstatus off">Vacío</span>`;
     return `<div class="form-group full">
-        <label class="form-label">${label}</label>
+        <label class="form-label">${name}</label>
         <div class="le-attach">${thumb}${status}</div>
         <div class="le-upload">
           <input class="form-inp" type="file" data-upload-attach="${_escAttr(name)}" data-upload-doc="${_escAttr(name)}" accept="image/*,video/mp4,video/quicktime,application/pdf">
@@ -3105,24 +2712,20 @@ function _landInput(fl, rec){
   }
   if(fl.type === 'select'){
     const os = (fl.opts||[]).map(o => `<option value="${_escAttr(o)}"${val===o?' selected':''}>${o}</option>`).join('');
-    /* Blindaje: valor de Airtable fuera de la lista local → opción inyectada
-       seleccionada, nunca "Sin selección" con dato real. */
-    const extra = (val && !(fl.opts||[]).includes(val))
-      ? `<option value="${_escAttr(val)}" selected>${_esc(val)}</option>` : '';
     return `<div class="form-group${fl.full?' full':''}">
-        <label class="form-label">${label}</label>
+        <label class="form-label">${name}</label>
         <select class="form-inp" data-field="${_escAttr(name)}" data-ftype="select" data-orig="${_escAttr(orig)}">
-          <option value="">— Sin selección</option>${extra}${os}</select></div>`;
+          <option value="">— Sin selección</option>${os}</select></div>`;
   }
   if(fl.type === 'textarea'){
     return `<div class="form-group${fl.full?' full':''}">
-        <label class="form-label">${label}</label>
+        <label class="form-label">${name}</label>
         <textarea class="form-inp" data-field="${_escAttr(name)}" data-ftype="text" data-orig="${_escAttr(orig)}" rows="2">${_esc(val)}</textarea></div>`;
   }
   const inType = fl.type === 'number' ? 'number' : 'text';
   const ft = fl.type === 'number' ? 'number' : 'text';
   return `<div class="form-group${fl.full?' full':''}">
-      <label class="form-label">${label}</label>
+      <label class="form-label">${name}</label>
       <input class="form-inp" type="${inType}" data-field="${_escAttr(name)}" data-ftype="${ft}" data-orig="${_escAttr(orig)}" value="${_escAttr(val)}"></div>`;
 }
 
@@ -3457,44 +3060,9 @@ function citaCloseAndClear(){
 }
 
 function citaOpenNew(){
-  /* FLUJO ÚNICO: el alta genérica de citas ya no existe (creaba citas sin
-     folio ni confirmación). Agendar = elegir el lead comprador; el
-     formulario llega pre-llenado y el folio lo asigna Make. */
   crmState.editId = null;
   crmState.isNew  = true;
-  document.getElementById('crm-cita-err').textContent = '';
-  document.getElementById('crm-cita-ver').style.display = 'none';
-  document.getElementById('crm-cita-body').innerHTML = `
-    <div class="cita-sec-title"><span>◈</span>¿Para qué lead es la visita?</div>
-    <div class="le-banner" style="margin-bottom:10px">Toda cita nace de un lead: así viaja su folio y la confirmación sale sola.</div>
-    <input class="form-inp" id="cita-lead-q" placeholder="Buscar por nombre, folio o propiedad…" oninput="citaLeadFilter()" style="margin-bottom:10px">
-    <div id="cita-lead-list"><div class="hoy-empty">Cargando leads…</div></div>`;
-  document.getElementById('crm-cita').style.display = 'flex';
-  asesorTabla('compradores')
-    .then(recs => { _citaLeadCache = recs || []; citaLeadRender(_citaLeadCache); })
-    .catch(e => { const el=document.getElementById('cita-lead-list'); if(el) el.innerHTML = `<div class="hoy-empty err">No se pudieron cargar los leads: ${_esc(e.message||'error')}</div>`; });
-}
-let _citaLeadCache = [];
-function citaLeadRender(recs){
-  const el = document.getElementById('cita-lead-list'); if(!el) return;
-  if(!recs.length){ el.innerHTML = '<div class="hoy-empty">No hay leads compradores en esta sesión.</div>'; return; }
-  el.innerHTML = recs.slice(0,40).map(r => {
-    const folio = _fval(r,'Folio del Comprador') || _fval(r,'Folio Propiedad NERI') || '';
-    return `<button class="cita-lead-row" onclick="citaLeadPick('${r.id}')">
-      <b>${_esc(_fval(r,'Nombre Completo') || 'Sin nombre')}</b>
-      <span>${_esc(folio || 'sin folio')} · ${_esc(_fval(r,'Propiedad de Interés') || 'sin propiedad')}</span>
-    </button>`;
-  }).join('');
-}
-function citaLeadFilter(){
-  const q = (document.getElementById('cita-lead-q')?.value || '').toLowerCase();
-  citaLeadRender(_citaLeadCache.filter(r =>
-    [_fval(r,'Nombre Completo'), _fval(r,'Folio del Comprador'), _fval(r,'Folio Propiedad NERI'), _fval(r,'Propiedad de Interés')]
-      .join(' ').toLowerCase().includes(q)));
-}
-function citaLeadPick(id){
-  const rec = _citaLeadCache.find(r => r.id === id) || crmState.records.find(r => r.id === id);
-  if(rec) agendarCitaDesdeLead(rec);
+  crmBuildModal('NUEVA CITA', CRM_CFG['citas'].editable, {});
 }
 
 /* ─── BUILD MODAL HTML ─────────────────────────────── */
@@ -3514,28 +3082,9 @@ function crmBuildModal(title, editable, values){
     if(type === 'select'){
       const os = (opts||[]).map(o =>
         `<option value="${_escAttr(o)}"${val===o?' selected':''}>${_esc(o)}</option>`).join('');
-      /* Blindaje: si Airtable trae un valor fuera de la lista local, se inyecta
-         como opción seleccionada. El select nunca muestra "Sin selección"
-         cuando el dato sí existe, y guardar no borra el valor real. */
-      const extra = (val && !(opts||[]).includes(val))
-        ? `<option value="${_escAttr(val)}" selected>${_esc(val)}</option>` : '';
       return `<div class="form-group">
         <label class="form-label">${_esc(f)}</label>
-        <select class="form-inp" data-field="${fieldAttr}" data-ftype="select" data-orig="${valueAttr}"><option value="">— Sin selección</option>${extra}${os}</select></div>`;
-    }
-    if(type === 'date'){
-      // Normaliza lo que haya escrito antes ("12 mayo", "12/05") a YYYY-MM-DD;
-      // si no se puede interpretar, el input inicia vacío. El date input
-      // garantiza formato consistente para _daysSince() (zona "Dormido").
-      let dVal = '';
-      if(val){
-        const d = new Date(val);
-        if(!isNaN(d)) dVal = d.toISOString().slice(0,10);
-        else if(/^\d{4}-\d{2}-\d{2}/.test(val)) dVal = val.slice(0,10);
-      }
-      return `<div class="form-group">
-        <label class="form-label">${_esc(f)}</label>
-        <input class="form-inp" type="date" data-field="${fieldAttr}" data-orig="${valueAttr}" value="${_escAttr(dVal)}"></div>`;
+        <select class="form-inp" data-field="${fieldAttr}" data-ftype="select" data-orig="${valueAttr}"><option value="">— Sin selección</option>${os}</select></div>`;
     }
     if(type === 'textarea'){
       return `<div class="form-group full">
@@ -3829,7 +3378,6 @@ function loadIframe(id, url){
       whatsapp: SESSION.whatsapp || '',
       firma:    (SESSION.nombre||'') + ' · ' + (SESSION.empresa||''),
       pixel:    SESSION.pixel || '',
-      frase:    SESSION.frase || '',
       origen: 'intranet-metodo-neri' // Webhooks Make NO se exponen en frontend
     });
     fullUrl = url + '?' + params.toString();
@@ -3862,180 +3410,10 @@ function openExternal(id){
 /* ═══════════════════════════════════════════════════
    NAVEGACIÓN
 ═══════════════════════════════════════════════════ */
-/* ═══════════════════════════════════════════════════
-   MAPA MAESTRO DE COMPRAVENTA · paso a paso oficial
-   Fuente canónica: Mapa Maestro de Compraventa (Método NERI).
-   Cada operación real se proyecta sobre las 16 etapas.
-   La etapa actual se deriva de EVIDENCIA en Airtable,
-   nunca de captura manual. Regla: ninguna etapa se brinca.
-═══════════════════════════════════════════════════ */
-const ETAPAS_MAESTRO = [
-  {n:1,  t:'Captación del vendedor',        obj:'Saber si la propiedad se puede trabajar y si el vendedor es viable.', resp:'Asesor', tiempo:'1–3 días', salida:'Vendedor validado · propiedad candidata · se decide tipo de firma.', clave:'INE, CURP, RFC, escritura, predial, agua, precio esperado, adeudos. Bloqueos: sin escritura, intestada, copropietarios, crédito vigente, precio fuera de mercado.'},
-  {n:2,  t:'Validación · firma',            obj:'Formalizar el acuerdo de trabajo con el propietario.', resp:'Asesor + vendedor', tiempo:'1–3 días', salida:'Firma exclusiva o firma de venta directa registrada en el sistema.', clave:'Conversión del lead a Firma exclusiva / Firma venta directa. Sin firma no hay operación.'},
-  {n:3,  t:'Expediente de la propiedad',    obj:'Saber si la casa se puede vender legal y comercialmente.', resp:'Asesor + vendedor · revisión Notaría', tiempo:'3–10 días (con problemas: 15–45+)', salida:'Expediente legal listo · propiedad publicable · riesgos detectados antes de llevar comprador.', clave:'Escritura inscrita, no adeudo predial/agua, plano catastral, libertad de gravamen, régimen de condominio, carta saldo si hay crédito. El portal documental del propietario controla los 8 documentos.'},
-  {n:4,  t:'Publicación y promoción',       obj:'Sacar la propiedad al mercado con datos correctos.', resp:'Asesor', tiempo:'1–3 días para publicar · 7–60 días comerciales', salida:'Propiedad visible · leads de compradores entrando · registro de interesados.', clave:'Fotos, video, precio, ficha técnica, landing de propiedad, guiones de WhatsApp y llamada.'},
-  {n:5,  t:'Lead comprador',                obj:'Identificar si el interesado puede comprar o solo está curioseando.', resp:'Asesor', tiempo:'Mismo día a 2 días', salida:'Comprador calificado · se decide visita o diagnóstico financiero primero.', clave:'Nombre, WhatsApp, presupuesto, forma de pago, tiempo para comprar, si tiene crédito Infonavit / bancario / recurso propio. Clasificación HOT · WARM · COLD.'},
-  {n:6,  t:'Calificación del comprador',    obj:'No llevar visitas sin saber si puede comprar.', resp:'Asesor · apoyo broker / banco / Infonavit', tiempo:'Recurso propio 1–3 d · Infonavit 1–7 d · bancario 3–10 d', salida:'Comprador viable · monto confirmado · forma de pago definida.', clave:'Identificación, comprobante de fondos o precalificación según forma de pago.'},
-  {n:7,  t:'Cita / visita a la propiedad',  obj:'Confirmar interés real.', resp:'Asesor', tiempo:'1–5 días desde comprador viable', salida:'Interesado · descartado · segunda visita · oferta.', clave:'Antes: confirmar horario, asistentes, forma de pago, avisar al propietario, llaves. Después: registrar reacción, objeciones y siguiente acción en <24 h.'},
-  {n:8,  t:'Oferta / negociación',          obj:'Cerrar condiciones claras antes del apartado.', resp:'Asesor', tiempo:'1–5 días', salida:'Oferta aceptada · rechazada · contraoferta · autorización de apartado.', clave:'Precio final, monto de apartado, fecha límite de firma, qué se incluye, penalizaciones, quién paga avalúo / notaría / adeudos, comisión.'},
-  {n:9,  t:'Apartado',                      obj:'Sacar la propiedad del mercado bajo condiciones firmadas.', resp:'Asesor + comprador + vendedor', tiempo:'1–3 días', salida:'Propiedad apartada · comprador comprometido · expediente avanza a crédito / notaría.', clave:'Contrato o recibo de apartado, identificaciones, comprobante de pago, condiciones acordadas, política de devolución.'},
-  {n:10, t:'Expedientes finales',           obj:'Entregar a notaría / institución todo lo que acredita que se puede vender y comprar.', resp:'Vendedor y comprador · control Asesor · validación Notaría', tiempo:'Vendedor 3–10 d · comprador 2–30 d según forma de pago', salida:'Ambas partes listas para escriturar · cálculo fiscal preliminar.', clave:'Vendedor: identidad, fiscal/ISR, CLABE, cónyuge si aplica. Comprador: identidad, domicilio, datos de crédito si aplica.'},
-  {n:11, t:'Crédito / recurso / avalúo',    obj:'Confirmar que el dinero puede llegar a la operación.', resp:'Comprador + banco / Infonavit / notaría según forma de pago', tiempo:'Recurso propio 3–10 d · Infonavit 15–30 d · bancario 20–45 d · avalúo 5–10 d', salida:'Crédito autorizado · instrucción enviada a notaría · fecha tentativa de firma.', clave:'Bloqueos: avalúo bajo, propiedad no cumple, comprador no alcanza, gravamen, diferencias escritura–catastro–realidad.'},
-  {n:12, t:'Notaría',                       obj:'Dar seguridad jurídica y preparar la escritura.', resp:'Notaría · acompaña Asesor', tiempo:'7–20 días con expediente completo', salida:'Proyecto de escritura listo · impuestos calculados · fecha de firma programada.', clave:'Revisión de identidad, capacidad legal, gravámenes, adeudos, régimen matrimonial, avisos preventivos, cálculo de ISR e ISABI.'},
-  {n:13, t:'ISABI / certificados / impuestos', obj:'Pagar el impuesto municipal y cerrar certificados.', resp:'Comprador · gestor notarial · Catastro', tiempo:'Preparación 2–7 días + plazos del municipio', salida:'ISABI pagado · cambio de propietario en trámite · listo para firma.', clave:'Declaración ISABI, copia certificada de escritura, no adeudo predial y agua, plano catastral, avalúo por perito inscrito.'},
-  {n:14, t:'Firma de escritura',            obj:'Formalizar legalmente la compraventa.', resp:'Notaría · participan todas las partes', tiempo:'1 día', salida:'Escritura firmada · pago ejecutado o programado · entrega definida.', clave:'Identificaciones vigentes, proyecto revisado, dispersión confirmada, impuestos calculados, condiciones de entrega confirmadas.'},
-  {n:15, t:'Pago y entrega',                obj:'Entregar posesión física y cerrar la experiencia del cliente.', resp:'Asesor + vendedor + comprador', tiempo:'Recurso propio: 24–72 h post pago · crédito: según dispersión', salida:'Comprador recibe posesión · vendedor entrega · operación comercial cerrada.', clave:'Llaves, controles, recibos de servicios, lectura de medidores, acta de entrega-recepción, fotos de entrega, cambio de titularidad de servicios.'},
-  {n:16, t:'Inscripción / postcierre',      obj:'Confirmar que todo quedó cerrado y documentado.', resp:'Asesor + notaría', tiempo:'30–90 días según Registro', salida:'Operación cerrada · expediente completo · cliente listo para referidos.', clave:'Testimonio inscrito, comprobante de inscripción, cierre de comisión, factura de honorarios, encuesta y seguimiento postventa.'},
-];
-
-/* Fase Actual (Progreso) → etapa del Mapa Maestro en la que ESTÁ la operación */
-const MAPA_FASE_ETAPA = {
-  'Apartado':10, 'Revisión de compra':10, 'Expediente':10, 'Preparando documentos':10,
-  'Acuerdo de compra':11, 'Revisión en notaría':12, 'Últimas confirmaciones':13,
-  'Día de firma':14, 'Entrega de llaves':15, 'Postcierre':16,
-};
-
-let _mapaLoaded=false, _mapaOpSel=null;
-
-function buildMapaPanel(){
-  return `<div class="panel" id="panel-mapa">
-    <style id="mapa-css">
-      #panel-mapa .mapa-body{max-width:980px;margin:0 auto;padding:28px 18px 60px}
-      #panel-mapa .mapa-eyebrow{font-size:10px;letter-spacing:2.2px;text-transform:uppercase;color:var(--gold,#C6A86B);font-weight:900}
-      #panel-mapa .mapa-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(30px,5vw,46px);line-height:.96;color:var(--white,#fff);margin:8px 0 4px}
-      #panel-mapa .mapa-title em{font-style:normal;color:var(--gold,#C6A86B)}
-      #panel-mapa .mapa-regla{font-family:'Cormorant Garamond',serif;font-size:16px;color:rgba(255,255,255,.55);font-style:italic;margin:10px 0 22px;border-left:2px solid var(--gold,#C6A86B);padding-left:12px;line-height:1.5}
-      #panel-mapa .mapa-ops{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:26px}
-      #panel-mapa .mapa-op{border:1px solid rgba(198,168,107,.35);background:transparent;color:rgba(255,255,255,.7);font-size:11px;letter-spacing:.6px;padding:8px 14px;border-radius:2px;cursor:pointer;font-family:Montserrat,sans-serif}
-      #panel-mapa .mapa-op.on{background:var(--gold,#C6A86B);color:#0A0A0A;font-weight:700;border-color:var(--gold,#C6A86B)}
-      #panel-mapa .mapa-chain{position:relative;padding-left:34px}
-      #panel-mapa .mapa-chain::before{content:'';position:absolute;left:11px;top:14px;bottom:14px;width:1px;background:rgba(198,168,107,.25)}
-      #panel-mapa .mapa-step{position:relative;margin-bottom:10px;border:1px solid rgba(255,255,255,.08);border-radius:3px;background:rgba(255,255,255,.02)}
-      #panel-mapa .mapa-step .dot{position:absolute;left:-29px;top:16px;width:13px;height:13px;border-radius:50%;border:2px solid rgba(255,255,255,.22);background:#0A0A0A}
-      #panel-mapa .mapa-step.done .dot{background:var(--gold,#C6A86B);border-color:var(--gold,#C6A86B)}
-      #panel-mapa .mapa-step.cur .dot{border-color:var(--gold,#C6A86B);background:#0A0A0A;box-shadow:0 0 0 3px rgba(198,168,107,.18)}
-      #panel-mapa .mapa-step.cur{border-color:rgba(198,168,107,.55)}
-      #panel-mapa .mapa-step-h{display:flex;align-items:center;gap:12px;padding:13px 16px;cursor:pointer;user-select:none}
-      #panel-mapa .mapa-num{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,.35);min-width:22px}
-      #panel-mapa .mapa-step.done .mapa-num,#panel-mapa .mapa-step.cur .mapa-num{color:var(--gold,#C6A86B)}
-      #panel-mapa .mapa-t{flex:1;font-size:13px;letter-spacing:.4px;color:var(--white,#fff);font-weight:600}
-      #panel-mapa .mapa-step.off .mapa-t{color:rgba(255,255,255,.45);font-weight:400}
-      #panel-mapa .mapa-st{font-size:9px;letter-spacing:1.4px;text-transform:uppercase;font-weight:800}
-      #panel-mapa .mapa-st.done{color:var(--gold,#C6A86B)}
-      #panel-mapa .mapa-st.cur{color:#fff;background:var(--gold,#C6A86B);color:#0A0A0A;padding:3px 8px;border-radius:2px}
-      #panel-mapa .mapa-st.off{color:rgba(255,255,255,.25)}
-      #panel-mapa .mapa-det{display:none;padding:0 16px 16px 50px;font-size:12px;line-height:1.7;color:rgba(255,255,255,.65)}
-      #panel-mapa .mapa-step.open .mapa-det{display:block}
-      #panel-mapa .mapa-det b{color:var(--gold,#C6A86B);font-weight:700}
-      #panel-mapa .mapa-det .row{margin-bottom:6px}
-      #panel-mapa .mapa-foot{margin-top:26px;font-size:11px;color:rgba(255,255,255,.4);line-height:1.7;border-top:1px solid rgba(255,255,255,.08);padding-top:16px}
-    </style>
-    <div class="mapa-body">
-      <div class="mapa-eyebrow">Proceso oficial · Método NERI</div>
-      <div class="mapa-title">MAPA MAESTRO <em>DE COMPRAVENTA</em></div>
-      <div class="mapa-regla">Una operación no debe avanzar por emoción. Debe avanzar por evidencia.<br>Si falta documento, no está listo. Si falta responsable, se pierde. Si falta fecha, se enfría.</div>
-      <div class="mapa-ops" id="mapa-ops"><div class="hoy-empty">Cargando operaciones reales…</div></div>
-      <div class="mapa-chain" id="mapa-chain"></div>
-      <div class="mapa-foot">Ninguna etapa se brinca. La etapa actual se deriva de la evidencia registrada en el sistema (firma, expediente, publicación, citas, apartado y fase del portal) — no de captura manual. Toca cualquier etapa para ver objetivo, responsable, tiempo estimado, salida esperada y claves del trámite.</div>
-    </div>
-  </div>`;
-}
-
-/* Deriva la etapa actual (1–16) de una operación a partir de evidencia */
-function mapaEtapaDe(prop, vendedores, progreso, citas){
-  const folioOp  = _fval(prop,'Folio NERI');
-  const folioVen = _fval(prop,'Folio Vendedor');
-  const nombre   = _fval(prop,'Nombre Propiedad');
-  const lead = folioVen ? (vendedores||[]).find(r=>_fval(r,'Folio')===folioVen) : null;
-  const prog = (progreso||[]).find(r=>_fval(r,'Folio')===folioOp || _fval(r,'Folio')===_fval(prop,'Folio Portal Progreso'));
-  const citasOp = (citas||[]).filter(c=>{
-    const p=_fval(c,'Propiedad')||_fval(c,'Propiedad de Interés')||'';
-    return (nombre && p && p.toLowerCase().includes(nombre.toLowerCase().slice(0,18))) || _fval(c,'Folio Propiedad')===folioOp;
-  });
-  let cur = 1;                                              // hay lead/propiedad: captación
-  const conv = lead ? _fval(lead,'Conversión') : '';
-  if(lead && conv && conv!=='En seguimiento' && conv!=='No calificó') cur = 3;   // firmado → expediente propiedad
-  if(!lead) cur = Math.max(cur, 3);                         // propiedad sin lead ligado: ya pasó captación
-  const expTxt = lead ? _fval(lead,'Progreso Expediente') : '';
-  const expM = expTxt.match(/(\d+)\s*\/\s*8/);
-  if(expM && Number(expM[1])>=8) cur = Math.max(cur, 4);    // 8/8 → publicación
-  const etCom = _fval(prop,'Etapa Comercializacion');
-  if(/Publicación activa|En comercialización/i.test(etCom)) cur = Math.max(cur, 5); // publicada → lead comprador
-  const nLeads = Number(_fval(prop,'Contador Leads'))||0;
-  if(nLeads>0) cur = Math.max(cur, 6);                      // hay interesados → calificación
-  if(citasOp.length) cur = Math.max(cur, 7);                // hay cita → visita
-  if(citasOp.some(c=>_fval(c,'Estado Cita')==='Realizada')) cur = Math.max(cur, 8); // visita hecha → oferta
-  const estado = _fval(prop,'Estado Propiedad');
-  if(estado==='Apartada' || prog) cur = Math.max(cur, 9);   // apartado
-  if(prog){
-    const fase = _fval(prog,'Fase Actual');
-    cur = Math.max(cur, MAPA_FASE_ETAPA[fase]||10);
-  }
-  if(estado==='Vendida') cur = Math.max(cur, 16);
-  return { cur, lead, prog, citas:citasOp.length, conv, fase: prog?_fval(prog,'Fase Actual'):'', expTxt };
-}
-
-async function mapaLoad(force=false){
-  if(_mapaLoaded && !force) return; _mapaLoaded = true;
-  const opsEl=document.getElementById('mapa-ops'), chEl=document.getElementById('mapa-chain');
-  if(!opsEl||!chEl) return;
-  try{
-    const data = await asesorLoadAll(force);
-    const props = data.propiedades||[];
-    if(!props.length){
-      opsEl.innerHTML = '<div class="hoy-empty">Aún no hay operaciones reales. El mapa se muestra como referencia oficial del proceso.</div>';
-      mapaRender(null, data);
-      return;
-    }
-    if(!_mapaOpSel || !props.find(p=>p.id===_mapaOpSel)) _mapaOpSel = props[0].id;
-    opsEl.innerHTML = props.map(p=>{
-      const n=_fval(p,'Nombre Propiedad')||_fval(p,'Folio NERI')||'Sin nombre';
-      return `<button class="mapa-op${p.id===_mapaOpSel?' on':''}" onclick="mapaPick('${p.id}')">${_esc(n)}</button>`;
-    }).join('');
-    mapaRender(props.find(p=>p.id===_mapaOpSel), data);
-  }catch(e){
-    opsEl.innerHTML = `<div class="hoy-empty err">No se pudo cargar el mapa: ${_esc(e.message)}</div>`;
-  }
-}
-function mapaPick(id){
-  _mapaOpSel = id;
-  document.querySelectorAll('#mapa-ops .mapa-op').forEach(b=>b.classList.remove('on'));
-  if(window.event && window.event.target) window.event.target.classList.add('on');
-  const d = asesorCache;
-  if(d && d._loaded){
-    const p=(d.propiedades||[]).find(x=>x.id===id);
-    if(p) mapaRender(p, d);
-  } else { _mapaLoaded=false; mapaLoad(true); }
-}
-function mapaToggle(el){ el.closest('.mapa-step').classList.toggle('open'); }
-
-function mapaRender(prop, data){
-  const chEl=document.getElementById('mapa-chain'); if(!chEl) return;
-  const info = prop ? mapaEtapaDe(prop, data.vendedores, data.progreso, data.citas) : { cur:0 };
-  chEl.innerHTML = ETAPAS_MAESTRO.map(e=>{
-    const cls = !prop ? 'off' : (e.n<info.cur ? 'done' : (e.n===info.cur ? 'cur' : 'off'));
-    const st  = !prop ? '' : (e.n<info.cur ? '<span class="mapa-st done">Completo</span>' : (e.n===info.cur ? '<span class="mapa-st cur">Etapa actual</span>' : '<span class="mapa-st off">No iniciado</span>'));
-    return `<div class="mapa-step ${cls}${e.n===info.cur?' open':''}">
-      <span class="dot"></span>
-      <div class="mapa-step-h" onclick="mapaToggle(this)">
-        <span class="mapa-num">${String(e.n).padStart(2,'0')}</span>
-        <span class="mapa-t">${_esc(e.t)}</span>${st}
-      </div>
-      <div class="mapa-det">
-        <div class="row"><b>Objetivo:</b> ${_esc(e.obj)}</div>
-        <div class="row"><b>Responsable:</b> ${_esc(e.resp)} · <b>Tiempo:</b> ${_esc(e.tiempo)}</div>
-        <div class="row"><b>Salida esperada:</b> ${_esc(e.salida)}</div>
-        <div class="row"><b>Claves:</b> ${_esc(e.clave)}</div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
 const LABELS = {
   hoy:'Inicio',
   administracion:'Control de Mando',
   airtable:'Centro de Operaciones',
-  mapa:'Mapa Maestro de Compraventa',
   expedientes:'Expedientes',
   sala:'Sala de Mensajes',
   compradores:'Landing Compradores',
@@ -4208,7 +3586,7 @@ async function adminLoad(force=false){
   if(adminState.loaded && !force){ adminRender(); return; }
   adminState.loading = true; adminState.error = ''; adminRender();
   try{
-    const data = await atFetch(`${ADMIN_ASESORES_TABLE}?maxRecords=200`);
+    const data = await atFetch(`${ADMIN_ASESORES_TABLE}?maxRecords=100`);
     adminState.records = data.records || [];
     adminState.loaded = true;
   }catch(e){ adminState.error = e.message || String(e); }
@@ -4489,24 +3867,11 @@ function asesorNombre(rec){ return _fval(rec,'Nombre Completo') || _fval(rec,'Co
 function asesorMensaje(rec){ return _fval(rec,'Mensaje sugerido') || _fval(rec,'Siguiente jugada') || _fval(rec,'Próximo paso') || 'Dar seguimiento con claridad y registrar la siguiente acción.'; }
 async function asesorLoadAll(force=false){
   if(!force && asesorCache._loaded) return asesorCache;
-  if(force) _asesorTblProm = {};
-  const keys = ['compradores','vendedores','progreso','citas','propiedades'];
-  // allSettled: si UNA tabla falla, las demás zonas siguen vivas con sus datos.
-  const res = await Promise.allSettled(keys.map(k => asesorTabla(k)));
-  keys.forEach((k,i)=>{ asesorCache[k] = res[i].status==='fulfilled' ? res[i].value : []; });
-  asesorCache._fallas = keys.filter((k,i)=> res[i].status!=='fulfilled');
-  asesorCache._loaded = true;
+  const [compradores, vendedores, progreso, citas, propiedades] = await Promise.all([
+    atFetch(`${CRM_CFG.compradores.tableId}?maxRecords=100`), atFetch(`${CRM_CFG.vendedores.tableId}?maxRecords=100`), atFetch(`${CRM_CFG.progreso.tableId}?maxRecords=100`), atFetch(`${CRM_CFG.citas.tableId}?maxRecords=100`), atFetch(`${CRM_CFG.propiedades.tableId}?maxRecords=100`)
+  ]);
+  asesorCache = { compradores:compradores.records||[], vendedores:vendedores.records||[], progreso:progreso.records||[], citas:citas.records||[], propiedades:propiedades.records||[], _loaded:true };
   return asesorCache;
-}
-/* Una promesa por tabla, compartida entre zonas: 5 requests máximo,
-   cada zona del dashboard se pinta en cuanto SUS tablas resuelven. */
-let _asesorTblProm = {};
-function asesorTabla(key){
-  if(!_asesorTblProm[key]){
-    _asesorTblProm[key] = atFetch(`${CRM_CFG[key].tableId}?maxRecords=200`).then(d => d.records || []);
-    _asesorTblProm[key].catch(()=>{ delete _asesorTblProm[key]; }); // permite reintentar
-  }
-  return _asesorTblProm[key];
 }
 function buildAsesorHoyPanel(){
   const s=SESSION||{}, link=asesorLinkCaptacion();
@@ -4514,34 +3879,18 @@ function buildAsesorHoyPanel(){
 }
 async function asesorLoadHoy(force=false){
   if(_asesorHoyLoaded && !force) return; _asesorHoyLoaded=true;
-  if(force){ _asesorTblProm = {}; asesorCache._loaded = false; }
   const list=document.getElementById('asesor-hoy-list'), zonas=document.getElementById('asesor-zonas'), kpis=document.getElementById('asesor-money-kpis');
-  const zErr = (el,msg)=>{ if(el) el.innerHTML = `<div class="hoy-empty err">${asesorEsc(msg)}</div>`; };
-
-  /* ZONA 1 · KPIs + zonas de dinero — necesita compradores, progreso y citas.
-     Se pinta en cuanto ESAS tres resuelven, sin esperar vendedores/propiedades. */
-  Promise.all([asesorTabla('compradores'), asesorTabla('progreso'), asesorTabla('citas')]).then(([comp,prog,citas])=>{
+  try{ const data=await asesorLoadAll(force); const comp=data.compradores, vend=data.vendedores, prog=data.progreso, citas=data.citas;
     const dormidos=comp.filter(r=>{const d=asesorDays(_fval(r,'Última interacción')); return d!=null&&d>=7&&!/apartado|cerrado|perdido|no calific/i.test(asesorStatus(r));});
     const cerca=comp.filter(r=>/HOT|Cita|Apartado|Listo/i.test([asesorStatus(r),_fval(r,'Diagnóstico comercial'),_fval(r,'Conversión')].join(' '))).concat(prog.filter(r=>/Firma|Entrega|Últimas|Notaría|Escrituración/i.test(_fval(r,'Fase Actual')+' '+_fval(r,'Próximo paso'))));
     const riesgo=prog.filter(r=>/riesgo|pendiente|falta|atorad|detenid|document/i.test((_fval(r,'Pendientes visibles')+' '+_fval(r,'Próximo paso')).toLowerCase())).concat(comp.filter(r=>/riesgo|no entiende|banco|crédito|credito|gastos|document/i.test((_fval(r,'Riesgo principal')+' '+_fval(r,'Diagnóstico comercial')).toLowerCase())));
     const dineroRiesgo=riesgo.reduce((a,r)=>a+asesorMoney(_fval(r,'Precio')||_fval(r,'Precio Lista')||_fval(r,'Precio Estimado')),0);
     if(kpis) kpis.innerHTML=[[riesgo.length,'operaciones / leads en riesgo'],[cerca.length,'oportunidades cerca'],[dormidos.length,'leads dormidos'],[citas.filter(r=>['Pendiente','Confirmada','Reagendada'].includes(_fval(r,'Estado Cita'))).length,'citas activas']].map(x=>`<div class="asesor-kpi"><b>${x[0]}</b><span>${x[1]}</span></div>`).join('');
     if(zonas) zonas.innerHTML=[['Dinero en riesgo',dineroRiesgo?`${asesorFmtMoney(dineroRiesgo)} requiere acción`:`${riesgo.length} registros con riesgo`,riesgo[0]?asesorMensaje(riesgo[0]):'Sin riesgos detectados en registros reales.','airtable'],['Dinero cerca',`${cerca.length} oportunidades para avanzar`,cerca[0]?asesorMensaje(cerca[0]):'Sin oportunidades listas detectadas.','airtable'],['Dinero dormido',`${dormidos.length} leads se enfrían`,dormidos[0]?`${asesorNombre(dormidos[0])}: ${asesorMensaje(dormidos[0])}`:'Sin leads dormidos detectados.','airtable']].map(z=>`<button class="asesor-action" onclick="goTo('${z[3]}')"><div><span class="tag">${asesorEsc(z[0])}</span><b>${asesorEsc(z[1])}</b><p>${asesorEsc(z[2])}</p></div><span class="go">Resolver ahora →</span></button>`).join('');
-  }).catch(e=>{ zErr(kpis,'No se pudieron cargar los KPIs: '+(e&&e.message||'error')); zErr(zonas,'No se pudieron cargar las zonas de dinero.'); });
-
-  /* ZONA 2 · Qué hacer hoy — necesita además vendedores. Independiente de citas:
-     si citas falla, esta lista se pinta igual. */
-  Promise.all([asesorTabla('compradores'), asesorTabla('vendedores'), asesorTabla('progreso')]).then(([comp,vend,prog])=>{
-    const dormidos=comp.filter(r=>{const d=asesorDays(_fval(r,'Última interacción')); return d!=null&&d>=7&&!/apartado|cerrado|perdido|no calific/i.test(asesorStatus(r));});
-    const cerca=comp.filter(r=>/HOT|Cita|Apartado|Listo/i.test([asesorStatus(r),_fval(r,'Diagnóstico comercial'),_fval(r,'Conversión')].join(' '))).concat(prog.filter(r=>/Firma|Entrega|Últimas|Notaría|Escrituración/i.test(_fval(r,'Fase Actual')+' '+_fval(r,'Próximo paso'))));
-    const riesgo=prog.filter(r=>/riesgo|pendiente|falta|atorad|detenid|document/i.test((_fval(r,'Pendientes visibles')+' '+_fval(r,'Próximo paso')).toLowerCase())).concat(comp.filter(r=>/riesgo|no entiende|banco|crédito|credito|gastos|document/i.test((_fval(r,'Riesgo principal')+' '+_fval(r,'Diagnóstico comercial')).toLowerCase())));
     const acciones=[]; const firstRisk=riesgo[0], firstDormido=dormidos[0], firstCerca=cerca[0], docPend=prog.find(r=>_fval(r,'Pendientes visibles'))||vend.find(r=>_fval(r,'Documentos'));
     if(firstRisk) acciones.push(['Qué operación está en riesgo',asesorNombre(firstRisk),asesorMensaje(firstRisk),firstRisk]); if(firstCerca) acciones.push(['A quién contactar',asesorNombre(firstCerca),asesorMensaje(firstCerca),firstCerca]); if(firstDormido) acciones.push(['Qué lead se está enfriando',asesorNombre(firstDormido),`${asesorDays(_fval(firstDormido,'Última interacción'))} días sin contacto · ${asesorMensaje(firstDormido)}`,firstDormido]); if(docPend) acciones.push(['Qué documento falta',asesorNombre(docPend),_fval(docPend,'Pendientes visibles')||_fval(docPend,'Documentos'),docPend]); if(!acciones.length&&(comp.length||vend.length||prog.length)) acciones.push(['Qué hacer hoy','Revisar Centro de Operaciones','Hay registros reales, pero todavía no tienen riesgo/siguiente jugada/documento capturado.',comp[0]||vend[0]||prog[0]]);
     if(list) list.innerHTML=acciones.length?acciones.map(([tag,nombre,txt,rec])=>{const phone=_fval(rec,'Teléfono WhatsApp')||_fval(rec,'WhatsApp Asesor'); const msg=asesorMensaje(rec); const wa=phone?`<a class="asesor-pill gold" href="${asesorWa(phone,msg)}" target="_blank" rel="noopener">Mensaje sugerido</a>`:''; return `<div class="asesor-row" style="cursor:pointer" onclick="openExpedienteById('${rec.id}')"><div><b>${asesorEsc(nombre)}</b><p>${asesorEsc(tag)} · ${asesorEsc(txt)}</p></div><div class="meta"><span class="asesor-pill">${asesorEsc(asesorStatus(rec))}</span>${wa}</div></div>`;}).join(''):'<div class="hoy-empty">No hay registros reales para construir tu cabina de hoy.</div>';
-  }).catch(e=>{ zErr(list,'No se pudo cargar la cabina: '+(e&&e.message||'error')); });
-
-  /* Cache de fondo para los demás consumidores (documentos, expedientes). */
-  asesorLoadAll(false).catch(()=>{});
+  }catch(e){ if(list) list.innerHTML=`<div class="hoy-empty err">No se pudo cargar la cabina: ${asesorEsc(e.message)}</div>`; if(zonas) zonas.innerHTML='<div class="hoy-empty err">Sin datos.</div>'; }
 }
 
 
@@ -4664,7 +4013,7 @@ function perfilRenderCard(rec){
           <div class="perfil-closed-name">${_esc(nombre)}</div>
           <div class="perfil-closed-role">${_esc(puesto)} · ${_esc(ciudad)} · ${_esc(tipoReal)}</div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:13px">
-            ${whatsapp ? `<a class="fv-wa-btn" href="${asesorWa(whatsapp, 'Hola, te comparto mi link de captación Método NERI:\n' + (link || '')) }" target="_blank" rel="noopener">↗ WhatsApp</a>` : '<span class="asesor-pill">Sin WhatsApp</span>'}
+            ${whatsapp ? `<a class="fv-wa-btn" href="${asesorWa(whatsapp, 'Hola, te comparto mi link de captación Método NERI.') }" target="_blank" rel="noopener">↗ WhatsApp</a>` : '<span class="asesor-pill">Sin WhatsApp</span>'}
             <span class="asesor-pill">${_esc(estadoReal)}</span>
           </div>
         </div>
@@ -4756,7 +4105,7 @@ function perfilRenderForm(rec){
           <div class="fv-nombre">${_esc(nombre)}</div>
           <div class="fv-wa">
             ${whatsapp ? `<span>${_esc(whatsapp)}</span>` : '<span style="color:var(--w30);font-size:11px">Sin WhatsApp</span>'}
-            ${whatsapp ? `<a class="fv-wa-btn" href="${asesorWa(whatsapp, 'Hola, te comparto mi link de captación Método NERI:\n' + (link || '')) }" target="_blank" rel="noopener">↗ WhatsApp</a>` : ''}
+            ${whatsapp ? `<a class="fv-wa-btn" href="${asesorWa(whatsapp, 'Hola, te comparto mi link de captación Método NERI.') }" target="_blank" rel="noopener">↗ WhatsApp</a>` : ''}
           </div>
           <div class="fv-meta">
             <div class="fv-meta-chip">Cuenta <em>${_esc(cuenta)}</em></div>
@@ -4870,7 +4219,6 @@ async function perfilSave(){
     if(fields['Nombre'])            SESSION.nombre   = fields['Nombre'];
     if(fields['Teléfono WhatsApp']) SESSION.whatsapp = String(fields['Teléfono WhatsApp']).replace(/\D/g,'');
     if(fields['Pixel ID Meta'])     SESSION.pixel    = fields['Pixel ID Meta'];
-    if(fields['Frase'])             SESSION.frase    = fields['Frase'];
     if(typeof refreshChrome === 'function') refreshChrome();
     showToast('✓ Perfil actualizado');
     perfilState.editMode = false;
@@ -4884,198 +4232,8 @@ async function perfilSave(){
 
 function buildAsesorPropiedadesPanel(){ return `<div class="panel" id="panel-propiedades_asesor"><div class="asesor-body asesor-perfil-page"><div class="fv-box perfil-fv-box"><div class="fv-header"><div><div class="fv-nombre">MIS PROPIEDADES</div><div class="fv-wa"><span>Operaciones vivas · folio · siguiente pendiente</span></div></div><div><div class="fv-folio-lbl">Vista asesor</div><div class="fv-folio">PROPIEDADES</div></div></div><div class="fv-body perfil-fv-body"><div class="fv-sec"><div class="fv-sec-title"><em>⌂</em> Propiedades activas</div><div class="fv-grid" id="asesor-propiedades-list"><div class="hoy-empty">Cargando propiedades reales…</div></div></div><div class="fv-sec"><div class="le-banner">Esta vista debe decirle al asesor qué propiedad mover y qué pendiente resolver. La tabla es secundaria; el expediente vivo es la experiencia principal.</div></div></div></div></div></div>`; }
 async function asesorLoadPropiedades(force=false){ if(_asesorPropsLoaded&&!force) return; _asesorPropsLoaded=true; const el=document.getElementById('asesor-propiedades-list'); if(!el)return; try{ const data=await asesorLoadAll(force); const props=data.propiedades||[]; el.innerHTML=props.length?props.map(p=>`<div class="fv-row full"><div class="fv-row-k">${asesorEsc(_fval(p,'Estado Propiedad')||'Propiedad')}</div><div class="fv-row-v"><strong style="color:var(--white)">${asesorEsc(_fval(p,'Nombre Propiedad')||'Sin nombre')}</strong><br><span style="color:var(--gold);font-family:var(--mono);font-size:11px">${asesorEsc(_fval(p,'Folio NERI')||_fval(p,'Folio Vendedor')||'— sin folio —')}</span><br><span style="color:var(--w50)">${asesorEsc([_fval(p,'Zona / Colonia'),_fval(p,'Municipio'),_fval(p,'Precio Lista')].filter(Boolean).join(' · ')||'Sin datos operativos')}</span></div></div>`).join(''):'<div class="hoy-empty">Sin propiedades reales para esta sesión.</div>'; }catch(e){ el.innerHTML=`<div class="hoy-empty err">No se pudieron cargar propiedades: ${asesorEsc(e.message)}</div>`; } }
-function buildAsesorDocumentosPanel(){ return `<div class="panel" id="panel-documentos_asesor"><div class="asesor-body asesor-perfil-page"><div class="fv-box perfil-fv-box"><div class="fv-header"><div><div class="fv-nombre">MESA DE DOCUMENTOS</div><div class="fv-wa"><span>Qué falta para avanzar, no solo archivos guardados</span></div></div><div><div class="fv-folio-lbl">Vista asesor</div><div class="fv-folio">DOCUMENTOS</div></div></div><div class="fv-body perfil-fv-body"><div class="fv-sec"><div class="fv-sec-title" style="display:flex;justify-content:space-between;align-items:center;gap:10px"><span><em>▤</em> Expedientes y documentos por revisar</span><button class="asesor-gold-btn" onclick="asesorLoadDocumentos(true)">Actualizar</button></div><div class="perfil-fv-locks" id="asesor-documentos-list"><div class="hoy-empty">Cargando documentos reales…</div></div></div><div class="fv-sec"><div class="le-banner">La parte fiscal y documental debe decir: qué falta, en qué etapa afecta y qué acción destraba la operación.</div></div></div></div></div></div>`; }
-async function asesorLoadDocumentos(force=false){ if(_asesorDocsLoaded&&!force)return; _asesorDocsLoaded=true; const el=document.getElementById('asesor-documentos-list'); if(!el)return; if(force) el.innerHTML='<div class="hoy-empty">Actualizando documentos…</div>'; try{ const data=await asesorLoadAll(force); mesaPintarLista(data); }catch(e){ el.innerHTML=`<div class="hoy-empty err">No se pudieron cargar documentos: ${asesorEsc(e.message)}</div>`; } }
-/* ══════════ MESA DE REVISIÓN — expediente documental del vendedor ══════════
-   El asesor toca la tarjeta de un vendedor en la Mesa de Documentos y revisa su
-   expediente: 8 documentos, estado, archivo, Validar / Rechazar con motivo.
-   Motor (ya desplegado en el portal): api/expediente-documentos
-     GET  ?folio=&token=                → lista
-     POST {action:'validar'|'rechazar'} → revisión (Bearer de sesión NERI)
-   Separación absoluta de flujos: esta mesa SOLO abre leads VENDEDORES
-   (tblQHdwEucTaNrLzm). Los pendientes de comprador siguen siendo informativos. */
-const MESA_DOCS_BASE=[
- {id:'escritura',tipo:'Escritura',descripcion:'Documento base que acredita la propiedad.',critico:true},
- {id:'predial',tipo:'Predial',descripcion:'Boleta o comprobante de predial reciente.',critico:true},
- {id:'ine',tipo:'Identificación Oficial (INE)',descripcion:'Identificación vigente del propietario.',critico:true},
- {id:'libertad_gravamen',tipo:'Libertad de Gravamen',descripcion:'Para verificar si la propiedad está libre de gravamen.',critico:true},
- {id:'agua_luz',tipo:'Agua / Luz',descripcion:'Comprobante de servicios recientes.',critico:false},
- {id:'constancia_fiscal',tipo:'Constancia Situación Fiscal',descripcion:'Necesaria para revisar correctamente el tema fiscal.',critico:false},
- {id:'domicilio',tipo:'Comprobante de Domicilio',descripcion:'Comprobante vigente del propietario.',critico:false},
- {id:'acta_matrimonio',tipo:'Acta de Matrimonio / Régimen Matrimonial',descripcion:'Aplica cuando la situación civil lo requiere.',critico:false}
-];
-let _mrv=null; /* contexto vivo de la revisión: {recId, folio, token, lead, docs, dirty} */
-function mesaApi(){ return String(EXP_DOC_BASE||'').replace(/\/+$/,'')+'/api/expediente-documentos'; }
-function mesaToken(f){
-  const t=String(f['Token Expediente']||'').trim();
-  if(t) return t;
-  const m=/[?&]token=([^&\s"']+)/.exec(String(f['Link Expediente Documental']||''));
-  return m?decodeURIComponent(m[1]):'';
-}
-/* Pinta la lista de la Mesa de Documentos desde el cache (sin refetch).
-   Diseño: fichas tipo documento minimalista, color por estado, ordenadas por
-   última actualización (campo Airtable «Última Actualización Expediente»,
-   fórmula LAST_MODIFIED_TIME) — lo más reciente arriba. */
-function mesaPintarLista(data){
-  const el=document.getElementById('asesor-documentos-list'); if(!el)return;
-  /* Estado documental del lead a partir de Progreso Expediente:
-     completo (verde) · revision (oro: hay archivos por revisar) · espera (neutro) */
-  const docState=(estado)=>{
-    if(/completos/i.test(estado)) return 'completo';
-    const m=/recibidos:\s*(\d+)/i.exec(estado);
-    if(m&&Number(m[1])>0) return 'revision';
-    return 'espera';
-  };
-  const ST_LBL={completo:'Expediente completo · validar para cerrar',revision:'Documentos por revisar',espera:'En espera del propietario'};
-  const fmtFecha=(v)=>{ if(!v)return ''; const d=new Date(v); if(isNaN(d))return ''; return d.toLocaleDateString('es-MX',{day:'2-digit',month:'short'})+' · '+d.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'}); };
-
-  const vend=[];
-  (data.vendedores||[]).forEach(r=>{
-    const f=r.fields||{};
-    const exp=f['Token Expediente']||f['Link Expediente Documental']||f['Progreso Expediente'];
-    if(!exp&&!f['Documentos'])return;
-    const estado=_fval(r,'Progreso Expediente')||'';
-    const m=/(\d+)\s*\/\s*(\d+)/.exec(estado);
-    const ts=Date.parse(f['Última Actualización Expediente']||'')||Date.parse(f['Fecha de Entrada']||'')||0;
-    vend.push({r,f,exp,estado,st:exp?docState(estado):'espera',n:m?Number(m[1]):0,t:m?Number(m[2]):8,nota:_fval(r,'Documentos')||'',ts});
-  });
-  vend.sort((a,b)=>b.ts-a.ts); /* últimas actualizadas hasta arriba */
-
-  const cards=vend.map(v=>`<div class="mdoc ${v.st}${v.exp?' mrv-card':''}"${v.exp?` onclick="mesaOpenRevision('${v.r.id}')"`:''}><div class="mdoc-fold"></div><div class="mdoc-top"><div class="mdoc-name">${asesorEsc(asesorNombre(v.r))}</div><div class="mdoc-count">${v.exp?(v.n+'/'+v.t):'—'}</div></div><div class="mdoc-folio">${asesorEsc(_fval(v.r,'Folio')||'Sin folio')}${v.ts?' · Últ. mov. '+fmtFecha(v.ts):''}</div><div class="mdoc-state">${ST_LBL[v.st]||asesorEsc(v.estado||'Captación')}</div>${v.nota?`<div class="mdoc-nota">${asesorEsc(v.nota)}</div>`:''}${v.exp?'<div class="mdoc-go">Tocar para revisar y validar →</div>':''}</div>`);
-
-  const pend=[];
-  (data.progreso||[]).forEach(r=>{
-    const p=_fval(r,'Pendientes visibles'); if(!p)return;
-    pend.push(`<div class="fv-lock"><div class="fv-lock-k">Pendientes visibles · ${asesorEsc(asesorNombre(r))}</div><div class="fv-lock-v"><span class="badge badge-lost">${asesorEsc(_fval(r,'Fase Actual')||'Expediente')}</span><br><span style="color:var(--w50);font-family:Montserrat,sans-serif">${asesorEsc(p)}</span></div></div>`);
-  });
-
-  el.innerHTML=(cards.length?`<div class="mdoc-sec">Expedientes de vendedores · lo más reciente arriba</div><div class="mdoc-grid">${cards.join('')}</div>`:'')
-    +(pend.length?`<div class="mdoc-sec" style="margin-top:18px">Pendientes de compradores · informativo</div>${pend.join('')}`:'')
-    +((cards.length||pend.length)?'':'<div class="hoy-empty">Sin documentos faltantes registrados para esta sesión.</div>');
-}
-/* Abre la Mesa de Revisión para un lead vendedor. */
-async function mesaOpenRevision(recId){
-  const lead=(asesorCache.vendedores||[]).find(r=>r.id===recId);
-  if(!lead){ if(typeof showToast==='function') showToast('No encontré el expediente en esta sesión.'); return; }
-  const f=lead.fields||{};
-  mesaShell(f['Nombre Completo']||'Vendedor', String(f['Folio']||'').trim());
-  const folio=String(f['Folio']||'').trim();
-  if(!folio){ mesaBody('<div class="hoy-empty">Este lead aún no tiene folio; sin folio no existe expediente documental.</div>'); return; }
-  let token=mesaToken(f);
-  if(!token){
-    mesaBody('<div class="hoy-empty">Activando la liga del expediente…</div>');
-    token=await mesaActivar(folio,lead);
-  }
-  if(!token){ mesaBody('<div class="hoy-empty err">No se pudo activar el expediente. Abre la ficha del vendedor para generar la liga de documentos y vuelve aquí.</div>'); return; }
-  _mrv={recId,folio,token,lead,docs:[],dirty:false};
-  mesaBody('<div class="hoy-empty">Cargando documentos del expediente…</div>');
-  await mesaReload();
-}
-/* Si el lead no trae token, lo activa vía la API propia (idempotente) y lo extrae del link. */
-async function mesaActivar(folio,lead){
-  try{
-    const r=await fetch('/api/activar-expediente',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(SESSION?.token||'')},body:JSON.stringify({folio})});
-    const j=await r.json().catch(()=>({}));
-    if(!r.ok||!j.link) return '';
-    if(lead&&lead.fields) lead.fields['Link Expediente Documental']=j.link;
-    const m=/[?&]token=([^&\s"']+)/.exec(j.link);
-    return m?decodeURIComponent(m[1]):'';
-  }catch(_){ return ''; }
-}
-/* Cascarón del modal (se crea una sola vez). */
-function mesaShell(nombre,folio){
-  let ovl=document.getElementById('mrv-ovl');
-  if(!ovl){
-    ovl=document.createElement('div'); ovl.id='mrv-ovl';
-    ovl.innerHTML=`<div class="mrv-box" onclick="event.stopPropagation()"><div class="mrv-head"><div><div class="mrv-title">MESA DE <em>REVISIÓN</em></div><div class="mrv-sub" id="mrv-sub"></div></div><div style="display:flex;gap:8px;flex:none"><button class="mrv-close" onclick="mesaRefrescar(this)" title="Actualizar documentos" aria-label="Actualizar">⟳</button><button class="mrv-close" onclick="mesaCerrar()" aria-label="Cerrar">✕</button></div></div><div class="mrv-body" id="mrv-body"></div></div>`;
-    ovl.addEventListener('click',mesaCerrar);
-    document.body.appendChild(ovl);
-  }
-  const sub=document.getElementById('mrv-sub');
-  if(sub) sub.textContent=nombre+(folio?' · '+folio:'');
-  ovl.style.display='flex'; document.body.style.overflow='hidden';
-}
-function mesaBody(html){ const b=document.getElementById('mrv-body'); if(b) b.innerHTML=html; }
-/* Botón ⟳ del modal: vuelve a leer los documentos del folio sin cerrar la revisión. */
-async function mesaRefrescar(btn){
-  if(!_mrv)return;
-  if(btn){ btn.disabled=true; }
-  try{ await mesaReload(); } finally { if(btn) btn.disabled=false; }
-}
-function mesaCerrar(){
-  const ovl=document.getElementById('mrv-ovl'); if(ovl) ovl.style.display='none';
-  document.body.style.overflow='';
-  if(_mrv&&_mrv.dirty){ mesaCheckinLocal(); mesaPintarLista(asesorCache); }
-  _mrv=null;
-}
-document.addEventListener('keydown',e=>{ const o=document.getElementById('mrv-ovl'); if(e.key==='Escape'&&o&&o.style.display==='flex') mesaCerrar(); });
-/* Carga la lista real del folio y la fusiona con el checklist base de 8. */
-async function mesaReload(){
-  if(!_mrv)return;
-  try{
-    const r=await fetch(mesaApi()+'?folio='+encodeURIComponent(_mrv.folio)+'&token='+encodeURIComponent(_mrv.token));
-    const j=await r.json().catch(()=>({}));
-    if(!r.ok) throw new Error(j.error||'No se pudo leer el expediente.');
-    const porId={}; (j.documents||[]).forEach(d=>{ if(d&&d.id) porId[d.id]=d; });
-    const docs=MESA_DOCS_BASE.map(b=>Object.assign({estado:'Pendiente',archivo_url:'',fecha_carga:'',motivo_rechazo:''},b,porId[b.id]||{}));
-    (j.documents||[]).forEach(d=>{ if(d&&d.id&&!MESA_DOCS_BASE.some(b=>b.id===d.id)) docs.push(d); });
-    _mrv.docs=docs; mesaRender();
-  }catch(e){ mesaBody('<div class="hoy-empty err">'+asesorEsc(e.message)+'</div>'); }
-}
-function mesaRender(){
-  if(!_mrv)return;
-  const total=_mrv.docs.length, recibidos=_mrv.docs.filter(d=>/^(recibido|validado)$/i.test(String(d.estado))).length;
-  const rows=_mrv.docs.map((d,i)=>{
-    const st=String(d.estado||'Pendiente');
-    const cls=st.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
-    const fecha=d.fecha_carga?new Date(d.fecha_carga).toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric'}):'';
-    const acc=[];
-    if(d.archivo_url) acc.push(`<a class="mrv-btn ver" href="${asesorEsc(d.archivo_url)}" target="_blank" rel="noopener">Ver archivo</a>`);
-    if(d.archivo_url&&!/^validado$/i.test(st)) acc.push(`<button class="mrv-btn ok" onclick="mesaValidar(${i},this)">Validar</button>`);
-    if(d.archivo_url&&!/^rechazado$/i.test(st)) acc.push(`<button class="mrv-btn no" onclick="mesaRejToggle(${i})">Rechazar</button>`);
-    return `<div class="mrv-doc" id="mrv-doc-${i}"><div class="mrv-doc-top"><div class="mrv-doc-tipo">${asesorEsc(d.tipo)}${d.critico?'<span class="mrv-crit">CRÍTICO</span>':''}</div><span class="mrv-st ${cls}">${asesorEsc(st)}</span></div><div class="mrv-doc-desc">${asesorEsc(d.descripcion||'')}</div>${fecha?`<div class="mrv-doc-meta">Cargado: ${fecha}</div>`:''}${d.motivo_rechazo?`<div class="mrv-motivo">Motivo de rechazo: ${asesorEsc(d.motivo_rechazo)}</div>`:''}${acc.length?`<div class="mrv-actions">${acc.join('')}</div>`:''}<div class="mrv-rej" id="mrv-rej-${i}" style="display:none"><div class="mrv-chips">${['Ilegible','Incompleto','Documento equivocado','No vigente'].map(m=>`<button class="mrv-chip" onclick="mesaRejChip(${i},this)">${m}</button>`).join('')}</div><textarea id="mrv-motivo-${i}" placeholder="Motivo del rechazo (el propietario lo verá en su portal)…"></textarea><div class="mrv-actions"><button class="mrv-btn no" onclick="mesaRechazar(${i},this)">Confirmar rechazo</button><button class="mrv-btn ver" onclick="mesaRejToggle(${i},true)">Cancelar</button></div></div></div>`;
-  }).join('');
-  mesaBody(`<div class="mrv-doc-meta" style="margin-top:0">Documentos recibidos: ${recibidos}/${total} · valida o rechaza los que ya tienen archivo.</div>${rows}`);
-}
-function mesaRejToggle(i,hide){
-  const p=document.getElementById('mrv-rej-'+i); if(!p)return;
-  p.style.display=hide?'none':(p.style.display==='none'?'block':'none');
-}
-function mesaRejChip(i,btn){
-  const t=document.getElementById('mrv-motivo-'+i); if(t) t.value=btn.textContent;
-  const wrap=btn.parentElement; if(wrap) wrap.querySelectorAll('.mrv-chip').forEach(c=>c.classList.toggle('sel',c===btn));
-}
-function mesaValidar(i,btn){ mesaAccion(i,'validar','',btn); }
-function mesaRechazar(i,btn){
-  const t=document.getElementById('mrv-motivo-'+i);
-  const motivo=(t&&t.value.trim())||'Documento ilegible o incompleto.';
-  mesaAccion(i,'rechazar',motivo,btn);
-}
-async function mesaAccion(i,action,motivo,btn){
-  if(!_mrv)return; const d=_mrv.docs[i]; if(!d)return;
-  if(btn) btn.disabled=true;
-  try{
-    const r=await fetch(mesaApi(),{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(SESSION?.token||'')},body:JSON.stringify({action,folio:_mrv.folio,document_id:d.id,motivo})});
-    const j=await r.json().catch(()=>({}));
-    if(!r.ok||!j.ok) throw new Error(j.error||'No se pudo guardar la revisión.');
-    d.estado=j.estado||(action==='validar'?'Validado':'Rechazado');
-    d.motivo_rechazo=action==='rechazar'?motivo:'';
-    _mrv.dirty=true; mesaRender();
-    if(typeof showToast==='function') showToast(action==='validar'?'Documento validado.':'Documento rechazado; el propietario verá el motivo en su portal.');
-  }catch(e){
-    if(btn) btn.disabled=false;
-    if(typeof showToast==='function') showToast('Error: '+e.message);
-  }
-}
-/* Al cerrar con cambios: actualiza el check-in local del lead (el servidor ya lo recalculó). */
-function mesaCheckinLocal(){
-  if(!_mrv||!_mrv.lead||!_mrv.lead.fields)return;
-  const total=_mrv.docs.length||8;
-  const rec=_mrv.docs.filter(d=>/^(recibido|validado)$/i.test(String(d.estado))).length;
-  _mrv.lead.fields['Progreso Expediente']=rec>=total
-    ?('Documentos completos ('+total+'/'+total+') · listo para revisión')
-    :('Documentos recibidos: '+rec+'/'+total);
-}
+function buildAsesorDocumentosPanel(){ return `<div class="panel" id="panel-documentos_asesor"><div class="asesor-body asesor-perfil-page"><div class="fv-box perfil-fv-box"><div class="fv-header"><div><div class="fv-nombre">MESA DE DOCUMENTOS</div><div class="fv-wa"><span>Qué falta para avanzar, no solo archivos guardados</span></div></div><div><div class="fv-folio-lbl">Vista asesor</div><div class="fv-folio">DOCUMENTOS</div></div></div><div class="fv-body perfil-fv-body"><div class="fv-sec"><div class="fv-sec-title"><em>▤</em> Documentos faltantes / etapa del expediente</div><div class="perfil-fv-locks" id="asesor-documentos-list"><div class="hoy-empty">Cargando documentos reales…</div></div></div><div class="fv-sec"><div class="le-banner">La parte fiscal y documental debe decir: qué falta, en qué etapa afecta y qué acción destraba la operación.</div></div></div></div></div></div>`; }
+async function asesorLoadDocumentos(force=false){ if(_asesorDocsLoaded&&!force)return; _asesorDocsLoaded=true; const el=document.getElementById('asesor-documentos-list'); if(!el)return; try{ const data=await asesorLoadAll(force); const docs=[]; (data.progreso||[]).forEach(r=>{const p=_fval(r,'Pendientes visibles'); if(p) docs.push({doc:'Pendientes visibles',estado:_fval(r,'Fase Actual')||'Expediente',nota:p,nombre:asesorNombre(r)});}); (data.vendedores||[]).forEach(r=>{const p=_fval(r,'Documentos'); if(p) docs.push({doc:'Documentos vendedor',estado:_fval(r,'Progreso Expediente')||_fval(r,'Conversión')||'Captación',nota:p,nombre:asesorNombre(r)});}); el.innerHTML=docs.length?docs.map(d=>`<div class="fv-lock"><div class="fv-lock-k">${asesorEsc(d.doc)} · ${asesorEsc(d.nombre)}</div><div class="fv-lock-v"><span class="badge badge-lost">${asesorEsc(d.estado)}</span><br><span style="color:var(--w50);font-family:Montserrat,sans-serif">${asesorEsc(d.nota)}</span></div></div>`).join(''):'<div class="hoy-empty">Sin documentos faltantes registrados para esta sesión.</div>'; }catch(e){ el.innerHTML=`<div class="hoy-empty err">No se pudieron cargar documentos: ${asesorEsc(e.message)}</div>`; } }
 function buildAsesorReportesPanel(){ return `<div class="panel" id="panel-reportes_asesor"><div class="asesor-body asesor-perfil-page"><div class="fv-box perfil-fv-box"><div class="fv-header"><div><div class="fv-nombre">REPORTES ÚTILES</div><div class="fv-wa"><span>Métricas reales para mejorar, no para confundir</span></div></div><div><div class="fv-folio-lbl">Vista asesor</div><div class="fv-folio">REPORTES</div></div></div><div class="fv-body perfil-fv-body"><div class="fv-sec"><div class="fv-sec-title"><em>◫</em> Resumen operativo</div><div class="fv-nums" id="asesor-reportes-nums"><div class="hoy-empty">Cargando reportes reales…</div></div></div><div class="fv-sec"><div class="le-banner">Estos números vienen de Airtable filtrado por asesor desde el servidor: leads, citas, progreso y propiedades.</div></div></div></div></div></div>`; }
 async function asesorLoadReportes(force=false){ if(_asesorReportsLoaded&&!force)return; _asesorReportsLoaded=true; const el=document.getElementById('asesor-reportes-nums'); if(!el)return; try{ const data=await asesorLoadAll(force); el.innerHTML=[[data.compradores.length+data.vendedores.length,'Leads / captaciones'],[data.citas.filter(r=>['Pendiente','Confirmada','Reagendada'].includes(_fval(r,'Estado Cita'))).length,'Citas activas'],[data.progreso.length,'Operaciones en progreso'],[data.propiedades.length,'Propiedades asignadas']].map(n=>`<div class="fv-num"><div class="fv-num-val">${n[0]}</div><div class="fv-num-lbl">${n[1]}</div></div>`).join(''); }catch(e){ el.innerHTML=`<div class="hoy-empty err">No se pudieron cargar reportes: ${asesorEsc(e.message)}</div>`; } }
 
@@ -5110,8 +4268,7 @@ async function salaLoadContext(force=false){ if(_salaLoaded&&!force)return; _sal
    Los datos ya llegan filtrados por Asesor desde /api/airtable.js
 ═══════════════════════════════════════════════════ */
 const EXP_PORTAL_BASE = 'https://progreso-zeta.vercel.app/';  // portal de progreso del cliente
-const EXP_DOC_BASE    = 'https://expedientedocumentalpropietario.vercel.app/';  // liga de carga documental del propietario (despliegue real verificado)
-window.EXP_DOC_BASE   = EXP_DOC_BASE;  // fuente única: cabina-vendedor.js lee window.EXP_DOC_BASE en vez de su default interno
+const EXP_DOC_BASE    = 'https://expediente-propietario.vercel.app/';  // liga de carga documental del propietario
 const EXP_SLA = { 'HOT':2, 'WARM':4, 'COLD':8, 'Frío':8, 'Frio':8, '_def':6 }; // días estimados sin contacto antes de alertar
 let _expLoaded = false;
 
@@ -5242,11 +4399,7 @@ function expRenderFile(tipo, rec){
   const tipoLbl = tipo==='vendedor'?'Vendedor · captación':(tipo==='progreso'?'Operación en progreso':'Comprador');
   const docs=expDocsFor(tipo,rec,prog);
   const folioParam = folio!=='— sin folio —'?folio:(SESSION?.slug||'');
-  /* Liga de carga del cliente: SIEMPRE preferir el link ya minteado con token
-     (Link Expediente Documental del lead vendedor). El link por-folio sin token
-     cae en página incompleta — solo es fallback de último recurso. */
-  const linkArmado=_fval(rec,'Link Expediente Documental')||_fval(prog||{},'Link Expediente Documental')||'';
-  const docLink=/token=/.test(linkArmado)?linkArmado:EXP_DOC_BASE+'?folio='+encodeURIComponent(folioParam);
+  const docLink=EXP_DOC_BASE+'?folio='+encodeURIComponent(folioParam);
   const portalLink=EXP_PORTAL_BASE+'?folio='+encodeURIComponent(folio!=='— sin folio —'?folio:'');
   const safeMsg=asesorEsc(msg).replace(/'/g,"\\'");
   const pct=Math.min(100, (dias!=null&&sla)?Math.round(dias/sla*100):0);
@@ -5274,7 +4427,7 @@ function expRenderFile(tipo, rec){
             <div class="row"><div class="k">Estado emocional</div><div class="val ${emo?'':'muted'}">${asesorEsc(emo||'Sin lectura emocional capturada.')}</div></div>
             <div class="row play"><div class="k">Siguiente jugada</div><div class="val ${jugada?'':'muted'}">${asesorEsc(jugada||'Definir el siguiente paso y registrarlo.')}</div></div>
           </div>
-          <div class="exp-msg"><div style="font-size:10px;letter-spacing:1.6px;text-transform:uppercase;color:var(--gold);font-weight:900;margin-bottom:8px">Mensaje sugerido</div><div class="q">"${asesorEsc(msg)}"</div><div class="acts">${phone?`<a class="exp-btn" href="${asesorWa(phone,msg)}" target="_blank" rel="noopener">Enviar por WhatsApp</a>`:''}<button class="exp-btn ghost" onclick="asesorCopy('${safeMsg}')">Copiar</button><button class="exp-btn ghost" onclick="goTo('sala')">Ver más respuestas</button></div></div>
+          <div class="exp-msg"><div style="font-size:7px;letter-spacing:1.6px;text-transform:uppercase;color:var(--gold);font-weight:900;margin-bottom:8px">Mensaje sugerido</div><div class="q">"${asesorEsc(msg)}"</div><div class="acts">${phone?`<a class="exp-btn" href="${asesorWa(phone,msg)}" target="_blank" rel="noopener">Enviar por WhatsApp</a>`:''}<button class="exp-btn ghost" onclick="asesorCopy('${safeMsg}')">Copiar</button><button class="exp-btn ghost" onclick="goTo('sala')">Ver más respuestas</button></div></div>
         </div>
       </div>
       <div class="exp-col">
@@ -5304,13 +4457,6 @@ function expRenderFile(tipo, rec){
 }
 
 function goTo(id){
-  // El portal de progreso requiere un folio de operación.
-  // Abrirlo sin folio muestra error inmediato al cliente; se redirige al Centro de Operaciones.
-  if(id === 'progreso'){
-    showToast('El portal se abre desde la ficha de un comprador con apartado — no como herramienta genérica.');
-    goTo('airtable');
-    return;
-  }
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.sb-btn').forEach(b=>b.classList.remove('active'));
   const panel = document.getElementById('panel-'+id);
@@ -5329,7 +4475,6 @@ function goTo(id){
   if(id === 'reportes_asesor') setTimeout(()=>asesorLoadReportes(false), 60);
   if(id === 'sala') setTimeout(()=>salaLoadContext(false), 60);
   if(id === 'expedientes') setTimeout(()=>expLoadIndex(false), 60);
-  if(id === 'mapa') setTimeout(()=>mapaLoad(false), 60);
 }
 
 /* ═══════════════════════════════════════════════════
@@ -5346,29 +4491,205 @@ window.addEventListener('DOMContentLoaded', () => {
   if(sub) sub.textContent = 'Acceso operativo · Control de acceso';
   const footer = document.querySelector('.login-footer');
   if(footer) footer.innerHTML = 'Acceso operativo real<br>Método NERI · Sistema operativo inmobiliario';
-  // Recupera la sesión si sigue vigente (el token dura 12 h). Actualizar la página
-  // ya NO saca al asesor: solo se pide login cuando no hay sesión o ya expiró.
-  try{
-    const raw = sessionStorage.getItem(SESSION_STORE_KEY);
-    if(raw){
-      const s = JSON.parse(raw);
-      const parts = String(s && s.token || '').split('.');
-      let payload = null;
-      if(parts.length === 3){
-        try{ payload = JSON.parse(atob(parts[1].replace(/-/g,'+').replace(/_/g,'/'))); }catch(_){ payload = null; }
-      }
-      if(payload && payload.exp && Date.now() < payload.exp){
-        SESSION = s;
-        document.getElementById('screen-login').classList.add('hidden');
-        document.getElementById('screen-app').classList.remove('hidden');
-        bootApp();
-        if(SESSION.rol === 'asesor') enrichIdentity(SESSION.slug);
-      } else {
-        sessionStorage.removeItem(SESSION_STORE_KEY); // expirada: limpia y pide login
-      }
-    }
-  }catch(_){ try{ sessionStorage.removeItem(SESSION_STORE_KEY); }catch(__){} }
+  // IMPORTANTE: por etapa de pruebas reales, no se auto-recupera sesión.
+  // Cada carga empieza en login para evitar accesos arrastrados por sessionStorage/cache del modo anterior.
+  try{ sessionStorage.removeItem(SESSION_STORE_KEY); }catch(_){ }
 });
+</script>
+<!-- ═══════════════════════════════════════════════════════════════
+     RIEL DEL VENDEDOR — el sistema empuja el proceso
+     Orden inviolable: Contacto → Firma → Expediente → Producción.
+     Un solo botón dorado por etapa. Las conversiones ocurren como
+     consecuencia de las acciones (WhatsApp enviado, contrato subido),
+     nunca como un select que el asesor deba recordar cambiar.
+     Flujo VENDEDOR únicamente — no toca lógica de compradores.
+═══════════════════════════════════════════════════════════════ -->
+<style id="riel-css">
+.riel-track{display:flex;align-items:center;gap:6px;margin:4px 0 14px;flex-wrap:wrap}
+.riel-node{display:flex;align-items:center;gap:7px}
+.riel-dot{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font:600 10px Montserrat,sans-serif;border:1px solid var(--goldbdr);color:var(--w50);flex:none}
+.riel-lbl{font:600 9px Montserrat,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--w50)}
+.riel-node.done .riel-dot{background:var(--golddim);border-color:var(--gold);color:var(--gold)}
+.riel-node.done .riel-lbl{color:var(--gold)}
+.riel-node.cur .riel-dot{background:var(--gold);border-color:var(--gold);color:#0A0A0A}
+.riel-node.cur .riel-lbl{color:var(--white)}
+.riel-bar{flex:1;min-width:14px;height:1px;background:var(--goldbdr)}
+.riel-panel{border:1px solid var(--goldbdr);background:var(--golddim);padding:14px 16px;border-radius:3px}
+.riel-msg{font:400 12px Montserrat,sans-serif;color:var(--w50);line-height:1.6;margin-bottom:12px}
+.riel-msg strong{color:var(--white);font-weight:600}
+.riel-acts{display:flex;gap:8px;flex-wrap:wrap}
+.riel-btn{display:inline-flex;align-items:center;gap:6px;border:none;cursor:pointer;border-radius:2px;
+  padding:10px 16px;font:700 10px Montserrat,sans-serif;letter-spacing:.12em;text-transform:uppercase;
+  background:var(--gold);color:#0A0A0A;text-decoration:none}
+.riel-btn:hover{background:var(--gold2)}
+.riel-btn.ghost{background:transparent;border:1px solid var(--goldbdr);color:var(--gold)}
+.riel-btn.ghost:hover{border-color:var(--gold)}
+.riel-status{font:500 11px Montserrat,sans-serif;color:var(--gold);margin-top:10px;min-height:14px}
+.riel-note{font:400 11px Montserrat,sans-serif;color:var(--w50);line-height:1.6}
+</style>
+<script>
+/* Riel del proceso — lead VENDEDOR. Etapa derivada de los datos, nunca de clics. */
+const RIEL_VEND_TABLE = 'tblQHdwEucTaNrLzm';
+const RIEL_FIRMAS = ['Firma exclusiva','Firma venta directa'];
+const RIEL_CONTRATOS = {
+  'Firma exclusiva':   'contratos/Contrato_Exclusiva_NERI.docx',
+  'Firma venta directa':'contratos/Autorizacion_Venta_Directa_NERI.docx',
+};
+
+function rielEtapa(rec){
+  const conv = _fval(rec,'Conversión');
+  const prog = _fval(rec,'Progreso Expediente');
+  if(conv === 'No calificó') return { idx:-1, conv, prog };
+  if(!conv)                  return { idx:0,  conv, prog };
+  if(RIEL_FIRMAS.indexOf(conv) !== -1){
+    const docsOk = /8\s*\/\s*8/.test(prog) && /valid|complet/i.test(prog);
+    return { idx: docsOk ? 3 : 2, conv, prog, docsOk };
+  }
+  return { idx:1, conv, prog }; // 'En seguimiento' y cualquier valor intermedio
+}
+
+function rielVendedorHTML(rec){
+  const et = rielEtapa(rec);
+  if(et.idx === -1){
+    return `<div class="fv-sec">
+      <div class="fv-sec-title"><em>◇</em>Proceso</div>
+      <div class="riel-panel"><div class="riel-note">Lead descartado (No calificó). El proceso está cerrado; si la situación cambia, reabre la conversión desde Editar.</div></div>
+    </div>`;
+  }
+  const pasos = ['Contacto','Firma','Expediente','Producción'];
+  const nodes = pasos.map((p,i)=>{
+    const cls = i < et.idx ? 'done' : (i === et.idx ? 'cur' : '');
+    return `<div class="riel-node ${cls}"><span class="riel-dot">${i < et.idx ? '✓' : i+1}</span><span class="riel-lbl">${p}</span></div>`;
+  }).join('<div class="riel-bar"></div>');
+  return `<div class="fv-sec">
+    <div class="fv-sec-title"><em>◇</em>Siguiente paso</div>
+    <div class="riel-track">${nodes}</div>
+    <div class="riel-panel">${rielPanelHTML(rec, et)}</div>
+  </div>`;
+}
+
+function rielPanelHTML(rec, et){
+  const id = rec.id;
+  const wa = _fval(rec,'Teléfono WhatsApp');
+  const contrato = _fval(rec,'Contrato Firmado');
+  const verContrato = contrato
+    ? `<a class="riel-btn ghost" href="/api/idrive-read-url?url=${encodeURIComponent(contrato)}" target="_blank" rel="noopener">Ver contrato firmado</a>`
+    : '';
+
+  if(et.idx === 0){
+    return `
+      <div class="riel-msg"><strong>Lead nuevo.</strong> El primer movimiento es el contacto: agenda una visita breve para conocer la propiedad y buscar la firma. Al enviar el mensaje, el lead pasa solo a <strong>En seguimiento</strong>.</div>
+      <div class="riel-acts">
+        ${wa ? `<button class="riel-btn" onclick="rielPrimerContacto('${id}')">Enviar primer contacto · WhatsApp</button>`
+             : `<button class="riel-btn ghost" onclick="vendedorEditFromFicha()">Capturar teléfono en Editar</button>`}
+      </div>
+      <div class="riel-status" id="riel-status"></div>`;
+  }
+
+  if(et.idx === 1){
+    return `
+      <div class="riel-msg"><strong>En seguimiento.</strong> La meta de esta etapa es la firma. Descarga el contrato, llénalo con el propietario, imprímelo y firma. <strong>Al subir el PDF firmado, la conversión y el expediente del propietario se activan solos.</strong></div>
+      <div class="riel-acts" style="margin-bottom:10px">
+        <a class="riel-btn ghost" href="${RIEL_CONTRATOS['Firma exclusiva']}" download>Descargar contrato de exclusiva</a>
+        <a class="riel-btn ghost" href="${RIEL_CONTRATOS['Firma venta directa']}" download>Descargar venta directa</a>
+      </div>
+      <div class="riel-acts">
+        <button class="riel-btn" onclick="rielSubirContrato('${id}','Firma exclusiva')">Subir exclusiva firmada · PDF</button>
+        <button class="riel-btn" onclick="rielSubirContrato('${id}','Firma venta directa')">Subir venta directa firmada · PDF</button>
+      </div>
+      <div class="riel-status" id="riel-status"></div>`;
+  }
+
+  if(et.idx === 2){
+    const prog = et.prog || 'Expediente activado · esperando documentos';
+    return `
+      <div class="riel-msg"><strong>${_esc(et.conv)}.</strong> Sigue el expediente documental del propietario y su validación.<br>Progreso: <strong>${_esc(prog)}</strong></div>
+      <div class="riel-acts">
+        <button class="riel-btn" onclick="rielIrAcciones()">Ir a acciones del proceso</button>
+        ${verContrato}
+        ${!contrato ? `<button class="riel-btn ghost" onclick="rielSubirContrato('${id}','${_escAttr(et.conv)}')">Subir el PDF del contrato</button>` : ''}
+      </div>
+      <div class="riel-status" id="riel-status"></div>`;
+  }
+
+  return `
+    <div class="riel-msg"><strong>Expediente completo y validado.</strong> Siguiente paso: la cita de producción inmobiliaria (video y fotos). Al subirse los videos, la propiedad pasará a publicidad.</div>
+    <div class="riel-acts">
+      <button class="riel-btn" onclick="rielIrAcciones()">Agendar producción · acciones del proceso</button>
+      ${verContrato}
+    </div>
+    <div class="riel-status" id="riel-status"></div>`;
+}
+
+function rielIrAcciones(){
+  const inner = document.getElementById('crm-fv-inner');
+  if(inner && inner.lastElementChild) inner.lastElementChild.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+async function rielPatchLead(recId, fields){
+  await atFetch(RIEL_VEND_TABLE + '/' + recId, { method:'PATCH', body: JSON.stringify({ fields, typecast:true }) });
+  const rec = crmState.records.find(r => r.id === recId);
+  if(rec) rec.fields = Object.assign({}, rec.fields, fields);
+}
+
+function rielSay(t){ const s = document.getElementById('riel-status'); if(s) s.textContent = t; }
+
+async function rielPrimerContacto(recId){
+  const rec = crmState.records.find(r => r.id === recId); if(!rec) return;
+  const waClean = (_fval(rec,'Teléfono WhatsApp') || '').replace(/\D/g,'');
+  if(!waClean){ rielSay('Este lead no tiene teléfono. Captúralo en Editar.'); return; }
+  const nombre = (_fval(rec,'Nombre Completo') || '').trim().split(' ')[0] || '';
+  const asesor = _fval(rec,'Asesor') || (typeof SESSION !== 'undefined' && SESSION?.nombre) || 'su asesor';
+  const tipo   = (_fval(rec,'Tipo de Propiedad') || 'propiedad').toLowerCase();
+  const zona   = _fval(rec,'Zona');
+  const msg = 'Hola ' + nombre + ', soy ' + asesor + '. Recibí su solicitud para la venta de su ' + tipo +
+              (zona ? ' en ' + zona : '') +
+              '. Me gustaría agendar una visita breve esta semana para conocerla y presentarle el plan de venta. ¿Qué día le acomoda?';
+  window.open('https://wa.me/52' + waClean + '?text=' + encodeURIComponent(msg), '_blank');
+  try{
+    if(!_fval(rec,'Conversión')) await rielPatchLead(recId, { 'Conversión':'En seguimiento' });
+    vendedorOpenFicha(recId);
+  }catch(e){ rielSay('El mensaje salió, pero no se pudo registrar el seguimiento: ' + e.message); }
+}
+
+function rielSubirContrato(recId, conversion){
+  const inp = document.createElement('input');
+  inp.type = 'file'; inp.accept = 'application/pdf';
+  inp.onchange = () => { if(inp.files && inp.files[0]) rielContratoUpload(recId, conversion, inp.files[0]); };
+  inp.click();
+}
+
+async function rielContratoUpload(recId, conversion, file){
+  const rec = crmState.records.find(r => r.id === recId); if(!rec) return;
+  const folio = _fval(rec,'Folio');
+  if(!folio || folio.indexOf('—') === 0){ rielSay('Este lead aún no tiene folio; espera a que Make lo asigne.'); return; }
+  if(file.type !== 'application/pdf'){ rielSay('El contrato debe subirse en PDF.'); return; }
+  try{
+    rielSay('Preparando subida segura…');
+    const pre = await fetch('/api/upload-idrive-url', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + (SESSION?.token || '') },
+      body: JSON.stringify({ filename:file.name, contentType:'application/pdf', size:file.size, folio, doc:'contrato' }),
+    });
+    const cfg = await pre.json();
+    if(!pre.ok) throw new Error(cfg.error || ('HTTP ' + pre.status));
+    rielSay('Subiendo contrato…');
+    const put = await fetch(cfg.uploadUrl, { method:'PUT', headers:{ 'Content-Type':'application/pdf' }, body:file });
+    if(!put.ok) throw new Error('iDrive respondió HTTP ' + put.status);
+    rielSay('Registrando la firma…');
+    await rielPatchLead(recId, { 'Contrato Firmado': cfg.url, 'Conversión': conversion });
+    rielSay('Activando expediente del propietario…');
+    try{
+      await fetch('/api/activar-expediente', {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + (SESSION?.token || '') },
+        body: JSON.stringify({ folio }),
+      });
+    }catch(_){ /* idempotente: la cabina lo reintenta al abrir la ficha */ }
+    vendedorOpenFicha(recId);
+  }catch(e){ rielSay('Error: ' + e.message); }
+}
 </script>
 <!-- Cabina de acciones del vendedor (Producción, Notaría, Expediente documental, Documentos) -->
 <script src="cabina-vendedor.js"></script>
