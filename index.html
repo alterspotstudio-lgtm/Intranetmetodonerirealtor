@@ -416,6 +416,17 @@ select.form-input option{background:#111;color:#fff}
   text-transform:uppercase;font-weight:800;text-decoration:none;
 }
 .wa-table-link:hover{background:rgba(74,222,128,.18);border-color:rgba(74,222,128,.48)}
+.price-chip{
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:4px 10px;border-radius:999px;white-space:nowrap;
+  font-family:var(--mono);font-size:10px;letter-spacing:.2px;font-weight:800;
+  border:1px solid var(--border2);background:rgba(255,255,255,.035);color:var(--w50);
+}
+.price-chip.price-high{background:rgba(201,169,110,.12);border-color:var(--goldbdr);color:var(--gold)}
+.price-chip.price-mid{background:rgba(251,191,36,.08);border-color:rgba(251,191,36,.24);color:#fbbf24}
+.price-chip.price-base{background:rgba(255,255,255,.035);border-color:var(--border);color:var(--w65,rgba(255,255,255,.65))}
+.price-chip.price-unknown{background:rgba(255,255,255,.02);border-color:var(--border);color:var(--w30)}
+.at-table tbody td.price{white-space:nowrap}
 .hi-pill.amber{background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.35);color:#fbbf24}
 
 /* Briefing cálido */
@@ -2111,6 +2122,75 @@ function crmVisibleRecords(tab, records){
   const hidden = map[tab] || {};
   return (records || []).filter(r => !hidden[r.id]);
 }
+
+/* ─── Orden de llegada y valor visual ───────────────── */
+function crmParseDateMs(value){
+  const raw = String(value || '').trim();
+  if(!raw) return 0;
+
+  // Formatos ISO / Airtable: 2026-06-11T21:00:00.000Z o 2026-06-11
+  const iso = Date.parse(raw);
+  if(!Number.isNaN(iso)) return iso;
+
+  // Formatos comunes en MX: 11/06/2026, 11-06-2026, con hora opcional.
+  const m = raw.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})(?:\s+(\d{1,2}):(\d{2}))?/);
+  if(m){
+    const y = Number(m[3].length === 2 ? '20' + m[3] : m[3]);
+    const month = Number(m[2]) - 1;
+    const d = Number(m[1]);
+    const h = Number(m[4] || 0);
+    const min = Number(m[5] || 0);
+    return new Date(y, month, d, h, min).getTime();
+  }
+  return 0;
+}
+
+function crmArrivalMs(rec){
+  // Airtable createdTime es el dato más confiable para ordenar por llegada real.
+  const direct = crmParseDateMs(rec?.createdTime);
+  if(direct) return direct;
+
+  const fecha = _fval(rec,'Fecha de Entrada') || _fval(rec,'Fecha') || _fval(rec,'Created Time') || _fval(rec,'Fecha Creación');
+  const hora  = _fval(rec,'Hora de Entrada') || _fval(rec,'Hora');
+  const combined = fecha && hora ? crmParseDateMs(fecha + ' ' + hora) : 0;
+  return combined || crmParseDateMs(fecha);
+}
+
+function crmSortNewest(tab, records){
+  const arr = (records || []).slice();
+  if(tab !== 'compradores' && tab !== 'vendedores') return arr;
+  return arr.sort((a,b) => crmArrivalMs(b) - crmArrivalMs(a));
+}
+
+function crmPriceNumber(raw){
+  const s = String(raw || '').toLowerCase();
+  if(!s || s.includes('no lo')) return 0;
+  const normalized = s
+    .replace(/,/g,'')
+    .replace(/mxn|pesos?|aprox\.?/g,'')
+    .replace(/\$/g,' ');
+  const matches = [...normalized.matchAll(/(\d+(?:\.\d+)?)(?:\s*)(m|millones?|k|mil)?/g)];
+  if(!matches.length) return 0;
+  return Math.max(...matches.map(match => {
+    let n = Number(match[1]);
+    const unit = match[2] || '';
+    if(unit.startsWith('m') || n < 100) n *= 1000000;
+    else if(unit === 'k' || unit === 'mil') n *= 1000;
+    return n;
+  }));
+}
+
+function crmPriceClass(value){
+  const n = crmPriceNumber(value);
+  if(!n) return 'price-unknown';
+  if(n >= 4000000) return 'price-high';
+  if(n >= 2000000) return 'price-mid';
+  return 'price-base';
+}
+
+function crmIsPriceField(fname){
+  return String(fname || '').toLowerCase().includes('precio');
+}
 function crmDeleteFromIntranet(){
   if(crmState.isNew || !crmDeleteAllowed(crmState.tab) || !crmState.editId) return;
   const rec = crmState.records.find(r => r.id === crmState.editId);
@@ -2145,7 +2225,7 @@ async function crmLoad(tab, force=false){
     // Robusto: sin fields[] (si un nombre no existe, Airtable rechaza TODO con 422)
     // y sin view fija (falla si la vista fue renombrada). Trae todos los campos.
     const data = await atFetch(`${cfg.tableId}?maxRecords=100`);
-    crmState.records = crmVisibleRecords(tab, data.records || []);
+    crmState.records = crmSortNewest(tab, crmVisibleRecords(tab, data.records || []));
     crmRender(tab, crmState.records);
     const tabCountEl = document.getElementById('tab-count-' + tab);
     if(tabCountEl) tabCountEl.textContent = crmState.records.length;
@@ -2203,16 +2283,20 @@ function crmRender(tab, records){
       if(typeof val === 'object') val = Array.isArray(val) ? val.map(v=>v?.name||v).join(', ') : (val?.name ?? JSON.stringify(val));
       val = String(val);
       const isBadge = !!STATUS_BADGE[val];
+      const isPrice = crmIsPriceField(fname);
       const isVendedorWhatsapp = tab === 'vendedores' && fname === 'Teléfono WhatsApp' && !!val;
       const waHref = isVendedorWhatsapp ? crmVendedorWaHref(rec) : '';
       const inner = isVendedorWhatsapp && waHref
         ? `<a class="wa-table-link" href="${_escAttr(waHref)}" target="_blank" rel="noopener" onclick="event.stopPropagation()" title="Abrir WhatsApp con mensaje preparado">WhatsApp</a>`
-        : isBadge
-          ? `<span class="badge ${STATUS_BADGE[val]}">${val}</span>`
-          : (val ? _esc(val) : '<span style="color:var(--w20)">—</span>');
+        : isPrice && val
+          ? `<span class="price-chip ${crmPriceClass(val)}">${_esc(val)}</span>`
+          : isBadge
+            ? `<span class="badge ${STATUS_BADGE[val]}">${val}</span>`
+            : (val ? _esc(val) : '<span style="color:var(--w20)">—</span>');
       let cls = '';
       if(FOLIO_FIELDS.includes(fname)) cls = 'folio';
       else if(NAME_FIELDS.includes(fname.toLowerCase())) cls = 'name';
+      else if(isPrice) cls = 'price';
       else if(!isBadge && val.length > 22) cls = 'clip';
       const title = cls==='clip' ? ` title="${_escAttr(val)}"` : '';
       return `<td${cls?` class="${cls}"`:''}${title}>${inner}</td>`;
