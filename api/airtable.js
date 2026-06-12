@@ -12,6 +12,7 @@ const TABLES = {
   progreso: { id:'tblyC9VjjtoRKJPQL', ownerField:'Asesor' },
   citas: { id:'tblaAfbSD3pqSLdAA', ownerField:'Asesor' },
   propiedades: { id:'tblmco2JyXRiZGhaY', ownerField:'Asesor' },
+  eventos: { id:'tblaYhT3EUT0m5FYV', ownerField:'Asesor' },
   asesores: { id: process.env.AIRTABLE_ASESORES_TABLE || 'tblIRPmLIyj8sWyEk', slugField:'Slug' },
 };
 const TABLE_BY_ID = Object.fromEntries(Object.values(TABLES).map(t=>[t.id,t]));
