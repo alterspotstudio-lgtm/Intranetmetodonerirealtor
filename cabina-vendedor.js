@@ -135,7 +135,7 @@
   function injectStyles() {
     if (byId('cab-styles')) return;
     var css = `
-#cab-overlay{position:fixed;inset:0;z-index:9000;display:none;background:rgba(6,6,6,.86);backdrop-filter:blur(3px);}
+#cab-overlay{position:fixed;inset:0;z-index:9000;display:none;background:rgba(6,6,6,.96);}
 #cab-overlay.on{display:flex;}
 #cab-overlay *{box-sizing:border-box;}
 #cab-shell{margin:auto;width:min(1180px,96vw);height:min(92vh,940px);background:#0A0A0A;border:1px solid rgba(198,168,107,.22);border-radius:6px;display:flex;overflow:hidden;font-family:'Montserrat',sans-serif;color:#fff;}
@@ -251,6 +251,8 @@
 .cab-acc-btn.ghost{background:transparent;color:#C6A86B;border:1px solid rgba(198,168,107,.4);}
 .cab-acc-btn.ghost:hover{background:rgba(198,168,107,.10);}
 .cab-acc-btn small{display:block;font-size:8px;font-weight:500;letter-spacing:.5px;text-transform:none;opacity:.75;margin-top:3px;}
+.cab-acc-btn.locked{background:transparent;color:rgba(255,255,255,.35);border:1px dashed rgba(255,255,255,.18);cursor:not-allowed;}
+.cab-acc-btn.locked:hover{background:transparent;}
 .cab-acc-locked{padding:12px 14px;border:1px dashed rgba(255,255,255,.14);border-radius:4px;font-size:11px;color:rgba(255,255,255,.4);line-height:1.5;}
 @media(max-width:760px){
   #cab-shell{flex-direction:column;height:96vh;width:98vw;}
@@ -685,13 +687,27 @@
         + '<div class="cab-acc-locked">Etapa actual: <b>' + esc(conv || 'Sin definir') + '</b>. Primero convierte el lead a una firma para trabajar Producción y Notaría desde Propiedades.</div>'
         + '</div>';
     }
+    /* Gating por etapa: en la ficha del lead, nada se libera antes de cerrar la etapa anterior. */
+    var docsOk = esPropiedad;
+    if (!esPropiedad) {
+      var recG = getRecord(recId);
+      var prog = recG ? fval(recG, 'Progreso Expediente') : '';
+      docsOk = /8\s*\/\s*8/.test(prog) && /valid|complet/i.test(prog);
+    }
+    function accBtn(tipo, label, small, enabled, lockNote, ghost) {
+      if (enabled) return '<button class="cab-acc-btn' + (ghost ? ' ghost' : '') + '" onclick="cabAbrir(\'' + tipo + '\',\'' + recId + '\')">' + label + '<small>' + small + '</small></button>';
+      return '<button class="cab-acc-btn locked" disabled>' + label + '<small>🔒 ' + lockNote + '</small></button>';
+    }
+    var hint = esPropiedad
+      ? 'La propiedad ya existe en el sistema. Genera Producción, Notaría y Reporte desde esta ficha; no desde el lead original.'
+      : 'Cada acción se libera al cerrar la etapa anterior. Etapa actual: <b>' + (docsOk ? 'Producción' : 'Expediente documental') + '</b>.';
     return head
-      + '<div class="cab-acc-hint">La propiedad ya existe en el sistema. Genera Producción, Notaría y Reporte desde esta ficha; no desde el lead original.</div>'
+      + '<div class="cab-acc-hint">' + hint + '</div>'
       + '<div class="cab-acc-grid">'
-      + '<button class="cab-acc-btn" onclick="cabAbrir(\'produccion\',\'' + recId + '\')">Producción Inmobiliaria<small>Foto y video · confirmación al propietario</small></button>'
-      + '<button class="cab-acc-btn" onclick="cabAbrir(\'notaria\',\'' + recId + '\')">Cita en Notaría<small>Formalización · confirmación al cliente</small></button>'
+      + accBtn('produccion', 'Producción Inmobiliaria', 'Foto y video · confirmación al propietario', docsOk, 'Se libera con el expediente 8/8 validado')
+      + accBtn('notaria', 'Cita en Notaría', 'Formalización · confirmación al cliente', esPropiedad, 'Se libera en el cierre de la operación')
       + '</div>'
-      + '<div class="cab-acc-grid" style="margin-top:8px"><button class="cab-acc-btn ghost" onclick="cabAbrir(\'reporte\',\'' + recId + '\')">Reporte semanal (v1)<small>Análisis interno · versión automática viene después</small></button></div>'
+      + '<div class="cab-acc-grid" style="margin-top:8px">' + accBtn('reporte', 'Reporte semanal (v1)', 'Análisis interno · versión automática viene después', docsOk, 'Se libera con el expediente 8/8 validado', true) + '</div>'
       + expedienteHTML(recId)
       + '</div>';
   }
