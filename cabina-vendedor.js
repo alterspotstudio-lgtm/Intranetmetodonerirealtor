@@ -697,6 +697,7 @@
   }
 
   function inyectarAcciones(recId) {
+    injectStyles();
     var rec = getRecord(recId);
     if (!rec) return;
     var esPropiedad = isPropiedadActiva();
