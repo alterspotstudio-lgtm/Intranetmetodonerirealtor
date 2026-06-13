@@ -194,7 +194,7 @@ body{font-family:'Montserrat',sans-serif;background:var(--black);color:var(--w10
       </div>
     </div>
 
-    <a class="wa-btn" id="btnWa" target="_blank" rel="noopener" style="display:none">Confirmar por WhatsApp</a>
+    <a class="wa-btn" id="btnWa" target="_blank" rel="noopener" style="display:none">Avisar por WhatsApp</a>
     <button class="pdf-btn" onclick="window.print()">Descargar PDF</button>
 
     <div class="foot">
@@ -378,7 +378,7 @@ function pintar(){
     btn.href = 'https://wa.me/' + C.wa + '?text=' + encodeURIComponent(msg);
     btn.style.display = 'flex';
     btn.textContent = t.esCita
-      ? ('Confirmar' + (C.asesor ? ' a ' + C.asesor.split(' ')[0] : '') + ' por WhatsApp')
+      ? ('Avisar' + (C.asesor ? ' a ' + C.asesor.split(' ')[0] : '') + ' por WhatsApp')
       : 'Responder a tu asesor';
   }
 

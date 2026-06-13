@@ -2342,6 +2342,12 @@ function crmRender(tab, records){
       if(typeof val === 'object') val = Array.isArray(val) ? val.map(v=>v?.name||v).join(', ') : (val?.name ?? JSON.stringify(val));
       val = String(val);
 
+      // Alerta fiscal en la fila: el asesor la ve sin abrir la ficha
+      const fiscalAlert = (tab === 'vendedores' && fname === 'Nombre Completo'
+        && /atenci/i.test(String(rec.fields?.['Diagnóstico Fiscal'] || '')))
+        ? ' <span class="badge badge-lost" title="Diagnóstico fiscal: atención requerida — abre la ficha para ver el detalle" style="margin-left:6px">Atención fiscal</span>'
+        : '';
+
       const isPropietario = tab === 'propiedades' && fname === 'Folio Vendedor';
       const propietario = isPropietario ? crmPropietarioData(rec) : null;
       if(isPropietario) val = propietario?.nombre || '';
@@ -2371,7 +2377,7 @@ function crmRender(tab, records){
       else if(isPrice) cls = 'price';
       else if(!isBadge && val.length > 22) cls = 'clip';
       const title = cls==='clip' ? ` title="${_escAttr(val)}"` : '';
-      return `<td${cls?` class="${cls}"`:''}${title}>${inner}</td>`;
+      return `<td${cls?` class="${cls}"`:''}${title}>${inner}${fiscalAlert}</td>`;
     }).join('');
     return `<tr onclick="crmOpenRow('${rec.id}')" title="Clic para abrir expediente">${cells}</tr>`;
   }).join('') || crmEmptyHtml(tab);

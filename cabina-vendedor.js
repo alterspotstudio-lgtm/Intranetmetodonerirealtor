@@ -98,6 +98,14 @@
     var st = getState();
     return !!(st && st.tab === 'propiedades');
   }
+  /* Señal de que la producción ya está: hay al menos un video subido a la landing de la propiedad. */
+  function hasVideosListos(recId) {
+    var r = getRecord(recId);
+    if (!r) return false;
+    var campos = ['Video Sala', 'Video Sala MP4', 'Video Cocina', 'Video Cocina MP4', 'Video Recamara', 'Video Recamara MP4', 'Video Jardin', 'Video Jardin MP4', 'Video Alberca', 'Video Alberca MP4', 'Video Extra MP4'];
+    for (var i = 0; i < campos.length; i++) { if (String(fval(r, campos[i]) || '').trim()) return true; }
+    return false;
+  }
   function logoSVG(inmo) {
     var u = String(inmo || '').toUpperCase().trim();
     if (u.indexOf('CENTURY 21') > -1 || u.indexOf('CENTURY21') > -1 || u.indexOf('C21') > -1) {
@@ -477,6 +485,7 @@
     cab.lastCardHTML = html;
   }
   function showWA(msg) {
+    cab.lastWaMsg = msg;
     byId('cab-wa-msg').textContent = msg;
     byId('cab-wa').style.display = 'block';
   }
@@ -705,7 +714,8 @@
     slot.innerHTML = '<div class="cab-ev-lbl">Link de confirmación · vivo</div>'
       + '<div class="cab-ev-url">' + esc(link) + '</div>'
       + '<div class="cab-ev-row"><button class="cab-wa-copy" onclick="cabCopiarLink(this)">● Copiar link</button>'
-      + '<a class="cab-wa-copy" style="text-decoration:none" href="' + esc(link) + '" target="_blank" rel="noopener">↗ Abrir</a></div>'
+      + '<a class="cab-wa-copy" style="text-decoration:none" href="' + esc(link) + '" target="_blank" rel="noopener">↗ Abrir</a>'
+      + '<button class="cab-wa-copy" onclick="cabEnviarWA()">↗ Enviar por WhatsApp</button></div>'
       + '<div class="cab-ev-folio">' + esc(folio) + ' · Cambia el Estado en Eventos Operación y el link del cliente se actualiza solo.</div>';
     slot.style.display = 'block';
     cab.lastLink = link;
@@ -726,6 +736,12 @@
       var o = btn.textContent; btn.textContent = '✓ Copiado';
       setTimeout(function () { btn.textContent = o; }, 2000);
     });
+  }
+  /* Enviar al propietario el mensaje (ya incluye el link) por WhatsApp. La cita ya está confirmada: esto es solo para darle formalidad. */
+  function cabEnviarWA() {
+    var t = cab.lastWaMsg || cab.lastLink || '';
+    if (!t) return;
+    window.open('https://wa.me/?text=' + encodeURIComponent(t), '_blank');
   }
 
   /* ── Toggles / radio ── */
@@ -861,6 +877,8 @@
       var prog = recG ? fval(recG, 'Progreso Expediente') : '';
       docsOk = /8\s*\/\s*8/.test(prog) && /valid|complet/i.test(prog);
     }
+    /* Oferta Formal NO se libera en la sesión de video: solo cuando los videos ya están en la landing. */
+    var videosOk = esPropiedad && hasVideosListos(recId);
     function accBtn(tipo, label, small, enabled, lockNote, ghost) {
       if (enabled) return '<button class="cab-acc-btn' + (ghost ? ' ghost' : '') + '" onclick="cabAbrir(\'' + tipo + '\',\'' + recId + '\')">' + label + '<small>' + small + '</small></button>';
       return '<button class="cab-acc-btn locked" disabled>' + label + '<small>🔒 ' + lockNote + '</small></button>';
@@ -870,12 +888,15 @@
       : 'Cada acción se libera al cerrar la etapa anterior. Etapa actual: <b>' + (docsOk ? 'Producción' : 'Expediente documental') + '</b>.';
     return head
       + '<div class="cab-acc-hint">' + hint + '</div>'
+      + ((esPropiedad && !videosOk)
+        ? '<div class="cab-acc-hint" style="border-left:2px solid #C6A86B;padding-left:10px;color:#C6A86B">Producción de video en curso · máximo 2 días. La <b>Oferta Formal</b> se libera en cuanto subas los videos a la landing.</div>'
+        : '')
       + '<div class="cab-acc-grid">'
       + accBtn('produccion', 'Producción Inmobiliaria', 'Foto y video · confirmación al propietario', docsOk, 'Se libera con el expediente 8/8 validado')
       + accBtn('notaria', 'Cita en Notaría', 'Formalización · confirmación al cliente', esPropiedad, 'Se libera en el cierre de la operación')
       + '</div>'
       + '<div class="cab-acc-grid" style="margin-top:8px">'
-      + accBtn('oferta', 'Oferta Formal', 'Presentación al propietario · link vivo', docsOk, 'Se libera con el expediente 8/8 validado')
+      + accBtn('oferta', 'Oferta Formal', 'Presentación al propietario · link vivo', videosOk, 'Se libera cuando subes los videos a la landing')
       + accBtn('promesa', 'Promesa de Compraventa', 'Firma del acuerdo · confirmación a las partes', esPropiedad, 'Se libera en el cierre de la operación')
       + '</div>'
       + '<div class="cab-acc-grid" style="margin-top:8px">' + accBtn('reporte', 'Reporte semanal (v1)', 'Análisis interno · versión automática viene después', docsOk, 'Se libera con el expediente 8/8 validado', true) + '</div>'
@@ -932,6 +953,10 @@
   window.cabSubirDocAsesor = cabSubirDocAsesor;
   window.cabDocSeleccionado = cabDocSeleccionado;
   window.copiarTextoExpediente = copiarTexto;
+  window.cabCopiarLink = cabCopiarLink;
+  window.cabEnviarWA = cabEnviarWA;
+  window.cabGenOferta = cabGenOferta;
+  window.cabGenPromesa = cabGenPromesa;
 
   /* Aplicar el patch (con reintento por si este script carga antes) */
   if (!patch()) {
