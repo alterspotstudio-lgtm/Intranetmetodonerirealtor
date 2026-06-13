@@ -805,6 +805,16 @@
     var rec = getRecord(recId); if (!rec) return;
     window.open(expedienteLink(rec), '_blank', 'noopener');
   }
+  /* Enviar el link del expediente directo al WhatsApp del propietario (un clic, sin copiar/pegar) */
+  function cabEnviarExpediente(recId) {
+    var rec = getRecord(recId); if (!rec) return;
+    var link = expedienteLink(rec);
+    var nombre = String(fval(rec, 'Nombre Completo') || '').split(' ')[0];
+    var asesor = fval(rec, 'Asesor') || (cab.prefill && cab.prefill.asesor) || ASESOR_DEFAULT.nombre;
+    var tel = String(fval(rec, 'Teléfono WhatsApp') || '').replace(/\D/g, '');
+    var msg = 'Hola' + (nombre ? ' ' + nombre : '') + ', aquí tienes tu expediente documental de Método Neri. Desde este link puedes subir tus documentos de forma segura y a tu ritmo:\n\n' + link + '\n\nCualquier duda quedo a tus órdenes.\n— ' + asesor;
+    window.open('https://wa.me/' + tel + '?text=' + encodeURIComponent(msg), '_blank');
+  }
   /* El ASESOR sube un documento que recibió por otro medio (WhatsApp, correo…) */
   function cabSubirDocAsesor(recId) {
     var inp = byId('cab-doc-file-' + recId);
@@ -853,7 +863,7 @@
       + '  <div class="cab-acc-title" style="font-size:11px;letter-spacing:1.6px"><em>▸</em> Expediente documental del propietario</div>'
       + '  <div class="cab-acc-hint">Este es el portal donde <b>el propietario sube sus documentos</b> (no es el portal de progreso del cliente).</div>'
       + '  <div style="display:flex;gap:8px;flex-wrap:wrap">'
-      + '    <button class="cab-acc-btn" onclick="cabCopiarExpediente(\'' + recId + '\',this)">Copiar link del expediente<small>Para enviarlo al propietario</small></button>'
+      + '    <button class="cab-acc-btn" onclick="cabEnviarExpediente(\'' + recId + '\')">Enviar link del expediente<small>Directo al WhatsApp del propietario</small></button>'
       + '    <button class="cab-acc-btn ghost" onclick="cabAbrirExpediente(\'' + recId + '\')">Abrir expediente<small>Vista del propietario</small></button>'
       + '    <button class="cab-acc-btn ghost" onclick="cabSubirDocAsesor(\'' + recId + '\')">Subir documento yo mismo<small>Si lo recibiste por otro medio</small></button>'
       + '  </div>'
@@ -950,6 +960,7 @@
   window.cabGenReporte = cabGenReporte;
   window.cabCopiarExpediente = cabCopiarExpediente;
   window.cabAbrirExpediente = cabAbrirExpediente;
+  window.cabEnviarExpediente = cabEnviarExpediente;
   window.cabSubirDocAsesor = cabSubirDocAsesor;
   window.cabDocSeleccionado = cabDocSeleccionado;
   window.copiarTextoExpediente = copiarTexto;
