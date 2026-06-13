@@ -1615,6 +1615,7 @@ function bootApp(){
   // admin → Control de Mando · asesor → Centro de Operaciones (su trabajo real). Solo la PRIMERA vez (perfil sin WhatsApp) lo mandamos a configurar su perfil.
   const asesorPrimeraVez = (s.rol === 'asesor') && !s.whatsapp;
   goTo(s.rol === 'admin' ? 'administracion' : (s.rol === 'asesor' ? (asesorPrimeraVez ? 'perfil_asesor' : 'airtable') : 'hoy'));
+  if(s.rol === 'asesor'){ setTimeout(function(){ try{ mesaCargarVendedores(false); }catch(_){} }, 600); }
   updateClock();
 }
 
@@ -4555,17 +4556,43 @@ const MESA_CSS = `
 .mesa-chip:hover{border-color:#C9A96E;color:#C9A96E}
 .mesa-rech-inp{width:100%;background:#080808;border:1px solid rgba(255,255,255,.18);color:#fff;border-radius:3px;padding:8px;font-size:13px;font-family:Montserrat,sans-serif;margin-bottom:8px;box-sizing:border-box}
 .mesa-rech-acc{display:flex;gap:8px;flex-wrap:wrap}
+.mesa-alert{background:rgba(201,169,110,.08);border:1px solid rgba(201,169,110,.45);border-radius:3px;padding:10px 12px;color:#C9A96E;font-size:12px;font-family:Montserrat,sans-serif;margin-bottom:10px}
+.mesa-card-alert{border-color:rgba(201,169,110,.6)}
+.mesa-navbadge{display:inline-block;min-width:16px;height:16px;line-height:16px;text-align:center;background:#C9A96E;color:#080808;border-radius:8px;font-size:10px;font-weight:700;font-family:Montserrat,sans-serif;margin-left:6px;padding:0 4px}
 `;
 async function mesaCargarVendedores(force=false){
-  const el=document.getElementById('mesa-vendedores-list'); if(!el) return;
+  const el=document.getElementById('mesa-vendedores-list');
   try{
     const data=await asesorLoadAll(force);
     const vends=(data.vendedores||[]).filter(r=>{ const f=_fval(r,'Folio'); const t=_fval(r,'Token Expediente'); return f && t && String(f).indexOf('—')!==0; });
-    el.innerHTML = vends.length
-      ? vends.map(r=>{ const nombre=asesorNombre(r), folio=_fval(r,'Folio'), prog=_fval(r,'Progreso Expediente')||_fval(r,'Conversión')||'Expediente';
-          return '<div class="mesa-card" onclick="mesaAbrir(\''+r.id+'\')"><div class="mesa-card-k">'+asesorEsc(nombre)+' · '+asesorEsc(folio)+'</div><div class="mesa-card-v"><span class="mesa-badge">'+asesorEsc(prog)+'</span> · Toca para revisar y validar</div></div>'; }).join('')
-      : '<div class="hoy-empty">Aún no hay propietarios con expediente activo (se activa al firmar exclusiva o venta directa).</div>';
-  }catch(e){ el.innerHTML='<div class="hoy-empty err">No se pudo cargar la mesa: '+asesorEsc(e.message)+'</div>'; }
+    const con=vends.filter(mesaTieneSubidos), sin=vends.filter(r=>!mesaTieneSubidos(r));
+    mesaNavBadge(con.length);
+    if(!el) return;
+    const card=(r,flag)=>{ const nombre=asesorNombre(r), folio=_fval(r,'Folio'), prog=_fval(r,'Progreso Expediente')||_fval(r,'Conversión')||'Expediente';
+      return '<div class="mesa-card'+(flag?' mesa-card-alert':'')+'" onclick="mesaAbrir(\''+r.id+'\')"><div class="mesa-card-k">'+(flag?'🔔 ':'')+asesorEsc(nombre)+' · '+asesorEsc(folio)+'</div><div class="mesa-card-v"><span class="mesa-badge">'+asesorEsc(prog)+'</span> · Toca para revisar y validar</div></div>'; };
+    const banner=con.length?'<div class="mesa-alert">🔔 '+con.length+' propietario'+(con.length>1?'s':'')+' subieron documentos — toca su tarjeta para revisar y validar.</div>':'';
+    el.innerHTML = vends.length ? (banner+con.map(r=>card(r,true)).join('')+sin.map(r=>card(r,false)).join('')) : '<div class="hoy-empty">Aún no hay propietarios con expediente activo (se activa al firmar exclusiva o venta directa).</div>';
+  }catch(e){ if(el) el.innerHTML='<div class="hoy-empty err">No se pudo cargar la mesa: '+asesorEsc((e&&e.message)||e)+'</div>'; }
+}
+function mesaTieneSubidos(rec){
+  const l=String(_fval(rec,'Progreso Expediente')||'').toLowerCase(); if(!l) return false;
+  if(l.indexOf('listo para revis')>-1 || l.indexOf('completos')>-1) return true;
+  const m=l.match(/recibidos:\s*(\d+)\s*\/\s*\d+/); return !!(m && Number(m[1])>0);
+}
+function mesaNavBadge(n){
+  const b=document.getElementById('nav-documentos_asesor'); if(!b) return;
+  let s=b.querySelector('.mesa-navbadge');
+  if(n>0){ if(!s){ s=document.createElement('span'); s.className='mesa-navbadge'; b.appendChild(s); } s.textContent=n; s.style.display=''; }
+  else if(s){ s.style.display='none'; }
+}
+function mesaWaBtn(recId, tipo, motivo){
+  const rec=((asesorCache||{}).vendedores||[]).find(r=>r.id===recId); if(!rec) return '';
+  const tel=String(_fval(rec,'Teléfono WhatsApp')||'').replace(/\D/g,''); if(!tel) return '';
+  const num=tel.length===10?'52'+tel:tel;
+  const nombre=asesorNombre(rec), link=_fval(rec,'Link Expediente Documental')||(typeof window!=='undefined'&&window.EXP_DOC_BASE)||'';
+  const asesor=(typeof SESSION!=='undefined'&&SESSION&&SESSION.nombre)?SESSION.nombre:'tu asesor';
+  const msg='Hola'+(nombre?' '+nombre:'')+', revisé tu expediente y el documento «'+tipo+'» necesita corregirse: '+motivo+'. Por favor súbelo de nuevo aquí:\n'+link+'\n\nCualquier duda, con gusto te apoyo.\n— '+asesor;
+  return '<a class="mesa-pill gold" href="https://wa.me/'+num+'?text='+encodeURIComponent(msg)+'" target="_blank" rel="noopener">Avisar al propietario</a>';
 }
 async function mesaAbrir(recId){
   let data=asesorCache||{};
@@ -4589,9 +4616,10 @@ function mesaRender(docs, folio, recId){
     const critico=d.critico?'<span class="mesa-tag-crit">CRÍTICO</span>':'';
     const motivo=(estado==='Rechazado'&&d.motivo_rechazo)?'<div class="mesa-doc-motivo">Motivo: '+asesorEsc(d.motivo_rechazo)+'</div>':'';
     const ver=verUrl?'<a class="mesa-pill" href="'+asesorEsc(verUrl)+'" target="_blank" rel="noopener">Ver</a>':'';
+    const avisar=(estado==='Rechazado')?mesaWaBtn(recId, d.tipo||'documento', d.motivo_rechazo||'documento ilegible o incompleto'):'';
     const subido=(estado==='Recibido'||estado==='Validado'||estado==='Rechazado');
     const botones=subido?'<button class="mesa-pill gold" onclick="mesaAccion(\''+folio+'\',\''+id+'\',\'validar\',\''+recId+'\')">Validar</button><button class="mesa-pill bad" onclick="mesaPedirRechazo(\''+folio+'\',\''+id+'\',\''+recId+'\')">Rechazar</button>':'<span class="mesa-doc-pend">Pendiente de carga del propietario</span>';
-    return '<div class="mesa-doc"><div class="mesa-doc-h"><span class="mesa-doc-tipo">'+asesorEsc(d.tipo||'Documento')+'</span> '+critico+' '+mesaBadge(estado)+fecha+'</div>'+(d.descripcion?'<div class="mesa-doc-desc">'+asesorEsc(d.descripcion)+'</div>':'')+motivo+'<div class="mesa-doc-acc">'+ver+botones+'</div><div class="mesa-rech" id="mesa-rech-'+asesorEsc(id)+'" style="display:none"></div></div>';
+    return '<div class="mesa-doc"><div class="mesa-doc-h"><span class="mesa-doc-tipo">'+asesorEsc(d.tipo||'Documento')+'</span> '+critico+' '+mesaBadge(estado)+fecha+'</div>'+(d.descripcion?'<div class="mesa-doc-desc">'+asesorEsc(d.descripcion)+'</div>':'')+motivo+'<div class="mesa-doc-acc">'+ver+botones+avisar+'</div><div class="mesa-rech" id="mesa-rech-'+asesorEsc(id)+'" style="display:none"></div></div>';
   }).join('');
 }
 function mesaBadge(e){ const m={'Validado':'ok','Rechazado':'bad','Recibido':'warn','Pendiente':'pend','No aplica':'pend'}; return '<span class="mesa-badge mesa-badge-'+(m[e]||'pend')+'">'+asesorEsc(e)+'</span>'; }
