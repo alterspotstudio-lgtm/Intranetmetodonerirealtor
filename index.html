@@ -4511,8 +4511,120 @@ async function perfilSave(){
 
 function buildAsesorPropiedadesPanel(){ return `<div class="panel" id="panel-propiedades_asesor"><div class="asesor-body asesor-perfil-page"><div class="fv-box perfil-fv-box"><div class="fv-header"><div><div class="fv-nombre">MIS PROPIEDADES</div><div class="fv-wa"><span>Operaciones vivas · folio · siguiente pendiente</span></div></div><div><div class="fv-folio-lbl">Vista asesor</div><div class="fv-folio">PROPIEDADES</div></div></div><div class="fv-body perfil-fv-body"><div class="fv-sec"><div class="fv-sec-title"><em>⌂</em> Propiedades activas</div><div class="fv-grid" id="asesor-propiedades-list"><div class="hoy-empty">Cargando propiedades reales…</div></div></div><div class="fv-sec"><div class="le-banner">Esta vista debe decirle al asesor qué propiedad mover y qué pendiente resolver. La tabla es secundaria; el expediente vivo es la experiencia principal.</div></div></div></div></div></div>`; }
 async function asesorLoadPropiedades(force=false){ if(_asesorPropsLoaded&&!force) return; _asesorPropsLoaded=true; const el=document.getElementById('asesor-propiedades-list'); if(!el)return; try{ const data=await asesorLoadAll(force); const props=data.propiedades||[]; el.innerHTML=props.length?props.map(p=>`<div class="fv-row full"><div class="fv-row-k">${asesorEsc(_fval(p,'Estado Propiedad')||'Propiedad')}</div><div class="fv-row-v"><strong style="color:var(--white)">${asesorEsc(_fval(p,'Nombre Propiedad')||'Sin nombre')}</strong><br><span style="color:var(--gold);font-family:var(--mono);font-size:11px">${asesorEsc(_fval(p,'Folio NERI')||_fval(p,'Folio Vendedor')||'— sin folio —')}</span><br><span style="color:var(--w50)">${asesorEsc([_fval(p,'Zona / Colonia'),_fval(p,'Municipio'),_fval(p,'Precio Lista')].filter(Boolean).join(' · ')||'Sin datos operativos')}</span></div></div>`).join(''):'<div class="hoy-empty">Sin propiedades reales para esta sesión.</div>'; }catch(e){ el.innerHTML=`<div class="hoy-empty err">No se pudieron cargar propiedades: ${asesorEsc(e.message)}</div>`; } }
-function buildAsesorDocumentosPanel(){ return `<div class="panel" id="panel-documentos_asesor"><div class="asesor-body asesor-perfil-page"><div class="fv-box perfil-fv-box"><div class="fv-header"><div><div class="fv-nombre">MESA DE DOCUMENTOS</div><div class="fv-wa"><span>Qué falta para avanzar, no solo archivos guardados</span></div></div><div><div class="fv-folio-lbl">Vista asesor</div><div class="fv-folio">DOCUMENTOS</div></div></div><div class="fv-body perfil-fv-body"><div class="fv-sec"><div class="fv-sec-title"><em>▤</em> Documentos faltantes / etapa del expediente</div><div class="perfil-fv-locks" id="asesor-documentos-list"><div class="hoy-empty">Cargando documentos reales…</div></div></div><div class="fv-sec"><div class="le-banner">La parte fiscal y documental debe decir: qué falta, en qué etapa afecta y qué acción destraba la operación.</div></div></div></div></div></div>`; }
-async function asesorLoadDocumentos(force=false){ if(_asesorDocsLoaded&&!force)return; _asesorDocsLoaded=true; const el=document.getElementById('asesor-documentos-list'); if(!el)return; try{ const data=await asesorLoadAll(force); const docs=[]; (data.progreso||[]).forEach(r=>{const p=_fval(r,'Pendientes visibles'); if(p) docs.push({doc:'Pendientes visibles',estado:_fval(r,'Fase Actual')||'Expediente',nota:p,nombre:asesorNombre(r)});}); (data.vendedores||[]).forEach(r=>{const p=_fval(r,'Documentos'); if(p) docs.push({doc:'Documentos vendedor',estado:_fval(r,'Progreso Expediente')||_fval(r,'Conversión')||'Captación',nota:p,nombre:asesorNombre(r)});}); el.innerHTML=docs.length?docs.map(d=>`<div class="fv-lock"><div class="fv-lock-k">${asesorEsc(d.doc)} · ${asesorEsc(d.nombre)}</div><div class="fv-lock-v"><span class="badge badge-lost">${asesorEsc(d.estado)}</span><br><span style="color:var(--w50);font-family:Montserrat,sans-serif">${asesorEsc(d.nota)}</span></div></div>`).join(''):'<div class="hoy-empty">Sin documentos faltantes registrados para esta sesión.</div>'; }catch(e){ el.innerHTML=`<div class="hoy-empty err">No se pudieron cargar documentos: ${asesorEsc(e.message)}</div>`; } }
+function buildAsesorDocumentosPanel(){ return `<div class="panel" id="panel-documentos_asesor"><div class="asesor-body asesor-perfil-page"><div class="fv-box perfil-fv-box"><div class="fv-header"><div><div class="fv-nombre">MESA DE DOCUMENTOS</div><div class="fv-wa"><span>Qué falta para avanzar, no solo archivos guardados</span></div></div><div><div class="fv-folio-lbl">Vista asesor</div><div class="fv-folio">DOCUMENTOS</div></div></div><div class="fv-body perfil-fv-body"><div class="fv-sec"><div class="fv-sec-title"><em>▤</em> Documentos faltantes / etapa del expediente</div><div class="perfil-fv-locks" id="asesor-documentos-list"><div class="hoy-empty">Cargando documentos reales…</div></div></div><div class="fv-sec"><div class="fv-sec-title"><em>▣</em> Mesa de Revisión · valida o rechaza documentos del propietario</div><div class="perfil-fv-locks" id="mesa-vendedores-list"><div class="hoy-empty">Cargando propietarios con expediente…</div></div></div><div class="fv-sec"><div class="le-banner">La parte fiscal y documental debe decir: qué falta, en qué etapa afecta y qué acción destraba la operación.</div></div></div></div></div></div>`; }
+async function asesorLoadDocumentos(force=false){ try{ mesaCargarVendedores(force); }catch(_){} if(_asesorDocsLoaded&&!force)return; _asesorDocsLoaded=true; const el=document.getElementById('asesor-documentos-list'); if(!el)return; try{ const data=await asesorLoadAll(force); const docs=[]; (data.progreso||[]).forEach(r=>{const p=_fval(r,'Pendientes visibles'); if(p) docs.push({doc:'Pendientes visibles',estado:_fval(r,'Fase Actual')||'Expediente',nota:p,nombre:asesorNombre(r)});}); (data.vendedores||[]).forEach(r=>{const p=_fval(r,'Documentos'); if(p) docs.push({doc:'Documentos vendedor',estado:_fval(r,'Progreso Expediente')||_fval(r,'Conversión')||'Captación',nota:p,nombre:asesorNombre(r)});}); el.innerHTML=docs.length?docs.map(d=>`<div class="fv-lock"><div class="fv-lock-k">${asesorEsc(d.doc)} · ${asesorEsc(d.nombre)}</div><div class="fv-lock-v"><span class="badge badge-lost">${asesorEsc(d.estado)}</span><br><span style="color:var(--w50);font-family:Montserrat,sans-serif">${asesorEsc(d.nota)}</span></div></div>`).join(''):'<div class="hoy-empty">Sin documentos faltantes registrados para esta sesión.</div>'; }catch(e){ el.innerHTML=`<div class="hoy-empty err">No se pudieron cargar documentos: ${asesorEsc(e.message)}</div>`; } }
+/* ═══════════════════════════════════════════════════
+   MESA DE REVISIÓN — el asesor valida o rechaza los documentos
+   que el propietario subió a su expediente. Lee documentos reales
+   por folio+token (GET /api/expediente-documentos) y aplica
+   validar/rechazar con sesión de asesor (POST). Autocontenida aquí.
+═══════════════════════════════════════════════════ */
+const MESA_CSS = `
+.mesa-overlay{position:fixed;inset:0;z-index:9999;display:none;align-items:flex-start;justify-content:center;background:rgba(8,8,8,.88);padding:24px 12px;overflow:auto}
+.mesa-sheet{background:#0b0b0b;border:1px solid rgba(201,169,110,.35);border-radius:3px;max-width:560px;width:100%;margin:auto}
+.mesa-sheet-h{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.08)}
+.mesa-sheet-title{font-family:'Bebas Neue',sans-serif;letter-spacing:1.5px;color:#C9A96E;font-size:18px}
+.mesa-x{background:none;border:1px solid rgba(255,255,255,.18);color:#fff;border-radius:3px;width:30px;height:30px;cursor:pointer}
+.mesa-sheet-body{padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.mesa-sheet-status{padding:0 16px 14px;font-size:12px;color:#f0a0a0;font-family:Montserrat,sans-serif}
+.mesa-card{border:1px solid rgba(255,255,255,.1);border-radius:3px;padding:12px;margin-bottom:8px;cursor:pointer}
+.mesa-card:hover{border-color:rgba(201,169,110,.5)}
+.mesa-card-k{color:#fff;font-family:Montserrat,sans-serif;font-weight:600}
+.mesa-card-v{color:rgba(255,255,255,.55);font-size:12px;font-family:Montserrat,sans-serif;margin-top:3px}
+.mesa-doc{border:1px solid rgba(255,255,255,.1);border-radius:3px;padding:12px}
+.mesa-doc-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.mesa-doc-tipo{color:#fff;font-family:Montserrat,sans-serif;font-weight:600}
+.mesa-doc-desc{color:rgba(255,255,255,.5);font-size:12px;margin-top:4px;font-family:Montserrat,sans-serif}
+.mesa-doc-motivo{color:#f0a0a0;font-size:12px;margin-top:4px;font-family:Montserrat,sans-serif}
+.mesa-doc-acc{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.mesa-doc-pend{color:rgba(255,255,255,.4);font-size:12px;font-family:Montserrat,sans-serif}
+.mesa-doc-fecha{color:rgba(255,255,255,.4);font-size:11px;font-family:'DM Mono',monospace;margin-left:auto}
+.mesa-badge{display:inline-block;font-size:10px;letter-spacing:.6px;padding:2px 7px;border-radius:2px;font-family:Montserrat,sans-serif;border:1px solid rgba(255,255,255,.2);color:#fff}
+.mesa-badge-ok{border-color:#3f9b6a;color:#7fd3a3}
+.mesa-badge-bad{border-color:#a23b3b;color:#f0a0a0}
+.mesa-badge-warn{border-color:#b8893a;color:#e3c07a}
+.mesa-badge-pend{border-color:rgba(255,255,255,.2);color:rgba(255,255,255,.6)}
+.mesa-tag-crit{font-size:9px;letter-spacing:1px;color:#f0a0a0;border:1px solid #a23b3b;border-radius:2px;padding:1px 5px;font-family:Montserrat,sans-serif}
+.mesa-pill{background:none;border:1px solid rgba(255,255,255,.22);color:#fff;border-radius:3px;padding:6px 12px;font-size:12px;cursor:pointer;text-decoration:none;font-family:Montserrat,sans-serif}
+.mesa-pill.gold{border-color:#C9A96E;color:#C9A96E}
+.mesa-pill.bad{border-color:#a23b3b;color:#f0a0a0}
+.mesa-rech{margin-top:10px;border-top:1px solid rgba(255,255,255,.08);padding-top:10px}
+.mesa-rech-t{color:rgba(255,255,255,.6);font-size:11px;letter-spacing:.8px;margin-bottom:6px;font-family:Montserrat,sans-serif}
+.mesa-rech-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.mesa-chip{background:none;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.8);border-radius:2px;padding:4px 9px;font-size:11px;cursor:pointer;font-family:Montserrat,sans-serif}
+.mesa-chip:hover{border-color:#C9A96E;color:#C9A96E}
+.mesa-rech-inp{width:100%;background:#080808;border:1px solid rgba(255,255,255,.18);color:#fff;border-radius:3px;padding:8px;font-size:13px;font-family:Montserrat,sans-serif;margin-bottom:8px;box-sizing:border-box}
+.mesa-rech-acc{display:flex;gap:8px;flex-wrap:wrap}
+`;
+async function mesaCargarVendedores(force=false){
+  const el=document.getElementById('mesa-vendedores-list'); if(!el) return;
+  try{
+    const data=await asesorLoadAll(force);
+    const vends=(data.vendedores||[]).filter(r=>{ const f=_fval(r,'Folio'); const t=_fval(r,'Token Expediente'); return f && t && String(f).indexOf('—')!==0; });
+    el.innerHTML = vends.length
+      ? vends.map(r=>{ const nombre=asesorNombre(r), folio=_fval(r,'Folio'), prog=_fval(r,'Progreso Expediente')||_fval(r,'Conversión')||'Expediente';
+          return '<div class="mesa-card" onclick="mesaAbrir(\''+r.id+'\')"><div class="mesa-card-k">'+asesorEsc(nombre)+' · '+asesorEsc(folio)+'</div><div class="mesa-card-v"><span class="mesa-badge">'+asesorEsc(prog)+'</span> · Toca para revisar y validar</div></div>'; }).join('')
+      : '<div class="hoy-empty">Aún no hay propietarios con expediente activo (se activa al firmar exclusiva o venta directa).</div>';
+  }catch(e){ el.innerHTML='<div class="hoy-empty err">No se pudo cargar la mesa: '+asesorEsc(e.message)+'</div>'; }
+}
+async function mesaAbrir(recId){
+  let data=asesorCache||{};
+  if(!data.vendedores){ try{ data=await asesorLoadAll(false); }catch(_){ data=asesorCache||{}; } }
+  const rec=(data.vendedores||[]).find(r=>r.id===recId); if(!rec) return;
+  const folio=_fval(rec,'Folio'), token=_fval(rec,'Token Expediente'), nombre=asesorNombre(rec);
+  mesaEnsureModal(); mesaSetOpen(true);
+  document.getElementById('mesa-modal-title').textContent=nombre+' · '+folio;
+  const body=document.getElementById('mesa-modal-body'); body.innerHTML='<div class="hoy-empty">Cargando expediente real…</div>';
+  try{
+    const r=await fetch('/api/expediente-documentos?folio='+encodeURIComponent(folio)+'&token='+encodeURIComponent(token));
+    const j=await r.json().catch(()=>({})); if(!r.ok) throw new Error(j.error||('HTTP '+r.status));
+    mesaRender(j.documents||[], folio, recId);
+  }catch(e){ body.innerHTML='<div class="hoy-empty err">No se pudo cargar: '+asesorEsc(e.message)+'</div>'; }
+}
+function mesaRender(docs, folio, recId){
+  const body=document.getElementById('mesa-modal-body'); if(!body) return;
+  if(!docs.length){ body.innerHTML='<div class="hoy-empty">Este propietario aún no ha subido documentos.</div>'; return; }
+  body.innerHTML=docs.map(d=>{ const id=d.id||'', estado=d.estado||'Pendiente', verUrl=d.archivo_url?mesaVerUrl(d.archivo_url):'';
+    const fecha=d.fecha_carga?'<span class="mesa-doc-fecha">'+asesorEsc(String(d.fecha_carga).slice(0,10))+'</span>':'';
+    const critico=d.critico?'<span class="mesa-tag-crit">CRÍTICO</span>':'';
+    const motivo=(estado==='Rechazado'&&d.motivo_rechazo)?'<div class="mesa-doc-motivo">Motivo: '+asesorEsc(d.motivo_rechazo)+'</div>':'';
+    const ver=verUrl?'<a class="mesa-pill" href="'+asesorEsc(verUrl)+'" target="_blank" rel="noopener">Ver</a>':'';
+    const subido=(estado==='Recibido'||estado==='Validado'||estado==='Rechazado');
+    const botones=subido?'<button class="mesa-pill gold" onclick="mesaAccion(\''+folio+'\',\''+id+'\',\'validar\',\''+recId+'\')">Validar</button><button class="mesa-pill bad" onclick="mesaPedirRechazo(\''+folio+'\',\''+id+'\',\''+recId+'\')">Rechazar</button>':'<span class="mesa-doc-pend">Pendiente de carga del propietario</span>';
+    return '<div class="mesa-doc"><div class="mesa-doc-h"><span class="mesa-doc-tipo">'+asesorEsc(d.tipo||'Documento')+'</span> '+critico+' '+mesaBadge(estado)+fecha+'</div>'+(d.descripcion?'<div class="mesa-doc-desc">'+asesorEsc(d.descripcion)+'</div>':'')+motivo+'<div class="mesa-doc-acc">'+ver+botones+'</div><div class="mesa-rech" id="mesa-rech-'+asesorEsc(id)+'" style="display:none"></div></div>';
+  }).join('');
+}
+function mesaBadge(e){ const m={'Validado':'ok','Rechazado':'bad','Recibido':'warn','Pendiente':'pend','No aplica':'pend'}; return '<span class="mesa-badge mesa-badge-'+(m[e]||'pend')+'">'+asesorEsc(e)+'</span>'; }
+function mesaVerUrl(u){ u=String(u||''); if(!u) return ''; if(/idrivee2\.com/i.test(u)) return location.origin+'/api/idrive-read-url?url='+encodeURIComponent(u); return u; }
+function mesaPedirRechazo(folio,id,recId){
+  const box=document.getElementById('mesa-rech-'+id); if(!box) return; box.style.display='block';
+  const motivos=['Ilegible','Incompleto','Documento equivocado','No vigente'];
+  box.innerHTML='<div class="mesa-rech-t">Motivo del rechazo</div><div class="mesa-rech-chips">'+motivos.map(m=>'<button class="mesa-chip" onclick="mesaSetMotivo(\''+id+'\',\''+m+'\')">'+m+'</button>').join('')+'</div><input class="mesa-rech-inp" id="mesa-motivo-'+id+'" placeholder="O escribe el motivo…"><div class="mesa-rech-acc"><button class="mesa-pill bad" onclick="mesaAccion(\''+folio+'\',\''+id+'\',\'rechazar\',\''+recId+'\')">Confirmar rechazo</button><button class="mesa-pill" onclick="mesaCancelRechazo(\''+id+'\')">Cancelar</button></div>';
+}
+function mesaSetMotivo(id,m){ const i=document.getElementById('mesa-motivo-'+id); if(i) i.value=m; }
+function mesaCancelRechazo(id){ const b=document.getElementById('mesa-rech-'+id); if(b){ b.style.display='none'; b.innerHTML=''; } }
+async function mesaAccion(folio,id,accion,recId){
+  const motivo=accion==='rechazar'?((document.getElementById('mesa-motivo-'+id)||{}).value||'').trim():'';
+  if(accion==='rechazar'&&!motivo){ mesaStatus('Indica un motivo de rechazo.'); return; }
+  mesaStatus('Aplicando '+accion+'…');
+  try{
+    const r=await fetch('/api/expediente-documentos',{ method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+(typeof SESSION!=='undefined'&&SESSION?SESSION.token:'')}, body:JSON.stringify({ action:accion, folio:folio, document_id:id, motivo:motivo }) });
+    const j=await r.json().catch(()=>({})); if(!r.ok) throw new Error(j.error||('HTTP '+r.status));
+    mesaStatus(''); await mesaAbrir(recId);
+  }catch(e){ mesaStatus('No se pudo '+accion+': '+e.message); }
+}
+function mesaStatus(msg){ const s=document.getElementById('mesa-modal-status'); if(s) s.textContent=msg||''; }
+function mesaSetOpen(open){ const w=document.getElementById('mesa-modal'); if(w) w.style.display=open?'flex':'none'; if(open) mesaStatus(''); }
+function mesaCerrar(){ mesaSetOpen(false); }
+function mesaEnsureModal(){
+  if(!document.getElementById('mesa-css')){ const st=document.createElement('style'); st.id='mesa-css'; st.textContent=MESA_CSS; document.head.appendChild(st); }
+  if(document.getElementById('mesa-modal')) return;
+  const w=document.createElement('div'); w.id='mesa-modal'; w.className='mesa-overlay'; w.style.display='none';
+  w.innerHTML='<div class="mesa-sheet"><div class="mesa-sheet-h"><div class="mesa-sheet-title" id="mesa-modal-title">Expediente</div><button class="mesa-x" onclick="mesaCerrar()">✕</button></div><div class="mesa-sheet-body" id="mesa-modal-body"></div><div class="mesa-sheet-status" id="mesa-modal-status"></div></div>';
+  w.addEventListener('click',function(ev){ if(ev.target===w) mesaCerrar(); });
+  document.body.appendChild(w);
+}
+window.mesaAbrir=mesaAbrir; window.mesaCerrar=mesaCerrar; window.mesaAccion=mesaAccion; window.mesaPedirRechazo=mesaPedirRechazo; window.mesaSetMotivo=mesaSetMotivo; window.mesaCancelRechazo=mesaCancelRechazo; window.mesaCargarVendedores=mesaCargarVendedores;
 function buildAsesorReportesPanel(){ return `<div class="panel" id="panel-reportes_asesor"><div class="asesor-body asesor-perfil-page"><div class="fv-box perfil-fv-box"><div class="fv-header"><div><div class="fv-nombre">REPORTES ÚTILES</div><div class="fv-wa"><span>Métricas reales para mejorar, no para confundir</span></div></div><div><div class="fv-folio-lbl">Vista asesor</div><div class="fv-folio">REPORTES</div></div></div><div class="fv-body perfil-fv-body"><div class="fv-sec"><div class="fv-sec-title"><em>◫</em> Resumen operativo</div><div class="fv-nums" id="asesor-reportes-nums"><div class="hoy-empty">Cargando reportes reales…</div></div></div><div class="fv-sec"><div class="le-banner">Estos números vienen de Airtable filtrado por asesor desde el servidor: leads, citas, progreso y propiedades.</div></div></div></div></div></div>`; }
 async function asesorLoadReportes(force=false){ if(_asesorReportsLoaded&&!force)return; _asesorReportsLoaded=true; const el=document.getElementById('asesor-reportes-nums'); if(!el)return; try{ const data=await asesorLoadAll(force); el.innerHTML=[[data.compradores.length+data.vendedores.length,'Leads / captaciones'],[data.citas.filter(r=>['Pendiente','Confirmada','Reagendada'].includes(_fval(r,'Estado Cita'))).length,'Citas activas'],[data.progreso.length,'Operaciones en progreso'],[data.propiedades.length,'Propiedades asignadas']].map(n=>`<div class="fv-num"><div class="fv-num-val">${n[0]}</div><div class="fv-num-lbl">${n[1]}</div></div>`).join(''); }catch(e){ el.innerHTML=`<div class="hoy-empty err">No se pudieron cargar reportes: ${asesorEsc(e.message)}</div>`; } }
 
