@@ -3049,6 +3049,22 @@ function landingPropertyProcessHTML(rec){
           <div class="fv-action-block-copy">Análisis interno · versión automática viene después.</div>
         </button>
       </div>
+      <div class="le-sec-title" style="margin-top:22px"><span class="le-ico">▸</span>Expediente documental del propietario</div>
+      <div class="le-note" style="margin-bottom:10px">Este es el portal donde el propietario sube sus documentos; no es el portal de progreso del cliente.</div>
+      <div class="fv-actions-prop-grid">
+        <button type="button" class="fv-action-block gold" onclick="showToast('Enviar link del expediente: conexión sin modificar')">
+          <div class="fv-action-block-title">Enviar link del expediente</div>
+          <div class="fv-action-block-copy">Directo al WhatsApp del propietario.</div>
+        </button>
+        <button type="button" class="fv-action-block" onclick="showToast('Abrir expediente: conexión sin modificar')">
+          <div class="fv-action-block-title">Abrir expediente</div>
+          <div class="fv-action-block-copy">Vista del propietario.</div>
+        </button>
+        <button type="button" class="fv-action-block" onclick="showToast('Subir documento yo mismo: conexión sin modificar')">
+          <div class="fv-action-block-title">Subir documento yo mismo</div>
+          <div class="fv-action-block-copy">Si lo recibiste por otro medio.</div>
+        </button>
+      </div>
       <div class="fv-action-note">Folio de referencia: ${_esc(folio)} · Bloque visual preparado sin tocar cabina-vendedor.js.</div>
     </div>`;
 }
@@ -3119,6 +3135,13 @@ function landOpenEditor(recId){
     ${secs}
     ${lockBlock}
     ${propertyProcessBlock}`;
+
+  // Guardia visual: si por caché o mezcla de versiones aparece duplicado,
+  // deja una sola cabina final de Acciones + Expediente. No toca datos ni conexiones.
+  const _landProcessBlocks = document.querySelectorAll('#crm-landing-body .le-property-process');
+  if(_landProcessBlocks.length > 1){
+    _landProcessBlocks.forEach((el, idx) => { if(idx < _landProcessBlocks.length - 1) el.remove(); });
+  }
 
   const viewBtn = document.getElementById('crm-landing-view');
   if(linkComp){ viewBtn.style.display=''; viewBtn.onclick = () => window.open(linkComp,'_blank'); }
