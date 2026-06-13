@@ -828,26 +828,50 @@
     } catch (_) {}
     return '';
   }
+  /* Deduce el MIME del documento (algunos archivos llegan sin file.type) */
+  function cabMimeDoc(file) {
+    var t = (file && file.type ? String(file.type) : '').toLowerCase();
+    if (t) return t;
+    var n = (file && file.name ? String(file.name) : '').toLowerCase();
+    if (/\.pdf$/.test(n)) return 'application/pdf';
+    if (/\.(jpe?g)$/.test(n)) return 'image/jpeg';
+    if (/\.png$/.test(n)) return 'image/png';
+    if (/\.webp$/.test(n)) return 'image/webp';
+    if (/\.(heic|heif)$/.test(n)) return 'image/heic';
+    return 'application/octet-stream';
+  }
   function cabDocSeleccionado(recId, inputEl) {
     var file = inputEl && inputEl.files && inputEl.files[0];
     if (!file) return;
     var st = byId('cab-doc-status-' + recId);
-    if (st) { st.style.display = 'block'; st.innerHTML = 'Subiendo <b>' + esc(file.name) + '</b>…'; }
+    if (st) { st.style.display = 'block'; st.innerHTML = 'Preparando subida segura de <b>' + esc(file.name) + '</b>…'; }
     var rec = getRecord(recId);
     var folio = (rec ? (fval(rec, 'Folio') || fval(rec, 'Folio NERI') || fval(rec, 'Folio Vendedor')) : '') || '';
-    fetch(UPLOAD_DOC_ENDPOINT + (folio ? ('?folio=' + encodeURIComponent(folio)) : ''), {
+    var ct = cabMimeDoc(file);
+    // Subida directa a iDrive e2 (PUT firmado): el archivo NO pasa por la función de Vercel,
+    // por lo que se evita el límite de ~4.5 MB del cuerpo y deja de congelarse con fotos/PDF grandes.
+    fetch('/api/upload-idrive-url', {
       method: 'POST',
-      headers: { 'Content-Type': file.type || 'application/octet-stream', 'x-content-type': file.type || '', 'x-file-name': encodeURIComponent(file.name), 'Authorization': 'Bearer ' + cabSessionToken() },
-      body: file
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + cabSessionToken() },
+      body: JSON.stringify({ filename: file.name, contentType: ct, size: file.size, folio: folio || 'sin-folio', doc: 'documento' })
     })
       .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, j: j }; }); })
-      .then(function (res) {
-        if (!res.ok || !res.j || !res.j.url) throw new Error((res.j && res.j.error) || 'No se pudo subir el documento.');
-        var url = res.j.url;
+      .then(function (pre) {
+        if (!pre.ok || !pre.j || !pre.j.uploadUrl) throw new Error((pre.j && pre.j.error) || 'No se pudo preparar la subida.');
+        if (st) st.innerHTML = 'Subiendo <b>' + esc(file.name) + '</b>…';
+        var cfg = pre.j;
+        return fetch(cfg.uploadUrl, { method: 'PUT', headers: { 'Content-Type': ct }, body: file })
+          .then(function (put) {
+            if (!put.ok) throw new Error('iDrive respondió HTTP ' + put.status);
+            return cfg;
+          });
+      })
+      .then(function (cfg) {
+        var viewUrl = location.origin + '/api/idrive-read-url?url=' + encodeURIComponent(cfg.url);
         if (st) st.innerHTML =
           '<div style="color:var(--gold,#C6A86B);margin-bottom:6px">✓ Documento subido</div>'
-          + '<div style="font-size:11px;color:rgba(255,255,255,.55);word-break:break-all;margin-bottom:8px">' + esc(url) + '</div>'
-          + '<button class="cab-acc-btn ghost" onclick="copiarTextoExpediente(\'' + url.replace(/'/g, "\\'") + '\', this)">Copiar liga · pégala en el campo Documentos</button>';
+          + '<div style="font-size:11px;color:rgba(255,255,255,.55);word-break:break-all;margin-bottom:8px"><a href="' + esc(viewUrl) + '" target="_blank" rel="noopener" style="color:var(--gold,#C6A86B)">Ver documento</a></div>'
+          + '<button class="cab-acc-btn ghost" onclick="copiarTextoExpediente(\'' + viewUrl.replace(/'/g, "\\'") + '\', this)">Copiar liga · pégala en el campo Documentos</button>';
       })
       .catch(function (e) {
         if (st) st.innerHTML = '<span style="color:#f87171">No se pudo subir: ' + esc(e.message) + '</span>';
