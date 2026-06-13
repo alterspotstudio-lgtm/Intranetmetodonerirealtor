@@ -782,9 +782,39 @@
   /* =========================================================================
      EXPEDIENTE DOCUMENTAL: arma el link del propietario y maneja subidas
      ========================================================================= */
+  /* El expediente del propietario SIEMPRE se llave con el Folio + Token del LEAD VENDEDOR.
+     Desde la ficha de PROPIEDADES, rec es una Propiedad NERI (sin campo Folio ni Token):
+     resolvemos el lead vendedor vinculado por su Folio Vendedor (= Folio del lead). */
+  function leadVendedorDeRec(rec) {
+    if (!rec) return null;
+    if (fval(rec, 'Token Expediente')) return null;           // rec ya es el lead vendedor
+    var fv = fval(rec, 'Folio Vendedor');
+    if (!fv) return null;
+    try {
+      if (typeof crmVendedoresFolioIndex === 'object' && crmVendedoresFolioIndex) {
+        var key = (typeof crmNormalizeFolio === 'function')
+          ? crmNormalizeFolio(fv)
+          : String(fv).trim().toUpperCase();
+        return crmVendedoresFolioIndex[key] || null;
+      }
+    } catch (_) {}
+    return null;
+  }
+  /* Folio del expediente: SIEMPRE el del lead vendedor, nunca el Folio NERI de la propiedad. */
+  function folioExpedienteDe(rec) {
+    var lead = leadVendedorDeRec(rec);
+    if (lead) return fval(lead, 'Folio') || '';
+    return fval(rec, 'Folio') || fval(rec, 'Folio Vendedor') || '';
+  }
   function expedienteLink(rec) {
-    var folio = fval(rec, 'Folio') || fval(rec, 'Folio NERI') || fval(rec, 'Folio Vendedor') || '';
-    var token = fval(rec, 'Token Expediente') || fval(rec, 'Token') || '';
+    var lead = leadVendedorDeRec(rec);
+    if (lead) {
+      var guardado = fval(lead, 'Link Expediente Documental');
+      if (guardado) return guardado;          // link completo (folio+token) ya escrito por /api/activar-expediente
+    }
+    var src = lead || rec;
+    var folio = fval(src, 'Folio') || fval(rec, 'Folio Vendedor') || '';
+    var token = fval(src, 'Token Expediente') || fval(src, 'Token') || '';
     var url = String(EXP_DOC_BASE).replace(/\/+$/, '') + '/?folio=' + encodeURIComponent(folio);
     if (token) url += '&token=' + encodeURIComponent(token);
     return url;
@@ -846,7 +876,7 @@
     var st = byId('cab-doc-status-' + recId);
     if (st) { st.style.display = 'block'; st.innerHTML = 'Preparando subida segura de <b>' + esc(file.name) + '</b>…'; }
     var rec = getRecord(recId);
-    var folio = (rec ? (fval(rec, 'Folio') || fval(rec, 'Folio NERI') || fval(rec, 'Folio Vendedor')) : '') || '';
+    var folio = rec ? folioExpedienteDe(rec) : '';
     var ct = cabMimeDoc(file);
     // Subida directa a iDrive e2 (PUT firmado): el archivo NO pasa por la función de Vercel,
     // por lo que se evita el límite de ~4.5 MB del cuerpo y deja de congelarse con fotos/PDF grandes.
