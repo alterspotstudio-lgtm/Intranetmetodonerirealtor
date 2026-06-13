@@ -2857,14 +2857,6 @@ function fichaCopy(btn){
 /* ─── EDITOR DE LANDING (Ficha de Propiedad) ───────── */
 /* Solo lectura del folio; edita SOLO campos de contenido de la landing.
    Folio NERI / Links / contadores son fórmula/Make → bloqueados.        */
-const LANDING_PLUSVALIA_VALOR_OPTS = ['+5% Anual','+6% Anual','+7% Anual','+8% Anual','+9% Anual','+10% Anual','+12% Anual','A consultar'];
-const LANDING_PLUSVALIA_TEXTO_OPTS = [
-  'Zona con alta demanda y crecimiento constante.',
-  'Excelente oportunidad patrimonial por ubicación y conectividad.',
-  'Propiedad ubicada en zona con desarrollo y servicios consolidados.',
-  'La plusvalía puede variar según mercado, mejoras y comportamiento de la zona.'
-];
-
 const LANDING_FORM = [
   {title:'Datos de la casa', ico:'⌂', fields:[
     {f:'Tipo de Propiedad', type:'select', opts:['Casa','Departamento','Terreno','Local','Oficina','Bodega']},
@@ -2886,8 +2878,17 @@ const LANDING_FORM = [
     {f:'Moneda',        type:'select', opts:['MXN','USD']},
   ]},
   {title:'Plusvalía', ico:'↗', fields:[
-    {f:'Plusvalia Valor', type:'combo', opts:LANDING_PLUSVALIA_VALOR_OPTS},
-    {f:'Plusvalia Texto', type:'textarea-options', full:true, opts:LANDING_PLUSVALIA_TEXTO_OPTS},
+    {f:'Plusvalia Valor', type:'select', opts:['3%','4%','5%','6%','7%','8%','9%','10%','11%','12%','13%','14%','15%','16%','17%','18%','19%','20%','21%','22%','23%','24%','25%','26%','27%','28%','29%','30%']},
+    {f:'Plusvalia Texto', type:'select', full:true, opts:[
+      'Zona con alta demanda y desarrollo constante.',
+      'Corredor de crecimiento consolidado en Morelos.',
+      'Plusvalía sostenida por infraestructura y conectividad.',
+      'Zona residencial con proyectos de inversión activos.',
+      'Área con apreciación histórica superior al promedio regional.',
+      'Entorno natural y urbano que impulsa el valor del inmueble.',
+      'Desarrollo habitacional en expansión con servicios completos.',
+      'Zona con alta liquidez y demanda de comprador final.',
+    ]},
   ]},
   {title:'Portada', ico:'◫', fields:[
     {f:'Nombre Propiedad', type:'text',     full:true, label:'PROPIEDAD'},
@@ -2927,10 +2928,6 @@ function _attInfo(rec, name){
     return { has:true, count:a.length, url:f0.url||'', thumb:(f0.thumbnails&&f0.thumbnails.small&&f0.thumbnails.small.url)||'' };
   }
   return { has:false, count:0, url:'', thumb:'' };
-}
-
-function _landListId(name){
-  return 'land-list-' + String(name || 'campo').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Za-z0-9_-]/g,'-');
 }
 
 function _safeDocKey(s){
@@ -2990,83 +2987,16 @@ function _landInput(fl, rec){
         <select class="form-inp" data-field="${_escAttr(name)}" data-ftype="select" data-orig="${_escAttr(orig)}">
           <option value="">— Sin selección</option>${os}</select></div>`;
   }
-  if(fl.type === 'textarea-options'){
-    const opts = (fl.opts||[]).map(o => `<option value="${_escAttr(o)}">${_esc(o)}</option>`).join('');
-    return `<div class="form-group${fl.full?' full':''}">
-        <label class="form-label">${label}</label>
-        <select class="form-inp" onchange="if(this.value){this.closest('.form-group').querySelector('textarea').value=this.value;}">
-          <option value="">— Elegir texto sugerido —</option>${opts}
-        </select>
-        <textarea class="form-inp" data-field="${_escAttr(name)}" data-ftype="text" data-orig="${_escAttr(orig)}" rows="2">${_esc(val)}</textarea></div>`;
-  }
   if(fl.type === 'textarea'){
     return `<div class="form-group${fl.full?' full':''}">
         <label class="form-label">${label}</label>
         <textarea class="form-inp" data-field="${_escAttr(name)}" data-ftype="text" data-orig="${_escAttr(orig)}" rows="2">${_esc(val)}</textarea></div>`;
-  }
-  if(fl.type === 'combo'){
-    const listId = _landListId(name);
-    const opts = (fl.opts||[]).map(o => `<option value="${_escAttr(o)}"></option>`).join('');
-    return `<div class="form-group${fl.full?' full':''}">
-      <label class="form-label">${label}</label>
-      <input class="form-inp" type="text" list="${_escAttr(listId)}" data-field="${_escAttr(name)}" data-ftype="text" data-orig="${_escAttr(orig)}" value="${_escAttr(val)}">
-      <datalist id="${_escAttr(listId)}">${opts}</datalist></div>`;
   }
   const inType = fl.type === 'number' ? 'number' : 'text';
   const ft = fl.type === 'number' ? 'number' : 'text';
   return `<div class="form-group${fl.full?' full':''}">
       <label class="form-label">${label}</label>
       <input class="form-inp" type="${inType}" data-field="${_escAttr(name)}" data-ftype="${ft}" data-orig="${_escAttr(orig)}" value="${_escAttr(val)}"></div>`;
-}
-
-function landingPropertyProcessHTML(rec){
-  const folio = _fval(rec,'Folio NERI') || _fval(rec,'Folio Vendedor') || '—';
-  return `<div class="le-sec le-property-process">
-      <div class="le-sec-title"><span class="le-ico">▦</span>Acciones de la propiedad</div>
-      <div class="le-banner">La propiedad ya existe en el sistema. Este bloque queda al final de la ficha. No cambia conexiones ni escribe datos nuevos.</div>
-      <div class="le-banner" style="margin-top:10px;border-left:2px solid var(--gold);background:rgba(201,169,110,.08)">
-        Producción de video en curso · máximo 2 días. <strong>Oferta Formal</strong> se libera cuando estén listos los videos de la landing.
-      </div>
-      <div class="fv-actions-prop-grid" style="margin-top:12px">
-        <button type="button" class="fv-action-block gold" onclick="showToast('Producción inmobiliaria: conexión sin modificar')">
-          <div class="fv-action-block-title">Producción inmobiliaria</div>
-          <div class="fv-action-block-copy">Foto y video · confirmación al propietario.</div>
-        </button>
-        <button type="button" class="fv-action-block gold" onclick="showToast('Cita en notaría: conexión sin modificar')">
-          <div class="fv-action-block-title">Cita en notaría</div>
-          <div class="fv-action-block-copy">Formalización · confirmación al cliente.</div>
-        </button>
-        <button type="button" class="fv-action-block" onclick="showToast('Oferta formal: conexión sin modificar')">
-          <div class="fv-action-block-title">Oferta formal</div>
-          <div class="fv-action-block-copy">Se libera cuando subas los videos a la landing.</div>
-        </button>
-        <button type="button" class="fv-action-block gold" onclick="showToast('Promesa de compraventa: conexión sin modificar')">
-          <div class="fv-action-block-title">Promesa de compraventa</div>
-          <div class="fv-action-block-copy">Firma del acuerdo · confirmación a las partes.</div>
-        </button>
-        <button type="button" class="fv-action-block" style="grid-column:1/-1" onclick="showToast('Reporte semanal: conexión sin modificar')">
-          <div class="fv-action-block-title">Reporte semanal V1</div>
-          <div class="fv-action-block-copy">Análisis interno · versión automática viene después.</div>
-        </button>
-      </div>
-      <div class="le-sec-title" style="margin-top:22px"><span class="le-ico">▸</span>Expediente documental del propietario</div>
-      <div class="le-note" style="margin-bottom:10px">Este es el portal donde el propietario sube sus documentos; no es el portal de progreso del cliente.</div>
-      <div class="fv-actions-prop-grid">
-        <button type="button" class="fv-action-block gold" onclick="showToast('Enviar link del expediente: conexión sin modificar')">
-          <div class="fv-action-block-title">Enviar link del expediente</div>
-          <div class="fv-action-block-copy">Directo al WhatsApp del propietario.</div>
-        </button>
-        <button type="button" class="fv-action-block" onclick="showToast('Abrir expediente: conexión sin modificar')">
-          <div class="fv-action-block-title">Abrir expediente</div>
-          <div class="fv-action-block-copy">Vista del propietario.</div>
-        </button>
-        <button type="button" class="fv-action-block" onclick="showToast('Subir documento yo mismo: conexión sin modificar')">
-          <div class="fv-action-block-title">Subir documento yo mismo</div>
-          <div class="fv-action-block-copy">Si lo recibiste por otro medio.</div>
-        </button>
-      </div>
-      <div class="fv-action-note">Folio de referencia: ${_esc(folio)} · Bloque visual preparado sin tocar cabina-vendedor.js.</div>
-    </div>`;
 }
 
 function _landVideoRow(v, rec){
@@ -3125,23 +3055,13 @@ function landOpenEditor(recId){
         ${lockRow('Link Portal del cliente', linkPort)}
       </div></div>`;
 
-  const propertyProcessBlock = landingPropertyProcessHTML(rec);
-
   document.getElementById('crm-landing-body').innerHTML = `
     <div style="margin-bottom:4px">
       <div class="fk-name">${_esc(nombre)}</div>
       <div class="fk-folio">${folioNeri || '— sin folio aún —'}</div>
     </div>
     ${secs}
-    ${lockBlock}
-    ${propertyProcessBlock}`;
-
-  // Guardia visual: si por caché o mezcla de versiones aparece duplicado,
-  // deja una sola cabina final de Acciones + Expediente. No toca datos ni conexiones.
-  const _landProcessBlocks = document.querySelectorAll('#crm-landing-body .le-property-process');
-  if(_landProcessBlocks.length > 1){
-    _landProcessBlocks.forEach((el, idx) => { if(idx < _landProcessBlocks.length - 1) el.remove(); });
-  }
+    ${lockBlock}`;
 
   const viewBtn = document.getElementById('crm-landing-view');
   if(linkComp){ viewBtn.style.display=''; viewBtn.onclick = () => window.open(linkComp,'_blank'); }
@@ -4888,8 +4808,7 @@ window.addEventListener('DOMContentLoaded', () => {
 .riel-status{font:500 11px Montserrat,sans-serif;color:var(--gold);margin-top:10px;min-height:14px}
 .riel-note{font:400 11px Montserrat,sans-serif;color:var(--w50);line-height:1.6}
   .fv-actions-prop-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-  .fv-action-block{min-height:72px;padding:14px 16px;border:1px solid var(--border2);background:rgba(255,255,255,.018);border-radius:3px;display:flex;flex-direction:column;justify-content:center;text-align:left;color:var(--w80);font-family:inherit;cursor:pointer}
-  .fv-action-block:hover{border-color:var(--goldbdr);background:rgba(255,255,255,.032)}
+  .fv-action-block{min-height:72px;padding:14px 16px;border:1px solid var(--border2);background:rgba(255,255,255,.018);border-radius:3px;display:flex;flex-direction:column;justify-content:center}
   .fv-action-block.gold{background:rgba(201,169,110,.82);border-color:rgba(229,204,154,.75);color:#080808}
   .fv-action-block-title{font-size:8px;letter-spacing:2.2px;text-transform:uppercase;font-weight:900;color:inherit}
   .fv-action-block-copy{font-size:10px;line-height:1.45;color:var(--w40);margin-top:5px;font-weight:400}
