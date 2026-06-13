@@ -16,12 +16,18 @@ import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 const MAX_VIDEO_MB = 500;
-const MAX_PDF_MB = 15;
+const MAX_DOC_MB = 40; // PDFs e imágenes del expediente (escrituras escaneadas, fotos de documentos)
 const ALLOWED_TYPES = new Set([
   'video/mp4',
   'video/quicktime',
   'video/x-m4v',
   'application/pdf', // contratos firmados (riel del vendedor) y documentos PDF
+  'image/jpeg',      // documentos del expediente subidos como foto/imagen
+  'image/jpg',
+  'image/png',
+  'image/webp',
+  'image/heic',
+  'image/heif',
 ]);
 
 export default async function handler(req, res) {
@@ -47,10 +53,10 @@ export default async function handler(req, res) {
     const asesor = cleanPathPart(session.slug || session.user || session.nombre || 'asesor');
 
     if (!ALLOWED_TYPES.has(contentType)) {
-      return res.status(400).json({ error: 'Solo se permiten videos MP4/MOV o documentos PDF para IDrive e2.' });
+      return res.status(400).json({ error: 'Solo se permiten videos MP4/MOV, PDF o imágenes (JPG/PNG/WEBP/HEIC) para IDrive e2.' });
     }
-    const isPdf = contentType === 'application/pdf';
-    const maxMb = isPdf ? MAX_PDF_MB : MAX_VIDEO_MB;
+    const isVideo = contentType.startsWith('video/');
+    const maxMb = isVideo ? MAX_VIDEO_MB : MAX_DOC_MB;
     if (size > maxMb * 1024 * 1024) {
       return res.status(413).json({ error: `El archivo supera el límite operativo de ${maxMb} MB.` });
     }
