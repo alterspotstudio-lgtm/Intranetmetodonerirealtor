@@ -27,7 +27,7 @@
   .ft-kicker{font-family:var(--mono);font-size:9px;letter-spacing:.32em;text-transform:uppercase;color:var(--gold)}
   .ft-folio{font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--w50)}
 
-  .ft-media{padding:18px 22px 4px}
+  .ft-media{padding:20px 22px 4px;border-top:1px solid var(--goldbdr)}
   .ft-media-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
   .ft-media-t{font-size:8px;letter-spacing:.24em;text-transform:uppercase;color:var(--w30);font-weight:700}
   .ft-media-tag{font-family:var(--mono);font-size:8px;letter-spacing:.1em;color:var(--gold)}
@@ -43,6 +43,14 @@
   .ft-tipo{font-size:9px;letter-spacing:.26em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:10px}
   .ft-zona{font-family:var(--display);font-size:46px;line-height:.92;letter-spacing:1px;color:var(--white)}
   .ft-ubic{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--w50);margin-top:9px}
+
+  .ft-cover{position:relative;width:100%;aspect-ratio:16/10;min-height:240px;max-height:430px;background:var(--surface2) center/cover no-repeat;display:flex;align-items:flex-end}
+  .ft-cover.no-photo{background:var(--surface2)}
+  .ft-cover-scrim{width:100%;padding:22px;background:linear-gradient(transparent, rgba(8,8,8,.55) 45%, rgba(8,8,8,.94))}
+  .ft-cover-scrim .ft-tipo{margin-bottom:8px}
+  .ft-cover-scrim .ft-ubic{color:var(--w80)}
+  .ft-gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+  .ft-gimg{width:100%;aspect-ratio:4/3;object-fit:cover;border:1px solid var(--goldbdr);border-radius:var(--r);background:var(--surface3);cursor:pointer}
 
   .ft-precio{padding:18px 22px;border-top:1px solid var(--goldbdr);border-bottom:1px solid var(--goldbdr);background:var(--golddim);display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap}
   .ft-precio-lbl{font-size:8px;letter-spacing:.3em;text-transform:uppercase;color:var(--w30);font-weight:700;margin-bottom:6px}
@@ -162,17 +170,28 @@ function cerrarVideo(){
 function render(d){
   VIDEOS = (Array.isArray(d.videos) ? d.videos.filter(v=>v&&has(v.url)) : []).map(v=>({room:v.room, url:firmaUrl(v.url)}));
 
-  let media = '';
+  // Recorrido en video — ahora va AL FINAL
+  let videosBlock = '';
   if(VIDEOS.length){
-    const poster = has(d.fotoPortada) ? 'background-image:url(\''+escA(d.fotoPortada)+'\')' : '';
-    const tiles = VIDEOS.map((v,i)=>'<div class="ft-tile" style="'+poster+'" onclick="abrirVideo('+i+')"><span class="ft-play">▶</span><span class="ft-tlabel">'+esc(v.room||('Video '+(i+1)))+'</span></div>').join('');
-    media = '<div class="ft-media"><div class="ft-media-h"><div class="ft-media-t">Recorrido en video</div><div class="ft-media-tag">▶ '+VIDEOS.length+' '+(VIDEOS.length===1?'espacio':'espacios')+'</div></div><div class="ft-reel">'+tiles+'</div></div>';
-  } else if(has(d.fotoPortada)){
-    media = '<div class="ft-media"><div class="ft-media-h"><div class="ft-media-t">Fotografía</div></div><img class="ft-photo" src="'+escA(d.fotoPortada)+'" alt="Fotografía de la propiedad"></div>';
+    const tiles = VIDEOS.map((v,i)=>'<div class="ft-tile" onclick="abrirVideo('+i+')"><span class="ft-play">▶</span><span class="ft-tlabel">'+esc(v.room||('Video '+(i+1)))+'</span></div>').join('');
+    videosBlock = '<div class="ft-media"><div class="ft-media-h"><div class="ft-media-t">Recorrido en video</div><div class="ft-media-tag">▶ '+VIDEOS.length+' '+(VIDEOS.length===1?'espacio':'espacios')+'</div></div><div class="ft-reel">'+tiles+'</div></div>';
+  }
+
+  // Galería de fotos (opcional): más ángulos de la casa
+  let galeria = '';
+  const gArr = Array.isArray(d.galeria) ? d.galeria.filter(has) : (has(d.galeria)? String(d.galeria).split(/[\n,]/).map(s=>s.trim()).filter(Boolean) : []);
+  if(gArr.length){
+    galeria = '<div class="ft-sec"><div class="ft-sec-title">Galería</div><div class="ft-gallery">'+gArr.map(u=>'<img class="ft-gimg" src="'+escA(u)+'" alt="Fotografía" loading="lazy">').join('')+'</div></div>';
   }
 
   const ubic = [d.municipio, d.entidad].filter(has).map(esc).join(' · ');
   const tipoLine = [d.tipo, d.estado].filter(has).map(esc).join(' · ');
+  const heroTxt = (tipoLine?'<div class="ft-tipo">'+tipoLine+'</div>':'')
+    + '<div class="ft-zona">'+esc(d.zona||d.tipo||'Propiedad')+'</div>'
+    + (ubic?'<div class="ft-ubic">'+ubic+'</div>':'');
+  const cover = has(d.fotoPortada)
+    ? '<div class="ft-cover" style="background-image:url(\''+escA(d.fotoPortada)+'\')"><div class="ft-cover-scrim">'+heroTxt+'</div></div>'
+    : '<div class="ft-cover no-photo"><div class="ft-cover-scrim">'+heroTxt+'</div></div>';
 
   let precioM2 = '';
   if(has(d.precioNum) && has(d.m2construccion)){
@@ -180,7 +199,9 @@ function render(d){
     if(p>0 && m>0) precioM2 = money(Math.round(p/m));
   }
   const pxm = precioM2 ? '<div class="ft-pxm"><div class="ft-pxm-v">'+esc(precioM2)+' / m²</div><div class="ft-pxm-l">Precio por m² constr.</div></div>' : '';
-  const precio = has(d.precio) ? '<div class="ft-precio"><div><div class="ft-precio-lbl">Precio</div><div class="ft-precio-val">'+esc(d.precio)+(has(d.moneda)?' <span class="moneda">'+esc(d.moneda)+'</span>':'')+'</div></div>'+pxm+'</div>' : '';
+  const precioTxt = has(d.precioNum) ? money(d.precioNum) : (has(d.precio)? String(d.precio) : '');
+  const monedaTxt = (has(d.precioNum) && has(d.moneda)) ? ' <span class="moneda">'+esc(d.moneda)+'</span>' : '';
+  const precio = precioTxt ? '<div class="ft-precio"><div><div class="ft-precio-lbl">Precio</div><div class="ft-precio-val">'+esc(precioTxt)+monedaTxt+'</div></div>'+pxm+'</div>' : '';
 
   const specs = [
     specCell(d.recamaras,'','Recámaras'),
@@ -222,9 +243,8 @@ function render(d){
 
   document.getElementById('ft').innerHTML =
     '<div class="ft-top"><div class="ft-kicker">Ficha Técnica</div>'+(has(d.folio)?'<div class="ft-folio">FOLIO · '+esc(d.folio)+'</div>':'')+'</div>'
-    + media
-    + '<div class="ft-hero">'+(tipoLine?'<div class="ft-tipo">'+tipoLine+'</div>':'')+'<div class="ft-zona">'+esc(d.zona||d.tipo||'Propiedad')+'</div>'+(ubic?'<div class="ft-ubic">'+ubic+'</div>':'')+'</div>'
-    + precio + specsBlock + carac + amen + actions
+    + cover
+    + precio + specsBlock + carac + amen + galeria + videosBlock + actions
     + '<div class="ft-foot"><div><div class="ft-seal-brand">MÉTODO NERI</div><div class="ft-seal-sub">Sistema de Control de Calidad Inmobiliaria</div></div>'+(has(d.asesor)?'<div class="ft-asesor">Asesor<br><b>'+esc(d.asesor)+'</b></div>':'')+'</div>';
 }
 
