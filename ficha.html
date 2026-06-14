@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Ficha Técnica · Método NERI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --black:#080808; --surface:#0f0f0f; --surface2:#161616; --surface3:#1e1e1e;
+    --gold:#C9A96E; --gold2:#E5CC9A; --golddim:rgba(201,169,110,.08); --goldbdr:rgba(201,169,110,.22);
+    --white:#fff; --w80:rgba(255,255,255,.80); --w50:rgba(255,255,255,.50); --w30:rgba(255,255,255,.30);
+    --r:2px; --display:'Bebas Neue',sans-serif; --mono:'DM Mono',monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--black);color:var(--white);font-family:'Montserrat',sans-serif;-webkit-font-smoothing:antialiased}
+  body{min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:28px 16px 56px}
+  .wrap{width:100%;max-width:700px}
+
+  .ft{background:var(--surface);border:1px solid var(--goldbdr);border-radius:var(--r);border-top:2px solid var(--gold);overflow:hidden;animation:rise .5s cubic-bezier(.2,.7,.2,1) both}
+  @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){.ft{animation:none}}
+
+  .ft-top{display:flex;align-items:center;justify-content:space-between;padding:15px 22px;border-bottom:1px solid var(--goldbdr);background:var(--surface2)}
+  .ft-kicker{font-family:var(--mono);font-size:9px;letter-spacing:.32em;text-transform:uppercase;color:var(--gold)}
+  .ft-folio{font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--w50)}
+
+  .ft-media{padding:18px 22px 4px}
+  .ft-media-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .ft-media-t{font-size:8px;letter-spacing:.24em;text-transform:uppercase;color:var(--w30);font-weight:700}
+  .ft-media-tag{font-family:var(--mono);font-size:8px;letter-spacing:.1em;color:var(--gold)}
+  .ft-reel{display:flex;gap:9px;overflow-x:auto;padding-bottom:13px;scrollbar-width:thin;scrollbar-color:var(--goldbdr) transparent}
+  .ft-reel::-webkit-scrollbar{height:5px}.ft-reel::-webkit-scrollbar-thumb{background:var(--goldbdr);border-radius:9px}
+  .ft-tile{position:relative;flex:0 0 auto;width:122px;height:216px;border:1px solid var(--goldbdr);border-radius:var(--r);background:var(--surface3) center/cover no-repeat;overflow:hidden;cursor:pointer;display:flex;align-items:flex-end}
+  .ft-tile::before{content:'';position:absolute;inset:0;background:radial-gradient(transparent 38%, rgba(0,0,0,.6))}
+  .ft-play{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:38px;height:38px;border:1px solid var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:13px;background:rgba(8,8,8,.4)}
+  .ft-tlabel{position:relative;z-index:1;width:100%;padding:9px 10px;font-size:8px;letter-spacing:.16em;text-transform:uppercase;color:var(--white);font-weight:700}
+  .ft-photo{width:100%;border:1px solid var(--goldbdr);border-radius:var(--r);display:block;aspect-ratio:16/10;object-fit:cover;background:var(--surface3)}
+
+  .ft-hero{padding:18px 22px 20px}
+  .ft-tipo{font-size:9px;letter-spacing:.26em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:10px}
+  .ft-zona{font-family:var(--display);font-size:46px;line-height:.92;letter-spacing:1px;color:var(--white)}
+  .ft-ubic{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--w50);margin-top:9px}
+
+  .ft-precio{padding:18px 22px;border-top:1px solid var(--goldbdr);border-bottom:1px solid var(--goldbdr);background:var(--golddim);display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap}
+  .ft-precio-lbl{font-size:8px;letter-spacing:.3em;text-transform:uppercase;color:var(--w30);font-weight:700;margin-bottom:6px}
+  .ft-precio-val{font-family:var(--display);font-size:42px;line-height:.9;letter-spacing:1px;color:var(--gold);display:flex;align-items:baseline;gap:8px}
+  .ft-precio-val .moneda{font-family:var(--mono);font-size:12px;letter-spacing:.12em;color:var(--w50)}
+  .ft-pxm{text-align:right}.ft-pxm-v{font-family:var(--mono);font-size:13px;color:var(--w80)}
+  .ft-pxm-l{font-size:7px;letter-spacing:.16em;text-transform:uppercase;color:var(--w30);font-weight:700;margin-top:3px}
+
+  .ft-specs{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--goldbdr)}
+  .ft-spec{background:var(--surface);padding:17px 10px;display:flex;flex-direction:column;align-items:center;gap:6px;min-height:86px;justify-content:center}
+  .ft-spec-val{font-family:var(--display);font-size:31px;line-height:1;letter-spacing:1px;color:var(--gold)}
+  .ft-spec-val .u{font-family:var(--mono);font-size:10px;color:var(--w50);margin-left:2px}
+  .ft-spec-lbl{font-size:7px;letter-spacing:.14em;text-transform:uppercase;color:var(--w30);font-weight:700;text-align:center}
+
+  .ft-sec{padding:20px 22px}
+  .ft-sec-title{font-size:9px;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:9px}
+  .ft-sec-title::before{content:'◈';font-size:11px}
+  .ft-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--goldbdr);border:1px solid var(--goldbdr);border-radius:var(--r);overflow:hidden}
+  .ft-row{background:var(--surface);padding:12px 14px;display:flex;flex-direction:column;gap:5px}
+  .ft-row-k{font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:var(--w30);font-weight:700}
+  .ft-row-v{font-size:13px;color:var(--w80);line-height:1.4}
+
+  .ft-chips{display:flex;flex-wrap:wrap;gap:7px}
+  .ft-chip{font-size:10px;color:var(--w80);border:1px solid var(--goldbdr);background:var(--golddim);border-radius:var(--r);padding:7px 11px}
+  .ft-chip::before{content:'·';color:var(--gold);margin-right:6px}
+
+  .ft-actions{padding:16px 22px 22px;display:flex;gap:9px;flex-wrap:wrap}
+  .ft-btn{flex:1;min-width:150px;display:inline-flex;align-items:center;justify-content:center;gap:8px;font:700 10px Montserrat,sans-serif;letter-spacing:.14em;text-transform:uppercase;padding:14px;border-radius:var(--r);cursor:pointer;text-decoration:none;transition:.15s}
+  .ft-btn.solid{background:var(--gold);color:#080808;border:1px solid var(--gold)}
+  .ft-btn.solid:active{background:var(--gold2)}
+  .ft-btn.ghost{background:transparent;border:1px solid var(--goldbdr);color:var(--gold)}
+
+  .ft-foot{padding:20px 22px;border-top:1px solid var(--goldbdr);background:var(--surface2);display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+  .ft-seal-brand{font-family:var(--display);font-size:18px;letter-spacing:2px;color:var(--gold)}
+  .ft-seal-sub{font-size:8px;letter-spacing:.18em;text-transform:uppercase;color:var(--w30);font-weight:700;margin-top:3px}
+  .ft-asesor{font-family:var(--mono);font-size:10px;letter-spacing:.05em;color:var(--w50);text-align:right}
+  .ft-asesor b{color:var(--w80);font-weight:500}
+
+  .ft-state{padding:60px 24px;text-align:center;font-family:var(--mono);font-size:12px;letter-spacing:.05em;color:var(--w50);line-height:1.8}
+  .ft-spin{width:26px;height:26px;border:2px solid var(--goldbdr);border-top-color:var(--gold);border-radius:50%;margin:0 auto 18px;animation:spin .8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  .ovl{position:fixed;inset:0;background:rgba(4,4,4,.94);display:none;align-items:center;justify-content:center;z-index:50;padding:18px}
+  .ovl.on{display:flex}
+  .ovl video{max-width:100%;max-height:86vh;border:1px solid var(--goldbdr);border-radius:var(--r);background:#000}
+  .ovl-x{position:absolute;top:16px;right:18px;width:40px;height:40px;border:1px solid var(--goldbdr);border-radius:50%;background:var(--surface);color:var(--gold);font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+
+  @media (max-width:540px){
+    .ft-zona{font-size:38px}.ft-precio-val{font-size:34px}
+    .ft-specs{grid-template-columns:repeat(2,1fr)}.ft-grid{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="ft" id="ft">
+      <div class="ft-state"><div class="ft-spin"></div>Cargando ficha técnica…</div>
+    </div>
+  </div>
+
+  <div class="ovl" id="ovl" onclick="if(event.target===this)cerrarVideo()">
+    <div class="ovl-x" onclick="cerrarVideo()">✕</div>
+    <video id="ovlv" controls playsinline></video>
+  </div>
+
+<script>
+/* ─────────────────────────────────────────────────────────────
+   FICHA TÉCNICA · vista del cliente (Método NERI)
+   Lee ?folio= y pide los datos al webhook de Make (Bloque 2b).
+   Contrato JSON que debe devolver Make (campos vacíos = se omiten):
+   {
+     ok, folio, tipo, estado, zona, municipio, entidad,
+     precio (texto, ej "$4,850,000"), moneda,
+     m2terreno, m2construccion, precioM2 (texto, opcional),
+     recamaras, banos, mediosBanos, estacionamientos,
+     anio, niveles, orientacion, regimen,
+     mantenimiento (texto), predial (texto),
+     amenidades: ["Alberca", ...],
+     tourVirtual (url), asesor, whatsapp (5217..., sin +),
+     fotoPortada (url firmada/pública),
+     videos: [ {room:"Sala", url:"<.../api/idrive-read-url?url=...>"} , ... ]
+   }
+   ───────────────────────────────────────────────────────────── */
+const MAKE_FICHA_WEBHOOK = '__PENDIENTE_BLOQUE_2B__';   // ← URL del webhook de Make (se llena en 2b)
+
+const esc = s => String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const escA = s => String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+const has = v => v!==null && v!==undefined && String(v).trim()!=='' && !(Array.isArray(v)&&!v.length);
+const qs = new URLSearchParams(location.search);
+const FOLIO = (qs.get('folio')||'').trim();
+
+function estado(msg){ document.getElementById('ft').innerHTML = '<div class="ft-state">'+msg+'</div>'; }
+
+function specCell(val, unit, lbl){
+  if(!has(val)) return '';
+  const u = unit ? '<span class="u">'+esc(unit)+'</span>' : '';
+  return '<div class="ft-spec"><div class="ft-spec-val">'+esc(val)+u+'</div><div class="ft-spec-lbl">'+esc(lbl)+'</div></div>';
+}
+function rowCell(k, v){
+  if(!has(v)) return '';
+  return '<div class="ft-row"><div class="ft-row-k">'+esc(k)+'</div><div class="ft-row-v">'+esc(v)+'</div></div>';
+}
+
+let VIDEOS = [];
+function abrirVideo(i){
+  const v = VIDEOS[i]; if(!v) return;
+  const el = document.getElementById('ovlv');
+  el.src = v.url; document.getElementById('ovl').classList.add('on'); el.play().catch(()=>{});
+}
+function cerrarVideo(){
+  const el = document.getElementById('ovlv'); el.pause(); el.removeAttribute('src'); el.load();
+  document.getElementById('ovl').classList.remove('on');
+}
+
+function render(d){
+  VIDEOS = Array.isArray(d.videos) ? d.videos.filter(v=>v&&has(v.url)) : [];
+
+  let media = '';
+  if(VIDEOS.length){
+    const poster = has(d.fotoPortada) ? 'background-image:url(\''+escA(d.fotoPortada)+'\')' : '';
+    const tiles = VIDEOS.map((v,i)=>'<div class="ft-tile" style="'+poster+'" onclick="abrirVideo('+i+')"><span class="ft-play">▶</span><span class="ft-tlabel">'+esc(v.room||('Video '+(i+1)))+'</span></div>').join('');
+    media = '<div class="ft-media"><div class="ft-media-h"><div class="ft-media-t">Recorrido en video</div><div class="ft-media-tag">▶ '+VIDEOS.length+' '+(VIDEOS.length===1?'espacio':'espacios')+'</div></div><div class="ft-reel">'+tiles+'</div></div>';
+  } else if(has(d.fotoPortada)){
+    media = '<div class="ft-media"><div class="ft-media-h"><div class="ft-media-t">Fotografía</div></div><img class="ft-photo" src="'+escA(d.fotoPortada)+'" alt="Fotografía de la propiedad"></div>';
+  }
+
+  const ubic = [d.municipio, d.entidad].filter(has).map(esc).join(' · ');
+  const tipoLine = [d.tipo, d.estado].filter(has).map(esc).join(' · ');
+
+  const pxm = has(d.precioM2) ? '<div class="ft-pxm"><div class="ft-pxm-v">'+esc(d.precioM2)+' / m²</div><div class="ft-pxm-l">Precio por m² constr.</div></div>' : '';
+  const precio = has(d.precio) ? '<div class="ft-precio"><div><div class="ft-precio-lbl">Precio</div><div class="ft-precio-val">'+esc(d.precio)+(has(d.moneda)?' <span class="moneda">'+esc(d.moneda)+'</span>':'')+'</div></div>'+pxm+'</div>' : '';
+
+  const specs = [
+    specCell(d.recamaras,'','Recámaras'),
+    specCell(d.banos,'','Baños'),
+    specCell(d.mediosBanos,'','Medio baño'),
+    specCell(d.estacionamientos,'','Estac.'),
+    specCell(d.m2terreno,'m²','Terreno'),
+    specCell(d.m2construccion,'m²','Construcción'),
+  ].filter(Boolean).join('');
+  const specsBlock = specs ? '<div class="ft-specs">'+specs+'</div>' : '';
+
+  const rows = [
+    rowCell('Tipo', d.tipo),
+    rowCell('Año de construcción', d.anio),
+    rowCell('Niveles', d.niveles),
+    rowCell('Orientación', d.orientacion),
+    rowCell('Régimen', d.regimen),
+    rowCell('Mantenimiento', d.mantenimiento),
+    rowCell('Predial anual', d.predial),
+  ].filter(Boolean).join('');
+  const carac = rows ? '<div class="ft-sec"><div class="ft-sec-title">Características</div><div class="ft-grid">'+rows+'</div></div>' : '';
+
+  let amen = '';
+  const aArr = Array.isArray(d.amenidades) ? d.amenidades : (has(d.amenidades)? String(d.amenidades).split(/[\n,]/) : []);
+  const aClean = aArr.map(x=>String(x).trim()).filter(Boolean);
+  if(aClean.length){
+    amen = '<div class="ft-sec"><div class="ft-sec-title">Amenidades</div><div class="ft-chips">'+aClean.map(a=>'<span class="ft-chip">'+esc(a)+'</span>').join('')+'</div></div>';
+  }
+
+  const acts = [];
+  if(has(d.whatsapp)){
+    const txt = encodeURIComponent('Hola'+(has(d.asesor)?' '+String(d.asesor).split(' ')[0]:'')+', me interesa la propiedad'+(has(d.folio)?' '+d.folio:'')+'.');
+    acts.push('<a class="ft-btn solid" href="https://wa.me/'+escA(d.whatsapp)+'?text='+txt+'" target="_blank" rel="noopener">Hablar con '+(has(d.asesor)?esc(String(d.asesor).split(' ')[0]):'el asesor')+'</a>');
+  }
+  if(has(d.tourVirtual)){
+    acts.push('<a class="ft-btn ghost" href="'+escA(d.tourVirtual)+'" target="_blank" rel="noopener">◎ Tour virtual</a>');
+  }
+  const actions = acts.length ? '<div class="ft-actions">'+acts.join('')+'</div>' : '';
+
+  document.getElementById('ft').innerHTML =
+    '<div class="ft-top"><div class="ft-kicker">Ficha Técnica</div>'+(has(d.folio)?'<div class="ft-folio">FOLIO · '+esc(d.folio)+'</div>':'')+'</div>'
+    + media
+    + '<div class="ft-hero">'+(tipoLine?'<div class="ft-tipo">'+tipoLine+'</div>':'')+'<div class="ft-zona">'+esc(d.zona||d.tipo||'Propiedad')+'</div>'+(ubic?'<div class="ft-ubic">'+ubic+'</div>':'')+'</div>'
+    + precio + specsBlock + carac + amen + actions
+    + '<div class="ft-foot"><div><div class="ft-seal-brand">MÉTODO NERI</div><div class="ft-seal-sub">Sistema de Control de Calidad Inmobiliaria</div></div>'+(has(d.asesor)?'<div class="ft-asesor">Asesor<br><b>'+esc(d.asesor)+'</b></div>':'')+'</div>';
+}
+
+async function cargar(){
+  if(!FOLIO){ estado('No se indicó una propiedad.<br>Verifica el enlace que te compartieron.'); return; }
+  if(!MAKE_FICHA_WEBHOOK || MAKE_FICHA_WEBHOOK.indexOf('PENDIENTE')>=0){
+    estado('Ficha en configuración.<br>El enlace estará activo en breve.'); return;
+  }
+  try{
+    const r = await fetch(MAKE_FICHA_WEBHOOK + (MAKE_FICHA_WEBHOOK.indexOf('?')>=0?'&':'?') + 'folio=' + encodeURIComponent(FOLIO), { method:'GET' });
+    const d = await r.json().catch(()=>null);
+    if(!r.ok || !d || d.ok===false || !has(d.folio && d.zona ? d.folio : d.zona || d.tipo)){
+      estado('No encontramos esta propiedad.<br>Verifica el enlace o contacta a tu asesor.'); return;
+    }
+    render(d);
+  }catch(e){
+    estado('No se pudo cargar la ficha.<br>Revisa tu conexión e intenta de nuevo.');
+  }
+}
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') cerrarVideo(); });
+cargar();
+</script>
+</body>
+</html>
