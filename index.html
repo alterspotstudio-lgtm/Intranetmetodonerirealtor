@@ -2925,12 +2925,12 @@ const LANDING_FORM = [
     {f:'Google Maps URL',   type:'url', full:true},
   ]},
   {title:'Videos de la landing', ico:'▶', fold:true, videos:[
-    {room:'Sala',     yt:'Video Sala',         mp4:'Video Sala MP4'},
-    {room:'Cocina',   yt:'Video Cocina',       mp4:'Video Cocina MP4'},
-    {room:'Recámara', yt:'Video Recamara',     mp4:'Video Recamara MP4'},
-    {room:'Jardín',   yt:'Video Jardin',       mp4:'Video Jardin MP4'},
-    {room:'Alberca',  yt:'Video Alberca',      mp4:'Video Alberca MP4'},
-    {room:'Extra',    yt:'Nombre Video Extra', mp4:'Video Extra MP4', extra:true},
+    {room:'Sala',     yt:'Video Sala',         mp4:'Video Sala MP4',     idrive:'Video Sala iDrive'},
+    {room:'Cocina',   yt:'Video Cocina',       mp4:'Video Cocina MP4',   idrive:'Video Cocina iDrive'},
+    {room:'Recámara', yt:'Video Recamara',     mp4:'Video Recamara MP4', idrive:'Video Recamara iDrive'},
+    {room:'Jardín',   yt:'Video Jardin',       mp4:'Video Jardin MP4',   idrive:'Video Jardin iDrive'},
+    {room:'Alberca',  yt:'Video Alberca',      mp4:'Video Alberca MP4',  idrive:'Video Alberca iDrive'},
+    {room:'Extra',    yt:'Nombre Video Extra', mp4:'Video Extra MP4',    idrive:'Video Extra iDrive', extra:true},
   ]},
 ];
 
@@ -2980,6 +2980,26 @@ async function uploadBlobFile(file, folio, doc){
   return data.url;
 }
 
+/* Sube un MP4 a iDrive e2 (PUT presignado) y devuelve la URL privada de texto.
+   Mismo patrón que rielContratoUpload. El video NUNCA va a un campo de adjunto
+   de Airtable: se guarda como URL de texto y la landing lo firma con
+   /api/idrive-read-url. */
+async function uploadIdriveFile(file, folio, doc){
+  if(!file) return null;
+  const ct = file.type || 'video/mp4';
+  const pre = await fetch('/api/upload-idrive-url', {
+    method:'POST',
+    headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + (SESSION?.token || '') },
+    body: JSON.stringify({ filename:file.name || 'video.mp4', contentType:ct, size:file.size, folio:folio || 'sin-folio', doc:_safeDocKey(doc || 'video') })
+  });
+  const cfg = await pre.json().catch(() => ({}));
+  if(!pre.ok) throw new Error(cfg.error || ('No se pudo preparar la subida de ' + (file.name || 'video')));
+  if(!cfg.uploadUrl || !cfg.url) throw new Error('iDrive no devolvió URL para ' + (file.name || 'video'));
+  const put = await fetch(cfg.uploadUrl, { method:'PUT', headers:{ 'Content-Type':ct }, body:file });
+  if(!put.ok) throw new Error('iDrive respondió HTTP ' + put.status + ' al subir ' + (file.name || 'video'));
+  return cfg.url;
+}
+
 function _landInput(fl, rec){
   const name = fl.f;
   const label = fl.label || name;
@@ -3026,8 +3046,9 @@ function _landInput(fl, rec){
 
 function _landVideoRow(v, rec){
   const ytVal = _fval(rec, v.yt);
-  const info  = _attInfo(rec, v.mp4);
-  const mp4 = info.has
+  // Hay video si ya existe la URL de iDrive (ruta nueva) o el MP4 antiguo (adjunto legado)
+  const tieneVideo = !!_fval(rec, v.idrive) || _attInfo(rec, v.mp4).has;
+  const mp4 = tieneVideo
     ? `<span class="le-vstatus on">MP4 ✓</span>`
     : `<span class="le-vstatus off">MP4 —</span>`;
   const ph = v.extra ? 'Nombre (ej. Estudio)' : 'ID de YouTube';
@@ -3036,7 +3057,7 @@ function _landVideoRow(v, rec){
       <div>
         <input class="form-inp" type="text" data-field="${_escAttr(v.yt)}" data-ftype="text" data-orig="${_escAttr(ytVal)}" value="${_escAttr(ytVal)}" placeholder="${ph}">
         <div class="le-upload">
-          <input class="form-inp" type="file" data-upload-attach="${_escAttr(v.mp4)}" data-upload-doc="${_escAttr(v.mp4)}" accept="video/mp4,video/quicktime">
+          <input class="form-inp" type="file" data-upload-idrive="${_escAttr(v.idrive)}" data-upload-doc="${_escAttr(v.room)}" accept="video/mp4,video/quicktime">
         </div>
       </div>
       ${mp4}
@@ -3058,7 +3079,7 @@ function landOpenEditor(recId){
   const secs = LANDING_FORM.map(sec => {
     let inner;
     if(sec.videos){
-      inner = `<div class="le-note" style="margin:0 0 8px">Puedes pegar ID de YouTube o subir el MP4 aquí. La intranet sube el archivo a Blob y guarda la URL en Airtable.</div>`
+      inner = `<div class="le-note" style="margin:0 0 8px">Puedes pegar ID de YouTube o subir el MP4 aquí. El video se guarda en almacenamiento privado (iDrive e2) y la landing lo reproduce firmado.</div>`
             + sec.videos.map(v => _landVideoRow(v, rec)).join('');
     } else {
       inner = `<div class="le-grid">${sec.fields.map(fl => _landInput(fl, rec)).join('')}</div>`;
@@ -3136,20 +3157,39 @@ async function landSave(){
     if(url) fields[name] = [{ url }];
   });
 
-  // 3) Adjuntos por archivo: sube a Vercel Blob y guarda SOLO la URL en Airtable
+  // 3) Adjuntos por archivo
   const currentRec = crmState.records.find(r => r.id === crmState.editId);
   const folioUpload = _fval(currentRec || {}, 'Folio NERI') || _fval(currentRec || {}, 'Nombre Propiedad') || crmState.editId;
-  const uploadInputs = Array.from(document.querySelectorAll('#crm-landing-body [data-upload-attach]'))
+
+  // 3a) Fotos / adjuntos → Vercel Blob → campo de ADJUNTO en Airtable ([{url}])
+  const blobInputs = Array.from(document.querySelectorAll('#crm-landing-body [data-upload-attach]'))
+    .filter(el => el.files && el.files[0]);
+  // 3b) Videos MP4 → iDrive e2 (PUT presignado) → campo URL de TEXTO en Airtable (string)
+  //     Nunca van a un campo de adjunto: Airtable no puede rehospedar el bucket privado.
+  const idriveInputs = Array.from(document.querySelectorAll('#crm-landing-body [data-upload-idrive]'))
     .filter(el => el.files && el.files[0]);
 
-  if(uploadInputs.length){
-    btn.textContent = uploadInputs.length === 1 ? 'Subiendo archivo...' : 'Subiendo archivos...';
-    for(const el of uploadInputs){
-      const name = el.dataset.uploadAttach;
-      const doc  = el.dataset.uploadDoc || name;
-      const file = el.files[0];
-      const url = await uploadBlobFile(file, folioUpload, doc);
-      fields[name] = [{ url }];
+  if(blobInputs.length || idriveInputs.length){
+    const total = blobInputs.length + idriveInputs.length;
+    btn.textContent = total === 1 ? 'Subiendo archivo...' : 'Subiendo archivos...';
+    try {
+      for(const el of blobInputs){
+        const name = el.dataset.uploadAttach;
+        const doc  = el.dataset.uploadDoc || name;
+        const url  = await uploadBlobFile(el.files[0], folioUpload, doc);
+        fields[name] = [{ url }];
+      }
+      for(const el of idriveInputs){
+        const name = el.dataset.uploadIdrive;       // ej. "Video Sala iDrive" (campo URL)
+        const doc  = el.dataset.uploadDoc || name;
+        const url  = await uploadIdriveFile(el.files[0], folioUpload, doc);
+        fields[name] = url;                          // URL de texto plano, NO [{url}]
+      }
+    } catch(err){
+      errEl.style.color = 'var(--red)';
+      errEl.textContent = 'No se pudo subir: ' + (err && err.message ? err.message : 'error desconocido');
+      btn.textContent = 'Guardar cambios'; btn.disabled = false;
+      return;                                        // corta el flujo, pero deja el botón usable
     }
   }
 
