@@ -2134,7 +2134,7 @@ function crmVisibleRecords(tab, records){
   return (records || []).filter(r => {
     if(hidden[r.id]) return false;
     // Leads con Propiedad Creada ya firmaron y pasan a Propiedades NERI
-    if(tab === 'vendedores' && _fval(r,'Propiedad Creada') === true) return false;
+    if(tab === 'vendedores' && crmIsTrue(_fval(r,'Propiedad Creada'))) return false;
     return true;
   });
 }
@@ -2296,7 +2296,7 @@ async function crmLoad(tab, force=false){
     if(tabCountEl) tabCountEl.textContent = crmState.records.length;
     // Banner de leads firmados (solo en tab vendedores)
     if(tab === 'vendedores'){
-      const firmados=(data.records||[]).filter(r=>_fval(r,'Propiedad Creada')===true).length;
+      const firmados=(data.records||[]).filter(r=>crmIsTrue(_fval(r,'Propiedad Creada'))).length;
       let bn=document.getElementById('crm-firmados-banner');
       if(!bn){ bn=document.createElement('div'); bn.id='crm-firmados-banner';
         bn.style.cssText='padding:8px 16px;font-size:11px;color:rgba(201,169,110,.7);font-family:Montserrat,sans-serif;letter-spacing:.3px;border-top:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:8px;flex-shrink:0';
@@ -2487,6 +2487,10 @@ function _fval(rec, name){
   if(v == null || v === '') return '';
   if(typeof v === 'object') v = v.name ?? (Array.isArray(v) ? v.map(x=>x?.name||x).join(', ') : '');
   return String(v);
+}
+
+function crmIsTrue(v){
+  return /^(true|sí|si|1|yes)$/i.test(String(v || '').trim());
 }
 
 function crmOpenFicha(recId){
