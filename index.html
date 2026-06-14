@@ -800,6 +800,12 @@ select.form-input option{background:#111;color:#fff}
   display:flex;align-items:center;gap:8px;
 }
 .le-sec-title .le-ico{opacity:.65;font-style:normal}
+.le-fold{border-bottom:1px solid rgba(255,255,255,.035);padding-bottom:4px}
+.le-fold > summary.le-sec-title{cursor:pointer;list-style:none;user-select:none}
+.le-fold > summary.le-sec-title::-webkit-details-marker{display:none}
+.le-fold-caret{margin-left:auto;color:var(--w30);font-size:11px;transition:transform .15s var(--ease)}
+.le-fold[open] .le-fold-caret{transform:rotate(90deg);color:var(--gold)}
+.le-fold-body{animation:fadeIn .18s var(--ease)}
 .le-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .le-grid .full{grid-column:1/-1}
 .le-vrow{
@@ -2883,7 +2889,12 @@ function fichaCopy(btn){
 /* Solo lectura del folio; edita SOLO campos de contenido de la landing.
    Folio NERI / Links / contadores son fórmula/Make → bloqueados.        */
 const LANDING_FORM = [
-  {title:'Datos de la casa', ico:'⌂', fields:[
+  {title:'Portada', ico:'◫', open:true, fields:[
+    {f:'Nombre Propiedad', type:'text',     full:true, label:'PROPIEDAD'},
+    {f:'Frase Inicio',     type:'textarea', full:true, label:'DESCRIPCIÓN CORTA PROPIEDAD'},
+    {f:'Foto de portada',  type:'attach',   full:true, img:true},
+  ]},
+  {title:'Datos de la casa', ico:'⌂', fold:true, fields:[
     {f:'Tipo de Propiedad', type:'select', opts:['Casa','Departamento','Terreno','Local','Oficina','Bodega']},
     {f:'Estado Propiedad',  type:'select', opts:['Disponible','Apartada','Vendida','En proceso','Suspendida']},
     {f:'Habitaciones',       type:'number'},
@@ -2896,13 +2907,9 @@ const LANDING_FORM = [
     {f:'Municipio',          type:'text'},
     {f:'Estado / Entidad',   type:'text'},
     {f:'Direccion',          type:'text', full:true},
-  ]},
-  {title:'Precio', ico:'$', fields:[
-    {f:'Precio Lista',  type:'number'},
-    {f:'Precio Minimo', type:'number'},
-    {f:'Moneda',        type:'select', opts:['MXN','USD']},
-  ]},
-  {title:'Plusvalía', ico:'↗', fields:[
+    {f:'Precio Lista',       type:'number'},
+    {f:'Precio Minimo',      type:'number'},
+    {f:'Moneda',             type:'select', opts:['MXN','USD']},
     {f:'Plusvalia Valor', type:'select', opts:['3% Anual','4% Anual','5% Anual','6% Anual','7% Anual','8% Anual','9% Anual','10% Anual','11% Anual','12% Anual','13% Anual','14% Anual','15% Anual','16% Anual','17% Anual','18% Anual','19% Anual','20% Anual','21% Anual','22% Anual','23% Anual','24% Anual','25% Anual','26% Anual','27% Anual','28% Anual','29% Anual','30% Anual']},
     {f:'Plusvalia Texto', type:'select', full:true, opts:[
       'Zona con alta demanda y desarrollo constante.',
@@ -2914,23 +2921,16 @@ const LANDING_FORM = [
       'Desarrollo habitacional en expansión con servicios completos.',
       'Zona con alta liquidez y demanda de comprador final.',
     ]},
+    {f:'Link Tour Virtual', type:'url', full:true},
+    {f:'Google Maps URL',   type:'url', full:true},
   ]},
-  {title:'Portada', ico:'◫', fields:[
-    {f:'Nombre Propiedad', type:'text',     full:true, label:'PROPIEDAD'},
-    {f:'Frase Inicio',     type:'textarea', full:true, label:'DESCRIPCIÓN CORTA PROPIEDAD'},
-    {f:'Foto de portada',  type:'attach',   full:true, img:true},
-  ]},
-  {title:'Videos de la landing', ico:'▶', videos:[
+  {title:'Videos de la landing', ico:'▶', fold:true, videos:[
     {room:'Sala',     yt:'Video Sala',         mp4:'Video Sala MP4'},
     {room:'Cocina',   yt:'Video Cocina',       mp4:'Video Cocina MP4'},
     {room:'Recámara', yt:'Video Recamara',     mp4:'Video Recamara MP4'},
     {room:'Jardín',   yt:'Video Jardin',       mp4:'Video Jardin MP4'},
     {room:'Alberca',  yt:'Video Alberca',      mp4:'Video Alberca MP4'},
     {room:'Extra',    yt:'Nombre Video Extra', mp4:'Video Extra MP4', extra:true},
-  ]},
-  {title:'Links', ico:'↗', fields:[
-    {f:'Link Tour Virtual', type:'url', full:true},
-    {f:'Google Maps URL',   type:'url', full:true},
   ]},
 ];
 
@@ -3063,22 +3063,28 @@ function landOpenEditor(recId){
     } else {
       inner = `<div class="le-grid">${sec.fields.map(fl => _landInput(fl, rec)).join('')}</div>`;
     }
-    return `<div class="le-sec">
-        <div class="le-sec-title"><span class="le-ico">${sec.ico}</span>${sec.title}</div>
-        ${inner}</div>`;
+    const isFold = !!sec.fold;
+    const openAttr = sec.open ? ' open' : '';
+    const head = `<${isFold?'summary':'div'} class="le-sec-title"><span class="le-ico">${sec.ico}</span>${sec.title}${isFold?'<span class="le-fold-caret">›</span>':''}</${isFold?'summary':'div'}>`;
+    const body = `<div class="le-fold-body">${inner}</div>`;
+    return isFold
+      ? `<details class="le-sec le-fold"${openAttr}>${head}${body}</details>`
+      : `<div class="le-sec">${head}${body}</div>`;
   }).join('');
 
   const lockRow = (k, v) => v ? `<div class="le-lock">
       <div class="le-lock-k">🔒 ${k}</div><div class="le-lock-v">${_esc(v)}</div></div>` : '';
 
-  const lockBlock = `<div class="le-sec">
-      <div class="le-sec-title"><span class="le-ico">🔒</span>Folio y enlaces (solo lectura)</div>
-      <div class="le-banner">Estos los arma el sistema solo (folio maestro y links). La intranet nunca los escribe.</div>
-      <div style="margin-top:10px">
-        ${lockRow('Folio NERI', folioNeri)}
-        ${lockRow('Link Comprador (landing)', linkComp)}
-        ${lockRow('Link Portal del cliente', linkPort)}
-      </div></div>`;
+  const lockBlock = `<details class="le-sec le-fold">
+      <summary class="le-sec-title"><span class="le-ico">🔒</span>Folio y enlaces (solo lectura)<span class="le-fold-caret">›</span></summary>
+      <div class="le-fold-body">
+        <div class="le-banner">Estos los arma el sistema solo (folio maestro y links). La intranet nunca los escribe.</div>
+        <div style="margin-top:10px">
+          ${lockRow('Folio NERI', folioNeri)}
+          ${lockRow('Link Comprador (landing)', linkComp)}
+          ${lockRow('Link Portal del cliente', linkPort)}
+        </div>
+      </div></details>`;
 
   document.getElementById('crm-landing-body').innerHTML = `
     <div style="margin-bottom:4px">
