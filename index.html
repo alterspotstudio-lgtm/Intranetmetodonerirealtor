@@ -1992,8 +1992,8 @@ const CRM_CFG = {
     label: 'Leads Vendedores',
     dot: 'vendedores',
     ficha: 'vendedor',
-    cols: ['Folio','Nombre','Tipo','Zona','Precio','Conversión','WhatsApp','Fecha'],
-    fields: ['Folio','Nombre Completo','Tipo de Propiedad','Zona','Precio Estimado','Conversión','Teléfono WhatsApp','Fecha de Entrada'],
+    cols: ['Nombre','Tipo','Zona','Precio','Conversión','WhatsApp','Fecha','Folio'],
+    fields: ['Nombre Completo','Tipo de Propiedad','Zona','Precio Estimado','Conversión','Teléfono WhatsApp','Fecha de Entrada','Folio'],
     fichaExtra: [
       'Teléfono WhatsApp','Fuente','Estado','Hora de Entrada',
       'Habitaciones','Baños','Medios Baños','Estacionamientos',
@@ -2066,8 +2066,8 @@ const CRM_CFG = {
     dot: 'propiedades',
     landing: true,
     landingFields: ['Nombre Propiedad','Folio NERI','Folio Vendedor','Link Comprador','Link Portal','Frase Portada','Frase Inicio','Foto de portada','Precio Lista','Precio Minimo','Moneda','Plusvalia Valor','Plusvalia Texto','Video Sala','Video Sala MP4','Video Cocina','Video Cocina MP4','Video Recamara','Video Recamara MP4','Video Jardin','Video Jardin MP4','Video Alberca','Video Alberca MP4','Nombre Video Extra','Video Extra MP4','Tipo de Propiedad','Estado Propiedad','Habitaciones','Banos','Medios Banos','Estacionamientos','Metros Construccion','Metros Terreno','Zona / Colonia','Municipio','Estado / Entidad','Direccion','Link Tour Virtual','Google Maps URL'],
-    cols: ['Propiedad','Tipo','Estado','Zona','Precio Lista','Dirección','Propietario','Nota'],
-    fields: ['Nombre Propiedad','Tipo de Propiedad','Estado Propiedad','Zona / Colonia','Precio Lista','Direccion','Folio Vendedor','Notas Internas'],
+    cols: ['Propietario','Propiedad','Tipo','Zona','Precio Lista','Dirección','Estado','Nota','Folio'],
+    fields: ['Folio Vendedor','Nombre Propiedad','Tipo de Propiedad','Zona / Colonia','Precio Lista','Direccion','Estado Propiedad','Notas Internas','Folio NERI'],
     editable: [
       {f:'Nombre Propiedad',   type:'text'},
       {f:'Tipo de Propiedad',  type:'select', opts:['Casa','Departamento','Terreno','Local','Oficina','Bodega']},
@@ -2360,7 +2360,7 @@ function crmRender(tab, records){
 
   const ths = cfg.cols.map(c => `<th>${c}</th>`).join('');
 
-  const FOLIO_FIELDS = ['Folio','Folio Cita'];
+  const FOLIO_FIELDS = ['Folio','Folio Cita','Folio NERI'];
   const NAME_FIELDS  = ['nombre completo','nombre','comprador','nombre propiedad'];
 
   const trs = records.map(rec => {
