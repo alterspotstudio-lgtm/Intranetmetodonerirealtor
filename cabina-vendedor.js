@@ -812,6 +812,9 @@
       var guardado = fval(lead, 'Link Expediente Documental');
       if (guardado) return guardado;          // link completo (folio+token) ya escrito por /api/activar-expediente
     }
+    // Cuando rec ya es el lead vendedor (lead===null), también usar el link guardado si existe
+    var propioLink = fval(rec, 'Link Expediente Documental');
+    if (propioLink) return propioLink;
     var src = lead || rec;
     var folio = fval(src, 'Folio') || fval(rec, 'Folio Vendedor') || '';
     var token = fval(src, 'Token Expediente') || fval(src, 'Token') || '';

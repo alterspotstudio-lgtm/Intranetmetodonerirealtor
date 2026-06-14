@@ -4819,7 +4819,7 @@ function expRenderFile(tipo, rec){
   const tipoLbl = tipo==='vendedor'?'Vendedor · captación':(tipo==='progreso'?'Operación en progreso':'Comprador');
   const docs=expDocsFor(tipo,rec,prog);
   const folioParam = folio!=='— sin folio —'?folio:(SESSION?.slug||'');
-  const docLink=EXP_DOC_BASE+'?folio='+encodeURIComponent(folioParam);
+  const docLink=_fval(rec,'Link Expediente Documental')||(EXP_DOC_BASE+'?folio='+encodeURIComponent(folioParam)+(_fval(rec,'Token Expediente')?'&token='+encodeURIComponent(_fval(rec,'Token Expediente')):''));
   const portalLink=EXP_PORTAL_BASE+'?folio='+encodeURIComponent(folio!=='— sin folio —'?folio:'');
   const safeMsg=asesorEsc(msg).replace(/'/g,"\\'");
   const pct=Math.min(100, (dias!=null&&sla)?Math.round(dias/sla*100):0);
@@ -5120,6 +5120,18 @@ async function rielContratoUpload(recId, conversion, file){
         headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + (SESSION?.token || '') },
         body: JSON.stringify({ folio }),
       });
+      // Refrescar Token Expediente y Link Expediente Documental en el caché local
+      // para que cabEnviarExpediente los encuentre sin obligar al asesor a recargar.
+      try{
+        const fresh = await atFetch(RIEL_VEND_TABLE + '/' + recId);
+        if(fresh && fresh.fields){
+          const localRec = crmState.records.find(r => r.id === recId);
+          if(localRec){
+            if(fresh.fields['Token Expediente']) localRec.fields['Token Expediente'] = fresh.fields['Token Expediente'];
+            if(fresh.fields['Link Expediente Documental']) localRec.fields['Link Expediente Documental'] = fresh.fields['Link Expediente Documental'];
+          }
+        }
+      }catch(_){}
     }catch(_){ /* idempotente: la cabina lo reintenta al abrir la ficha */ }
     vendedorOpenFicha(recId);
   }catch(e){ rielSay('Error: ' + e.message); }
