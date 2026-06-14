@@ -687,6 +687,14 @@ select.form-input option{background:#111;color:#fff}
 .badge-warm{background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.28);color:#fbbf24}
 .badge-cold{background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.24);color:#60a5fa}
 
+/* Alerta de leads compradores sin primer contacto */
+.lead-alert{display:flex;align-items:flex-start;gap:11px;margin:0 0 12px;padding:11px 14px;border:1px solid var(--goldbdr);background:var(--golddim);border-radius:var(--r)}
+.lead-alert-dot{width:8px;height:8px;border-radius:50%;background:var(--gold);margin-top:4px;flex:none;animation:leadPulse 1.8s var(--ease) infinite}
+@keyframes leadPulse{0%,100%{opacity:1}50%{opacity:.25}}
+.lead-alert-title{font-size:12.5px;color:var(--w80);letter-spacing:.3px;line-height:1.5}
+.lead-alert-title b{color:var(--gold);font-weight:600}
+.lead-alert-sub{font-size:10.5px;color:var(--w50);margin-top:3px;letter-spacing:.2px;line-height:1.5}
+
 /* Estado vacío */
 .crm-empty{
   display:flex;flex-direction:column;align-items:center;justify-content:center;
@@ -1814,6 +1822,8 @@ function renderHoy(comp, cit, prog){
   const briefEl = document.getElementById('hoy-brief');
   if(briefEl){
     const partes = [];
+    const nuevosComp = comp.filter(r=>{ const c=_fval(r,'Conversión'); return !_fval(r,'Última interacción') && c!=='Apartado' && c!=='No calificó'; }).length;
+    if(nuevosComp) partes.push(`<b>${nuevosComp}</b> ${nuevosComp===1?'comprador nuevo por contactar':'compradores nuevos por contactar'}`);
     if(citasHoy) partes.push(`<b>${citasHoy}</b> ${citasHoy===1?'cita es hoy':'citas son hoy'}`);
     if(dormidos) partes.push(`<b>${dormidos}</b> ${dormidos===1?'cliente espera tu llamada':'clientes esperan tu llamada'}`);
     if(prog.length) partes.push(`<b>${prog.length}</b> ${prog.length===1?'operación avanzando':'operaciones avanzando'}`);
@@ -2409,8 +2419,24 @@ function crmRender(tab, records){
     return `<tr onclick="crmOpenRow('${rec.id}')" title="Clic para abrir expediente">${cells}</tr>`;
   }).join('') || crmEmptyHtml(tab);
 
+  let alertHtml = '';
+  if(tab === 'compradores'){
+    const nuevos = records.filter(r=>{
+      const conv = _fval(r,'Conversión');
+      const tocado = _fval(r,'Última interacción');
+      return !tocado && conv!=='Apartado' && conv!=='No calificó';
+    });
+    if(nuevos.length){
+      const hoy = nuevos.filter(r=>_isToday(_fval(r,'Fecha de Entrada'))).length;
+      const n = nuevos.length;
+      const linea = hoy
+        ? `<b>${hoy}</b> ${hoy===1?'comprador llegó hoy':'compradores llegaron hoy'}${n>hoy?` · <b>${n}</b> sin primer contacto`:''}`
+        : `<b>${n}</b> ${n===1?'comprador sin primer contacto':'compradores sin primer contacto'}`;
+      alertHtml = `<div class="lead-alert"><span class="lead-alert-dot"></span><div><div class="lead-alert-title">${linea}</div><div class="lead-alert-sub">Contáctalos pronto — mientras más rápido respondes, más citas cierras.</div></div></div>`;
+    }
+  }
   document.getElementById('crm-table-wrap').innerHTML =
-    `<table class="at-table" id="crm-main-table"><thead><tr>${ths}</tr></thead><tbody>${trs}</tbody></table>`;
+    alertHtml + `<table class="at-table" id="crm-main-table"><thead><tr>${ths}</tr></thead><tbody>${trs}</tbody></table>`;
 }
 
 function crmEmptyHtml(tab){
@@ -2545,7 +2571,7 @@ function crmOpenFicha(recId){
       </div>
       <div class="fk-tags">
         ${clasif ? `<span class="badge ${STATUS_BADGE[clasif]||''}">${clasif}</span>`:''}
-        ${status ? `<span class="badge ${STATUS_BADGE[status]||''}">${status}</span>`:''}
+        ${status && status!==clasif ? `<span class="badge ${STATUS_BADGE[status]||''}">${status}</span>`:''}
       </div>
     </div>
     <div class="fk-sub">${propied ? '◈ '+propied : 'Sin propiedad ligada'}${wa ? ' · '+wa : ''}</div>
