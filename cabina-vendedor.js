@@ -323,9 +323,9 @@
 
     // Datos que la intranet ya conoce → cero captura doble
     var propietario = fval(rec, 'Nombre Completo') || fval(rec, 'Nombre Propietario') || fval(rec, 'Propietario') || fval(rec, 'Nombre Propiedad') || '';
-    var zona = fval(rec, 'Zona') || fval(rec, 'Zona / Colonia') || fval(rec, 'Municipio') || '';
-    var estado = fval(rec, 'Estado / Entidad') || '';
-    var direccion = [zona, estado].filter(Boolean).join(', ');
+    var zona = fval(rec, 'Zona') || fval(rec, 'Zona / Colonia') || '';
+    var municipio = fval(rec, 'Municipio') || '';
+    var direccion = [zona, municipio].filter(Boolean).join(', ');
     var asesorNombre = fval(rec, 'Asesor') || ASESOR_DEFAULT.nombre;
     var folio = fval(rec, 'Folio') || fval(rec, 'Folio NERI') || fval(rec, 'Folio Vendedor') || '';
 
