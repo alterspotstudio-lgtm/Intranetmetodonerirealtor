@@ -194,7 +194,7 @@ body{font-family:'Montserrat',sans-serif;background:var(--black);color:var(--w10
       </div>
     </div>
 
-    <a class="wa-btn" id="btnWa" target="_blank" rel="noopener" style="display:none">Avisar por WhatsApp</a>
+    <a class="wa-btn" id="btnWa" target="_blank" rel="noopener" style="display:none">Hablar con tu asesor</a>
     <button class="pdf-btn" onclick="window.print()">Descargar PDF</button>
 
     <div class="foot">
@@ -264,7 +264,7 @@ var TIPOS = {
 
 var ESTADOS_CITA = {
   'Pendiente':  {cls:'b-pend', note:'Registrada. Tu asesor confirmará los detalles pronto.'},
-  'Confirmada': {cls:'b-conf', note:'Confirmada. Te esperamos el día y hora indicados.'},
+  'Confirmada': {cls:'b-conf', note:'Te esperamos el día y hora indicados.'},
   'Realizada':  {cls:'b-real', note:'Este evento ya se realizó. Gracias por tu tiempo.'},
   'Cancelada':  {cls:'b-canc', note:'Cancelado. Escribe a tu asesor para reagendar.'},
   'Reagendada': {cls:'b-reag', note:'Reagendado. Revisa la nueva fecha y hora.'}
@@ -321,8 +321,8 @@ function pintar(){
   if(t.esCita){
     if(C.fecha) g.appendChild(cell('Fecha', C.fecha, 'gold'));
     if(C.hora)  g.appendChild(cell('Hora', C.hora, 'gold'));
-    if(C.lugar) g.appendChild(cell('Lugar', C.lugar, '', true));
-    if(C.cliente) g.appendChild(cell('A nombre de', C.cliente, '', true));
+    if(C.lugar) g.appendChild(cell('Lugar', C.lugar, ''));
+    if(C.cliente) g.appendChild(cell('A nombre de', C.cliente, ''));
     if(C.propiedad && C.propiedad !== C.lugar) g.appendChild(cell('Propiedad', C.propiedad, '', true));
   } else {
     if(C.montoOferta) g.appendChild(cell('Monto de la oferta', C.montoOferta, 'monto', true));
@@ -378,7 +378,7 @@ function pintar(){
     btn.href = 'https://wa.me/' + C.wa + '?text=' + encodeURIComponent(msg);
     btn.style.display = 'flex';
     btn.textContent = t.esCita
-      ? ('Avisar' + (C.asesor ? ' a ' + C.asesor.split(' ')[0] : '') + ' por WhatsApp')
+      ? (C.asesor ? 'Hablar con ' + C.asesor.split(' ')[0] : 'Hablar con tu asesor')
       : 'Responder a tu asesor';
   }
 
