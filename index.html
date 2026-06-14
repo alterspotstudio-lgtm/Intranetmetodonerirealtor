@@ -3126,6 +3126,22 @@ function landOpenEditor(recId){
   if(linkComp){ viewBtn.style.display=''; viewBtn.onclick = () => window.open(linkComp,'_blank'); }
   else { viewBtn.style.display='none'; }
 
+  // Ficha técnica (vista del cliente): mismo ficha.html para "Ver" y "Compartir"
+  const fichaUrl = folioNeri ? (location.origin + '/ficha.html?folio=' + encodeURIComponent(folioNeri)) : '';
+  const fichaBtn = document.getElementById('crm-landing-ficha');
+  const shareBtn = document.getElementById('crm-landing-share');
+  if(fichaUrl){
+    fichaBtn.style.display=''; fichaBtn.onclick = () => window.open(fichaUrl, '_blank');
+    shareBtn.style.display=''; shareBtn.onclick = () => {
+      navigator.clipboard?.writeText(fichaUrl).then(
+        () => showToast('✓ Link de la ficha copiado'),
+        () => showToast('No se pudo copiar')
+      );
+    };
+  } else {
+    fichaBtn.style.display='none'; shareBtn.style.display='none';
+  }
+
   document.getElementById('crm-landing').style.display = 'flex';
 }
 
@@ -3648,6 +3664,8 @@ function buildAirtablePanel(){
       <div class="crm-modal-actions">
         <button class="btn btn-ghost" onclick="landClose()">Cerrar</button>
         <button class="btn btn-ghost" id="crm-landing-view">◎ Ver landing</button>
+        <button class="btn btn-ghost" id="crm-landing-ficha">▣ Ver ficha técnica</button>
+        <button class="btn btn-ghost" id="crm-landing-share">↗ Compartir ficha</button>
         <button class="btn btn-primary" id="crm-landing-save" onclick="landSave()">Guardar cambios</button>
       </div>
     </div>
