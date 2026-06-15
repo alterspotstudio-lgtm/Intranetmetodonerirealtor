@@ -771,9 +771,14 @@ select.form-input option{background:#111;color:#fff}
 .fk-credito-acomp{font-size:11px;color:var(--w50)}
 .fk-credito-sent{font-size:10px;color:var(--green);margin-top:6px}
 .fk-credito-pend{font-size:10px;color:var(--gold);margin-top:6px}
-.fk-acomp-btn{margin-top:8px;display:inline-flex;align-items:center;gap:6px;background:transparent;border:1px solid var(--gold);color:var(--gold);font-size:10px;letter-spacing:1.4px;text-transform:uppercase;font-weight:700;cursor:pointer;padding:7px 14px;border-radius:2px;transition:all .13s}
-.fk-acomp-btn:hover{background:var(--gold);color:#0A0A0A}
-.fk-acomp-btn:disabled{opacity:.5;cursor:default}
+.fk-credito-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.fk-send{
+  background:var(--gold);border:1px solid var(--gold);color:#060606;
+  font-size:7px;letter-spacing:2px;text-transform:uppercase;font-weight:900;
+  padding:8px 12px;border-radius:2px;cursor:pointer;transition:all .15s;
+}
+.fk-send:hover{background:var(--gold2);border-color:var(--gold2)}
+.fk-send:disabled{opacity:.55;cursor:wait}
 .fk-sub{font-size:12px;color:var(--w50);margin-top:10px}
 .fk-diag{
   margin-top:18px;padding:14px 16px;border-radius:3px;
@@ -1556,7 +1561,7 @@ const TOOLS = {
   citas:       { name:'Citas de Compradores', url:'https://citas-vert.vercel.app',           ext:true },
   progreso:    { name:'Portal Progreso',      url:'https://progreso-zeta.vercel.app/',       ext:true },
   opciones:    { name:'Opciones de Compra',  url:'https://opcionesdecompra.vercel.app',     ext:true },
-  bancario:    { name:'Crédito Bancario',    url:'https://creditobancario.vercel.app',     ext:true },
+  creditobancario:{ name:'Crédito Bancario', url:'https://creditobancario.vercel.app',     ext:true },
   reportes:    { name:'Reportes',            url:'Reportes.html',                        ext:true },
 };
 
@@ -2396,6 +2401,69 @@ function crmCompradorWaHref(rec){
   return 'https://wa.me/' + phone + '?text=' + encodeURIComponent(crmCompradorWaMessage(rec));
 }
 
+function crmAcompanamientoLinks(acomp){
+  const a = String(acomp || '').toLowerCase();
+  const links = [];
+  if(a.includes('opciones') || a.includes('ambos')){
+    links.push({ label:'Opciones de compra', url:(TOOLS.opciones && TOOLS.opciones.url) || 'https://opcionesdecompra.vercel.app' });
+  }
+  if(a.includes('bancario') || a.includes('crédito') || a.includes('credito') || a.includes('ambos')){
+    links.push({ label:'Crédito bancario', url:(TOOLS.creditobancario && TOOLS.creditobancario.url) || 'https://creditobancario.vercel.app' });
+  }
+  return links;
+}
+
+function crmAcompanamientoWaMessage(rec){
+  const nombreCompleto = (_fval(rec,'Nombre Completo') || '').trim();
+  const nombre = nombreCompleto ? nombreCompleto.split(/\s+/)[0] : '';
+  const asesor = _fval(rec,'Asesor') || (typeof SESSION !== 'undefined' && SESSION?.nombre) || 'su asesor';
+  const propiedad = _fval(rec,'Propiedad de Interés');
+  const acomp = _fval(rec,'Acompañamiento sugerido') || 'acompañamiento de compra';
+  const links = crmAcompanamientoLinks(acomp);
+  const lineas = [
+    'Hola ' + nombre + ', soy ' + asesor + '.',
+    (propiedad ? 'Sobre la propiedad ' + propiedad + ', t' : 'T') + 'e comparto el acompañamiento recomendado: ' + acomp + '.'
+  ];
+  links.forEach(l => lineas.push(l.label + ': ' + l.url));
+  lineas.push('Revísalo y dime tus dudas para avanzar con claridad.');
+  return lineas.join('\n');
+}
+
+function crmAcompanamientoWaHref(rec){
+  const phone = crmPhoneForWa(_fval(rec,'Teléfono WhatsApp'));
+  if(!phone) return '';
+  return 'https://wa.me/' + phone + '?text=' + encodeURIComponent(crmAcompanamientoWaMessage(rec));
+}
+
+async function crmEnviarAcompanamiento(recId, btn){
+  const rec = crmState.records.find(r => r.id === recId);
+  if(!rec){ showToast('No encontré el lead.'); return; }
+  const acomp = _fval(rec,'Acompañamiento sugerido');
+  if(!acomp || acomp === 'Ninguno'){ showToast('No hay acompañamiento pendiente.'); return; }
+  const href = crmAcompanamientoWaHref(rec);
+  if(!href){ showToast('Falta WhatsApp del comprador.'); return; }
+
+  const oldText = btn ? btn.textContent : '';
+  if(btn){ btn.disabled = true; btn.textContent = 'Abriendo WhatsApp…'; }
+  window.open(href, '_blank', 'noopener');
+
+  try{
+    const enviado = new Date().toISOString();
+    await atFetch(CRM_CFG.compradores.tableId + '/' + recId, {
+      method:'PATCH',
+      body: JSON.stringify({ fields:{ 'Acompañamiento enviado': enviado } })
+    });
+    rec.fields = rec.fields || {};
+    rec.fields['Acompañamiento enviado'] = enviado;
+    showToast('✓ Acompañamiento marcado como enviado');
+    crmOpenFicha(recId);
+  }catch(e){
+    console.error(e);
+    showToast('WhatsApp abierto; no se pudo marcar enviado.');
+    if(btn){ btn.disabled = false; btn.textContent = oldText || 'Enviar acompañamiento'; }
+  }
+}
+
 /* ─── RENDER TABLE ─────────────────────────────────── */
 function crmRender(tab, records){
   const cfg = CRM_CFG[tab];
@@ -2606,6 +2674,10 @@ function crmOpenFicha(recId){
       </div>
       <div class="fk-msg">${msg ? msg.replace(/</g,'&lt;') : '<span class="fk-empty">Sin definir</span>'}</div>
     </div>`;
+  const acompPendiente = acomp && acomp !== 'Ninguno' && !enviado;
+  const acompBtn = acompPendiente
+    ? `<div class="fk-credito-actions"><button class="fk-send" onclick="crmEnviarAcompanamiento('${rec.id}', this)">Enviar acompañamiento</button></div>`
+    : '';
 
   document.getElementById('crm-ficha-body').innerHTML = `
     <div class="fk-top">
@@ -2632,7 +2704,8 @@ function crmOpenFicha(recId){
         <span class="fk-credito-ruta">${ruta || 'Por definir'}</span>
         ${acomp && acomp!=='Ninguno' ? `<span class="fk-credito-acomp">Enviar: ${acomp}</span>` : ''}
       </div>
-      ${enviado ? `<div class="fk-credito-sent">✓ Acompañamiento enviado · ${enviado}</div>` : (acomp && acomp!=='Ninguno' ? `<button class="fk-acomp-btn" onclick="fichaEnviarAcompanamiento('${recId}', this)">📨 Enviar acompañamiento</button>` : '')}
+      ${enviado ? `<div class="fk-credito-sent">✓ Acompañamiento enviado · ${enviado}</div>` : (acomp && acomp!=='Ninguno' ? `<div class="fk-credito-pend">Acompañamiento pendiente de enviar</div>` : '')}
+      ${acompBtn}
     </div>
 
     <div class="fk-grid">${rows}</div>
@@ -2963,55 +3036,6 @@ function fichaCopy(btn){
   const t = btn.getAttribute('data-msg') || '';
   navigator.clipboard?.writeText(t).then(()=>{ showToast('✓ Mensaje copiado'); },
     ()=>{ showToast('No se pudo copiar'); });
-}
-
-/* ─── ENVIAR ACOMPAÑAMIENTO (comprador) ─────────────
-   Usa la Ruta de crédito ya afinada por precio para elegir el/los
-   destino(s), abre WhatsApp al comprador con el link y sella la fecha
-   en "Acompañamiento enviado". Reutiliza /api/airtable (sin nueva fn). */
-async function fichaEnviarAcompanamiento(recId, btn){
-  const rec = crmState.records.find(r => r.id === recId);
-  if(!rec) return;
-  const acomp = _fval(rec,'Acompañamiento sugerido');
-  if(!acomp || acomp==='Ninguno'){ showToast('Este lead no requiere acompañamiento.'); return; }
-
-  const folio = _fval(rec,'Folio del Comprador') || _fval(rec,'Folio Propiedad NERI') || '';
-  const q = folio ? ('?folio=' + encodeURIComponent(folio)) : '';
-  const usaOpciones = (acomp === 'Opciones de compra (INFONAVIT)' || acomp === 'Ambos');
-  const usaBancario = (acomp === 'Crédito bancario' || acomp === 'Ambos');
-
-  const nombreCompleto = (_fval(rec,'Nombre Completo') || '').trim();
-  const nombre = nombreCompleto ? nombreCompleto.split(/\s+/)[0] : '';
-  const asesor = _fval(rec,'Asesor') || (typeof SESSION!=='undefined' && SESSION?.nombre) || 'tu asesor';
-  const propiedad = _fval(rec,'Propiedad de Interés');
-
-  let cuerpo = 'Hola ' + nombre + ', soy ' + asesor + '. Para avanzar' + (propiedad ? ' con ' + propiedad : ' con tu compra') + ' te comparto el siguiente paso para ordenar tu crédito:';
-  if(usaOpciones) cuerpo += '\n\n• Opciones de compra: ' + TOOLS.opciones.url + q;
-  if(usaBancario) cuerpo += '\n\n• Crédito bancario: ' + TOOLS.bancario.url + q;
-  cuerpo += '\n\nCuando lo completes lo reviso de tu lado y seguimos con calma.';
-
-  const phone = crmPhoneForWa(_fval(rec,'Teléfono WhatsApp'));
-  if(phone){
-    window.open('https://wa.me/' + phone + '?text=' + encodeURIComponent(cuerpo), '_blank', 'noopener');
-  }else{
-    navigator.clipboard?.writeText(cuerpo);
-    showToast('Sin WhatsApp del lead. Mensaje copiado.');
-  }
-
-  if(btn){ btn.disabled = true; btn.textContent = 'Enviando…'; }
-  try{
-    const stamp = new Date().toISOString();
-    await atFetch(CRM_CFG.compradores.tableId + '/' + recId, {
-      method:'PATCH',
-      body: JSON.stringify({ fields:{ 'Acompañamiento enviado': stamp }, typecast:true })
-    });
-    if(rec.fields) rec.fields['Acompañamiento enviado'] = stamp;
-    showToast('✓ Acompañamiento enviado');
-    crmOpenFicha(recId);
-  }catch(e){
-    if(btn){ btn.disabled = false; btn.textContent = '📨 Enviar acompañamiento'; }
-    showToast('No se pudo registrar el envío: ' + e.message);
-  }
 }
 
 /* ─── EDITOR DE LANDING (Ficha de Propiedad) ───────── */
@@ -3925,6 +3949,7 @@ const LABELS = {
   citas:'Citas de Compradores',
   progreso:'Portal Progreso',
   opciones:'Opciones de Compra',
+  creditobancario:'Crédito Bancario',
   reportes:'Reportes',
   perfil_asesor:'Mi Perfil del Asesor',
   propiedades_asesor:'Mis Propiedades',
@@ -3984,6 +4009,7 @@ function getToolDesc(id){
     citas:       'Agenda, documentos y avances de cada cliente.',
     progreso:    'Portal de seguimiento solo para clientes con apartado.',
     opciones:    'Esquemas de compra para presentar al cliente.',
+    creditobancario:'Ruta de crédito bancario para compradores.',
     reportes:    'Métricas y resultados del equipo.',
   };
   return descs[id] || 'Herramienta del sistema NERI.';
