@@ -764,6 +764,13 @@ select.form-input option{background:#111;color:#fff}
 .fk-folio{font-size:11px;color:var(--gold);letter-spacing:2px;margin-top:6px;font-family:monospace}
 .fk-op{font-size:10px;color:var(--w30);letter-spacing:1px;margin-top:3px;font-family:monospace}
 .fk-tags{display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex-shrink:0}
+.fk-credito{margin:10px 0;padding:10px 12px;border:1px solid var(--goldbdr);background:var(--golddim);border-radius:var(--r)}
+.fk-credito-lbl{display:block;font-size:8px;letter-spacing:1.6px;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:6px}
+.fk-credito-body{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.fk-credito-ruta{font-size:14px;color:var(--white);font-weight:600}
+.fk-credito-acomp{font-size:11px;color:var(--w50)}
+.fk-credito-sent{font-size:10px;color:var(--green);margin-top:6px}
+.fk-credito-pend{font-size:10px;color:var(--gold);margin-top:6px}
 .fk-sub{font-size:12px;color:var(--w50);margin-top:10px}
 .fk-diag{
   margin-top:18px;padding:14px 16px;border-radius:3px;
@@ -1977,9 +1984,17 @@ const CRM_CFG = {
     dot: 'compradores',
     ficha: true,
     portalBase: 'https://progreso-zeta.vercel.app/',
-    fichaExtra: ['Riesgo principal','Diagnóstico comercial','Estado emocional','Siguiente jugada','Mensaje sugerido','Última interacción','Propiedad de Interés','Status del Lead','Clasificación','Folio Propiedad NERI','Folio del Comprador'],
-    cols: ['Folio','Nombre','WhatsApp','Propiedad Interés','Status','Clasificación','Crédito','Asesor','Fecha'],
-    fields: ['Folio','Nombre Completo','Teléfono WhatsApp','Propiedad de Interés','Status del Lead','Clasificación','Método / Crédito','Asesor','Fecha de Entrada'],
+    fichaExtra: ['Riesgo principal','Diagnóstico comercial','Estado emocional','Siguiente jugada','Mensaje sugerido','Última interacción','Propiedad de Interés','Status del Lead','Clasificación','Folio Propiedad NERI','Folio del Comprador','Ruta de crédito','Acompañamiento sugerido','Acompañamiento enviado'],
+    cols: ['Nombre','Propiedad de Interés','Decisión','Crédito','Clasificación','Fecha','Folio'],
+    fields: [
+      'Nombre Completo',
+      'Propiedad de Interés',
+      ['Decisión','Decisión 1-10','Decisión 1–10','Decisión 1 - 10','Decision','Decisión de Compra','Nivel de Decisión','Intención','Intención de Compra','Status del Lead'],
+      'Método / Crédito',
+      'Clasificación',
+      'Fecha de Entrada',
+      ['Folio del Comprador','Folio Propiedad NERI','Folio']
+    ],
     editable: [
       {f:'Nombre Completo',       type:'text'},
       {f:'Teléfono WhatsApp',     type:'text'},
@@ -2362,6 +2377,20 @@ function crmVendedorWaHref(rec){
   if(!phone) return '';
   return 'https://wa.me/' + phone + '?text=' + encodeURIComponent(crmVendedorWaMessage(rec));
 }
+function crmCompradorWaMessage(rec){
+  const nombreCompleto = (_fval(rec,'Nombre Completo') || '').trim();
+  const nombre = nombreCompleto ? nombreCompleto.split(/\s+/)[0] : '';
+  const asesor = _fval(rec,'Asesor') || (typeof SESSION !== 'undefined' && SESSION?.nombre) || 'su asesor';
+  const propiedad = _fval(rec,'Propiedad de Interés');
+  return 'Hola ' + nombre + ', soy ' + asesor + '. Recibí tu solicitud' +
+    (propiedad ? ' por ' + propiedad : ' de compra') +
+    '. Te escribo para ayudarte con el siguiente paso. ¿Tienes unos minutos?';
+}
+function crmCompradorWaHref(rec){
+  const phone = crmPhoneForWa(_fval(rec,'Teléfono WhatsApp'));
+  if(!phone) return '';
+  return 'https://wa.me/' + phone + '?text=' + encodeURIComponent(crmCompradorWaMessage(rec));
+}
 
 /* ─── RENDER TABLE ─────────────────────────────────── */
 function crmRender(tab, records){
@@ -2370,29 +2399,36 @@ function crmRender(tab, records){
 
   const ths = cfg.cols.map(c => `<th>${c}</th>`).join('');
 
-  const FOLIO_FIELDS = ['Folio','Folio Cita','Folio NERI'];
+  const FOLIO_FIELDS = ['Folio','Folio Cita','Folio NERI','Folio del Comprador','Folio Propiedad NERI'];
   const NAME_FIELDS  = ['nombre completo','nombre','comprador','nombre propiedad'];
 
   const trs = records.map(rec => {
     const cells = cfg.fields.map((fname) => {
-      let val = rec.fields?.[fname] ?? '';
+      const fieldOptions = Array.isArray(fname) ? fname : [fname];
+      const fieldName = fieldOptions.find(f => {
+        const v = rec.fields?.[f];
+        return v != null && v !== '';
+      }) || fieldOptions[0];
+      let val = rec.fields?.[fieldName] ?? '';
       if(typeof val === 'object') val = Array.isArray(val) ? val.map(v=>v?.name||v).join(', ') : (val?.name ?? JSON.stringify(val));
       val = String(val);
 
       // Alerta fiscal en la fila: el asesor la ve sin abrir la ficha
-      const fiscalAlert = (tab === 'vendedores' && fname === 'Nombre Completo'
+      const fiscalAlert = (tab === 'vendedores' && fieldName === 'Nombre Completo'
         && /atenci/i.test(String(rec.fields?.['Diagnóstico Fiscal'] || '')))
         ? ' <span class="badge badge-lost" title="Diagnóstico fiscal: atención requerida — abre la ficha para ver el detalle" style="margin-left:6px">Atención fiscal</span>'
         : '';
 
-      const isPropietario = tab === 'propiedades' && fname === 'Folio Vendedor';
+      const isPropietario = tab === 'propiedades' && fieldName === 'Folio Vendedor';
       const propietario = isPropietario ? crmPropietarioData(rec) : null;
       if(isPropietario) val = propietario?.nombre || '';
 
       const isBadge = !!STATUS_BADGE[val];
-      const isPrice = crmIsPriceField(fname);
-      const isVendedorWhatsapp = tab === 'vendedores' && fname === 'Teléfono WhatsApp' && !!val;
+      const isPrice = crmIsPriceField(fieldName);
+      const isVendedorWhatsapp = tab === 'vendedores' && fieldName === 'Teléfono WhatsApp' && !!val;
+      const isCompradorNombre = tab === 'compradores' && fieldName === 'Nombre Completo' && !!val;
       const waHref = isVendedorWhatsapp ? crmVendedorWaHref(rec) : '';
+      const compradorWaHref = isCompradorNombre ? crmCompradorWaHref(rec) : '';
       const ownerWaHref = isPropietario ? crmPropietarioWaHref(rec) : '';
       const inner = isPropietario
         ? (val
@@ -2400,16 +2436,18 @@ function crmRender(tab, records){
             ? `<a class="owner-wa-link" href="${_escAttr(ownerWaHref)}" target="_blank" rel="noopener" onclick="event.stopPropagation()" title="Abrir WhatsApp con propietario">${_esc(val)}</a>`
             : _esc(val))
           : '<span style="color:var(--w20)">—</span>')
-        : isVendedorWhatsapp && waHref
-          ? `<a class="wa-table-link" href="${_escAttr(waHref)}" target="_blank" rel="noopener" onclick="event.stopPropagation()" title="Abrir WhatsApp con mensaje preparado">WhatsApp</a>`
-          : isPrice && val
-            ? `<span class="price-chip ${crmPriceClass(val)}">${_esc(crmFormatPriceDisplay(val))}</span>`
-            : isBadge
-              ? `<span class="badge ${STATUS_BADGE[val]}">${val}</span>`
-              : (val ? _esc(val) : '<span style="color:var(--w20)">—</span>');
+        : isCompradorNombre && compradorWaHref
+          ? `<a class="owner-wa-link" href="${_escAttr(compradorWaHref)}" target="_blank" rel="noopener" onclick="event.stopPropagation()" title="Abrir WhatsApp con comprador">${_esc(val)}</a>`
+          : isVendedorWhatsapp && waHref
+            ? `<a class="wa-table-link" href="${_escAttr(waHref)}" target="_blank" rel="noopener" onclick="event.stopPropagation()" title="Abrir WhatsApp con mensaje preparado">WhatsApp</a>`
+            : isPrice && val
+              ? `<span class="price-chip ${crmPriceClass(val)}">${_esc(crmFormatPriceDisplay(val))}</span>`
+              : isBadge
+                ? `<span class="badge ${STATUS_BADGE[val]}">${val}</span>`
+                : (val ? _esc(val) : '<span style="color:var(--w20)">—</span>');
       let cls = '';
-      if(FOLIO_FIELDS.includes(fname)) cls = 'folio';
-      else if(NAME_FIELDS.includes(fname.toLowerCase())) cls = 'name';
+      if(FOLIO_FIELDS.includes(fieldName)) cls = 'folio';
+      else if(NAME_FIELDS.includes(fieldName.toLowerCase())) cls = 'name';
       else if(isPropietario) cls = 'name';
       else if(isPrice) cls = 'price';
       else if(!isBadge && val.length > 22) cls = 'clip';
@@ -2541,6 +2579,9 @@ function crmOpenFicha(recId){
   const clasif = _fval(rec,'Clasificación');
   const propied= _fval(rec,'Propiedad de Interés');
   const wa     = _fval(rec,'Teléfono WhatsApp');
+  const ruta    = _fval(rec,'Ruta de crédito');
+  const acomp   = _fval(rec,'Acompañamiento sugerido');
+  const enviado = _fval(rec,'Acompañamiento enviado');
 
   const sd = v => v ? v : '<span class="fk-empty">Sin definir</span>';
   // Un lead comprador todavía NO tiene portal de cliente.
@@ -2579,6 +2620,15 @@ function crmOpenFicha(recId){
     <div class="fk-diag ${diag ? 'on':''}">
       <span class="fk-diag-lbl">Diagnóstico comercial</span>
       <span class="fk-diag-val">${diag || 'Sin diagnóstico'}</span>
+    </div>
+
+    <div class="fk-credito">
+      <span class="fk-credito-lbl">Ruta de crédito</span>
+      <div class="fk-credito-body">
+        <span class="fk-credito-ruta">${ruta || 'Por definir'}</span>
+        ${acomp && acomp!=='Ninguno' ? `<span class="fk-credito-acomp">Enviar: ${acomp}</span>` : ''}
+      </div>
+      ${enviado ? `<div class="fk-credito-sent">✓ Acompañamiento enviado · ${enviado}</div>` : (acomp && acomp!=='Ninguno' ? `<div class="fk-credito-pend">Acompañamiento pendiente de enviar</div>` : '')}
     </div>
 
     <div class="fk-grid">${rows}</div>
