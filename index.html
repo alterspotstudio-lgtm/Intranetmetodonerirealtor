@@ -345,9 +345,60 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
 .m-btn{flex:1;font-family:var(--fm);font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:11px;border-radius:2px;cursor:pointer;border:1px solid var(--gb);background:transparent;color:var(--gold);transition:.15s}
 .m-btn:hover{background:var(--gd)}
 .m-btn.solid{background:var(--gold);color:#0A0A0A;border-color:var(--gold);font-weight:700}
+
+/* ════════ LOGIN (demo) ════════ */
+.login-screen{position:fixed;inset:0;z-index:2000;display:flex;align-items:center;justify-content:center;padding:24px;
+  background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(198,168,107,.06),transparent 70%),var(--obsidian);animation:mfade .3s}
+.login-screen.hidden{display:none}
+.ls-card{width:min(380px,100%);border:1px solid var(--gb);border-top:2px solid var(--gold);border-radius:4px;
+  background:linear-gradient(180deg,#131313,#0c0c0c);padding:30px 26px 24px;text-align:center;max-height:94vh;overflow-y:auto}
+.ls-brand{font-family:var(--fd);font-size:34px;letter-spacing:5px;color:#fff;line-height:1}
+.ls-sub{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);font-weight:700;margin:8px 0 22px}
+.ls-lbl{display:block;text-align:left;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--w35);font-weight:700;margin:0 0 6px}
+.ls-inp{width:100%;background:#0a0a0a;border:1px solid var(--w08);border-radius:2px;color:#fff;font-family:var(--fb);font-size:13px;padding:11px 13px;margin-bottom:14px;outline:none;transition:.15s}
+.ls-inp:focus{border-color:var(--gb2);background:#0d0d0d}
+.ls-err{color:var(--rose);font-size:10px;min-height:14px;text-align:left;margin-bottom:6px}
+.ls-btn{width:100%;background:var(--gold);color:#0A0A0A;border:none;border-radius:2px;font-family:var(--fm);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;padding:13px;cursor:pointer;transition:.15s}
+.ls-btn:hover{background:var(--gold-l)}
+.ls-demo-note{font-size:9px;color:var(--w35);line-height:1.5;margin:20px 0 12px;text-align:left}
+.ls-demo{display:grid;gap:8px}
+.ls-pkg{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;border:1px solid var(--w08);background:rgba(255,255,255,.02);border-radius:2px;padding:11px 13px;cursor:pointer;transition:.15s}
+.ls-pkg:hover{border-color:var(--gb2);background:var(--gd)}
+.ls-pkg b{font-size:11px;color:var(--gold);font-weight:700;letter-spacing:.3px}
+.ls-pkg span{font-size:9px;color:var(--w35)}
+/* ════════ barra de alcance + selector de asesor ════════ */
+.scope-bar{display:none;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;border:1px solid var(--w08);border-radius:3px;background:var(--black2);padding:11px 15px;margin-bottom:18px}
+.scope-l{display:flex;align-items:center;gap:11px;flex-wrap:wrap;min-width:0}
+.scope-tag{font-family:var(--fm);font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);border:1px solid var(--gb);background:var(--gd);border-radius:999px;padding:4px 11px;white-space:nowrap}
+.scope-rol{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--w60);font-weight:700}
+.scope-desc{font-size:10.5px;color:var(--w35)}
+.asel{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.asel-lbl{font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--w22);font-weight:700}
+.asel-pill{font-family:var(--fb);font-size:10px;color:var(--w60);border:1px solid var(--w08);background:transparent;border-radius:999px;padding:6px 12px;cursor:pointer;transition:.15s;white-space:nowrap}
+.asel-pill:hover{border-color:var(--gb);color:#fff}
+.asel-pill.on{border-color:var(--gold);background:var(--gd);color:var(--gold);font-weight:600}
 </style>
 </head>
 <body>
+<!-- ════════ PANTALLA DE ACCESO (demo) ════════ -->
+<div id="login-screen" class="login-screen">
+  <div class="ls-card">
+    <div class="ls-brand">MÉTODO NERI</div>
+    <div class="ls-sub">Sistema operativo inmobiliario</div>
+    <label class="ls-lbl">Usuario / Slug</label>
+    <input id="l-user" class="ls-inp" type="text" placeholder="tu-slug" autocomplete="off">
+    <label class="ls-lbl">Contraseña</label>
+    <input id="l-pass" class="ls-inp" type="password" placeholder="••••••••">
+    <div id="login-err" class="ls-err"></div>
+    <button class="ls-btn" onclick="doLoginDemo()">Entrar al sistema →</button>
+    <div class="ls-demo-note">Tu acceso y tu rol salen de tu usuario real. Para esta demo, entra como uno de los tres paquetes:</div>
+    <div class="ls-demo">
+      <button class="ls-pkg" onclick="entrarPaquete('independiente')"><b>Asesor independiente</b><span>Ve solo lo suyo · sin equipo</span></button>
+      <button class="ls-pkg" onclick="entrarPaquete('grupo')"><b>Grupo de asesores</b><span>Director · ve a todo el equipo</span></button>
+      <button class="ls-pkg" onclick="entrarPaquete('inmobiliaria')"><b>Inmobiliaria</b><span>Director general · ve toda la operación</span></button>
+    </div>
+  </div>
+</div>
 <div class="app">
 
   <div class="sys-eye">Método NERI · Sistema Operativo · Vista de diseño — datos de ejemplo</div>
@@ -372,6 +423,9 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
   </div>
 
   <!-- ════════ COLUMNA VERTEBRAL ════════ -->
+  <!-- ════════ ALCANCE / PAQUETE ════════ -->
+  <div id="scopeBar" class="scope-bar"></div>
+
   <div class="spine" id="spine">
     <div class="spine-row">
 
@@ -1010,7 +1064,7 @@ function activarVertebra(v){
    Real: tabla Asesor captación (tblIRPmLIyj8sWyEk), se lee por Slug
    con perfilLoad(); la foto vía /api/upload-documento.
 ═══════════════════════════════════════════ */
-const ADVISOR = {
+let ADVISOR = {
   nombre:'Enrique Neri', iniciales:'EN',
   puesto:'Director · Asesor', estado:'Activo', tipo:'Interno',
   zona:'Cuernavaca, Morelos',
@@ -1070,6 +1124,107 @@ function abrirFichaProp(){
 }
 
 renderCabina();
+
+/* ═══════════════════════════════════════════
+   LOGIN + PAQUETES (demo)
+   El index vivo YA trae login (slug+contraseña), roles y los 3 tipos de
+   cuenta (ADMIN_TIPOS_CUENTA). Aquí solo se muestra cómo el paquete cambia
+   el alcance del tablero. La lógica original de Enrique no se toca.
+═══════════════════════════════════════════ */
+const PAQUETES = {
+  independiente:{ paquete:'Asesor independiente', rol:'Asesor', scope:'mine',
+    alcance:'Ves solo TUS propiedades y tus leads. No hay vista de equipo.',
+    user:{nombre:'Laura Méndez', iniciales:'LM', puesto:'Asesor independiente', estado:'Activo', tipo:'Independiente', zona:'Cuernavaca, Morelos', whatsapp:'777 234 5566', email:'laura@correo.mx', slug:'laura-mendez', foto:'', frase:'Te acompaño a comprar o vender con orden y seguimiento.'} },
+  grupo:{ paquete:'Grupo de asesores', rol:'Director', scope:'team',
+    alcance:'Ves la operación de TODO el grupo. Puedes filtrar por asesor.',
+    user:{nombre:'Enrique Neri', iniciales:'EN', puesto:'Director · Grupo de asesores', estado:'Activo', tipo:'Independiente', zona:'Morelos', whatsapp:'777 123 4567', email:'enrique@metodoneri.mx', slug:'grupo-neri', foto:'', frase:'Dirijo y superviso la operación de todo el grupo.'} },
+  inmobiliaria:{ paquete:'Inmobiliaria', rol:'Director general', scope:'team',
+    alcance:'Ves la operación de toda la inmobiliaria. Puedes filtrar por asesor.',
+    user:{nombre:'Enrique Neri', iniciales:'EN', puesto:'Director general · Inmobiliaria NERI', estado:'Activo', tipo:'Inmobiliaria', zona:'Morelos', whatsapp:'777 123 4567', email:'direccion@inmobiliarianeri.mx', slug:'enrique-neri', foto:'', frase:'La operación de toda la inmobiliaria, bajo un mismo método.'} }
+};
+let SCOPE = null;
+
+// Dueño de cada registro (demo). En el sistema real viene del campo Asesor.
+const OWNER_PROP = ['Laura Méndez','Carlos Ibáñez','Enrique Neri','Laura Méndez'];
+const OWNER_COMP = ['Laura Méndez','Carlos Ibáñez','Laura Méndez','Enrique Neri','Carlos Ibáñez'];
+const OWNER_VEND = ['Carlos Ibáñez','Laura Méndez','Enrique Neri','Laura Méndez'];
+const ASESORES = ['Laura Méndez','Carlos Ibáñez','Enrique Neri'];
+
+function tagOwners(){
+  document.querySelectorAll('#lst-prop .pi').forEach((el,i)=>{ el.dataset.asesor=OWNER_PROP[i]||''; });
+  document.querySelectorAll('#lst-comp .pi').forEach((el,i)=>{ el.dataset.asesor=OWNER_COMP[i]||''; });
+  document.querySelectorAll('#lst-vend .pi').forEach((el,i)=>{ el.dataset.asesor=OWNER_VEND[i]||''; });
+}
+function setCount(id,n){ const e=document.getElementById(id); if(e) e.textContent=n; }
+function applyAsesorFilter(name){
+  [['#lst-prop','vcount-prop'],['#lst-comp','vcount-comp'],['#lst-vend','vcount-vend']].forEach(pair=>{
+    const sel=pair[0], cid=pair[1]; let vis=0;
+    document.querySelectorAll(sel+' .pi').forEach(el=>{
+      const show=(name==='*'||el.dataset.asesor===name);
+      el.style.display=show?'':'none'; if(show)vis++;
+    });
+    setCount(cid,vis);
+    const f=Array.prototype.slice.call(document.querySelectorAll(sel+' .pi')).find(el=>el.style.display!=='none');
+    if(f) f.click();
+  });
+  document.querySelectorAll('.asel-pill').forEach(p=>p.classList.toggle('on', p.dataset.name===name));
+}
+function renderScopeBar(){
+  const bar=document.getElementById('scopeBar'); if(!bar||!SCOPE) return;
+  let pills='';
+  if(SCOPE.scope==='team'){
+    pills='<div class="asel"><span class="asel-lbl">Ver por asesor:</span>'
+      + '<button class="asel-pill on" data-name="*">Todo el equipo</button>'
+      + ASESORES.map(a=>'<button class="asel-pill" data-name="'+a+'">'+a+'</button>').join('')
+      + '</div>';
+  }
+  bar.innerHTML='<div class="scope-l"><span class="scope-tag">'+SCOPE.paquete+'</span>'
+    + '<span class="scope-rol">'+SCOPE.rol+'</span>'
+    + '<span class="scope-desc">'+SCOPE.alcance+'</span></div>'+pills;
+  bar.style.display='flex';
+  bar.querySelectorAll('.asel-pill').forEach(p=>{ p.onclick=function(){ applyAsesorFilter(p.dataset.name); }; });
+}
+function entrarPaquete(key){
+  SCOPE=PAQUETES[key]; if(!SCOPE) return;
+  ADVISOR=Object.assign({}, SCOPE.user);
+  renderCabina();
+  renderScopeBar();
+  document.getElementById('login-screen').classList.add('hidden');
+  if(SCOPE.scope==='mine') applyAsesorFilter(SCOPE.user.nombre);
+  else applyAsesorFilter('*');
+  window.scrollTo(0,0);
+}
+function doLoginDemo(){
+  const slug=(document.getElementById('l-user').value||'').trim().toLowerCase();
+  const pass=(document.getElementById('l-pass').value||'').trim();
+  const err=document.getElementById('login-err');
+  if(!slug||!pass){ err.textContent='Ingresa tu slug y tu contraseña.'; return; }
+  const map={'laura-mendez':'independiente','grupo-neri':'grupo','enrique-neri':'inmobiliaria'};
+  const key=map[slug];
+  if(!key){ err.textContent='En la demo usa: laura-mendez, grupo-neri o enrique-neri (cualquier contraseña).'; return; }
+  err.textContent=''; entrarPaquete(key);
+}
+
+/* el modal de perfil ahora lee el usuario activo (no uno fijo) */
+renderPerfilModal = function(){
+  document.getElementById('mAvatar').innerHTML=avatarHTML();
+  document.getElementById('mPerfName').textContent=ADVISOR.nombre;
+  document.getElementById('mPerfRole').textContent=ADVISOR.puesto;
+  const fields=[
+    {l:'Puesto',v:ADVISOR.puesto,edit:false},
+    {l:'Zona',v:ADVISOR.zona,edit:true},
+    {l:'WhatsApp',v:ADVISOR.whatsapp,edit:true},
+    {l:'Email',v:ADVISOR.email,edit:true},
+    {l:'Slug',v:ADVISOR.slug,mono:true,edit:false},
+    {l:'Estado',v:ADVISOR.estado,edit:false}
+  ];
+  let g=fields.map(f=>'<div class="mf"><div class="mf-lbl">'+(f.edit?'<span class="edot"></span>':'')+f.l+'</div><div class="mf-val'+(f.mono?' mono':'')+'">'+f.v+'</div></div>').join('');
+  g+='<div class="mf full"><div class="mf-lbl"><span class="edot"></span>Frase pública</div><div class="mf-frase">"'+ADVISOR.frase+'"</div></div>';
+  g+='<div class="mf full"><div class="mf-lbl">Link de captación</div><div class="mf-val mono">'+capLinkUrl()+'</div></div>';
+  document.getElementById('perfilGrid').innerHTML=g;
+};
+
+tagOwners();
 </script>
 </body>
 </html>
