@@ -1318,10 +1318,12 @@ select.form-inp option{background:#111;color:#fff}
 .exp-step .s.now .dot{background:var(--gold);border-color:var(--gold);box-shadow:0 0 0 4px var(--golddim)}
 .exp-step .s small{font-size:7px;letter-spacing:.6px;text-transform:uppercase;color:var(--w45);font-weight:900}
 .exp-step .s.now small{color:var(--gold)}.exp-step .s.done small{color:var(--w70)}
-/* ── Medallón NERI (riel del expediente) ── */
-.med-block{flex:1 1 100%;display:flex;flex-direction:column;align-items:center;gap:16px;font-family:'Montserrat',sans-serif}
+/* ── Medallón NERI (componente reutilizable: ficha + Centro) ── */
+.med-block{flex:1 1 100%;display:flex;flex-direction:column;align-items:center;gap:14px;font-family:'Montserrat',sans-serif}
 .med{position:relative;width:230px;max-width:100%}
-.med-glow{position:absolute;inset:0;border-radius:50%;filter:blur(26px);opacity:.2;z-index:0;pointer-events:none}
+.med.clickable{cursor:pointer}
+.med.clickable:hover .med-glow{opacity:.34}
+.med-glow{position:absolute;inset:0;border-radius:50%;filter:blur(26px);opacity:.2;z-index:0;pointer-events:none;transition:opacity .25s}
 .med svg{position:relative;z-index:1;width:100%;height:auto;display:block}
 .med-seg{stroke-dashoffset:0}
 .med-seg.fill{stroke-dasharray:1;animation:medDraw 1s cubic-bezier(.16,1,.3,1) both}
@@ -1331,6 +1333,7 @@ select.form-inp option{background:#111;color:#fff}
 .mc-lbl{font-size:6px;letter-spacing:6px;text-transform:uppercase;font-weight:800;color:rgba(201,169,110,.5);margin-top:2px}
 .mc-fase{font-size:11px;font-weight:600;color:var(--white);margin-top:8px;letter-spacing:.3px;text-align:center}
 .mc-etapa{font-family:var(--mono);font-size:8px;letter-spacing:1.5px;color:var(--w35);margin-top:4px}
+.med-hint{font-size:8px;letter-spacing:1.4px;text-transform:uppercase;color:var(--w35);font-weight:700}
 .rielc{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;width:100%;margin-top:2px}
 .rchip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border2);border-radius:999px;padding:4px 11px 4px 4px;background:rgba(255,255,255,.02);transition:.15s var(--ease)}
 .rc-dot{width:19px;height:19px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid var(--w08);background:#0d0d0d;color:var(--w30);flex:none}
@@ -5003,7 +5006,7 @@ function expFindProgreso(rec){
   })||null;
 }
 
-function expStepper(tipo, rec, prog){
+function expStageInfo(tipo, rec, prog){
   let stages, idx, accents;
   const conv=String(_fval(rec,'Conversión')||'').toLowerCase();
   const fase=String(_fval(prog||rec,'Fase Actual')||'').toLowerCase();
@@ -5026,47 +5029,49 @@ function expStepper(tipo, rec, prog){
     for(const k in fmap){ if(fase.includes(k)) idx=Math.max(idx,fmap[k]); }
   }
   if(idx<0) idx=0; if(idx>stages.length-1) idx=stages.length-1;
-  return medallonHTML(stages, idx, accents);
+  return {stages, idx, accents};
 }
 
-// Medallón de obsidiana con oro fundido. Color por fase = significado, no adorno.
-// done = oro fundido · activo = color de fase con brillo · bloqueado = obsidiana + candado.
-function medallonHTML(stages, idx, accents){
+function expStepper(tipo, rec, prog){
+  const s=expStageInfo(tipo, rec, prog);
+  return medallonHTML(s.stages, s.idx, s.accents);
+}
+
+// Medallón de obsidiana con oro fundido. IDs de gradiente únicos por instancia (uid)
+// para permitir varios medallones en pantalla (ficha + Centro). Si se pasa recId,
+// el centro del círculo abre la ficha (openExpedienteById).
+function medallonHTML(stages, idx, accents, recId){
   const N=stages.length, CX=120, CY=120, R=76, STROKE=11;
   const SEG=360/N, GAP=N>7?4.2:5.4;
   const LIP_IN=R-STROKE/2-1.3, LIP_OUT=R+STROKE/2+1.3;
   const HEX={gold:'#E2C98A',amber:'#E0A24E',steel:'#6FA8E0',emerald:'#46D06E'};
   const RGB={gold:'226,201,138',amber:'224,162,78',steel:'111,168,224',emerald:'70,208,110'};
   const acc=HEX[accents[idx]]||HEX.gold, rgb=RGB[accents[idx]]||RGB.gold;
+  const uid='m'+(medallonHTML._n=(medallonHTML._n||0)+1);
   const pol=(r,d)=>{const a=d*Math.PI/180;return [CX+r*Math.cos(a), CY+r*Math.sin(a)];};
   const arcD=(r,a0,a1)=>{const s=pol(r,a0),e=pol(r,a1);const lg=((a1-a0)%360)>180?1:0;return 'M '+s[0].toFixed(2)+' '+s[1].toFixed(2)+' A '+r+' '+r+' 0 '+lg+' 1 '+e[0].toFixed(2)+' '+e[1].toFixed(2);};
-
   let ticks='';
   for(let i=0;i<72;i++){const a=(i/72)*360-90, M=i%6===0;const p1=pol(M?63:64,a),p2=pol(M?67:66,a);
     ticks+='<line x1="'+p1[0].toFixed(2)+'" y1="'+p1[1].toFixed(2)+'" x2="'+p2[0].toFixed(2)+'" y2="'+p2[1].toFixed(2)+'" stroke="'+(M?'rgba(201,169,110,.45)':'rgba(201,169,110,.16)')+'" stroke-width="'+(M?1:0.5)+'"/>';}
-
   let track='', segs='', lips='';
   for(let i=0;i<N;i++){
     const a0=-90+i*SEG+GAP/2, a1=-90+(i+1)*SEG-GAP/2;
     track+='<path d="'+arcD(R,a0,a1)+'" fill="none" stroke="rgba(0,0,0,.5)" stroke-width="'+(STROKE+3)+'" stroke-linecap="round"/>';
     if(i<idx){
-      segs+='<path class="med-seg fill" style="animation-delay:'+(0.1*i).toFixed(2)+'s" d="'+arcD(R,a0,a1)+'" fill="none" stroke="url(#medMolten)" stroke-width="'+STROKE+'" stroke-linecap="round" pathLength="1"/>';
+      segs+='<path class="med-seg fill" style="animation-delay:'+(0.1*i).toFixed(2)+'s" d="'+arcD(R,a0,a1)+'" fill="none" stroke="url(#medMolten_'+uid+')" stroke-width="'+STROKE+'" stroke-linecap="round" pathLength="1"/>';
       lips+='<path d="'+arcD(LIP_IN,a0,a1)+'" fill="none" stroke="rgba(251,239,192,.45)" stroke-width="1.4" stroke-linecap="round"/>';
       lips+='<path d="'+arcD(LIP_OUT,a0,a1)+'" fill="none" stroke="rgba(60,40,8,.6)" stroke-width="1.5" stroke-linecap="round"/>';
     } else if(i===idx){
-      segs+='<path class="med-seg fill" style="animation-delay:'+(0.1*idx+0.12).toFixed(2)+'s" d="'+arcD(R,a0,a1)+'" fill="none" stroke="'+acc+'" stroke-width="'+STROKE+'" stroke-linecap="round" pathLength="1" filter="url(#medBloom)"/>';
+      segs+='<path class="med-seg fill" style="animation-delay:'+(0.1*idx+0.12).toFixed(2)+'s" d="'+arcD(R,a0,a1)+'" fill="none" stroke="'+acc+'" stroke-width="'+STROKE+'" stroke-linecap="round" pathLength="1" filter="url(#medBloom_'+uid+')"/>';
       lips+='<path d="'+arcD(LIP_IN,a0,a1)+'" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="1.3" stroke-linecap="round"/>';
     } else {
       segs+='<path d="'+arcD(R,a0,a1)+'" fill="none" stroke="rgba(255,255,255,.045)" stroke-width="'+STROKE+'" stroke-linecap="round"/>';
     }
   }
-
   let beacon='';
   if(idx>0){const b=pol(R,-90+idx*SEG);
-    beacon='<circle cx="'+b[0].toFixed(2)+'" cy="'+b[1].toFixed(2)+'" r="3.6" fill="'+acc+'" filter="url(#medBloom)"/><circle cx="'+b[0].toFixed(2)+'" cy="'+b[1].toFixed(2)+'" r="1.5" fill="#fff"/>';}
-
+    beacon='<circle cx="'+b[0].toFixed(2)+'" cy="'+b[1].toFixed(2)+'" r="3.6" fill="'+acc+'" filter="url(#medBloom_'+uid+')"/><circle cx="'+b[0].toFixed(2)+'" cy="'+b[1].toFixed(2)+'" r="1.5" fill="#fff"/>';}
   const pct=Math.round(idx/(N-1)*100);
-
   let chips='';
   for(let i=0;i<N;i++){
     const stt=i<idx?'done':i===idx?'active':'lock';
@@ -5076,43 +5081,44 @@ function medallonHTML(stages, idx, accents){
     else ic='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9.5" rx="2"/><path d="M8 11V7.5a4 4 0 0 1 8 0V11"/></svg>';
     chips+='<div class="rchip '+stt+'"><div class="rc-dot" '+extra+'>'+ic+'</div><span class="rc-lbl">'+stages[i]+'</span></div>';
   }
-
-  return ''
-   +'<div class="med-block">'
-   +  '<div class="med">'
-   +    '<div class="med-glow" style="background:radial-gradient(circle,rgba('+rgb+',.9),transparent 68%)"></div>'
-   +    '<svg viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">'
-   +      '<defs>'
-   +        '<linearGradient id="medMolten" gradientUnits="userSpaceOnUse" x1="56" y1="36" x2="188" y2="204">'
-   +          '<stop offset="0%" stop-color="#FBEFC0"/><stop offset="22%" stop-color="#E2C98A"/><stop offset="52%" stop-color="#C9A96E"/><stop offset="80%" stop-color="#8A6418"/><stop offset="100%" stop-color="#5A3E0A"/>'
-   +        '</linearGradient>'
-   +        '<linearGradient id="medRim" x1="15%" y1="5%" x2="85%" y2="95%"><stop offset="0%" stop-color="#5A4A2A"/><stop offset="30%" stop-color="#2A2418"/><stop offset="62%" stop-color="#141008"/><stop offset="100%" stop-color="#0A0805"/></linearGradient>'
-   +        '<radialGradient id="medDome" cx="50%" cy="34%" r="62%"><stop offset="0%" stop-color="#1C160B"/><stop offset="48%" stop-color="#0C0A06"/><stop offset="100%" stop-color="#050505"/></radialGradient>'
-   +        '<radialGradient id="medDomeHi" cx="50%" cy="26%" r="40%"><stop offset="0%" stop-color="rgba(201,169,110,.18)"/><stop offset="100%" stop-color="rgba(201,169,110,0)"/></radialGradient>'
-   +        '<filter id="medBloom" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="2.6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>'
-   +      '</defs>'
-   +      '<circle cx="120" cy="125" r="94" fill="#000" opacity="0.4" filter="url(#medBloom)"/>'
-   +      '<circle cx="120" cy="120" r="93" fill="none" stroke="url(#medRim)" stroke-width="11"/>'
-   +      '<circle cx="120" cy="120" r="98.5" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="1"/>'
-   +      '<circle cx="120" cy="120" r="87.5" fill="none" stroke="rgba(0,0,0,.6)" stroke-width="1.3"/>'
-   +      '<circle cx="120" cy="120" r="86" fill="url(#medDome)"/>'
-   +      '<ellipse cx="120" cy="98" rx="72" ry="58" fill="url(#medDomeHi)"/>'
-   +      '<circle cx="120" cy="120" r="86" fill="none" stroke="rgba(201,169,110,.06)" stroke-width="1"/>'
-   +      '<g opacity=".45">'+ticks+'</g>'
-   +      '<g>'+track+'</g>'
-   +      '<g>'+segs+'</g>'
-   +      '<g>'+lips+'</g>'
-   +      beacon
-   +    '</svg>'
-   +    '<div class="med-ctr">'
-   +      '<div class="mc-pct">'+pct+'%</div>'
-   +      '<div class="mc-lbl">Avance</div>'
-   +      '<div class="mc-fase">'+stages[idx]+'</div>'
-   +      '<div class="mc-etapa">Etapa '+(idx+1)+' / '+N+'</div>'
-   +    '</div>'
-   +  '</div>'
-   +  '<div class="rielc">'+chips+'</div>'
-   +'</div>';
+  const medOpen = recId ? ('<div class="med clickable" onclick="openExpedienteById(\''+recId+'\')" title="Abrir ficha">') : '<div class="med">';
+  const hint = recId ? '<div class="med-hint">Toca el centro para abrir la ficha</div>' : '';
+  return '<div class="med-block">'
+   + medOpen
+   +   '<div class="med-glow" style="background:radial-gradient(circle,rgba('+rgb+',.9),transparent 68%)"></div>'
+   +   '<svg viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">'
+   +     '<defs>'
+   +       '<linearGradient id="medMolten_'+uid+'" gradientUnits="userSpaceOnUse" x1="56" y1="36" x2="188" y2="204">'
+   +         '<stop offset="0%" stop-color="#FBEFC0"/><stop offset="22%" stop-color="#E2C98A"/><stop offset="52%" stop-color="#C9A96E"/><stop offset="80%" stop-color="#8A6418"/><stop offset="100%" stop-color="#5A3E0A"/>'
+   +       '</linearGradient>'
+   +       '<linearGradient id="medRim_'+uid+'" x1="15%" y1="5%" x2="85%" y2="95%"><stop offset="0%" stop-color="#5A4A2A"/><stop offset="30%" stop-color="#2A2418"/><stop offset="62%" stop-color="#141008"/><stop offset="100%" stop-color="#0A0805"/></linearGradient>'
+   +       '<radialGradient id="medDome_'+uid+'" cx="50%" cy="34%" r="62%"><stop offset="0%" stop-color="#1C160B"/><stop offset="48%" stop-color="#0C0A06"/><stop offset="100%" stop-color="#050505"/></radialGradient>'
+   +       '<radialGradient id="medDomeHi_'+uid+'" cx="50%" cy="26%" r="40%"><stop offset="0%" stop-color="rgba(201,169,110,.18)"/><stop offset="100%" stop-color="rgba(201,169,110,0)"/></radialGradient>'
+   +       '<filter id="medBloom_'+uid+'" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="2.6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>'
+   +     '</defs>'
+   +     '<circle cx="120" cy="125" r="94" fill="#000" opacity="0.4" filter="url(#medBloom_'+uid+')"/>'
+   +     '<circle cx="120" cy="120" r="93" fill="none" stroke="url(#medRim_'+uid+')" stroke-width="11"/>'
+   +     '<circle cx="120" cy="120" r="98.5" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="1"/>'
+   +     '<circle cx="120" cy="120" r="87.5" fill="none" stroke="rgba(0,0,0,.6)" stroke-width="1.3"/>'
+   +     '<circle cx="120" cy="120" r="86" fill="url(#medDome_'+uid+')"/>'
+   +     '<ellipse cx="120" cy="98" rx="72" ry="58" fill="url(#medDomeHi_'+uid+')"/>'
+   +     '<circle cx="120" cy="120" r="86" fill="none" stroke="rgba(201,169,110,.06)" stroke-width="1"/>'
+   +     '<g opacity=".45">'+ticks+'</g>'
+   +     '<g>'+track+'</g>'
+   +     '<g>'+segs+'</g>'
+   +     '<g>'+lips+'</g>'
+   +     beacon
+   +   '</svg>'
+   +   '<div class="med-ctr">'
+   +     '<div class="mc-pct">'+pct+'%</div>'
+   +     '<div class="mc-lbl">Avance</div>'
+   +     '<div class="mc-fase">'+stages[idx]+'</div>'
+   +     '<div class="mc-etapa">Etapa '+(idx+1)+' / '+N+'</div>'
+   +   '</div>'
+   + '</div>'
+   + '<div class="rielc">'+chips+'</div>'
+   + hint
+   + '</div>';
 }
 
 function expDocsFor(tipo, rec, prog){
