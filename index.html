@@ -1420,6 +1420,46 @@ select.form-inp option{background:#111;color:#fff}
 @media(max-width:900px){.admin-zone-tabs{grid-template-columns:1fr}.admin-v9-user-row{grid-template-columns:1fr}.admin-v9-user-actions{justify-content:flex-start}.admin-form-grid{grid-template-columns:1fr}.admin-upload-box{grid-template-columns:1fr}.admin-account-tabs{overflow:auto}.admin-account-content{padding:20px}.admin-account-actions{margin-left:-20px;margin-right:-20px;padding-left:20px;padding-right:20px}}
 @media(max-width:560px){.admin-v9-wrap{padding:18px}.admin-v9-title{font-size:36px}.admin-account-head{padding:22px}.admin-account-title b{font-size:28px}}
 
+
+
+/* ══════════════════════════════════════════
+   CENTRO DE OPERACIONES · COLUMNA VERTEBRAL
+   Nuevo home en prueba: no reemplaza conexiones existentes.
+══════════════════════════════════════════ */
+.centro-body{flex:1;overflow:auto;padding:24px;background:var(--black);animation:fadeUp .28s var(--ease)}
+.centro-eye{font-size:7px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);font-weight:900;display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.centro-eye::before{content:'';width:22px;height:1px;background:var(--gold);opacity:.55}
+.centro-spine{border:1px solid var(--border);border-radius:3px;background:#060606;margin-bottom:18px;position:relative;overflow:hidden}
+.centro-spine::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.45}
+.centro-spine-row{display:grid;grid-template-columns:repeat(3,1fr)}
+.centro-vert{min-height:88px;display:flex;align-items:center;gap:12px;padding:17px 18px;border:0;background:transparent;color:inherit;text-align:left;cursor:pointer;position:relative;border-right:1px solid var(--w04);transition:background .16s var(--ease),opacity .16s var(--ease)}
+.centro-vert:last-child{border-right:none}
+.centro-vert:hover{background:rgba(255,255,255,.03)}
+.centro-vert.dim{opacity:.55}
+.centro-vert.on{opacity:1;background:linear-gradient(180deg,rgba(201,169,110,.075),transparent)}
+.centro-vert.on::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--gold)}
+.centro-vert.steel.on{background:linear-gradient(180deg,rgba(96,165,250,.075),transparent)}
+.centro-vert.steel.on::before{background:#60a5fa}
+.centro-vert.sage.on{background:linear-gradient(180deg,rgba(74,222,128,.075),transparent)}
+.centro-vert.sage.on::before{background:var(--green)}
+.cv-ic{width:36px;height:36px;border:1px solid var(--border2);border-radius:3px;background:var(--surface);display:flex;align-items:center;justify-content:center;color:var(--w30);font-size:17px;flex:none}
+.centro-vert.on .cv-ic{border-color:var(--goldbdr);background:var(--golddim);color:var(--gold)}
+.centro-vert.steel.on .cv-ic{border-color:rgba(96,165,250,.28);background:rgba(96,165,250,.08);color:#60a5fa}
+.centro-vert.sage.on .cv-ic{border-color:rgba(74,222,128,.28);background:rgba(74,222,128,.08);color:var(--green)}
+.cv-meta{min-width:0;flex:1}.cv-lbl{font-size:8px;letter-spacing:2.6px;text-transform:uppercase;font-weight:900;color:var(--w50);line-height:1.45}.centro-vert.on .cv-lbl{color:var(--white)}
+.cv-sub{font-size:7px;letter-spacing:1.4px;color:var(--w30);margin-top:3px;font-weight:700}.cv-count{font-family:var(--display);font-size:27px;letter-spacing:1px;color:var(--w30);line-height:1;flex:none}.centro-vert.on .cv-count{color:var(--gold)}.centro-vert.steel.on .cv-count{color:#60a5fa}.centro-vert.sage.on .cv-count{color:var(--green)}
+.centro-spine-foot{border-top:1px solid var(--w04);padding:9px 18px;font-size:10px;color:var(--w45);display:flex;align-items:center;gap:8px;line-height:1.5}.centro-spine-foot i{width:5px;height:5px;border-radius:50%;background:var(--gold);display:block;animation:pulse 2.4s infinite;flex:none}
+.centro-shell{display:grid;grid-template-columns:260px 1fr;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:3px;overflow:hidden;min-height:560px}
+.centro-list{background:#080808;min-height:100%;overflow:auto}.centro-list-head{height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:1px solid var(--border);background:#0b0b0b}.cl-title{font-size:8px;letter-spacing:3px;text-transform:uppercase;font-weight:900;color:var(--gold)}.cl-count{font-family:var(--mono);font-size:10px;color:var(--w30)}
+.centro-item{width:100%;display:flex;align-items:center;gap:10px;padding:13px 12px;background:transparent;color:inherit;border:0;border-bottom:1px solid rgba(255,255,255,.04);text-align:left;cursor:pointer;position:relative;transition:background .13s var(--ease)}.centro-item:hover{background:rgba(255,255,255,.035)}.centro-item.sel{background:var(--golddim)}.centro-item.sel::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--gold)}
+.ci-dot{width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 9px rgba(201,169,110,.36);flex:none}.ci-dot.steel{background:#60a5fa;box-shadow:0 0 9px rgba(96,165,250,.36)}.ci-dot.sage{background:var(--green);box-shadow:0 0 9px rgba(74,222,128,.36)}
+.ci-main{min-width:0;flex:1}.ci-name{font-size:11px;font-weight:700;color:var(--w80);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.centro-item.sel .ci-name{color:var(--white)}.ci-sub{font-family:var(--mono);font-size:8px;color:var(--w30);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ci-badge{font-family:var(--display);font-size:15px;color:var(--w30);letter-spacing:1px;flex:none}.centro-item.sel .ci-badge{color:var(--gold)}
+.centro-main{background:var(--black);padding:24px;position:relative;overflow:hidden}.centro-main::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 38% at 50% -3%,rgba(201,169,110,.05),transparent 70%);pointer-events:none}.centro-main>*{position:relative;z-index:1}
+.cm-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:14px}.cm-name{font-family:var(--display);font-size:34px;letter-spacing:3px;line-height:.9;color:var(--white)}.cm-sub{font-size:8px;letter-spacing:1.4px;text-transform:uppercase;color:var(--w45);margin-top:8px;line-height:1.7}.cm-badge{font-size:7px;letter-spacing:2.6px;text-transform:uppercase;font-weight:900;padding:6px 12px;border-radius:2px;border:1px solid var(--goldbdr);background:var(--golddim);color:var(--gold);white-space:nowrap}
+.centro-main .med{width:290px}.centro-main .mc-pct{font-size:66px}.centro-main .med-block{margin:10px auto 8px;max-width:100%}.centro-main .rielc{max-width:860px;margin-left:auto;margin-right:auto}
+.cm-action{margin-top:18px;border:1px solid var(--border);border-left:3px solid var(--gold);background:linear-gradient(180deg,var(--surface2),var(--surface));border-radius:3px;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}.cm-ey{font-size:7px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);font-weight:900;margin-bottom:7px}.cm-t{font-size:13px;color:var(--white);font-weight:700;line-height:1.45}.cm-d{font-size:11px;color:var(--w50);font-weight:300;line-height:1.6;margin-top:4px;max-width:620px}.cm-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.cm-btn{border:1px solid var(--goldbdr);background:var(--gold);color:#090909;border-radius:2px;padding:10px 15px;font-size:8px;letter-spacing:2px;text-transform:uppercase;font-weight:900;cursor:pointer;white-space:nowrap}.cm-btn:hover{background:var(--gold2)}.cm-btn.ghost{background:transparent;color:var(--gold)}.cm-btn.ghost:hover{background:var(--golddim)}
+.centro-lead-card{border:1px solid var(--border);border-radius:3px;background:linear-gradient(180deg,var(--surface2),var(--surface));padding:18px;margin-top:18px}.centro-lead-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px}.centro-field{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:2px;padding:11px 12px}.centro-k{font-size:7px;letter-spacing:2.1px;text-transform:uppercase;color:var(--w30);font-weight:900;margin-bottom:5px}.centro-v{font-size:12px;color:var(--w80);line-height:1.45}.centro-v.muted{color:var(--w30);font-style:italic}.centro-empty{padding:42px 20px;text-align:center;font-size:11px;color:var(--w35);line-height:1.7}.centro-loading{padding:42px;text-align:center;color:var(--w45);font-size:10px;letter-spacing:2px;text-transform:uppercase;font-weight:800}
+@media(max-width:900px){.centro-spine-row{grid-template-columns:1fr}.centro-vert{border-right:0;border-bottom:1px solid var(--w04)}.centro-shell{grid-template-columns:1fr}.centro-list{max-height:260px}.centro-main{padding:18px}.centro-main .med{width:245px}.centro-lead-grid{grid-template-columns:1fr}.cm-top{flex-direction:column}.cm-name{font-size:29px}}
 </style>
 </head>
 <body>
@@ -1536,9 +1576,10 @@ const SESSION_STORE_KEY = 'neri_signed_session_v1';
 const NAV_ROL = {
   asesor: [
     { section:'Centro de Mando' },
-    { id:'hoy', label:'Hoy', icon:'⬡', highlight:true },
+    { id:'centro', label:'Operación', icon:'⬢', highlight:true },
+    { id:'hoy', label:'Hoy', icon:'⬡' },
     { id:'perfil_asesor', label:'Mi Perfil del Asesor', icon:'◉' },
-    { id:'airtable', label:'Centro de Operaciones', icon:'◈' },
+    { id:'airtable', label:'Base de Datos / Editor', icon:'◈' },
     { id:'expedientes', label:'Expedientes', icon:'❑' },
     { id:'propiedades_asesor', label:'Mis Propiedades', icon:'⌂' },
     { id:'documentos_asesor', label:'Documentos', icon:'▤' },
@@ -1553,8 +1594,9 @@ const NAV_ROL = {
   ],
   gerente: [
     { section:'Principal' },
+    { id:'centro',      label:'Operación',          icon:'⬢', highlight:true },
     { id:'hoy',         label:'Dashboard',          icon:'⬡' },
-    { id:'airtable',    label:'Centro de Operaciones',       icon:'◈', highlight:true },
+    { id:'airtable',    label:'Base de Datos / Editor',       icon:'◈' },
     { section:'Equipo' },
     { id:'sala',        label:'Sala de Mensajes',   icon:'⚡' },
     { id:'reportes',    label:'Reportes',           icon:'◫' },
@@ -1565,8 +1607,9 @@ const NAV_ROL = {
   ],
   director: [
     { section:'Dirección' },
+    { id:'centro',      label:'Operación',          icon:'⬢', highlight:true },
     { id:'hoy',         label:'Dashboard',          icon:'⬡' },
-    { id:'airtable',    label:'Centro de Operaciones',       icon:'◈', highlight:true },
+    { id:'airtable',    label:'Base de Datos / Editor',       icon:'◈' },
     { id:'reportes',    label:'Reportes',           icon:'◫' },
     { section:'Sistema' },
     { id:'sala',        label:'Sala de Mensajes',   icon:'⚡' },
@@ -1715,6 +1758,7 @@ function buildPanels(){
   ca.insertAdjacentHTML('beforeend', buildAsesorReportesPanel());
   ca.insertAdjacentHTML('beforeend', buildAsesorManualesPanel());
   ca.insertAdjacentHTML('beforeend', buildExpedientePanel());
+  ca.insertAdjacentHTML('beforeend', buildCentroPanel());
 
   ca.insertAdjacentHTML('beforeend', buildAirtablePanel());
   ca.insertAdjacentHTML('beforeend', buildSalaMensajesPanel());
@@ -3971,7 +4015,8 @@ function openExternal(id){
 const LABELS = {
   hoy:'Inicio',
   administracion:'Control de Mando',
-  airtable:'Centro de Operaciones',
+  centro:'Centro de Operaciones',
+  airtable:'Base de datos / Editor',
   expedientes:'Expedientes',
   sala:'Sala de Mensajes',
   compradores:'Landing Compradores',
@@ -4425,6 +4470,191 @@ function asesorDays(f){ return _daysSince(f); }
 function asesorStatus(rec){ return _fval(rec,'Clasificación') || _fval(rec,'Status del Lead') || _fval(rec,'Conversión') || _fval(rec,'Estado') || 'Sin estado'; }
 function asesorNombre(rec){ return _fval(rec,'Nombre Completo') || _fval(rec,'Comprador') || _fval(rec,'Nombre Propiedad') || 'Sin nombre'; }
 function asesorMensaje(rec){ return _fval(rec,'Mensaje sugerido') || _fval(rec,'Siguiente jugada') || _fval(rec,'Próximo paso') || 'Dar seguimiento con claridad y registrar la siguiente acción.'; }
+
+
+/* ═══════════════════════════════════════════════════
+   CENTRO DE OPERACIONES · COLUMNA VERTEBRAL
+   Usa datos reales ya filtrados por sesión vía asesorLoadAll().
+   No cambia Airtable, Make ni endpoints; solo monta una nueva vista.
+═══════════════════════════════════════════════════ */
+let centroState = { view:'prop', selectedId:null };
+
+function buildCentroPanel(){
+  return `<div class="panel" id="panel-centro"><div class="centro-body">
+    <div class="centro-eye">Columna vertebral · datos reales</div>
+    <div id="centro-spine" class="centro-spine"></div>
+    <div class="centro-shell">
+      <aside class="centro-list" id="centro-list"><div class="centro-loading">Cargando operación…</div></aside>
+      <main class="centro-main" id="centro-main"><div class="centro-loading">Selecciona una vértebra…</div></main>
+    </div>
+  </div></div>`;
+}
+
+function centroFolio(rec, tipo){
+  if(tipo==='propiedad') return _fval(rec,'Folio NERI') || _fval(rec,'Folio Vendedor') || _fval(rec,'Folio') || '—';
+  return _fval(rec,'Folio') || _fval(rec,'Folio del Comprador') || _fval(rec,'Folio Propiedad NERI') || '—';
+}
+function centroNombre(rec, tipo){
+  if(tipo==='propiedad') return _fval(rec,'Nombre Propiedad') || _fval(rec,'Propiedad') || _fval(rec,'Folio NERI') || 'Propiedad sin nombre';
+  return asesorNombre(rec);
+}
+function centroPrecio(rec, tipo){
+  const raw = tipo==='propiedad' ? (_fval(rec,'Precio Lista') || _fval(rec,'Precio')) : (_fval(rec,'Precio') || _fval(rec,'Precio Estimado'));
+  const n = asesorMoney(raw);
+  return n ? asesorFmtMoney(n) : (raw || '—');
+}
+function centroUbicacion(rec, tipo){
+  if(tipo==='propiedad') return [_fval(rec,'Zona / Colonia'), _fval(rec,'Municipio'), _fval(rec,'Estado / Entidad')].filter(Boolean).join(' · ');
+  return _fval(rec,'Zona') || _fval(rec,'Propiedad de Interés') || _fval(rec,'Tipo de Propiedad') || '';
+}
+function centroStageForProperty(rec){
+  const stages=['Alta','Ficha','Documentos','Producción','Publicada','Apartada','Vendida'];
+  const accents=['gold','gold','gold','steel','emerald','amber','emerald'];
+  const estado=String(_fval(rec,'Estado Propiedad')||'').toLowerCase();
+  let idx=1;
+  if(_fval(rec,'Direccion')||_fval(rec,'Precio Lista')||_fval(rec,'Frase Portada')) idx=Math.max(idx,1);
+  if(_fval(rec,'Foto de portada')||_fval(rec,'Video Sala')||_fval(rec,'Video Sala MP4')) idx=Math.max(idx,3);
+  if(_fval(rec,'Link Comprador')||/disponible|publicad/i.test(estado)) idx=Math.max(idx,4);
+  if(/apartad/i.test(estado)) idx=Math.max(idx,5);
+  if(/vendid|cerrad/i.test(estado)) idx=Math.max(idx,6);
+  if(/proceso/i.test(estado)) idx=Math.max(idx,3);
+  if(/suspend/i.test(estado)) idx=Math.min(idx,2);
+  return {stages, idx, accents};
+}
+function centroStage(item){
+  if(item.tipo==='propiedad') return centroStageForProperty(item.rec);
+  const prog=item.tipo==='comprador'?expFindProgreso(item.rec):null;
+  return expStageInfo(item.tipo,item.rec,prog);
+}
+function centroVisibleData(data){
+  const props=(data.propiedades||[]).slice().sort((a,b)=>String(centroNombre(a,'propiedad')).localeCompare(String(centroNombre(b,'propiedad'))));
+  const compradores=crmVisibleRecords('compradores',data.compradores||[]);
+  const vendedores=crmVisibleRecords('vendedores',data.vendedores||[]);
+  return {
+    prop: props.map(rec=>({tipo:'propiedad',rec})),
+    comp: compradores.map(rec=>({tipo:'comprador',rec})),
+    vend: vendedores.map(rec=>({tipo:'vendedor',rec})),
+  };
+}
+function centroSwitch(view){
+  centroState.view=view;
+  centroState.selectedId=null;
+  centroPaintFromCache();
+}
+function centroSelect(view, recId){
+  centroState.view=view;
+  centroState.selectedId=recId;
+  centroPaintFromCache();
+}
+function centroViewMeta(view){
+  return {
+    vend:{label:'Captación propietarios', sub:'Lead → firma exclusiva', icon:'⌂', tone:'sage', list:'Propietarios'},
+    comp:{label:'Captación compradores', sub:'Lead → cita → apartado', icon:'⌕', tone:'steel', list:'Compradores'},
+    prop:{label:'Propiedades en operación', sub:'Firma → cierre', icon:'◈', tone:'gold', list:'En operación'},
+  }[view] || {};
+}
+function centroPaintSpine(lists){
+  const root=document.getElementById('centro-spine'); if(!root) return;
+  const order=['vend','comp','prop'];
+  root.innerHTML=`<div class="centro-spine-row">${order.map(v=>{
+    const m=centroViewMeta(v); const on=centroState.view===v?'on':'dim';
+    const tone=m.tone==='steel'?' steel':(m.tone==='sage'?' sage':'');
+    return `<button class="centro-vert ${on}${tone}" onclick="centroSwitch('${v}')">
+      <div class="cv-ic">${m.icon}</div><div class="cv-meta"><div class="cv-lbl">${m.label.replace(' ','<br>')}</div><div class="cv-sub">${m.sub}</div></div><div class="cv-count">${(lists[v]||[]).length}</div>
+    </button>`;
+  }).join('')}</div><div class="centro-spine-foot"><i></i><span>${centroSpineMsg()}</span></div>`;
+}
+function centroSpineMsg(){
+  if(centroState.view==='prop') return 'Propiedades en Operación activo · la tabla vieja no se elimina: aquí se prueba la nueva cabeza de la intranet.';
+  if(centroState.view==='comp') return 'Captación Compradores · aquí viven los leads antes de apartado.';
+  return 'Captación Propietarios · aquí viven los leads antes de firma exclusiva.';
+}
+function centroPaintList(lists){
+  const root=document.getElementById('centro-list'); if(!root) return;
+  const view=centroState.view||'prop', items=lists[view]||[], meta=centroViewMeta(view);
+  if(!centroState.selectedId && items[0]) centroState.selectedId=items[0].rec.id;
+  root.innerHTML=`<div class="centro-list-head"><div class="cl-title">${meta.list}</div><div class="cl-count">${items.length}</div></div>` + (items.length?items.map(item=>{
+    const rec=item.rec, st=centroStage(item), pct=Math.round(st.idx/(st.stages.length-1)*100), sel=rec.id===centroState.selectedId?' sel':'';
+    const dot=item.tipo==='comprador'?' steel':(item.tipo==='vendedor'?' sage':'');
+    return `<button class="centro-item${sel}" onclick="centroSelect('${view}','${rec.id}')">
+      <span class="ci-dot${dot}"></span><span class="ci-main"><span class="ci-name">${asesorEsc(centroNombre(rec,item.tipo))}</span><span class="ci-sub">${asesorEsc(centroFolio(rec,item.tipo))} · ${asesorEsc(centroUbicacion(rec,item.tipo)||asesorStatus(rec))}</span></span><span class="ci-badge">${pct}%</span>
+    </button>`;
+  }).join(''):`<div class="centro-empty">No hay registros reales en esta vértebra.</div>`);
+}
+function centroPaintMain(lists){
+  const root=document.getElementById('centro-main'); if(!root) return;
+  const view=centroState.view||'prop', items=lists[view]||[];
+  const item=items.find(x=>x.rec.id===centroState.selectedId)||items[0];
+  if(!item){ root.innerHTML='<div class="centro-empty">No hay registros reales para mostrar.</div>'; return; }
+  if(view==='prop') centroPaintProperty(root,item);
+  else centroPaintLead(root,item);
+}
+function centroPaintProperty(root,item){
+  const rec=item.rec, st=centroStage(item), folio=centroFolio(rec,item.tipo), precio=centroPrecio(rec,item.tipo);
+  const estado=_fval(rec,'Estado Propiedad')||'Sin estado';
+  const next=centroNextText(st,_fval(rec,'Siguiente jugada')||_fval(rec,'Notas Internas'));
+  root.innerHTML=`<div class="cm-top"><div><div class="cm-name">${asesorEsc(centroNombre(rec,item.tipo))}</div><div class="cm-sub">${asesorEsc([folio,centroUbicacion(rec,item.tipo),precio].filter(Boolean).join(' · '))}</div></div><div class="cm-badge">${asesorEsc(estado)}</div></div>
+    ${medallonHTML(st.stages,st.idx,st.accents,rec.id)}
+    <div class="cm-action"><div><div class="cm-ey">Lo que toca ahora</div><div class="cm-t">${asesorEsc(next.t)}</div><div class="cm-d">${asesorEsc(next.d)}</div></div><div class="cm-actions"><button class="cm-btn" onclick="centroOpenProperty('${rec.id}')">Abrir ficha</button>${centroPropertyLinkButtons(rec)}</div></div>`;
+}
+function centroPropertyLinkButtons(rec){
+  const link=_fval(rec,'Link Comprador');
+  const ficha=_fval(rec,'Folio NERI') ? (location.origin + '/ficha.html?folio=' + encodeURIComponent(_fval(rec,'Folio NERI'))) : '';
+  return `${link?`<a class="cm-btn ghost" href="${asesorEsc(link)}" target="_blank" rel="noopener">Landing</a>`:''}${ficha?`<a class="cm-btn ghost" href="${asesorEsc(ficha)}" target="_blank" rel="noopener">Ficha técnica</a>`:''}`;
+}
+function centroNextText(st, custom){
+  const next = st.stages[Math.min(st.idx+1, st.stages.length-1)] || st.stages[st.idx] || 'siguiente etapa';
+  if(custom) return {t:custom, d:'Movimiento registrado en Airtable para esta propiedad.'};
+  return {t:'Avanzar a: '+next, d:'El sistema muestra el siguiente candado del riel sin tocar tus conexiones actuales.'};
+}
+function centroPaintLead(root,item){
+  const rec=item.rec, st=centroStage(item), folio=centroFolio(rec,item.tipo), msg=asesorMensaje(rec);
+  const phone=_fval(rec,'Teléfono WhatsApp')||_fval(rec,'WhatsApp Asesor')||'';
+  const status=asesorStatus(rec);
+  const p1=item.tipo==='comprador'?_fval(rec,'Propiedad de Interés'):_fval(rec,'Tipo de Propiedad');
+  const p2=item.tipo==='comprador'?_fval(rec,'Método / Crédito'):_fval(rec,'Precio Estimado');
+  const p3=item.tipo==='comprador'?_fval(rec,'Decisión 1-10')||_fval(rec,'Decisión'):_fval(rec,'Zona');
+  root.innerHTML=`<div class="cm-top"><div><div class="cm-name">${asesorEsc(centroNombre(rec,item.tipo))}</div><div class="cm-sub">${asesorEsc([folio,centroUbicacion(rec,item.tipo),status].filter(Boolean).join(' · '))}</div></div><div class="cm-badge">${asesorEsc(status)}</div></div>
+    <div class="centro-lead-card"><div class="centro-eye" style="margin-bottom:0">${item.tipo==='comprador'?'Lead comprador':'Lead propietario'}</div><div class="centro-lead-grid">
+      ${centroField('Contexto',p1)}${centroField(item.tipo==='comprador'?'Crédito':'Precio',p2)}${centroField(item.tipo==='comprador'?'Decisión':'Zona',p3)}${centroField('Siguiente jugada',_fval(rec,'Siguiente jugada')||_fval(rec,'Riesgo principal')||'Definir el siguiente paso')}
+    </div></div>
+    ${medallonHTML(st.stages,st.idx,st.accents,rec.id)}
+    <div class="cm-action"><div><div class="cm-ey">Lo que toca ahora</div><div class="cm-t">${asesorEsc(_fval(rec,'Siguiente jugada')||'Dar seguimiento y registrar avance')}</div><div class="cm-d">${asesorEsc(msg)}</div></div><div class="cm-actions">${phone?`<a class="cm-btn" href="${asesorWa(phone,msg)}" target="_blank" rel="noopener">WhatsApp</a>`:''}<button class="cm-btn ghost" onclick="openExpedienteById('${rec.id}')">Abrir ficha</button></div></div>`;
+}
+function centroField(k,v){ return `<div class="centro-field"><div class="centro-k">${asesorEsc(k)}</div><div class="centro-v ${v?'':'muted'}">${asesorEsc(v||'Sin capturar')}</div></div>`; }
+function centroOpenProperty(recId){
+  if(!asesorCache?._loaded) return;
+  crmState.tab='propiedades';
+  crmState.records=asesorCache.propiedades||[];
+  if(typeof landOpenEditor==='function') landOpenEditor(recId);
+}
+function openMedallonRecordById(recId){
+  const props=(asesorCache&&asesorCache.propiedades)||[];
+  if(props.some(r=>r.id===recId)) return centroOpenProperty(recId);
+  return openExpedienteById(recId);
+}
+function centroPaintFromCache(){
+  const data=asesorCache&&asesorCache._loaded?asesorCache:null;
+  if(!data){ centroRender(false); return; }
+  const lists=centroVisibleData(data);
+  centroPaintSpine(lists);
+  centroPaintList(lists);
+  centroPaintMain(lists);
+}
+async function centroRender(force=false){
+  const list=document.getElementById('centro-list'), main=document.getElementById('centro-main');
+  if(list) list.innerHTML='<div class="centro-loading">Cargando operación…</div>';
+  if(main) main.innerHTML='<div class="centro-loading">Leyendo datos reales…</div>';
+  try{
+    const data=await asesorLoadAll(force);
+    const lists=centroVisibleData(data);
+    centroPaintSpine(lists);
+    centroPaintList(lists);
+    centroPaintMain(lists);
+  }catch(e){
+    if(main) main.innerHTML=`<div class="centro-empty" style="color:var(--red)">No se pudo cargar Centro de Operaciones: ${asesorEsc(e.message)}</div>`;
+  }
+}
 async function asesorLoadAll(force=false){
   if(!force && asesorCache._loaded) return asesorCache;
   const [compradores, vendedores, progreso, citas, propiedades] = await Promise.all([
@@ -5081,7 +5311,7 @@ function medallonHTML(stages, idx, accents, recId){
     else ic='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9.5" rx="2"/><path d="M8 11V7.5a4 4 0 0 1 8 0V11"/></svg>';
     chips+='<div class="rchip '+stt+'"><div class="rc-dot" '+extra+'>'+ic+'</div><span class="rc-lbl">'+stages[i]+'</span></div>';
   }
-  const medOpen = recId ? ('<div class="med clickable" onclick="openExpedienteById(\''+recId+'\')" title="Abrir ficha">') : '<div class="med">';
+  const medOpen = recId ? ('<div class="med clickable" onclick="openMedallonRecordById(\''+recId+'\')" title="Abrir ficha">') : '<div class="med">';
   const hint = recId ? '<div class="med-hint">Toca el centro para abrir la ficha</div>' : '';
   return '<div class="med-block">'
    + medOpen
@@ -5258,6 +5488,7 @@ function goTo(id){
   const label = document.getElementById('tb-label');
   if(label) label.textContent = LABELS[id] || id;
   if(id === 'administracion') setTimeout(onAdministracionPanelActivate, 60);
+  if(id === 'centro') setTimeout(()=>centroRender(false), 60);
   if(id === 'airtable') setTimeout(onAirtablePanelActivate, 60);
   if(id === 'perfil_asesor') setTimeout(()=>perfilLoad(false), 60);
   if(id === 'hoy' && SESSION?.rol === 'asesor') setTimeout(()=>asesorLoadHoy(false), 60);
