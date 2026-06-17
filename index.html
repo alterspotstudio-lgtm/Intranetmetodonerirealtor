@@ -1420,77 +1420,6 @@ select.form-inp option{background:#111;color:#fff}
 @media(max-width:900px){.admin-zone-tabs{grid-template-columns:1fr}.admin-v9-user-row{grid-template-columns:1fr}.admin-v9-user-actions{justify-content:flex-start}.admin-form-grid{grid-template-columns:1fr}.admin-upload-box{grid-template-columns:1fr}.admin-account-tabs{overflow:auto}.admin-account-content{padding:20px}.admin-account-actions{margin-left:-20px;margin-right:-20px;padding-left:20px;padding-right:20px}}
 @media(max-width:560px){.admin-v9-wrap{padding:18px}.admin-v9-title{font-size:36px}.admin-account-head{padding:22px}.admin-account-title b{font-size:28px}}
 
-
-/* ═══════════════════════════════════════════════════
-   VISUAL PREMIUM MÉTODO NERI · 2026
-   Solo piel visual: NO toca APIs, folios, Airtable, Make ni handlers.
-═══════════════════════════════════════════════════ */
-:root{
-  --sidebar:236px;
-  --topbar:54px;
-  --surface:#10100f;
-  --surface2:#171614;
-  --surface3:#211f1b;
-  --border:rgba(229,204,154,.09);
-  --border2:rgba(229,204,154,.16);
-  --goldbdr:rgba(201,169,110,.30);
-}
-html,body{
-  background:
-    radial-gradient(circle at 18% 0%,rgba(201,169,110,.12),transparent 34%),
-    radial-gradient(circle at 86% 8%,rgba(229,204,154,.055),transparent 28%),
-    linear-gradient(180deg,#060606 0%,#0a0908 45%,#050505 100%);
-}
-body::before{
-  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
-  background-image:
-    linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(255,255,255,.014) 1px,transparent 1px);
-  background-size:42px 42px;
-  mask-image:linear-gradient(180deg,rgba(0,0,0,.65),transparent 78%);
-}
-#screen-login,#screen-app{position:fixed;z-index:1}
-.login-left{
-  background:radial-gradient(circle at 14% 22%,rgba(201,169,110,.20),transparent 34%),linear-gradient(145deg,#0b0b0a,#050505);
-}
-.login-right{background:linear-gradient(180deg,#080807,#030303)}
-.login-card,.hoy-banner,.kpi,.hoy-col,.tool-card,.op-card,.asesor-card,.asesor-section,.admin-v9-hero,.admin-v9-ficha,.crm-shell,.crm-card,.fv-box{
-  box-shadow:0 24px 80px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.035);
-}
-.sidebar{
-  background:linear-gradient(180deg,rgba(18,18,16,.98),rgba(7,7,7,.98));
-  border-right:1px solid rgba(201,169,110,.18);
-}
-.sb-header{background:linear-gradient(180deg,rgba(201,169,110,.065),transparent)}
-.sb-logo{font-size:30px;letter-spacing:7px;text-shadow:0 0 28px rgba(201,169,110,.18)}
-.sb-sys{color:rgba(229,204,154,.44)}
-.sb-user{border-radius:14px;background:linear-gradient(135deg,rgba(201,169,110,.12),rgba(255,255,255,.025))}
-.sb-btn{border-radius:12px;padding:11px 12px;margin-bottom:4px}
-.sb-btn.active{box-shadow:inset 2px 0 0 var(--gold),0 12px 30px rgba(0,0,0,.18)}
-.topbar{background:rgba(7,7,6,.82);backdrop-filter:blur(18px);border-bottom:1px solid rgba(201,169,110,.14)}
-.tb-crumb{font-size:17px;color:var(--gold2)}
-.tb-label{color:rgba(255,255,255,.58)}
-.content{background:transparent}
-.hoy-body,.asesor-body,.admin-v9-body{background:radial-gradient(circle at 78% 0%,rgba(201,169,110,.08),transparent 30%)}
-.ph-eyebrow,.hoy-launch-label,.asesor-eyebrow,.admin-v9-sec-sub{color:var(--gold2)}
-.ph-title,.asesor-title,.admin-v9-title{letter-spacing:4px;text-shadow:0 20px 70px rgba(201,169,110,.10)}
-.hoy-banner,.asesor-card,.admin-v9-hero{
-  border-radius:22px;border-color:rgba(201,169,110,.28);
-  background:linear-gradient(135deg,rgba(201,169,110,.13),rgba(255,255,255,.025) 46%,rgba(0,0,0,.20));
-}
-.kpi-strip,.hoy-tools-grid{border-radius:18px;background:rgba(201,169,110,.12);border-color:rgba(201,169,110,.16);gap:1px}
-.kpi,.tool-card,.hoy-col,.asesor-section{
-  border-radius:18px;background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.018));
-  border:1px solid rgba(229,204,154,.08);
-}
-.kpi-num{color:var(--gold2)}
-.tool-card:hover,.hoy-item.act:hover,.asesor-action:hover{background:linear-gradient(135deg,rgba(201,169,110,.12),rgba(255,255,255,.026))}
-.op-card{border-radius:18px;border:1px solid rgba(201,169,110,.18);background:linear-gradient(145deg,rgba(255,255,255,.045),rgba(255,255,255,.015))}
-.form-input,.asesor-inp,.asesor-textarea{border-radius:12px;background:rgba(0,0,0,.28)}
-.login-btn,.ip-btn,.asesor-gold-btn,.admin-v9-create{border-radius:999px;box-shadow:0 18px 46px rgba(201,169,110,.18)}
-.iframe-toolbar{background:rgba(10,10,9,.88);backdrop-filter:blur(14px)}
-.iframe-wrap iframe{border-radius:0 0 18px 18px}
-
 </style>
 </head>
 <body>
@@ -1502,7 +1431,7 @@ body::before{
   <div class="login-left">
     <div class="ll-tag">Sistema Operativo Inmobiliario</div>
     <div class="ll-headline">MÉTODO<br><em>NERI</em></div>
-    <div class="ll-desc">Sistema operativo inmobiliario: leads, propiedades, expedientes, seguimiento y experiencia de cliente en una sola cadena auditable.</div>
+    <div class="ll-desc">Método Neri guía la operación: folios, expedientes, documentos, mensajes y cierre.</div>
     <div class="ll-pillars">
       <div class="ll-pillar"><b>Expedientes</b>Airtable</div>
       <div class="ll-pillar"><b>Flujos</b>Make</div>
@@ -1529,7 +1458,7 @@ body::before{
       <button class="login-btn" onclick="doLogin()">Entrar al sistema →</button>
       
       <div class="login-footer">
-        Cabina operativa real<br>
+        Acceso operativo real<br>
         Método NERI · Sistema operativo inmobiliario
       </div>
     </div>
@@ -1606,9 +1535,9 @@ const SESSION_STORE_KEY = 'neri_signed_session_v1';
 ═══════════════════════════════════════════════════ */
 const NAV_ROL = {
   asesor: [
-    { section:'Cabina de Mando' },
-    { id:'hoy', label:'Cabina Hoy', icon:'⬡', highlight:true },
-    { id:'perfil_asesor', label:'Perfil Operativo', icon:'◉' },
+    { section:'Centro de Mando' },
+    { id:'hoy', label:'Hoy', icon:'⬡', highlight:true },
+    { id:'perfil_asesor', label:'Mi Perfil del Asesor', icon:'◉' },
     { id:'airtable', label:'Centro de Operaciones', icon:'◈' },
     { id:'expedientes', label:'Expedientes', icon:'❑' },
     { id:'propiedades_asesor', label:'Mis Propiedades', icon:'⌂' },
@@ -1822,7 +1751,7 @@ function buildHoyPanel(){
   return `<div class="panel" id="panel-hoy">
     <div class="hoy-body">
       <div class="ph-head">
-        <div class="ph-eyebrow">Cabina del Sistema Operativo</div>
+        <div class="ph-eyebrow">Sistema Operativo</div>
         <div class="ph-title">${saludo}<br><em>DE VUELTA</em></div>
       </div>
       <div class="hoy-banner">
@@ -1854,8 +1783,8 @@ function buildHoyPanel(){
       </div>
 
       <div class="hoy-ops-head">
-        <div><span class="hoy-ops-eyebrow">El diferenciador</span><div class="hoy-ops-title">Operaciones en curso · experiencia tipo pedido</div></div>
-        <div class="hoy-ops-hint">Menos caos, más seguimiento y control por folio.</div>
+        <div><span class="hoy-ops-eyebrow">El diferenciador</span><div class="hoy-ops-title">Operaciones en curso · guía paso a paso</div></div>
+        <div class="hoy-ops-hint">Como un pedido en línea: cada cliente sabe dónde va y qué falta.</div>
       </div>
       <div id="hoy-ops">${skel}</div>
 
