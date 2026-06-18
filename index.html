@@ -5834,13 +5834,23 @@ async function rielContratoUpload(recId, conversion, file){
     var src = portalSource(rec);
     if (!src) return '';
 
-    var folio = fval(src, 'Folio') || fval(rec, 'Folio Vendedor') || fval(rec, 'Folio') || '';
+    /*
+      Dos llaves distintas, sin cambiar Airtable ni Make:
+      - folioPortal: pinta el progreso del cliente. En Propiedades suele vivir como Folio NERI.
+      - folioExpediente: abre el expediente documental seguro del lead vendedor con su Token Expediente.
+    */
+    var folioPortal = fval(rec, 'Folio NERI') || fval(rec, 'Folio') || fval(src, 'Folio Portal') || fval(src, 'Folio NERI') || fval(src, 'Folio') || fval(rec, 'Folio Vendedor') || '';
+    var folioExpediente = fval(src, 'Folio') || fval(rec, 'Folio Vendedor') || fval(src, 'Folio Vendedor') || '';
     var token = fval(src, 'Token Expediente') || fval(rec, 'Token Expediente') || fval(src, 'Token') || fval(rec, 'Token') || '';
 
-    if (!folio) return '';
+    if (!folioPortal) return '';
 
-    var link = PROGRESO_BASE + '/?folio=' + encodeURIComponent(folio) + '&vista=vendedor';
-    if (token) link += '&token=' + encodeURIComponent(token);
+    var link = PROGRESO_BASE + '/?folio=' + encodeURIComponent(folioPortal) + '&vista=vendedor';
+    if (folioExpediente && token) {
+      link += '&folioExpediente=' + encodeURIComponent(folioExpediente) + '&token=' + encodeURIComponent(token);
+    } else if (token) {
+      link += '&token=' + encodeURIComponent(token);
+    }
     return link;
   }
 
