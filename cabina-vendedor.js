@@ -965,6 +965,45 @@
       + '  <div id="cab-doc-status-' + recId + '" style="display:none;margin-top:8px;font-size:12px;color:rgba(255,255,255,.6)"></div>'
       + '</div>';
   }
+  /* Etapa 3: producción puede avanzar con documentos mínimos.
+     No se inventan campos nuevos: solo leemos los campos existentes del lead vendedor
+     y, cuando la ficha es una Propiedad, resolvemos el lead original por Folio Vendedor. */
+  function cabNormTxt(v) {
+    return String(v || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  }
+  function expedienteCompletoOk(rec) {
+    var src = expedienteSource(rec) || rec;
+    var txt = cabNormTxt([
+      fval(src, 'Progreso Expediente'),
+      fval(src, 'Documentos'),
+      fval(rec, 'Progreso Expediente'),
+      fval(rec, 'Documentos')
+    ].join(' '));
+    return /8\s*\/\s*8/.test(txt) ||
+      /(expediente\s+completo|completo\s+y\s+validado|completo\/validado|validado\s+completo|documentos\s+completos|todo\s+validado)/i.test(txt);
+  }
+  function produccionMinimosOk(rec, esPropiedad) {
+    var src = expedienteSource(rec) || rec;
+    if (expedienteCompletoOk(rec)) return true;
+
+    var txt = cabNormTxt([
+      fval(src, 'Progreso Expediente'),
+      fval(src, 'Documentos'),
+      fval(src, 'Contrato Firmado'),
+      fval(src, 'Link Expediente Documental'),
+      fval(rec, 'Progreso Expediente'),
+      fval(rec, 'Documentos')
+    ].join(' '));
+
+    if (/(documentos\s+minimos|minimos\s+(recibidos|validados)|minimos\s+ok|listo\s+para\s+produccion|produccion\s+liberada)/i.test(txt)) return true;
+    if (/[4-7]\s*\/\s*8/.test(txt) && /(recibid|valid|expediente|minim)/i.test(txt)) return true;
+    if (/(escritura|identificacion|identificación|ine|predial|agua|servicio)/i.test(txt) && /(recibid|valid|subid|cargad|ok|listo)/i.test(txt)) return true;
+
+    /* En Propiedades ya estamos en operación activa. Si no tenemos campos suficientes
+       para leer mínimos en la ficha, no bloqueamos Producción: evitamos regresar al candado 8/8. */
+    return !!esPropiedad;
+  }
+
   function accionesHTML(recId, conv, esPropiedad) {
     var firmada = esPropiedad || ETAPAS_FIRMADAS.indexOf(conv) > -1;
     var head = '<div class="cab-acciones"><div class="cab-acc-title"><em>▸</em> Acciones de la propiedad</div>';
@@ -974,13 +1013,11 @@
         + '<div class="cab-acc-locked">Etapa actual: <b>' + esc(conv || 'Sin definir') + '</b>. Primero convierte el lead a una firma para trabajar Producción y Notaría desde Propiedades.</div>'
         + '</div>';
     }
-    /* Gating por etapa: en la ficha del lead, nada se libera antes de cerrar la etapa anterior. */
-    var docsOk = esPropiedad;
-    if (!esPropiedad) {
-      var recG = getRecord(recId);
-      var prog = recG ? fval(recG, 'Progreso Expediente') : '';
-      docsOk = /8\s*\/\s*8/.test(prog) && /valid|complet/i.test(prog);
-    }
+
+    var recG = getRecord(recId);
+    var minimosOk = produccionMinimosOk(recG || {}, esPropiedad);
+    var expedienteOk = expedienteCompletoOk(recG || {});
+
     /* Oferta Formal NO se libera en la sesión de video: solo cuando los videos ya están en la landing. */
     var videosOk = esPropiedad && hasVideosListos(recId);
     function accBtn(tipo, label, small, enabled, lockNote, ghost) {
@@ -988,22 +1025,25 @@
       return '<button class="cab-acc-btn locked" disabled>' + label + '<small>🔒 ' + lockNote + '</small></button>';
     }
     var hint = esPropiedad
-      ? 'La propiedad ya existe en el sistema. Genera Producción, Notaría y Reporte desde esta ficha; no desde el lead original.'
-      : 'Cada acción se libera al cerrar la etapa anterior. Etapa actual: <b>' + (docsOk ? 'Producción' : 'Expediente documental') + '</b>.';
+      ? 'Producción puede avanzar con documentos mínimos. Notaría permanece bloqueada hasta expediente completo/validado.'
+      : 'Etapa actual: <b>' + (minimosOk ? 'Producción liberada con mínimos' : 'Expediente documental') + '</b>.';
     return head
       + '<div class="cab-acc-hint">' + hint + '</div>'
+      + ((!expedienteOk)
+        ? '<div class="cab-acc-hint" style="border-left:2px solid #fbbf24;padding-left:10px;color:#fbbf24">Notaría sigue bloqueada: requiere expediente completo o validado. Producción no espera 8/8.</div>'
+        : '')
       + ((esPropiedad && !videosOk)
         ? '<div class="cab-acc-hint" style="border-left:2px solid #C6A86B;padding-left:10px;color:#C6A86B">Producción de video en curso · máximo 2 días. La <b>Oferta Formal</b> se libera en cuanto subas los videos a la landing.</div>'
         : '')
       + '<div class="cab-acc-grid">'
-      + accBtn('produccion', 'Producción Inmobiliaria', 'Foto y video · confirmación al propietario', docsOk, 'Se libera con el expediente 8/8 validado')
-      + accBtn('notaria', 'Cita en Notaría', 'Formalización · confirmación al cliente', esPropiedad, 'Se libera en el cierre de la operación')
+      + accBtn('produccion', 'Producción Inmobiliaria', 'Foto y video · confirmación al propietario', minimosOk, 'Se libera con documentos mínimos recibidos o validados')
+      + accBtn('notaria', 'Cita en Notaría', 'Formalización · confirmación al cliente', expedienteOk, 'Se libera con expediente completo/validado')
       + '</div>'
       + '<div class="cab-acc-grid" style="margin-top:8px">'
       + accBtn('oferta', 'Oferta Formal', 'Presentación al propietario · link vivo', videosOk, 'Se libera cuando subes los videos a la landing')
       + accBtn('promesa', 'Promesa de Compraventa', 'Firma del acuerdo · confirmación a las partes', esPropiedad, 'Se libera en el cierre de la operación')
       + '</div>'
-      + '<div class="cab-acc-grid" style="margin-top:8px">' + accBtn('reporte', 'Reporte semanal (v1)', 'Análisis interno · versión automática viene después', docsOk, 'Se libera con el expediente 8/8 validado', true) + '</div>'
+      + '<div class="cab-acc-grid" style="margin-top:8px">' + accBtn('reporte', 'Reporte semanal (v1)', 'Análisis interno · versión automática viene después', minimosOk, 'Se libera con documentos mínimos recibidos o validados', true) + '</div>'
       + expedienteHTML(recId)
       + '</div>';
   }
