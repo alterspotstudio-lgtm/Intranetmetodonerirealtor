@@ -806,21 +806,50 @@
     if (lead) return fval(lead, 'Folio') || '';
     return fval(rec, 'Folio') || fval(rec, 'Folio Vendedor') || '';
   }
-  function expedienteLink(rec) {
+  function expedienteSource(rec) {
     var lead = leadVendedorDeRec(rec);
-    if (lead) {
-      var guardado = fval(lead, 'Link Expediente Documental');
-      if (guardado) return guardado;          // link completo (folio+token) ya escrito por /api/activar-expediente
+    return lead || rec || null;
+  }
+  function normalizarExpedienteLink(linkGuardado, folio, token) {
+    var f = String(folio || '').trim();
+    var t = String(token || '').trim();
+    var guardado = String(linkGuardado || '').trim();
+
+    if (guardado) {
+      try {
+        var base = String(EXP_DOC_BASE).replace(/\/+$/, '') + '/';
+        var url = new URL(guardado, base);
+        if (!url.searchParams.get('folio') && f) url.searchParams.set('folio', f);
+        if (!url.searchParams.get('token') && t) url.searchParams.set('token', t);
+        if (url.searchParams.get('folio') && url.searchParams.get('token')) return url.toString();
+      } catch (_) {
+        if (guardado.indexOf('folio=') > -1 && guardado.indexOf('token=') > -1) return guardado;
+      }
     }
-    // Cuando rec ya es el lead vendedor (lead===null), también usar el link guardado si existe
-    var propioLink = fval(rec, 'Link Expediente Documental');
-    if (propioLink) return propioLink;
-    var src = lead || rec;
+
+    if (f && t) {
+      return String(EXP_DOC_BASE).replace(/\/+$/, '')
+        + '/?folio=' + encodeURIComponent(f)
+        + '&token=' + encodeURIComponent(t);
+    }
+    return '';
+  }
+  function expedienteLink(rec) {
+    var src = expedienteSource(rec);
     var folio = fval(src, 'Folio') || fval(rec, 'Folio Vendedor') || '';
-    var token = fval(src, 'Token Expediente') || fval(src, 'Token') || '';
-    var url = String(EXP_DOC_BASE).replace(/\/+$/, '') + '/?folio=' + encodeURIComponent(folio);
-    if (token) url += '&token=' + encodeURIComponent(token);
-    return url;
+    var token = fval(src, 'Token Expediente') || fval(src, 'Token') || fval(rec, 'Token Expediente') || fval(rec, 'Token') || '';
+    var guardado = fval(src, 'Link Expediente Documental') || fval(rec, 'Link Expediente Documental') || '';
+    return normalizarExpedienteLink(guardado, folio, token);
+  }
+  function cabAvisoExpediente(recId, msg) {
+    var el = byId('cab-doc-status-' + recId);
+    if (el) {
+      el.style.display = 'block';
+      el.style.color = '#ff6b6b';
+      el.textContent = msg;
+    } else {
+      window.alert(msg);
+    }
   }
   function copiarTexto(txt, btn) {
     function ok() { if (btn) { var o = btn.textContent; btn.textContent = '✓ Copiado'; setTimeout(function () { btn.textContent = o; }, 1600); } }
@@ -831,22 +860,30 @@
   /* Copiar el link del expediente documental del propietario */
   function cabCopiarExpediente(recId, btn) {
     var rec = getRecord(recId); if (!rec) return;
-    copiarTexto(expedienteLink(rec), btn);
+    var link = expedienteLink(rec);
+    if (!link) { cabAvisoExpediente(recId, 'No copié el link: falta Token Expediente o Link Expediente Documental completo en Airtable.'); return; }
+    copiarTexto(link, btn);
   }
   /* Abrir el expediente documental en otra pestaña */
   function cabAbrirExpediente(recId) {
     var rec = getRecord(recId); if (!rec) return;
-    window.open(expedienteLink(rec), '_blank', 'noopener');
+    var link = expedienteLink(rec);
+    if (!link) { cabAvisoExpediente(recId, 'No abrí el expediente: falta Token Expediente o Link Expediente Documental completo en Airtable.'); return; }
+    window.open(link, '_blank', 'noopener');
   }
   /* Enviar el link del expediente directo al WhatsApp del propietario (un clic, sin copiar/pegar) */
   function cabEnviarExpediente(recId) {
     var rec = getRecord(recId); if (!rec) return;
+    var src = expedienteSource(rec) || rec;
     var link = expedienteLink(rec);
-    var nombre = String(fval(rec, 'Nombre Completo') || '').split(' ')[0];
-    var asesor = fval(rec, 'Asesor') || (cab.prefill && cab.prefill.asesor) || ASESOR_DEFAULT.nombre;
-    var tel = String(fval(rec, 'Teléfono WhatsApp') || '').replace(/\D/g, '');
+    if (!link) { cabAvisoExpediente(recId, 'No envié WhatsApp: falta Token Expediente o Link Expediente Documental completo en Airtable. Así evitamos mandar un link roto.'); return; }
+    var nombre = String(fval(src, 'Nombre Completo') || fval(rec, 'Nombre Completo') || '').split(' ')[0];
+    var asesor = fval(src, 'Asesor') || fval(rec, 'Asesor') || (cab.prefill && cab.prefill.asesor) || ASESOR_DEFAULT.nombre;
+    var tel = String(fval(src, 'Teléfono WhatsApp') || fval(rec, 'Teléfono WhatsApp') || '').replace(/\D/g, '');
+    if (!tel) { cabAvisoExpediente(recId, 'No envié WhatsApp: este registro no tiene Teléfono WhatsApp.'); return; }
+    var num = tel.length === 10 ? '52' + tel : tel;
     var msg = 'Hola' + (nombre ? ' ' + nombre : '') + ', aquí tienes tu expediente documental de Método Neri. Desde este link puedes subir tus documentos de forma segura y a tu ritmo:\n\n' + link + '\n\nCualquier duda quedo a tus órdenes.\n— ' + asesor;
-    window.open('https://wa.me/' + tel + '?text=' + encodeURIComponent(msg), '_blank');
+    window.open('https://wa.me/' + num + '?text=' + encodeURIComponent(msg), '_blank');
   }
   /* El ASESOR sube un documento que recibió por otro medio (WhatsApp, correo…) */
   function cabSubirDocAsesor(recId) {

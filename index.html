@@ -5319,6 +5319,10 @@ window.addEventListener('DOMContentLoaded', () => {
 .riel-btn.ghost:hover{border-color:var(--gold)}
 .riel-status{font:500 11px Montserrat,sans-serif;color:var(--gold);margin-top:10px;min-height:14px}
 .riel-note{font:400 11px Montserrat,sans-serif;color:var(--w50);line-height:1.6}
+.riel-celebrate{border:1px solid rgba(201,169,110,.28);background:linear-gradient(180deg,rgba(201,169,110,.13),rgba(255,255,255,.025));padding:14px 16px;border-radius:3px;margin-bottom:12px}
+.riel-celebrate-k{font:800 8px Montserrat,sans-serif;letter-spacing:2.8px;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+.riel-celebrate-t{font:400 24px var(--display);letter-spacing:1.6px;color:var(--white);line-height:1.05;margin-bottom:6px}
+.riel-celebrate-p{font:400 12px Montserrat,sans-serif;color:var(--w50);line-height:1.6}
   .fv-actions-prop-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
   .fv-action-block{min-height:72px;padding:14px 16px;border:1px solid var(--border2);background:rgba(255,255,255,.018);border-radius:3px;display:flex;flex-direction:column;justify-content:center}
   .fv-action-block.gold{background:rgba(201,169,110,.82);border-color:rgba(229,204,154,.75);color:#080808}
@@ -5403,10 +5407,16 @@ function rielPanelHTML(rec, et){
 
   if(et.idx === 2){
     const prog = et.prog || 'Expediente activado · esperando documentos';
+    const tipoFirma = et.conv === 'Firma venta directa' ? 'venta directa' : 'firma exclusiva';
     return `
-      <div class="riel-msg"><strong>${_esc(et.conv)}.</strong> Sigue el expediente documental del propietario y su validación.<br>Progreso: <strong>${_esc(prog)}</strong></div>
+      <div class="riel-celebrate">
+        <div class="riel-celebrate-k">Firma lograda</div>
+        <div class="riel-celebrate-t">Lo lograste.</div>
+        <div class="riel-celebrate-p">Ya tienes una propiedad más en tu inventario. Ahora el proceso continúa desde <strong>Propiedades</strong>, donde se envía el expediente documental del propietario y se siguen las siguientes jugadas.</div>
+      </div>
+      <div class="riel-msg"><strong>${_esc(et.conv)}.</strong> Contrato de ${_esc(tipoFirma)} registrado. Progreso: <strong>${_esc(prog)}</strong></div>
       <div class="riel-acts">
-        <button class="riel-btn" onclick="rielIrAcciones()">Ir a acciones del proceso</button>
+        <button class="riel-btn" onclick="rielContinuarProceso()">Continuar proceso</button>
         ${verContrato}
         ${!contrato ? `<button class="riel-btn ghost" onclick="rielSubirContrato('${id}','${_escAttr(et.conv)}')">Subir el PDF del contrato</button>` : ''}
       </div>
@@ -5420,6 +5430,13 @@ function rielPanelHTML(rec, et){
       ${verContrato}
     </div>
     <div class="riel-status" id="riel-status"></div>`;
+}
+
+function rielContinuarProceso(){
+  try { vendedorClose(); } catch(_) {}
+  try { crmSwitchTab('propiedades'); }
+  catch(e){ rielSay('No pude abrir Propiedades: ' + (e && e.message ? e.message : e)); return; }
+  try { showToast('✓ Continúa desde Propiedades'); } catch(_) {}
 }
 
 function rielIrAcciones(){
