@@ -5416,7 +5416,7 @@ function rielPanelHTML(rec, et){
       </div>
       <div class="riel-msg"><strong>${_esc(et.conv)}.</strong> Contrato de ${_esc(tipoFirma)} registrado. Progreso: <strong>${_esc(prog)}</strong></div>
       <div class="riel-acts">
-        <button class="riel-btn" onclick="rielContinuarProceso()">Continuar proceso</button>
+        <button class="riel-btn" onclick="rielContinuarProceso(this)">Continuar proceso</button>
         ${verContrato}
         ${!contrato ? `<button class="riel-btn ghost" onclick="rielSubirContrato('${id}','${_escAttr(et.conv)}')">Subir el PDF del contrato</button>` : ''}
       </div>
@@ -5447,11 +5447,34 @@ function rielFindPropiedadByFolio(folio){
   return (crmState.records || []).find(p => {
     const folios = [
       _fval(p,'Folio Vendedor'),
-      _fval(p,'Folio NERI'),
-      _fval(p,'Folio')
+      _fval(p,'Folio NERI')
     ];
     return folios.some(v => rielFolioKey(v) === key);
   }) || null;
+}
+
+function rielAirtableFormulaText(value){
+  return String(value || '').replace(/\\/g,'\\\\').replace(/"/g,'\\"');
+}
+
+async function rielFetchPropiedadByFolio(folio){
+  const raw = String(folio || '').trim();
+  const key = rielFolioKey(folio);
+  if(!raw || !key) return null;
+
+  // Búsqueda directa en Airtable, no depende de los primeros 100 registros cargados en pantalla.
+  // Solo usa campos existentes de Propiedades: Folio Vendedor y Folio NERI.
+  const safeRaw = rielAirtableFormulaText(raw);
+  const safeKey = rielAirtableFormulaText(key);
+  const formula = 'OR('
+    + '{Folio Vendedor}="' + safeRaw + '",'
+    + '{Folio NERI}="' + safeRaw + '",'
+    + 'UPPER(SUBSTITUTE({Folio Vendedor}," ",""))="' + safeKey + '",'
+    + 'UPPER(SUBSTITUTE({Folio NERI}," ",""))="' + safeKey + '"'
+    + ')';
+
+  const data = await atFetch(CRM_CFG.propiedades.tableId + '?maxRecords=5&filterByFormula=' + encodeURIComponent(formula));
+  return (data.records || [])[0] || null;
 }
 
 async function rielActivarExpediente(folio){
@@ -5460,54 +5483,102 @@ async function rielActivarExpediente(folio){
     headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + (SESSION?.token || '') },
     body: JSON.stringify({ folio }),
   });
+  let payload = null;
+  try { payload = await res.json(); } catch(_) {}
   if(!res.ok){
-    let msg = '';
-    try { msg = await res.text(); } catch(_) {}
+    const msg = payload?.error || payload?.message || '';
     throw new Error('activar-expediente HTTP ' + res.status + (msg ? ' — ' + msg : ''));
   }
-  try { return await res.json(); } catch(_) { return {}; }
+  return payload || {};
 }
 
 function rielWait(ms){
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function rielContinuarProceso(){
-  const rec = (crmState.records || []).find(r => r.id === crmState.editId);
-  const folio = rec ? _fval(rec,'Folio') : '';
+function rielEnsurePropiedadInState(prop){
+  if(!prop || !prop.id) return;
+  if(!Array.isArray(crmState.records)) crmState.records = [];
+  const exists = crmState.records.some(r => r.id === prop.id);
+  if(!exists){
+    crmState.records.unshift(prop);
+    try { crmRender('propiedades', crmState.records); } catch(_) {}
+  }
+}
+
+async function rielMarcarLeadComoPropiedadCreada(recId, leadRec){
+  if(leadRec && leadRec.fields) leadRec.fields['Propiedad Creada'] = true;
+  // Si el campo es editable (checkbox), lo deja blindado en Airtable.
+  // Si fuera fórmula/lookup, no rompe: se ignora el 422 y el proceso sigue.
+  try { await rielPatchLead(recId, { 'Propiedad Creada': true }); } catch(e) { console.warn('No se pudo marcar Propiedad Creada desde intranet:', e.message); }
+}
+
+async function rielBuscarPropiedadConReintentos(folio, intentos){
+  let prop = rielFindPropiedadByFolio(folio);
+  if(prop) return prop;
+
+  for(let i = 0; i < intentos; i++){
+    try{
+      prop = await rielFetchPropiedadByFolio(folio);
+      if(prop) return prop;
+    }catch(e){
+      console.warn('Búsqueda directa de propiedad falló:', e.message);
+    }
+
+    await rielWait(i === 0 ? 700 : 1400);
+    try { await crmLoad('propiedades', true); } catch(e) { console.warn('Recarga Propiedades falló:', e.message); }
+    prop = rielFindPropiedadByFolio(folio);
+    if(prop) return prop;
+  }
+  return null;
+}
+
+async function rielContinuarProceso(btn){
+  const recId = crmState.editId;
+  const leadRec = (crmState.records || []).find(r => r.id === recId);
+  const folio = leadRec ? _fval(leadRec,'Folio') : '';
   if(!rielFolioKey(folio)){
     rielSay('No encontré el folio del lead. Cierra y vuelve a abrir la ficha para reintentar.');
     return;
   }
 
+  const oldText = btn ? btn.textContent : '';
+  if(btn){ btn.disabled = true; btn.textContent = 'Abriendo Propiedades…'; }
+
   try{
-    // El pase real a Propiedades ya existía por /api/activar-expediente.
-    // Lo volvemos a ejecutar aquí de forma idempotente para no depender solo del upload.
-    rielSay('Activando pase a Propiedades…');
-    await rielActivarExpediente(folio);
+    // 1) Primero busca la propiedad. El upload del contrato ya pudo haber ejecutado /api/activar-expediente.
+    //    Así evitamos romper el flujo si el endpoint no acepta doble ejecución.
+    rielSay('Buscando la propiedad creada por folio…');
+    try { vendedorClose(); } catch(_) {}
+    await crmSwitchTab('propiedades');
 
-    rielSay('Abriendo Propiedades y buscando la propiedad por folio…');
-    let prop = null;
+    let prop = await rielBuscarPropiedadConReintentos(folio, 2);
 
-    // Make/Airtable puede tardar unos segundos. Reintentamos sin tocar conexiones.
-    for(let i = 0; !prop && i < 5; i++){
-      await crmSwitchTab('propiedades');
-      prop = rielFindPropiedadByFolio(folio);
-      if(prop) break;
-      await rielWait(1400);
+    // 2) Si aún no existe en Propiedades, entonces sí reactivamos el pase como respaldo.
+    let activationError = null;
+    if(!prop){
+      rielSay('La propiedad aún no aparece. Reactivando pase a Propiedades…');
+      try { await rielActivarExpediente(folio); }
+      catch(e){ activationError = e; console.warn('activar-expediente no completó en Continuar proceso:', e.message); }
+      prop = await rielBuscarPropiedadConReintentos(folio, 6);
     }
 
-    try { vendedorClose(); } catch(_) {}
-
     if(prop){
+      // Mantiene el índice propietario ↔ propiedad sin recargar todo otra vez.
+      try { crmVendedoresFolioIndex[crmNormalizeFolio(folio)] = leadRec; } catch(_) {}
+      rielEnsurePropiedadInState(prop);
+      await rielMarcarLeadComoPropiedadCreada(recId, leadRec);
       landOpenEditor(prop.id);
       try { showToast('✓ Lead convertido: continúa desde Propiedades'); } catch(_) {}
       return;
     }
 
-    try { showToast('La firma quedó registrada, pero la propiedad aún no aparece. Recarga Propiedades en unos segundos.'); } catch(_) {}
+    const extra = activationError ? ' Detalle técnico: ' + activationError.message : '';
+    try { showToast('La firma quedó registrada, pero la propiedad aún no aparece. Espera unos segundos y recarga Propiedades.' + extra); } catch(_) {}
   }catch(e){
-    rielSay('No pude activar el pase a Propiedades: ' + (e && e.message ? e.message : e));
+    rielSay('No pude completar el pase a Propiedades: ' + (e && e.message ? e.message : e));
+  }finally{
+    if(btn){ btn.disabled = false; btn.textContent = oldText || 'Continuar proceso'; }
   }
 }
 
@@ -5575,7 +5646,8 @@ async function rielContratoUpload(recId, conversion, file){
     rielSay('Registrando la firma…');
     await rielPatchLead(recId, { 'Contrato Firmado': cfg.url, 'Conversión': conversion });
     rielSay('Activando expediente del propietario…');
-    await rielActivarExpediente(folio);
+    try { await rielActivarExpediente(folio); }
+    catch(e){ console.warn('activar-expediente no completó después de subir contrato:', e.message); }
     // Refrescar Token Expediente, Link Expediente Documental y Propiedad Creada
     // para que la ficha y la cabina trabajen con datos vivos sin obligar a recargar.
     try{
