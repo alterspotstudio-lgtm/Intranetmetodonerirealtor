@@ -5478,23 +5478,6 @@ async function rielFetchPropiedadByFolio(folio){
 }
 
 async function rielActivarExpediente(folio){
-  // — Webhook Make (tiempo real) —
-  // Dispara el pase a Propiedades NERI de inmediato sin esperar los 15 min del trigger polling.
-  // El escenario Make aplica el mismo candado Propiedad Creada = true, así que doble llamada = inofensiva.
-  const MAKE_WEBHOOK = 'https://hook.us2.make.com/ssvbsjs3on1i87616fefilx8shk42ncv';
-  const recId = crmState?.editId || '';
-  try{
-    const mRes = await fetch(MAKE_WEBHOOK, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ folio, recordId: recId, conversion: _fval((crmState.records||[]).find(r=>r.id===recId),'Conversión')||'' }),
-    });
-    if(!mRes.ok) console.warn('Make webhook respondió HTTP', mRes.status);
-  }catch(mErr){
-    console.warn('Make webhook no disponible, continuando con respaldo:', mErr.message);
-  }
-
-  // — Endpoint interno como respaldo —
   const res = await fetch('/api/activar-expediente', {
     method:'POST',
     headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + (SESSION?.token || '') },
@@ -5586,7 +5569,8 @@ async function rielContinuarProceso(btn){
       rielEnsurePropiedadInState(prop);
       await rielMarcarLeadComoPropiedadCreada(recId, leadRec);
       landOpenEditor(prop.id);
-      try { showToast('✓ Lead convertido: continúa desde Propiedades'); } catch(_) {}
+      try { rielEnfocarSiguienteJugadaPropiedad(); } catch(_) {}
+      try { showToast('✓ Lead convertido: siguiente jugada lista en Propiedades'); } catch(_) {}
       return;
     }
 
@@ -5608,6 +5592,51 @@ function rielIrAcciones(){
   acc.style.transition = 'box-shadow .4s';
   acc.style.boxShadow = '0 0 0 1px rgba(201,169,110,.55)';
   setTimeout(() => { acc.style.boxShadow = 'none'; }, 1400);
+}
+
+function rielEnfocarSiguienteJugadaPropiedad(){
+  // Ajuste visual únicamente: después de convertir el lead, deja al asesor parado
+  // en el expediente documental del propietario dentro de la ficha de Propiedades.
+  // No escribe Airtable, no toca Make, no toca Documentos comprador.
+  setTimeout(function(){
+    const body = document.getElementById('crm-landing-body');
+    if(!body) return;
+    const acciones = body.querySelector('.cab-acciones');
+    if(!acciones) return;
+
+    if(!acciones.querySelector('.riel-next-action-guide')){
+      acciones.insertAdjacentHTML('afterbegin',
+        '<div class="riel-next-action-guide" style="margin:0 0 12px;padding:11px 13px;border:1px solid rgba(201,169,110,.35);border-left:3px solid var(--gold);background:rgba(201,169,110,.08);color:var(--w80);font-size:11px;line-height:1.55">'
+        + '<b style="color:var(--gold);letter-spacing:1.6px;text-transform:uppercase;font-size:8px">Siguiente jugada</b><br>'
+        + 'Solicita los documentos al propietario y confirma la producción inmobiliaria. El primer botón recomendado es <b>Enviar link del expediente</b>.'
+        + '</div>'
+      );
+    }
+
+    const buttons = Array.from(body.querySelectorAll('button'));
+    const btnExp = buttons.find(b => /enviar\s+link\s+del\s+expediente/i.test(b.textContent || ''));
+    const titleExp = Array.from(body.querySelectorAll('.cab-acc-title'))
+      .find(el => /expediente\s+documental\s+del\s+propietario/i.test(el.textContent || ''));
+    const target = btnExp || titleExp || acciones;
+    if(!target) return;
+
+    target.scrollIntoView({ behavior:'smooth', block:'center' });
+
+    if(btnExp){
+      try { btnExp.focus({ preventScroll:true }); } catch(_) { try { btnExp.focus(); } catch(__) {} }
+      const oldTransition = btnExp.style.transition;
+      const oldBoxShadow = btnExp.style.boxShadow;
+      const oldOutline = btnExp.style.outline;
+      btnExp.style.transition = 'box-shadow .25s ease, outline-color .25s ease';
+      btnExp.style.outline = '2px solid rgba(201,169,110,.95)';
+      btnExp.style.boxShadow = '0 0 0 6px rgba(201,169,110,.16)';
+      setTimeout(function(){
+        btnExp.style.boxShadow = oldBoxShadow || '';
+        btnExp.style.outline = oldOutline || '';
+        btnExp.style.transition = oldTransition || '';
+      }, 2600);
+    }
+  }, 180);
 }
 
 async function rielPatchLead(recId, fields){
