@@ -286,7 +286,10 @@ function aplicar(d){
   if(tv(d.asesor||d.asesorNombre))          C.asesor  = String(d.asesor||d.asesorNombre).trim();
   if(tv(d.asesorFoto))                      C.asesorFoto = String(d.asesorFoto).trim();
   if(tv(d.asesorFrase||d.frase))            C.asesorFrase = String(d.asesorFrase||d.frase).trim();
-  if(tv(d.wa||d.whatsapp||d.asesorWhatsapp))C.wa      = String(d.wa||d.whatsapp||d.asesorWhatsapp).replace(/\D/g,'');
+  if(tv(d.wa||d.whatsapp||d.asesorWhatsapp)){
+    C.wa = String(d.wa||d.whatsapp||d.asesorWhatsapp).replace(/\D/g,'');
+    if(C.wa.length === 10) C.wa = '52' + C.wa;
+  }
   if(tv(d.foto||d.fotoPropiedad||d.portada))C.foto    = String(d.foto||d.fotoPropiedad||d.portada).trim();
   if(tv(d.logo||d.logoEmpresa))             C.logo    = String(d.logo||d.logoEmpresa).trim();
   if(d.independiente!==undefined){ var i=String(d.independiente).toLowerCase(); C.independiente=(i==='true'||i==='1'||i==='si'||i==='sí'); }
@@ -360,14 +363,24 @@ function setPropMsg(kind, msg){
   m.className = 'prop-msg ' + (kind || '');
   m.textContent = msg || '';
 }
-function abrirWhatsappPropuesta(fecha,hora,comentario){
-  if(!C.wa) return false;
-  var msg = 'Hola' + (C.asesor ? ' ' + C.asesor : '') + ', propongo esta fecha para la cita de foto y video de mi propiedad:' +
-    '\n\nDía: ' + fecha +
-    '\nHora: ' + hora +
-    (comentario ? '\nComentario: ' + comentario : '') +
-    (C.folio ? '\n\nFolio: ' + C.folio : '');
-  window.open('https://wa.me/' + C.wa + '?text=' + encodeURIComponent(msg), '_blank');
+function whatsappPropuestaUrl(fecha,hora,comentario){
+  if(!C.wa) return '';
+  var msg = 'Hola' + (C.asesor ? ' ' + C.asesor : '') + ', ' +
+    (C.cliente ? C.cliente : 'el propietario') +
+    ' propuso una cita de producción inmobiliaria' +
+    (C.propiedad ? ' para ' + C.propiedad : '') + '.' +
+    '\n\nDía propuesto: ' + fecha +
+    '\nHora propuesta: ' + hora +
+    (comentario ? '\nComentario: ' + comentario : '\nComentario: Sin comentario') +
+    (C.folio ? '\n\nFolio del evento: ' + C.folio : '') +
+    '\n\nPor favor revisa disponibilidad y confirma la cita final.';
+  return 'https://wa.me/' + C.wa + '?text=' + encodeURIComponent(msg);
+}
+function abrirWhatsappPropuesta(fecha,hora,comentario,preopened){
+  var url = whatsappPropuestaUrl(fecha,hora,comentario);
+  if(!url) return false;
+  if(preopened && !preopened.closed){ preopened.location.href = url; return true; }
+  window.open(url, '_blank');
   return true;
 }
 function enviarPropuestaCita(){
@@ -376,6 +389,10 @@ function enviarPropuestaCita(){
   var comentario = (document.getElementById('propComentario')||{}).value || '';
   var btn = document.getElementById('btnPropuesta');
   if(!fecha || !hora){ setPropMsg('err','Elige día y hora para enviar tu propuesta.'); return; }
+  var waWin = null;
+  if(C.wa){
+    try{ waWin = window.open('', '_blank'); }catch(e){ waWin = null; }
+  }
   var payload = {
     folioEvento: C.folio,
     fechaPropuesta: fecha,
@@ -385,16 +402,17 @@ function enviarPropuestaCita(){
   if(btn){ btn.disabled = true; btn.textContent = 'Enviando propuesta…'; }
   setPropMsg('', '');
   fetch(WEBHOOK_PROPUESTA, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload), cache:'no-store' })
-    .then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
     .then(function(){
       setPropMsg('ok','Tu propuesta fue enviada al asesor. Te confirmaremos la disponibilidad final antes de agendar la producción.');
       var badge = document.getElementById('evBadge');
       if(badge){ badge.textContent = 'Propuesta enviada'; badge.className = 'estado-badge b-reag'; }
       txt('evNote','Tu asesor validará la disponibilidad y confirmará la cita final.');
+      abrirWhatsappPropuesta(fecha,hora,comentario,waWin);
       if(btn){ btn.disabled = true; btn.textContent = 'Propuesta enviada'; }
     })
     .catch(function(){
-      var opened = abrirWhatsappPropuesta(fecha,hora,comentario);
+      var opened = abrirWhatsappPropuesta(fecha,hora,comentario,waWin);
       setPropMsg(opened ? 'ok' : 'err', opened ? 'No se pudo guardar directo en este momento, pero abrimos WhatsApp con tu propuesta para enviarla al asesor.' : 'No se pudo enviar directo. Escíbele a tu asesor para confirmar la cita.');
       if(btn){ btn.disabled = false; btn.textContent = 'Enviar propuesta de cita'; }
     });
