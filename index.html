@@ -5444,7 +5444,28 @@ function rielFolioKey(value){
 function rielFindPropiedadByFolio(folio){
   const key = rielFolioKey(folio);
   if(!key) return null;
-  return (crmState.records || []).find(p => rielFolioKey(_fval(p,'Folio Vendedor')) === key) || null;
+  return (crmState.records || []).find(p => {
+    const folios = [
+      _fval(p,'Folio Vendedor'),
+      _fval(p,'Folio NERI'),
+      _fval(p,'Folio')
+    ];
+    return folios.some(v => rielFolioKey(v) === key);
+  }) || null;
+}
+
+async function rielActivarExpediente(folio){
+  const res = await fetch('/api/activar-expediente', {
+    method:'POST',
+    headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + (SESSION?.token || '') },
+    body: JSON.stringify({ folio }),
+  });
+  if(!res.ok){
+    let msg = '';
+    try { msg = await res.text(); } catch(_) {}
+    throw new Error('activar-expediente HTTP ' + res.status + (msg ? ' — ' + msg : ''));
+  }
+  try { return await res.json(); } catch(_) { return {}; }
 }
 
 function rielWait(ms){
@@ -5459,31 +5480,34 @@ async function rielContinuarProceso(){
     return;
   }
 
-  rielSay('Abriendo Propiedades y buscando la propiedad por folio…');
-
   try{
-    let prop = null;
-    await crmSwitchTab('propiedades');
-    prop = rielFindPropiedadByFolio(folio);
+    // El pase real a Propiedades ya existía por /api/activar-expediente.
+    // Lo volvemos a ejecutar aquí de forma idempotente para no depender solo del upload.
+    rielSay('Activando pase a Propiedades…');
+    await rielActivarExpediente(folio);
 
-    // Si Make/Airtable todavía está terminando de crear la propiedad, reintenta sin tocar conexiones.
-    for(let i = 0; !prop && i < 2; i++){
-      await rielWait(1200);
-      await crmLoad('propiedades', true);
+    rielSay('Abriendo Propiedades y buscando la propiedad por folio…');
+    let prop = null;
+
+    // Make/Airtable puede tardar unos segundos. Reintentamos sin tocar conexiones.
+    for(let i = 0; !prop && i < 5; i++){
+      await crmSwitchTab('propiedades');
       prop = rielFindPropiedadByFolio(folio);
+      if(prop) break;
+      await rielWait(1400);
     }
 
     try { vendedorClose(); } catch(_) {}
 
     if(prop){
       landOpenEditor(prop.id);
-      try { showToast('✓ Propiedad abierta desde Propiedades'); } catch(_) {}
+      try { showToast('✓ Lead convertido: continúa desde Propiedades'); } catch(_) {}
       return;
     }
 
-    try { showToast('La firma quedó registrada. La propiedad aún no aparece; espera unos segundos y recarga Propiedades.'); } catch(_) {}
+    try { showToast('La firma quedó registrada, pero la propiedad aún no aparece. Recarga Propiedades en unos segundos.'); } catch(_) {}
   }catch(e){
-    rielSay('No pude abrir Propiedades: ' + (e && e.message ? e.message : e));
+    rielSay('No pude activar el pase a Propiedades: ' + (e && e.message ? e.message : e));
   }
 }
 
@@ -5551,25 +5575,20 @@ async function rielContratoUpload(recId, conversion, file){
     rielSay('Registrando la firma…');
     await rielPatchLead(recId, { 'Contrato Firmado': cfg.url, 'Conversión': conversion });
     rielSay('Activando expediente del propietario…');
+    await rielActivarExpediente(folio);
+    // Refrescar Token Expediente, Link Expediente Documental y Propiedad Creada
+    // para que la ficha y la cabina trabajen con datos vivos sin obligar a recargar.
     try{
-      await fetch('/api/activar-expediente', {
-        method:'POST',
-        headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + (SESSION?.token || '') },
-        body: JSON.stringify({ folio }),
-      });
-      // Refrescar Token Expediente y Link Expediente Documental en el caché local
-      // para que cabEnviarExpediente los encuentre sin obligar al asesor a recargar.
-      try{
-        const fresh = await atFetch(RIEL_VEND_TABLE + '/' + recId);
-        if(fresh && fresh.fields){
-          const localRec = crmState.records.find(r => r.id === recId);
-          if(localRec){
-            if(fresh.fields['Token Expediente']) localRec.fields['Token Expediente'] = fresh.fields['Token Expediente'];
-            if(fresh.fields['Link Expediente Documental']) localRec.fields['Link Expediente Documental'] = fresh.fields['Link Expediente Documental'];
-          }
+      const fresh = await atFetch(RIEL_VEND_TABLE + '/' + recId);
+      if(fresh && fresh.fields){
+        const localRec = crmState.records.find(r => r.id === recId);
+        if(localRec){
+          if(fresh.fields['Token Expediente']) localRec.fields['Token Expediente'] = fresh.fields['Token Expediente'];
+          if(fresh.fields['Link Expediente Documental']) localRec.fields['Link Expediente Documental'] = fresh.fields['Link Expediente Documental'];
+          if(fresh.fields['Propiedad Creada'] != null) localRec.fields['Propiedad Creada'] = fresh.fields['Propiedad Creada'];
         }
-      }catch(_){}
-    }catch(_){ /* idempotente: la cabina lo reintenta al abrir la ficha */ }
+      }
+    }catch(_){}
     vendedorOpenFicha(recId);
   }catch(e){ rielSay('Error: ' + e.message); }
 }
