@@ -256,6 +256,7 @@ textarea.prop-input{min-height:72px;resize:vertical;line-height:1.5;}
    Lee ?evento=FOLIO y consulta el webhook de Eventos Operación.
    ════════════════════════════════════════════════════════════ */
 var WEBHOOK = "https://hook.us2.make.com/5ixjyngdawk1wstore3xg91xmiwym5i9";
+var WEBHOOK_PROPUESTA = "https://hook.us2.make.com/u0o13og2uful6sinwcq5w5xnjs3rg0oq";
 
 var C = {
   folio:"", tipo:"", estado:"", propiedad:"", cliente:"", fecha:"", hora:"", lugar:"",
@@ -307,11 +308,12 @@ var TIPOS = {
 };
 
 var ESTADOS_CITA = {
-  'Pendiente':  {cls:'b-pend', note:'Registrada. Tu asesor confirmará los detalles pronto.'},
-  'Confirmada': {cls:'b-conf', note:'Te esperamos el día y hora indicados.'},
-  'Realizada':  {cls:'b-real', note:'Este evento ya se realizó. Gracias por tu tiempo.'},
-  'Cancelada':  {cls:'b-canc', note:'Cancelado. Escribe a tu asesor para reagendar.'},
-  'Reagendada': {cls:'b-reag', note:'Reagendado. Revisa la nueva fecha y hora.'}
+  'Pendiente':             {cls:'b-pend', note:'Registrada. Tu asesor confirmará los detalles pronto.'},
+  'Pendiente de confirmar':{cls:'b-pend', note:'Registrada. Elige día y hora para proponer tu cita al asesor.'},
+  'Confirmada':            {cls:'b-conf', note:'Te esperamos el día y hora indicados.'},
+  'Realizada':             {cls:'b-real', note:'Este evento ya se realizó. Gracias por tu tiempo.'},
+  'Cancelada':             {cls:'b-canc', note:'Cancelado. Escribe a tu asesor para reagendar.'},
+  'Reagendada':            {cls:'b-reag', note:'Reagendado. Revisa la nueva fecha y hora.'}
 };
 var ESTADOS_OFERTA = {
   'Enviada':      {cls:'b-pend', note:'Oferta presentada. Está en tus manos revisarla y responder.'},
@@ -338,7 +340,8 @@ function puedeProponerCita(t){
   var tipo = estadoNormal(C.tipo || 'Producción Inmobiliaria');
   if(!t || !t.esCita) return false;
   if(tipo.indexOf('produccion') === -1) return false;
-  if(estado.indexOf('confirm') > -1 || estado.indexOf('realiz') > -1 || estado.indexOf('cancel') > -1) return false;
+  /* bloquear solo estados terminales: Confirmada, Realizada, Cancelada */
+  if(estado === 'confirmada' || estado.indexOf('realiz') > -1 || estado.indexOf('cancel') > -1) return false;
   return true;
 }
 function renderPropuesta(t){
@@ -374,34 +377,25 @@ function enviarPropuestaCita(){
   var btn = document.getElementById('btnPropuesta');
   if(!fecha || !hora){ setPropMsg('err','Elige día y hora para enviar tu propuesta.'); return; }
   var payload = {
-    accion: 'propuesta_cita_produccion',
-    evento: C.folio,
     folioEvento: C.folio,
-    tipo: C.tipo || 'Producción Inmobiliaria',
-    estadoCliente: 'Propuesta enviada',
     fechaPropuesta: fecha,
     horaPropuesta: hora,
-    comentarioCliente: comentario,
-    cliente: C.cliente,
-    propiedad: C.propiedad,
-    asesor: C.asesor
+    comentario: comentario
   };
   if(btn){ btn.disabled = true; btn.textContent = 'Enviando propuesta…'; }
   setPropMsg('', '');
-  var body = new URLSearchParams();
-  Object.keys(payload).forEach(function(k){ if(payload[k] !== undefined && payload[k] !== null) body.append(k, payload[k]); });
-  fetch(WEBHOOK, { method:'POST', body: body, cache:'no-store' })
-    .then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
+  fetch(WEBHOOK_PROPUESTA, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload), cache:'no-store' })
+    .then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then(function(){
-      setPropMsg('ok','Gracias. Tu propuesta fue enviada al asesor. La cita quedará confirmada cuando el asesor valide la disponibilidad final.');
+      setPropMsg('ok','Tu propuesta fue enviada al asesor. Te confirmaremos la disponibilidad final antes de agendar la producción.');
       var badge = document.getElementById('evBadge');
       if(badge){ badge.textContent = 'Propuesta enviada'; badge.className = 'estado-badge b-reag'; }
       txt('evNote','Tu asesor validará la disponibilidad y confirmará la cita final.');
-      if(btn){ btn.textContent = 'Propuesta enviada'; }
+      if(btn){ btn.disabled = true; btn.textContent = 'Propuesta enviada'; }
     })
     .catch(function(){
       var opened = abrirWhatsappPropuesta(fecha,hora,comentario);
-      setPropMsg(opened ? 'ok' : 'err', opened ? 'No se pudo guardar directo en este momento, pero abrimos WhatsApp con tu propuesta para enviarla al asesor.' : 'No se pudo enviar directo. Escríbele a tu asesor para confirmar la cita.');
+      setPropMsg(opened ? 'ok' : 'err', opened ? 'No se pudo guardar directo en este momento, pero abrimos WhatsApp con tu propuesta para enviarla al asesor.' : 'No se pudo enviar directo. Escíbele a tu asesor para confirmar la cita.');
       if(btn){ btn.disabled = false; btn.textContent = 'Enviar propuesta de cita'; }
     });
 }
