@@ -5478,6 +5478,23 @@ async function rielFetchPropiedadByFolio(folio){
 }
 
 async function rielActivarExpediente(folio){
+  // — Webhook Make (tiempo real) —
+  // Dispara el pase a Propiedades NERI de inmediato sin esperar los 15 min del trigger polling.
+  // El escenario Make aplica el mismo candado Propiedad Creada = true, así que doble llamada = inofensiva.
+  const MAKE_WEBHOOK = 'https://hook.us2.make.com/ssvbsjs3on1i87616fefilx8shk42ncv';
+  const recId = crmState?.editId || '';
+  try{
+    const mRes = await fetch(MAKE_WEBHOOK, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ folio, recordId: recId, conversion: _fval((crmState.records||[]).find(r=>r.id===recId),'Conversión')||'' }),
+    });
+    if(!mRes.ok) console.warn('Make webhook respondió HTTP', mRes.status);
+  }catch(mErr){
+    console.warn('Make webhook no disponible, continuando con respaldo:', mErr.message);
+  }
+
+  // — Endpoint interno como respaldo —
   const res = await fetch('/api/activar-expediente', {
     method:'POST',
     headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + (SESSION?.token || '') },
