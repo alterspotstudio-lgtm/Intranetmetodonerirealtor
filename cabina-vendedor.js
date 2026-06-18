@@ -84,6 +84,22 @@
     if (Array.isArray(v)) v = v[0];
     return v == null ? '' : v;
   }
+  function cleanWa(v) {
+    var n = String(v || '').replace(/\D/g, '');
+    if (n.length === 10) n = '52' + n;
+    return n;
+  }
+  function telefonoPropietarioCab(rec) {
+    var src = null;
+    try { src = expedienteSource(rec) || rec; } catch (_) { src = rec; }
+    return cleanWa(
+      fval(src, 'Teléfono WhatsApp') || fval(rec, 'Teléfono WhatsApp') ||
+      fval(src, 'Telefono WhatsApp') || fval(rec, 'Telefono WhatsApp') ||
+      fval(src, 'WhatsApp') || fval(rec, 'WhatsApp') ||
+      fval(src, 'Teléfono') || fval(rec, 'Teléfono') ||
+      fval(src, 'Telefono') || fval(rec, 'Telefono')
+    );
+  }
   function getState() {
     if (window.crmState && window.crmState.records) return window.crmState;
     try { if (typeof crmState !== 'undefined' && crmState && crmState.records) return crmState; } catch (_) {}
@@ -322,18 +338,22 @@
     cab.lastCardHTML = '';
 
     // Datos que la intranet ya conoce → cero captura doble
-    var propietario = fval(rec, 'Nombre Completo') || fval(rec, 'Nombre Propietario') || fval(rec, 'Propietario') || fval(rec, 'Nombre Propiedad') || '';
-    var zona = fval(rec, 'Zona') || fval(rec, 'Zona / Colonia') || '';
-    var municipio = fval(rec, 'Municipio') || '';
-    var direccion = [zona, municipio].filter(Boolean).join(', ');
-    var asesorNombre = fval(rec, 'Asesor') || ASESOR_DEFAULT.nombre;
-    var folio = fval(rec, 'Folio') || fval(rec, 'Folio NERI') || fval(rec, 'Folio Vendedor') || '';
+    var srcLead = null;
+    try { srcLead = expedienteSource(rec) || rec; } catch (_) { srcLead = rec; }
+    var propietario = fval(srcLead, 'Nombre Completo') || fval(rec, 'Nombre Completo') || fval(rec, 'Nombre Propietario') || fval(rec, 'Propietario') || '';
+    var nombrePropiedad = fval(rec, 'Nombre Propiedad') || fval(rec, 'Propiedad') || fval(srcLead, 'Nombre Propiedad') || fval(srcLead, 'Propiedad') || '';
+    var zona = fval(rec, 'Zona / Colonia') || fval(rec, 'Zona') || fval(srcLead, 'Zona / Colonia') || fval(srcLead, 'Zona') || '';
+    var municipio = fval(rec, 'Municipio') || fval(srcLead, 'Municipio') || '';
+    var direccion = fval(rec, 'Direccion') || fval(rec, 'Dirección') || fval(srcLead, 'Direccion') || fval(srcLead, 'Dirección') || [zona, municipio].filter(Boolean).join(', ');
+    var asesorNombre = fval(rec, 'Asesor') || fval(srcLead, 'Asesor') || ASESOR_DEFAULT.nombre;
+    var folio = fval(srcLead, 'Folio') || fval(rec, 'Folio') || fval(rec, 'Folio NERI') || fval(rec, 'Folio Vendedor') || '';
+    var telefonoPropietario = telefonoPropietarioCab(rec);
 
-    cab.prefill = { propietario: propietario, direccion: direccion, asesor: asesorNombre, folio: folio };
+    cab.prefill = { propietario: propietario, propiedad: nombrePropiedad, direccion: direccion, asesor: asesorNombre, folio: folio, telefono: telefonoPropietario };
 
     // contexto visible
-    byId('cab-ctx-t').textContent = propietario || 'Sin nombre en el registro';
-    byId('cab-ctx-s').textContent = (folio ? folio + ' · ' : '') + (direccion || 'Sin zona registrada');
+    byId('cab-ctx-t').textContent = nombrePropiedad || propietario || 'Sin nombre en el registro';
+    byId('cab-ctx-s').textContent = (folio ? folio + ' · ' : '') + (direccion || 'Sin ubicación registrada');
 
     // reset preview
     byId('cab-empty').style.display = 'flex';
@@ -381,6 +401,7 @@
       asesorBlock()
       + '<div class="cab-seclabel">Sesión</div>'
       + '<div class="cab-field"><label>Propietario</label><input id="cab_p_prop" class="prefilled" value="' + esc(p.propietario) + '"><div class="cab-prefnote">↳ Del registro</div></div>'
+      + '<div class="cab-field"><label>Propiedad</label><input id="cab_p_propiedad" class="prefilled" value="' + esc(p.propiedad || '') + '"><div class="cab-prefnote">↳ Del registro · nombre que verá el cliente</div></div>'
       + '<div class="cab-field"><label>Dirección / Zona</label><input id="cab_p_dir" class="prefilled" value="' + esc(p.direccion) + '"><div class="cab-prefnote">↳ Del registro · completa si falta calle</div></div>'
       + '<div class="cab-field-row"><div class="cab-field"><label>Fecha</label><input id="cab_p_fecha" placeholder="Lunes 2 de junio"></div><div class="cab-field"><label>Hora</label><input id="cab_p_hora" placeholder="10:00 am"></div></div>'
       + '<div class="cab-field"><label>Duración</label><select id="cab_p_dur"><option>1 hora aprox.</option><option>1.5 horas aprox.</option><option>2 horas aprox.</option><option>2.5 horas aprox.</option><option>3 horas aprox.</option></select></div>'
@@ -506,6 +527,7 @@
   function cabGenProduccion() {
     var a = asesorActual();
     var prop = byId('cab_p_prop').value || '—';
+    var propiedad = (byId('cab_p_propiedad') && byId('cab_p_propiedad').value) || cab.prefill.propiedad || 'su propiedad';
     var dir = byId('cab_p_dir').value || '—';
     var fecha = byId('cab_p_fecha').value || '—';
     var hora = byId('cab_p_hora').value || '—';
@@ -523,7 +545,8 @@
       + '<div class="cab-c-body">'
       + secbar('Detalles de la sesión')
       + '<div class="cab-dgrid"><div class="cab-dcell"><div class="cab-dlbl">Propietario</div><div class="cab-dval gold">' + esc(prop) + '</div></div>'
-      + '<div class="cab-dcell"><div class="cab-dlbl">Dirección</div><div class="cab-dval">' + esc(dir) + '</div></div>'
+      + '<div class="cab-dcell"><div class="cab-dlbl">Propiedad</div><div class="cab-dval gold">' + esc(propiedad) + '</div></div>'
+      + '<div class="cab-dcell full"><div class="cab-dlbl">Dirección</div><div class="cab-dval">' + esc(dir) + '</div></div>'
       + '<div class="cab-dcell"><div class="cab-dlbl">Fecha</div><div class="cab-dval">' + esc(fecha) + '</div></div>'
       + '<div class="cab-dcell"><div class="cab-dlbl">Hora de llegada</div><div class="cab-dval">' + esc(hora) + '</div></div>'
       + '<div class="cab-dcell full"><div class="cab-dlbl">Duración estimada</div><div class="cab-dval">' + esc(dur) + '</div></div></div>'
@@ -532,10 +555,10 @@
       + '</div>' + cardFooter(a, 'Método Neri · Sistema de Control de Calidad Inmobiliaria') + '</div>';
     showCard(html);
     var n0 = prop.split(' ')[0];
-    var msg = 'Hola ' + n0 + ' 🏡\n\nLlegó el momento que estábamos esperando — pronto damos a conocer a la estrella de este proceso: *su propiedad*.\n\n📅 *Fecha:* ' + fecha + '\n🕐 *Hora de llegada del equipo:* ' + hora + '\n⏱ *Duración estimada:* ' + dur + '\n\nLe comparto la confirmación con todo lo que necesitamos tener listo para que su propiedad luzca en su mejor versión.\n\nCualquier ajuste, con gusto lo atendemos con anticipación.\n\n— ' + a.nombre + '\n📲 ' + a.tel + '\n*Método Neri · Sistema de Control de Calidad Inmobiliaria*';
+    var msg = 'Hola ' + n0 + ' 🏡\n\nLlegó el momento que estábamos esperando — pronto damos a conocer a la estrella de este proceso: *' + propiedad + '*.\n\n📅 *Fecha:* ' + fecha + '\n🕐 *Hora de llegada del equipo:* ' + hora + '\n⏱ *Duración estimada:* ' + dur + '\n\nLe comparto la confirmación con todo lo que necesitamos tener listo para que la propiedad luzca en su mejor versión.\n\nCualquier ajuste, con gusto lo atendemos con anticipación.\n\n— ' + a.nombre + '\n📲 ' + a.tel + '\n*Método Neri · Sistema de Control de Calidad Inmobiliaria*';
     showWA(msg);
     showActionButtons('cab_bp_print', 'cab_bp_wa');
-    cabCrearEvento('Producción Inmobiliaria', { estado: 'Confirmada', fields: { 'Cliente': prop, 'Propiedad': dir, 'Lugar': dir, 'Fecha': fecha, 'Hora': hora, 'Notas': 'Duración estimada: ' + dur + (function(){ var p = CHECKLIST.filter(function(it,i){ return byId('cab_pc'+i) && byId('cab_pc'+i).checked; }).map(function(it){ return it.t; }); return p.length ? '\nCómo preparar la propiedad: ' + p.join(', ') + '.' : ''; })() } }, function (err, ev) {
+    cabCrearEvento('Producción Inmobiliaria', { estado: 'Pendiente de confirmar', fields: { 'Cliente': prop, 'Propiedad': propiedad, 'Lugar': dir, 'Fecha': fecha, 'Hora': hora, 'Notas': 'Duración estimada: ' + dur + (function(){ var p = CHECKLIST.filter(function(it,i){ return byId('cab_pc'+i) && byId('cab_pc'+i).checked; }).map(function(it){ return it.t; }); return p.length ? '\nCómo preparar la propiedad: ' + p.join(', ') + '.' : ''; })() } }, function (err, ev) {
       if (err || !ev) { showEventoError(); return; }
       showEventoLink(ev.link, ev.folio);
       showWA(msg + '\n\n🔗 *Su confirmación en línea (siempre actualizada):*\n' + ev.link);
@@ -737,11 +760,13 @@
       setTimeout(function () { btn.textContent = o; }, 2000);
     });
   }
-  /* Enviar al propietario el mensaje (ya incluye el link) por WhatsApp. La cita ya está confirmada: esto es solo para darle formalidad. */
+  /* Enviar al propietario el mensaje (ya incluye el link) por WhatsApp. */
   function cabEnviarWA() {
     var t = cab.lastWaMsg || cab.lastLink || '';
     if (!t) return;
-    window.open('https://wa.me/?text=' + encodeURIComponent(t), '_blank');
+    var tel = (cab.prefill && cab.prefill.telefono) || telefonoPropietarioCab(getRecord(cab.recId));
+    if (!tel) { window.alert('No envié WhatsApp: falta Teléfono WhatsApp del propietario.'); return; }
+    window.open('https://wa.me/' + encodeURIComponent(tel) + '?text=' + encodeURIComponent(t), '_blank');
   }
 
   /* ── Toggles / radio ── */
