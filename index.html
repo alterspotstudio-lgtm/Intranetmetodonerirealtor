@@ -2615,7 +2615,7 @@ function crmSwitchTab(tab){
   document.querySelectorAll('.at-tab').forEach(t => t.classList.remove('active'));
   document.getElementById('crm-tab-' + tab)?.classList.add('active');
   document.getElementById('crm-search').value = '';
-  crmLoad(tab, true);
+  return crmLoad(tab, true);
 }
 
 /* ─── MODAL EDITAR / NUEVO ─────────────────────────── */
@@ -5432,11 +5432,59 @@ function rielPanelHTML(rec, et){
     <div class="riel-status" id="riel-status"></div>`;
 }
 
-function rielContinuarProceso(){
-  try { vendedorClose(); } catch(_) {}
-  try { crmSwitchTab('propiedades'); }
-  catch(e){ rielSay('No pude abrir Propiedades: ' + (e && e.message ? e.message : e)); return; }
-  try { showToast('✓ Continúa desde Propiedades'); } catch(_) {}
+function rielFolioKey(value){
+  return String(value || '')
+    .trim()
+    .toUpperCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[‐‑‒–—―]/g,'-')
+    .replace(/\s+/g,'');
+}
+
+function rielFindPropiedadByFolio(folio){
+  const key = rielFolioKey(folio);
+  if(!key) return null;
+  return (crmState.records || []).find(p => rielFolioKey(_fval(p,'Folio Vendedor')) === key) || null;
+}
+
+function rielWait(ms){
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function rielContinuarProceso(){
+  const rec = (crmState.records || []).find(r => r.id === crmState.editId);
+  const folio = rec ? _fval(rec,'Folio') : '';
+  if(!rielFolioKey(folio)){
+    rielSay('No encontré el folio del lead. Cierra y vuelve a abrir la ficha para reintentar.');
+    return;
+  }
+
+  rielSay('Abriendo Propiedades y buscando la propiedad por folio…');
+
+  try{
+    let prop = null;
+    await crmSwitchTab('propiedades');
+    prop = rielFindPropiedadByFolio(folio);
+
+    // Si Make/Airtable todavía está terminando de crear la propiedad, reintenta sin tocar conexiones.
+    for(let i = 0; !prop && i < 2; i++){
+      await rielWait(1200);
+      await crmLoad('propiedades', true);
+      prop = rielFindPropiedadByFolio(folio);
+    }
+
+    try { vendedorClose(); } catch(_) {}
+
+    if(prop){
+      landOpenEditor(prop.id);
+      try { showToast('✓ Propiedad abierta desde Propiedades'); } catch(_) {}
+      return;
+    }
+
+    try { showToast('La firma quedó registrada. La propiedad aún no aparece; espera unos segundos y recarga Propiedades.'); } catch(_) {}
+  }catch(e){
+    rielSay('No pude abrir Propiedades: ' + (e && e.message ? e.message : e));
+  }
 }
 
 function rielIrAcciones(){
