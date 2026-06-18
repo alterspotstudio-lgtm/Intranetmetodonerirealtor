@@ -5625,13 +5625,13 @@ function rielEnfocarSiguienteJugadaPropiedad(){
       acciones.insertAdjacentHTML('afterbegin',
         '<div class="riel-next-action-guide" style="margin:0 0 12px;padding:11px 13px;border:1px solid rgba(201,169,110,.35);border-left:3px solid var(--gold);background:rgba(201,169,110,.08);color:var(--w80);font-size:11px;line-height:1.55">'
         + '<b style="color:var(--gold);letter-spacing:1.6px;text-transform:uppercase;font-size:8px">Siguiente jugada</b><br>'
-        + 'Solicita los documentos al propietario y confirma la producción inmobiliaria. El primer botón recomendado es <b>Enviar link del expediente</b>.'
+        + 'Solicita los documentos al propietario y confirma la producción inmobiliaria. El primer botón recomendado es <b>Enviar Portal de Venta</b>.'
         + '</div>'
       );
     }
 
     const buttons = Array.from(body.querySelectorAll('button'));
-    const btnExp = buttons.find(b => /enviar\s+link\s+del\s+expediente/i.test(b.textContent || ''));
+    const btnExp = buttons.find(b => /enviar\s+(portal\s+de\s+venta|link\s+del\s+expediente)/i.test(b.textContent || ''));
     const titleExp = Array.from(body.querySelectorAll('.cab-acc-title'))
       .find(el => /expediente\s+documental\s+del\s+propietario/i.test(el.textContent || ''));
     const target = btnExp || titleExp || acciones;
@@ -5730,5 +5730,264 @@ async function rielContratoUpload(recId, conversion, file){
 </script>
 <!-- Cabina de acciones del vendedor (Producción, Notaría, Expediente documental, Documentos) -->
 <script src="cabina-vendedor.js"></script>
+<!-- Etapa 2: Portal de Venta como acción principal. Inline para no subir archivo extra. No toca cabina-vendedor.js original. -->
+<script>
+/* ============================================================================
+   MÉTODO NERI · ETAPA 2
+   Portal de Venta como acción principal después de firma.
+
+   Alcance:
+   - NO borra ni modifica expedienteLink, cabEnviarExpediente, cabAbrirExpediente,
+     cabCopiarExpediente ni endpoints existentes.
+   - Agrega PROGRESO_BASE configurable.
+   - Agrega portalVentaLink(rec) y cabEnviarPortalVenta(recId).
+   - Cambia visualmente el botón principal de expediente a Enviar Portal de Venta.
+   ========================================================================== */
+(function () {
+  'use strict';
+
+  var PROGRESO_BASE = String(window.PROGRESO_BASE || 'https://progreso-zeta.vercel.app/').replace(/\/+$/, '');
+  window.PROGRESO_BASE = PROGRESO_BASE;
+
+  function escAttr(s) {
+    return String(s == null ? '' : s).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+  }
+
+  function fval(rec, field) {
+    if (!rec || !rec.fields) return '';
+    var v = rec.fields[field];
+    if (Array.isArray(v)) v = v[0];
+    return v == null ? '' : String(v);
+  }
+
+  function getRecords() {
+    try {
+      if (typeof crmState !== 'undefined' && crmState && Array.isArray(crmState.records)) return crmState.records;
+    } catch (_) {}
+    try {
+      if (window.crmState && Array.isArray(window.crmState.records)) return window.crmState.records;
+    } catch (_) {}
+    return [];
+  }
+
+  function getRecord(recId) {
+    var list = getRecords();
+    for (var i = 0; i < list.length; i++) {
+      if (list[i] && list[i].id === recId) return list[i];
+    }
+    return null;
+  }
+
+  function normalizarFolio(v) {
+    try {
+      if (typeof crmNormalizeFolio === 'function') return crmNormalizeFolio(v);
+    } catch (_) {}
+    return String(v || '').trim().toUpperCase();
+  }
+
+  function buscarEnIndiceVendedores(folio) {
+    var key = normalizarFolio(folio);
+    if (!key) return null;
+
+    try {
+      if (typeof crmVendedoresFolioIndex === 'object' && crmVendedoresFolioIndex && crmVendedoresFolioIndex[key]) {
+        return crmVendedoresFolioIndex[key];
+      }
+    } catch (_) {}
+
+    try {
+      if (typeof asesorCache === 'object' && asesorCache && Array.isArray(asesorCache.vendedores)) {
+        for (var a = 0; a < asesorCache.vendedores.length; a++) {
+          var rA = asesorCache.vendedores[a];
+          if (normalizarFolio(fval(rA, 'Folio')) === key) return rA;
+        }
+      }
+    } catch (_) {}
+
+    var list = getRecords();
+    for (var i = 0; i < list.length; i++) {
+      var r = list[i];
+      if (normalizarFolio(fval(r, 'Folio')) === key) return r;
+    }
+    return null;
+  }
+
+  function leadVendedorOriginal(rec) {
+    if (!rec) return null;
+
+    // Si el registro ya trae token/link de expediente, es el lead vendedor o trae su seguridad completa.
+    if (fval(rec, 'Token Expediente') || fval(rec, 'Link Expediente Documental')) return rec;
+
+    // En Propiedades, el folio correcto del propietario vive en Folio Vendedor.
+    var folioVendedor = fval(rec, 'Folio Vendedor');
+    if (folioVendedor) return buscarEnIndiceVendedores(folioVendedor);
+
+    return null;
+  }
+
+  function portalSource(rec) {
+    return leadVendedorOriginal(rec) || rec || null;
+  }
+
+  function portalVentaLink(rec) {
+    if (!PROGRESO_BASE) return '';
+    var src = portalSource(rec);
+    if (!src) return '';
+
+    var folio = fval(src, 'Folio') || fval(rec, 'Folio Vendedor') || fval(rec, 'Folio') || '';
+    var token = fval(src, 'Token Expediente') || fval(rec, 'Token Expediente') || fval(src, 'Token') || fval(rec, 'Token') || '';
+
+    if (!folio) return '';
+
+    var link = PROGRESO_BASE + '/?folio=' + encodeURIComponent(folio) + '&vista=vendedor';
+    if (token) link += '&token=' + encodeURIComponent(token);
+    return link;
+  }
+
+  function telefonoPropietario(rec, src) {
+    return String(
+      fval(src, 'Teléfono WhatsApp') ||
+      fval(rec, 'Teléfono WhatsApp') ||
+      fval(src, 'WhatsApp') ||
+      fval(rec, 'WhatsApp') ||
+      ''
+    ).replace(/\D/g, '');
+  }
+
+  function nombrePropietario(rec, src) {
+    return String(
+      fval(src, 'Nombre Completo') ||
+      fval(rec, 'Nombre Completo') ||
+      fval(src, 'Nombre Propietario') ||
+      fval(rec, 'Nombre Propietario') ||
+      fval(rec, 'Propietario') ||
+      ''
+    ).trim();
+  }
+
+  function asesorNombre(rec, src) {
+    var n = fval(src, 'Asesor') || fval(rec, 'Asesor') || '';
+    try { if (!n && typeof SESSION !== 'undefined' && SESSION && SESSION.nombre) n = SESSION.nombre; } catch (_) {}
+    try { if (!n && window.CABINA_ASESOR && window.CABINA_ASESOR.nombre) n = window.CABINA_ASESOR.nombre; } catch (_) {}
+    return n || 'tu asesor';
+  }
+
+  function cabAviso(recId, msg) {
+    var el = document.getElementById('cab-doc-status-' + recId);
+    if (el) {
+      el.style.display = 'block';
+      el.style.color = '#ff6b6b';
+      el.textContent = msg;
+    } else {
+      window.alert(msg);
+    }
+  }
+
+  function waNumber(raw) {
+    var tel = String(raw || '').replace(/\D/g, '');
+    if (!tel) return '';
+    return tel.length === 10 ? '52' + tel : tel;
+  }
+
+  function cabEnviarPortalVenta(recId) {
+    var rec = getRecord(recId);
+    if (!rec) return;
+
+    if (!PROGRESO_BASE) {
+      cabAviso(recId, 'No envié WhatsApp: falta configurar PROGRESO_BASE.');
+      return;
+    }
+
+    var src = portalSource(rec) || rec;
+    var link = portalVentaLink(rec);
+    if (!link) {
+      cabAviso(recId, 'No envié WhatsApp: falta Folio del lead vendedor para construir el Portal de Venta.');
+      return;
+    }
+
+    var tel = telefonoPropietario(rec, src);
+    if (!tel) {
+      cabAviso(recId, 'No envié WhatsApp: falta Teléfono WhatsApp del propietario.');
+      return;
+    }
+
+    var nombre = nombrePropietario(rec, src);
+    var nombreCorto = nombre ? nombre.split(/\s+/)[0] : '';
+    var asesor = asesorNombre(rec, src);
+
+    var msg = 'Hola' + (nombreCorto ? ' ' + nombreCorto : '') + ', felicidades.\n\n'
+      + 'Ya quedó registrada la firma y tu propiedad entra formalmente al proceso de venta.\n\n'
+      + 'A partir de ahora vivirás la experiencia de venta de tu propiedad de una forma personalizada, con información clara sobre la etapa en la que se encuentra tu propiedad y lo que sigue en cada paso.\n\n'
+      + 'Te comparto tu Portal de Venta, donde podrás ver el proceso completo, subir tus documentos y confirmar la cita para la producción inmobiliaria.\n\n'
+      + link + '\n\n'
+      + 'El siguiente paso importante es confirmar la cita de foto y video, porque sin esa producción todavía no podemos salir correctamente al mercado.\n\n'
+      + '— ' + asesor;
+
+    window.open('https://wa.me/' + waNumber(tel) + '?text=' + encodeURIComponent(msg), '_blank');
+  }
+
+  function parseRecIdFromOnclick(btn) {
+    var raw = btn ? (btn.getAttribute('onclick') || '') : '';
+    var m = raw.match(/cabEnviarExpediente\('([^']+)'\)/) || raw.match(/cabEnviarExpediente\("([^"]+)"\)/);
+    return m ? m[1] : '';
+  }
+
+  function transformarAcciones(root) {
+    root = root || document;
+    var botones = Array.prototype.slice.call(root.querySelectorAll ? root.querySelectorAll('button.cab-acc-btn') : []);
+    botones.forEach(function (btn) {
+      var txt = String(btn.textContent || '');
+      if (!/enviar\s+link\s+del\s+expediente/i.test(txt)) return;
+      if (btn.getAttribute('data-etapa2-portal') === '1') return;
+
+      var recId = parseRecIdFromOnclick(btn);
+      if (!recId) return;
+
+      btn.setAttribute('data-etapa2-portal', '1');
+      btn.innerHTML = 'Enviar Portal de Venta<small>Link madre: progreso, expediente y producción</small>';
+      btn.onclick = function () { cabEnviarPortalVenta(recId); };
+    });
+
+    var acciones = root.querySelectorAll ? root.querySelectorAll('.cab-acciones') : [];
+    Array.prototype.forEach.call(acciones, function (box) {
+      if (box.getAttribute('data-etapa2-copy') === '1') return;
+      box.setAttribute('data-etapa2-copy', '1');
+
+      var titles = Array.prototype.slice.call(box.querySelectorAll('.cab-acc-title'));
+      titles.forEach(function (t) {
+        if (/expediente\s+documental\s+del\s+propietario/i.test(t.textContent || '')) {
+          t.innerHTML = '<em>▸</em> Portal de Venta del propietario';
+        }
+      });
+
+      var hints = Array.prototype.slice.call(box.querySelectorAll('.cab-acc-hint'));
+      hints.forEach(function (h) {
+        if (/propietario\s+sube\s+sus\s+documentos/i.test(h.textContent || '')) {
+          h.innerHTML = 'Acción principal: enviar <b>un solo Portal de Venta</b>. El expediente documental queda dentro del portal y también como acceso interno del asesor.';
+        }
+      });
+    });
+  }
+
+  window.portalVentaLink = portalVentaLink;
+  window.cabEnviarPortalVenta = cabEnviarPortalVenta;
+
+  function boot() {
+    transformarAcciones(document);
+    var mo = new MutationObserver(function (mutations) {
+      mutations.forEach(function (m) {
+        Array.prototype.forEach.call(m.addedNodes || [], function (node) {
+          if (node && node.nodeType === 1) transformarAcciones(node);
+        });
+      });
+    });
+    mo.observe(document.documentElement || document.body, { childList: true, subtree: true });
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();
+
+</script>
 </body>
 </html>
