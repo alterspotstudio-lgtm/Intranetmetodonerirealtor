@@ -4414,7 +4414,8 @@ let _asesorPropsLoaded = false;
 let _asesorDocsLoaded = false;
 let _asesorReportsLoaded = false;
 let _salaLoaded = false;
-let asesorCache = { compradores:[], vendedores:[], progreso:[], citas:[], propiedades:[] };
+let asesorCache = { compradores:[], vendedores:[], progreso:[], citas:[], propiedades:[], eventos:[] };
+const EVENTOS_OPERACION_TABLE = 'tblaYhT3EUT0m5FYV'; // Eventos Operación · lectura para alertas de producción
 function asesorEsc(s){ return String(s ?? '').replace(/[&<>"]/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[m])); }
 function asesorCopy(text){ navigator.clipboard?.writeText(text || ''); showToast('Copiado'); }
 function asesorWa(num,msg){ return `https://wa.me/${String(num||SESSION?.whatsapp||'').replace(/\D/g,'')}?text=${encodeURIComponent(msg||'Hola, te escribo para dar seguimiento.')}`; }
@@ -4425,31 +4426,105 @@ function asesorDays(f){ return _daysSince(f); }
 function asesorStatus(rec){ return _fval(rec,'Clasificación') || _fval(rec,'Status del Lead') || _fval(rec,'Conversión') || _fval(rec,'Estado') || 'Sin estado'; }
 function asesorNombre(rec){ return _fval(rec,'Nombre Completo') || _fval(rec,'Comprador') || _fval(rec,'Nombre Propiedad') || 'Sin nombre'; }
 function asesorMensaje(rec){ return _fval(rec,'Mensaje sugerido') || _fval(rec,'Siguiente jugada') || _fval(rec,'Próximo paso') || 'Dar seguimiento con claridad y registrar la siguiente acción.'; }
+function asesorNorm(v){ return String(v||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim(); }
+function asesorSameOwnerEvent(rec){
+  const a = asesorNorm(_fval(rec,'Asesor'));
+  const me = asesorNorm(SESSION?.nombre || '');
+  if(a && me && !(a.includes(me) || me.includes(a))) return false;
+  const wa = String(_fval(rec,'WhatsApp Asesor') || '').replace(/\D/g,'');
+  const mywa = String(SESSION?.whatsapp || '').replace(/\D/g,'');
+  if(wa && mywa && !wa.endsWith(mywa.slice(-10)) && !mywa.endsWith(wa.slice(-10))) return false;
+  return true;
+}
+function asesorProduccionPendiente(eventos){
+  return (eventos || []).filter(function(r){
+    const tipo = asesorNorm(_fval(r,'Tipo Evento'));
+    const estado = asesorNorm(_fval(r,'Estado'));
+    const fecha = _fval(r,'Fecha');
+    const hora = _fval(r,'Hora');
+    if(tipo.indexOf('produccion') === -1) return false;
+    if(estado.indexOf('pendiente') === -1) return false;
+    if(estado.indexOf('confirmada') > -1 || estado.indexOf('cancel') > -1 || estado.indexOf('realiz') > -1) return false;
+    if(!fecha || !hora) return false;
+    return asesorSameOwnerEvent(r);
+  }).sort(function(a,b){ return crmParseDateMs((_fval(a,'Fecha')||'')+' '+(_fval(a,'Hora')||'')) - crmParseDateMs((_fval(b,'Fecha')||'')+' '+(_fval(b,'Hora')||'')); });
+}
+function asesorResumenProduccion(rec){
+  const folio = _fval(rec,'Folio Evento');
+  const cliente = _fval(rec,'Cliente') || 'Propietario';
+  const prop = _fval(rec,'Propiedad') || 'Propiedad';
+  const fecha = _fval(rec,'Fecha') || 'Sin fecha';
+  const hora = _fval(rec,'Hora') || 'Sin hora';
+  const notas = _fval(rec,'Notas') || '';
+  return 'Producción pendiente de validar\n' +
+    'Propietario: ' + cliente + '\n' +
+    'Propiedad: ' + prop + '\n' +
+    'Fecha propuesta: ' + fecha + '\n' +
+    'Hora propuesta: ' + hora +
+    (folio ? '\nFolio evento: ' + folio : '') +
+    (notas ? '\nNotas: ' + notas : '');
+}
+function asesorCopyProduccion(folio){
+  const rec = (asesorCache.eventos || []).find(r => _fval(r,'Folio Evento') === folio);
+  if(!rec) return showToast('No encontré el evento.');
+  asesorCopy(asesorResumenProduccion(rec));
+  showToast('Resumen de producción copiado');
+}
+function asesorRenderProduccionPendiente(items){
+  const el = document.getElementById('asesor-produccion-pendiente');
+  if(!el) return;
+  if(!items || !items.length){
+    el.innerHTML = '<div class="hoy-empty">Sin propuestas de producción pendientes de validar.</div>';
+    return;
+  }
+  el.innerHTML = items.map(function(r){
+    const folio = _fval(r,'Folio Evento');
+    const cliente = _fval(r,'Cliente') || 'Propietario';
+    const prop = _fval(r,'Propiedad') || 'Propiedad';
+    const fecha = _fval(r,'Fecha') || '—';
+    const hora = _fval(r,'Hora') || '—';
+    const notas = _fval(r,'Notas') || '';
+    const link = folio ? 'https://intranetmetodonerirealtor.vercel.app/Confirmacion.html?evento=' + encodeURIComponent(folio) : '';
+    return `<div class="asesor-row" style="border-color:var(--goldbdr);background:var(--golddim)">
+      <div>
+        <b>${asesorEsc(cliente)} propuso cita de producción</b>
+        <p><span style="color:var(--gold)">${asesorEsc(prop)}</span> · ${asesorEsc(fecha)} · ${asesorEsc(hora)}${notas ? '<br>'+asesorEsc(notas).slice(0,220) : ''}</p>
+      </div>
+      <div class="meta">
+        <span class="asesor-pill gold">Pendiente de validar</span>
+        ${folio ? `<span class="asesor-pill">${asesorEsc(folio)}</span>` : ''}
+        ${folio ? `<button class="asesor-pill" onclick="asesorCopyProduccion('${asesorEsc(folio)}')">Copiar resumen</button>` : ''}
+        ${link ? `<a class="asesor-pill gold" href="${asesorEsc(link)}" target="_blank" rel="noopener">Ver link</a>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
 async function asesorLoadAll(force=false){
   if(!force && asesorCache._loaded) return asesorCache;
-  const [compradores, vendedores, progreso, citas, propiedades] = await Promise.all([
-    atFetch(`${CRM_CFG.compradores.tableId}?maxRecords=100`), atFetch(`${CRM_CFG.vendedores.tableId}?maxRecords=100`), atFetch(`${CRM_CFG.progreso.tableId}?maxRecords=100`), atFetch(`${CRM_CFG.citas.tableId}?maxRecords=100`), atFetch(`${CRM_CFG.propiedades.tableId}?maxRecords=100`)
+  const [compradores, vendedores, progreso, citas, propiedades, eventos] = await Promise.all([
+    atFetch(`${CRM_CFG.compradores.tableId}?maxRecords=100`), atFetch(`${CRM_CFG.vendedores.tableId}?maxRecords=100`), atFetch(`${CRM_CFG.progreso.tableId}?maxRecords=100`), atFetch(`${CRM_CFG.citas.tableId}?maxRecords=100`), atFetch(`${CRM_CFG.propiedades.tableId}?maxRecords=100`), atFetch(`${EVENTOS_OPERACION_TABLE}?maxRecords=100`).catch(function(){ return {records:[]}; })
   ]);
-  asesorCache = { compradores:compradores.records||[], vendedores:vendedores.records||[], progreso:progreso.records||[], citas:citas.records||[], propiedades:propiedades.records||[], _loaded:true };
+  asesorCache = { compradores:compradores.records||[], vendedores:vendedores.records||[], progreso:progreso.records||[], citas:citas.records||[], propiedades:propiedades.records||[], eventos:eventos.records||[], _loaded:true };
   return asesorCache;
 }
 function buildAsesorHoyPanel(){
   const s=SESSION||{}, link=asesorLinkCaptacion();
-  return `<div class="panel" id="panel-hoy"><div class="asesor-body"><div class="asesor-hero"><section class="asesor-card"><div class="asesor-eyebrow">Cabina real del asesor</div><div class="asesor-title">HOY SE <em>MUEVE DINERO</em></div><div class="asesor-sub">Hola, ${asesorEsc(s.nombre||'asesor')}. Esta vista debe decirte qué hacer, a quién contactar, qué riesgo atender, qué documento falta y qué mensaje mandar.</div><div class="asesor-link-box"><div><small>Tu Link Captación</small><code id="asesor-link-cap">${asesorEsc(link || 'Sin slug / sin link')}</code></div>${link?`<button class="asesor-gold-btn" data-copy="${asesorEsc(link)}" onclick="asesorCopy(this.dataset.copy)">Copiar link</button>`:''}</div></section><section class="asesor-card"><div class="asesor-eyebrow">Resumen de dinero</div><div class="asesor-kpis" id="asesor-money-kpis"><div class="hoy-empty">Cargando datos reales…</div></div></section></div><section class="asesor-section"><div class="asesor-sec-head"><div><div class="asesor-sec-title">DINERO <em>EN RIESGO / CERCA / DORMIDO</em></div><div class="asesor-sec-sub">Tres zonas para decidir dónde actuar primero.</div></div><button class="asesor-gold-btn" onclick="asesorLoadHoy(true)">Actualizar</button></div><div class="asesor-action-grid" id="asesor-zonas"><div class="hoy-empty">Cargando…</div></div></section><section class="asesor-section"><div class="asesor-sec-head"><div><div class="asesor-sec-title">QUÉ HACER <em>HOY</em></div><div class="asesor-sec-sub">Qué hacer, a quién contactar, qué lead se enfría, qué operación está en riesgo, qué documento falta y qué mensaje mandar.</div></div><button class="asesor-gold-btn" onclick="goTo('airtable')">Abrir Centro de Operaciones</button></div><div class="asesor-list" id="asesor-hoy-list"><div class="hoy-empty">Cargando registros reales…</div></div></section><section class="asesor-section"><div class="asesor-note"><b>Regla de esta vista:</b> no usa datos de prueba. Si aparece vacía, significa que no hubo registros reales para el asesor filtrado por la sesión.</div></section></div></div>`;
+  return `<div class="panel" id="panel-hoy"><div class="asesor-body"><div class="asesor-hero"><section class="asesor-card"><div class="asesor-eyebrow">Cabina real del asesor</div><div class="asesor-title">HOY SE <em>MUEVE DINERO</em></div><div class="asesor-sub">Hola, ${asesorEsc(s.nombre||'asesor')}. Esta vista debe decirte qué hacer, a quién contactar, qué riesgo atender, qué documento falta y qué mensaje mandar.</div><div class="asesor-link-box"><div><small>Tu Link Captación</small><code id="asesor-link-cap">${asesorEsc(link || 'Sin slug / sin link')}</code></div>${link?`<button class="asesor-gold-btn" data-copy="${asesorEsc(link)}" onclick="asesorCopy(this.dataset.copy)">Copiar link</button>`:''}</div></section><section class="asesor-card"><div class="asesor-eyebrow">Resumen de dinero</div><div class="asesor-kpis" id="asesor-money-kpis"><div class="hoy-empty">Cargando datos reales…</div></div></section></div><section class="asesor-section"><div class="asesor-sec-head"><div><div class="asesor-sec-title">DINERO <em>EN RIESGO / CERCA / DORMIDO</em></div><div class="asesor-sec-sub">Tres zonas para decidir dónde actuar primero.</div></div><button class="asesor-gold-btn" onclick="asesorLoadHoy(true)">Actualizar</button></div><div class="asesor-action-grid" id="asesor-zonas"><div class="hoy-empty">Cargando…</div></div></section><section class="asesor-section"><div class="asesor-sec-head"><div><div class="asesor-sec-title">PRODUCCIÓN <em>PENDIENTE DE VALIDAR</em></div><div class="asesor-sec-sub">Propuestas de día y hora enviadas por propietarios. Lectura solamente: aquí no se confirma ni se cambia el estado.</div></div><button class="asesor-gold-btn" onclick="asesorLoadHoy(true)">Actualizar</button></div><div class="asesor-list" id="asesor-produccion-pendiente"><div class="hoy-empty">Cargando producción…</div></div></section><section class="asesor-section"><div class="asesor-sec-head"><div><div class="asesor-sec-title">QUÉ HACER <em>HOY</em></div><div class="asesor-sec-sub">Qué hacer, a quién contactar, qué lead se enfría, qué operación está en riesgo, qué documento falta y qué mensaje mandar.</div></div><button class="asesor-gold-btn" onclick="goTo('airtable')">Abrir Centro de Operaciones</button></div><div class="asesor-list" id="asesor-hoy-list"><div class="hoy-empty">Cargando registros reales…</div></div></section><section class="asesor-section"><div class="asesor-note"><b>Regla de esta vista:</b> no usa datos de prueba. Si aparece vacía, significa que no hubo registros reales para el asesor filtrado por la sesión.</div></section></div></div>`;
 }
 async function asesorLoadHoy(force=false){
   if(_asesorHoyLoaded && !force) return; _asesorHoyLoaded=true;
   const list=document.getElementById('asesor-hoy-list'), zonas=document.getElementById('asesor-zonas'), kpis=document.getElementById('asesor-money-kpis');
-  try{ const data=await asesorLoadAll(force); const comp=data.compradores, vend=data.vendedores, prog=data.progreso, citas=data.citas;
+  try{ const data=await asesorLoadAll(force); const comp=data.compradores, vend=data.vendedores, prog=data.progreso, citas=data.citas, eventos=data.eventos||[]; const prodPend=asesorProduccionPendiente(eventos); asesorRenderProduccionPendiente(prodPend);
     const dormidos=comp.filter(r=>{const d=asesorDays(_fval(r,'Última interacción')); return d!=null&&d>=7&&!/apartado|cerrado|perdido|no calific/i.test(asesorStatus(r));});
     const cerca=comp.filter(r=>/HOT|Cita|Apartado|Listo/i.test([asesorStatus(r),_fval(r,'Diagnóstico comercial'),_fval(r,'Conversión')].join(' '))).concat(prog.filter(r=>/Firma|Entrega|Últimas|Notaría|Escrituración/i.test(_fval(r,'Fase Actual')+' '+_fval(r,'Próximo paso'))));
     const riesgo=prog.filter(r=>/riesgo|pendiente|falta|atorad|detenid|document/i.test((_fval(r,'Pendientes visibles')+' '+_fval(r,'Próximo paso')).toLowerCase())).concat(comp.filter(r=>/riesgo|no entiende|banco|crédito|credito|gastos|document/i.test((_fval(r,'Riesgo principal')+' '+_fval(r,'Diagnóstico comercial')).toLowerCase())));
     const dineroRiesgo=riesgo.reduce((a,r)=>a+asesorMoney(_fval(r,'Precio')||_fval(r,'Precio Lista')||_fval(r,'Precio Estimado')),0);
-    if(kpis) kpis.innerHTML=[[riesgo.length,'operaciones / leads en riesgo'],[cerca.length,'oportunidades cerca'],[dormidos.length,'leads dormidos'],[citas.filter(r=>['Pendiente','Confirmada','Reagendada'].includes(_fval(r,'Estado Cita'))).length,'citas activas']].map(x=>`<div class="asesor-kpi"><b>${x[0]}</b><span>${x[1]}</span></div>`).join('');
+    if(kpis) kpis.innerHTML=[[riesgo.length,'operaciones / leads en riesgo'],[cerca.length,'oportunidades cerca'],[dormidos.length,'leads dormidos'],[prodPend.length,'producción pendiente']].map(x=>`<div class="asesor-kpi"><b>${x[0]}</b><span>${x[1]}</span></div>`).join('');
     if(zonas) zonas.innerHTML=[['Dinero en riesgo',dineroRiesgo?`${asesorFmtMoney(dineroRiesgo)} requiere acción`:`${riesgo.length} registros con riesgo`,riesgo[0]?asesorMensaje(riesgo[0]):'Sin riesgos detectados en registros reales.','airtable'],['Dinero cerca',`${cerca.length} oportunidades para avanzar`,cerca[0]?asesorMensaje(cerca[0]):'Sin oportunidades listas detectadas.','airtable'],['Dinero dormido',`${dormidos.length} leads se enfrían`,dormidos[0]?`${asesorNombre(dormidos[0])}: ${asesorMensaje(dormidos[0])}`:'Sin leads dormidos detectados.','airtable']].map(z=>`<button class="asesor-action" onclick="goTo('${z[3]}')"><div><span class="tag">${asesorEsc(z[0])}</span><b>${asesorEsc(z[1])}</b><p>${asesorEsc(z[2])}</p></div><span class="go">Resolver ahora →</span></button>`).join('');
-    const acciones=[]; const firstRisk=riesgo[0], firstDormido=dormidos[0], firstCerca=cerca[0], docPend=prog.find(r=>_fval(r,'Pendientes visibles'))||vend.find(r=>_fval(r,'Documentos'));
+    const acciones=[]; prodPend.slice(0,2).forEach(function(ev){ acciones.push(['Producción pendiente de validar', _fval(ev,'Cliente') || _fval(ev,'Propiedad') || 'Propietario', 'Propuesta: ' + (_fval(ev,'Fecha')||'—') + ' · ' + (_fval(ev,'Hora')||'—') + ' · ' + (_fval(ev,'Propiedad')||''), ev]); }); const firstRisk=riesgo[0], firstDormido=dormidos[0], firstCerca=cerca[0], docPend=prog.find(r=>_fval(r,'Pendientes visibles'))||vend.find(r=>_fval(r,'Documentos'));
     if(firstRisk) acciones.push(['Qué operación está en riesgo',asesorNombre(firstRisk),asesorMensaje(firstRisk),firstRisk]); if(firstCerca) acciones.push(['A quién contactar',asesorNombre(firstCerca),asesorMensaje(firstCerca),firstCerca]); if(firstDormido) acciones.push(['Qué lead se está enfriando',asesorNombre(firstDormido),`${asesorDays(_fval(firstDormido,'Última interacción'))} días sin contacto · ${asesorMensaje(firstDormido)}`,firstDormido]); if(docPend) acciones.push(['Qué documento falta',asesorNombre(docPend),_fval(docPend,'Pendientes visibles')||_fval(docPend,'Documentos'),docPend]); if(!acciones.length&&(comp.length||vend.length||prog.length)) acciones.push(['Qué hacer hoy','Revisar Centro de Operaciones','Hay registros reales, pero todavía no tienen riesgo/siguiente jugada/documento capturado.',comp[0]||vend[0]||prog[0]]);
-    if(list) list.innerHTML=acciones.length?acciones.map(([tag,nombre,txt,rec])=>{const phone=_fval(rec,'Teléfono WhatsApp')||_fval(rec,'WhatsApp Asesor'); const msg=asesorMensaje(rec); const wa=phone?`<a class="asesor-pill gold" href="${asesorWa(phone,msg)}" target="_blank" rel="noopener">Mensaje sugerido</a>`:''; return `<div class="asesor-row" style="cursor:pointer" onclick="openExpedienteById('${rec.id}')"><div><b>${asesorEsc(nombre)}</b><p>${asesorEsc(tag)} · ${asesorEsc(txt)}</p></div><div class="meta"><span class="asesor-pill">${asesorEsc(asesorStatus(rec))}</span>${wa}</div></div>`;}).join(''):'<div class="hoy-empty">No hay registros reales para construir tu cabina de hoy.</div>';
+    if(list) list.innerHTML=acciones.length?acciones.map(([tag,nombre,txt,rec])=>{const esProd=/produccion|producción/i.test(tag||'') && _fval(rec,'Folio Evento'); const phone=_fval(rec,'Teléfono WhatsApp')||_fval(rec,'WhatsApp Asesor'); const msg=esProd?asesorResumenProduccion(rec):asesorMensaje(rec); const wa=(!esProd&&phone)?`<a class="asesor-pill gold" href="${asesorWa(phone,msg)}" target="_blank" rel="noopener">Mensaje sugerido</a>`:''; const click=esProd?`asesorCopyProduccion('${asesorEsc(_fval(rec,'Folio Evento'))}')`:`openExpedienteById('${rec.id}')`; return `<div class="asesor-row" style="cursor:pointer" onclick="${click}"><div><b>${asesorEsc(nombre)}</b><p>${asesorEsc(tag)} · ${asesorEsc(txt)}</p></div><div class="meta"><span class="asesor-pill ${esProd?'gold':''}">${esProd?'Pendiente de validar':asesorEsc(asesorStatus(rec))}</span>${wa}</div></div>`;}).join(''):'<div class="hoy-empty">No hay registros reales para construir tu cabina de hoy.</div>';
   }catch(e){ if(list) list.innerHTML=`<div class="hoy-empty err">No se pudo cargar la cabina: ${asesorEsc(e.message)}</div>`; if(zonas) zonas.innerHTML='<div class="hoy-empty err">Sin datos.</div>'; }
 }
 
