@@ -5638,22 +5638,22 @@ async function rielContinuarProceso(btn){
   if(btn){ btn.disabled = true; btn.textContent = 'Abriendo Propiedades…'; }
 
   try{
-    // 1) Primero busca la propiedad. El upload del contrato ya pudo haber ejecutado /api/activar-expediente.
-    //    Así evitamos romper el flujo si el endpoint no acepta doble ejecución.
-    rielSay('Buscando la propiedad creada por folio…');
+    // 1) Dispara TODO al instante, sin esperar el polling de 15 min:
+    //    el webhook crea la propiedad y /api/activar-expediente inyecta el Token + Link del expediente.
+    //    Se ejecuta SIEMPRE (no solo cuando la propiedad falta) para que el link del expediente
+    //    nunca salga vacío. Ambos pasos son idempotentes: el escenario Make respeta el candado
+    //    Propiedad Creada (no duplica) y el token es HMAC determinístico por folio (re-sella igual).
+    rielSay('Creando la propiedad y activando el expediente…');
+    let activationError = null;
+    try { await rielActivarExpediente(folio); }
+    catch(e){ activationError = e; console.warn('Activación instantánea no completó (Make/poll de respaldo seguirá):', e.message); }
+
     try { vendedorClose(); } catch(_) {}
     await crmSwitchTab('propiedades');
 
-    let prop = await rielBuscarPropiedadConReintentos(folio, 2);
-
-    // 2) Si aún no existe en Propiedades, entonces sí reactivamos el pase como respaldo.
-    let activationError = null;
-    if(!prop){
-      rielSay('La propiedad aún no aparece. Reactivando pase a Propiedades…');
-      try { await rielActivarExpediente(folio); }
-      catch(e){ activationError = e; console.warn('activar-expediente no completó en Continuar proceso:', e.message); }
-      prop = await rielBuscarPropiedadConReintentos(folio, 6);
-    }
+    // 2) Busca la propiedad ya disparada arriba; reintentos cortos mientras Make confirma.
+    rielSay('Buscando la propiedad por folio…');
+    let prop = await rielBuscarPropiedadConReintentos(folio, 6);
 
     if(prop){
       // Mantiene el índice propietario ↔ propiedad sin recargar todo otra vez.
@@ -5667,7 +5667,7 @@ async function rielContinuarProceso(btn){
     }
 
     const extra = activationError ? ' Detalle técnico: ' + activationError.message : '';
-    try { showToast('La firma quedó registrada, pero la propiedad aún no aparece. Espera unos segundos y recarga Propiedades.' + extra); } catch(_) {}
+    try { showToast('La firma quedó registrada y el expediente activado. La propiedad aparecerá en unos segundos; recarga Propiedades si no la ves.' + extra); } catch(_) {}
   }catch(e){
     rielSay('No pude completar el pase a Propiedades: ' + (e && e.message ? e.message : e));
   }finally{
