@@ -5648,6 +5648,21 @@ async function rielContinuarProceso(btn){
     try { await rielActivarExpediente(folio); }
     catch(e){ activationError = e; console.warn('Activación instantánea no completó (Make/poll de respaldo seguirá):', e.message); }
 
+    // Refresca Token + Link del expediente en el lead local DESPUÉS de activarlo.
+    // El Portal de Venta resuelve el lead desde caché (crmVendedoresFolioIndex → asesorCache → crmState);
+    // si no se refresca, manda el link del expediente SIN token. Patchear aquí el mismo objeto leadRec
+    // —el que queda indexado en crmVendedoresFolioIndex— garantiza que el Portal salga SIEMPRE con token.
+    try{
+      const freshLead = await atFetch(RIEL_VEND_TABLE + '/' + recId);
+      if(freshLead && freshLead.fields && leadRec && leadRec.fields){
+        if(freshLead.fields['Token Expediente']) leadRec.fields['Token Expediente'] = freshLead.fields['Token Expediente'];
+        if(freshLead.fields['Link Expediente Documental']) leadRec.fields['Link Expediente Documental'] = freshLead.fields['Link Expediente Documental'];
+        if(freshLead.fields['Propiedad Creada'] != null) leadRec.fields['Propiedad Creada'] = freshLead.fields['Propiedad Creada'];
+      }
+      // Deja el lead (ya con token) disponible en el índice antes de abrir Propiedades.
+      try { crmVendedoresFolioIndex[crmNormalizeFolio(folio)] = leadRec; } catch(_) {}
+    }catch(_){}
+
     try { vendedorClose(); } catch(_) {}
     await crmSwitchTab('propiedades');
 
