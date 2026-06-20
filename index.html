@@ -5989,7 +5989,49 @@ async function rielContratoUpload(recId, conversion, file){
     return tel.length === 10 ? '52' + tel : tel;
   }
 
-  function cabEnviarPortalVenta(recId) {
+  // Trae el lead vendedor fresco de Airtable por su folio (para recuperar el Token recién sellado).
+  async function portalFetchVendedorPorFolio(folio) {
+    if (typeof atFetch !== 'function') return null;
+    var tabla = (typeof RIEL_VEND_TABLE === 'string' && RIEL_VEND_TABLE) ? RIEL_VEND_TABLE : 'tblQHdwEucTaNrLzm';
+    var f = String(folio || '').replace(/(["\\])/g, '\\$1');
+    var formula = 'OR({Folio}="' + f + '",{Folio Vendedor}="' + f + '")';
+    try {
+      var data = await atFetch(tabla + '?maxRecords=1&filterByFormula=' + encodeURIComponent(formula));
+      return (data && data.records && data.records[0]) || null;
+    } catch (_) { return null; }
+  }
+
+  // Inyecta el Token/Link fresco en el objeto del lead que la caché ya devuelve, para que
+  // portalVentaLink lo reconstruya CON token sin depender de recargar (cerrar) la ficha.
+  function portalAplicarTokenFresco(rec, fresh, folioRef) {
+    if (!fresh || !fresh.fields) return;
+    var cacheado = leadVendedorOriginal(rec);
+    if (cacheado && cacheado.fields) {
+      if (fresh.fields['Token Expediente']) cacheado.fields['Token Expediente'] = fresh.fields['Token Expediente'];
+      if (fresh.fields['Link Expediente Documental']) cacheado.fields['Link Expediente Documental'] = fresh.fields['Link Expediente Documental'];
+    } else {
+      try {
+        if (typeof crmVendedoresFolioIndex === 'object' && crmVendedoresFolioIndex) {
+          crmVendedoresFolioIndex[normalizarFolio(folioRef)] = fresh;
+        }
+      } catch (_) {}
+    }
+  }
+
+  function portalArmarMensaje(rec, src, link) {
+    var nombre = nombrePropietario(rec, src);
+    var nombreCorto = nombre ? nombre.split(/\s+/)[0] : '';
+    var asesor = asesorNombre(rec, src);
+    return 'Hola' + (nombreCorto ? ' ' + nombreCorto : '') + ', felicidades.\n\n'
+      + 'Ya quedó registrada la firma y tu propiedad entra formalmente al proceso de venta.\n\n'
+      + 'A partir de ahora vivirás la experiencia de venta de tu propiedad de una forma personalizada, con información clara sobre la etapa en la que se encuentra tu propiedad y lo que sigue en cada paso.\n\n'
+      + 'Te comparto tu Portal de Venta, donde podrás ver el proceso completo, subir tus documentos y confirmar la cita para la producción inmobiliaria.\n\n'
+      + link + '\n\n'
+      + 'El siguiente paso importante es confirmar la cita de foto y video, porque sin esa producción todavía no podemos salir correctamente al mercado.\n\n'
+      + '— ' + asesor;
+  }
+
+  async function cabEnviarPortalVenta(recId) {
     var rec = getRecord(recId);
     if (!rec) return;
 
@@ -6000,30 +6042,44 @@ async function rielContratoUpload(recId, conversion, file){
 
     var src = portalSource(rec) || rec;
     var link = portalVentaLink(rec);
-    if (!link) {
-      cabAviso(recId, 'No envié WhatsApp: falta Folio del lead vendedor para construir el Portal de Venta.');
+
+    // Caso normal: el link ya trae token → enviar directo (sin await, el navegador no bloquea el popup).
+    if (link && link.indexOf('token=') !== -1) {
+      var tel0 = telefonoPropietario(rec, src);
+      if (!tel0) { cabAviso(recId, 'No envié WhatsApp: falta Teléfono WhatsApp del propietario.'); return; }
+      window.open('https://wa.me/' + waNumber(tel0) + '?text=' + encodeURIComponent(portalArmarMensaje(rec, src, link)), '_blank');
       return;
     }
 
+    // Blindaje: el link salió SIN token (el expediente se acaba de activar y la caché del lead está
+    // vieja). Refrescamos el lead desde Airtable y reconstruimos en el momento de enviar, SIN que el
+    // asesor tenga que cerrar la ficha. Pre-abrimos la pestaña dentro del clic para que no la bloquee.
+    var waWin = window.open('', '_blank');
+    var folioRef = fval(rec, 'Folio Vendedor') || fval(rec, 'Folio') || '';
+    if (folioRef) {
+      var fresh = await portalFetchVendedorPorFolio(folioRef);
+      if (fresh) {
+        portalAplicarTokenFresco(rec, fresh, folioRef);
+        src = portalSource(rec) || rec;
+        link = portalVentaLink(rec);
+      }
+    }
+
+    if (!link) {
+      if (waWin) { try { waWin.close(); } catch (_) {} }
+      cabAviso(recId, 'No envié WhatsApp: falta Folio del lead vendedor para construir el Portal de Venta.');
+      return;
+    }
     var tel = telefonoPropietario(rec, src);
     if (!tel) {
+      if (waWin) { try { waWin.close(); } catch (_) {} }
       cabAviso(recId, 'No envié WhatsApp: falta Teléfono WhatsApp del propietario.');
       return;
     }
 
-    var nombre = nombrePropietario(rec, src);
-    var nombreCorto = nombre ? nombre.split(/\s+/)[0] : '';
-    var asesor = asesorNombre(rec, src);
-
-    var msg = 'Hola' + (nombreCorto ? ' ' + nombreCorto : '') + ', felicidades.\n\n'
-      + 'Ya quedó registrada la firma y tu propiedad entra formalmente al proceso de venta.\n\n'
-      + 'A partir de ahora vivirás la experiencia de venta de tu propiedad de una forma personalizada, con información clara sobre la etapa en la que se encuentra tu propiedad y lo que sigue en cada paso.\n\n'
-      + 'Te comparto tu Portal de Venta, donde podrás ver el proceso completo, subir tus documentos y confirmar la cita para la producción inmobiliaria.\n\n'
-      + link + '\n\n'
-      + 'El siguiente paso importante es confirmar la cita de foto y video, porque sin esa producción todavía no podemos salir correctamente al mercado.\n\n'
-      + '— ' + asesor;
-
-    window.open('https://wa.me/' + waNumber(tel) + '?text=' + encodeURIComponent(msg), '_blank');
+    var waUrl = 'https://wa.me/' + waNumber(tel) + '?text=' + encodeURIComponent(portalArmarMensaje(rec, src, link));
+    if (waWin) { try { waWin.location = waUrl; } catch (_) { window.open(waUrl, '_blank'); } }
+    else { window.open(waUrl, '_blank'); }
   }
 
   function parseRecIdFromOnclick(btn) {
