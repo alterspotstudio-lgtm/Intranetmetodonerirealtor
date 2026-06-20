@@ -409,6 +409,9 @@
       + '<div class="cab-seclabel">Producción</div>' + prods
       + '<button class="cab-btn-gen" onclick="cabGenProduccion()">↳ Generar confirmación</button>'
       + '<button class="cab-btn-wa" id="cab_bp_wa" onclick="cabCopiarWA()">● Copiar mensaje WhatsApp</button>';
+
+    // NERI · Si el cliente ya propuso día/hora de producción, inyecta arriba el botón "Confirmar cita".
+    cabCargarPropuestaProduccion();
   }
 
   /* ── FORM: Notaría ── */
@@ -728,6 +731,107 @@
       .then(function () { cb(null, { folio: folio, link: location.origin + '/Confirmacion.html?evento=' + folio }); })
       .catch(function (e) { cb(e); });
   }
+
+  /* ── NERI · CONFIRMAR CITA DE PRODUCCIÓN (lee la propuesta del cliente · cero tecleo) ──
+     El cliente propone día/hora en su portal → Make 5431139 lo guarda en el evento con
+     Estado "Pendiente de confirmar". Aquí el asesor confirma con un clic: el evento pasa a
+     "Confirmada", se arma tarjeta + WhatsApp listo, y se le indica el siguiente movimiento.
+     NO crea eventos nuevos: cabGenProduccion sigue siendo el respaldo manual. */
+  function cabBuscarEventoProduccion(folio) {
+    if (typeof window.atFetch !== 'function') return Promise.resolve(null);
+    var f = String(folio || '').replace(/(["\\])/g, '\\$1');
+    if (!f) return Promise.resolve(null);
+    var formula = 'AND({Folio Lead Origen}="' + f + '",{Tipo Evento}="Producción Inmobiliaria")';
+    return window.atFetch(EV_TABLE + '?filterByFormula=' + encodeURIComponent(formula))
+      .then(function (data) {
+        var recs = (data && data.records) || [];
+        recs.sort(function (a, b) { return String(b.createdTime || '').localeCompare(String(a.createdTime || '')); });
+        for (var i = 0; i < recs.length; i++) {
+          var fl = recs[i].fields || {};
+          var fe = fl['Fecha'];
+          var est = fl['Estado']; est = (est && est.name) ? est.name : est;
+          if (fe && fe !== '—' && est === 'Pendiente de confirmar') return recs[i];
+        }
+        return null;
+      })
+      .catch(function () { return null; });
+  }
+
+  function cabCargarPropuestaProduccion() {
+    var folio = (cab.prefill && cab.prefill.folio) || '';
+    if (!folio) return;
+    cabBuscarEventoProduccion(folio).then(function (ev) {
+      if (!ev) return;                          // sin propuesta del cliente → queda el formulario manual
+      if (!byId('cab_p_fecha')) return;         // ya no estamos en la ficha de Producción
+      if (byId('cab-confirmar-cita')) return;   // evitar doble inyección
+      var fl = ev.fields || {};
+      var fecha = fl['Fecha'] || '';
+      var hora = fl['Hora'] || '';
+      var scroll = byId('cab-scroll');
+      if (!scroll) return;
+      var box = document.createElement('div');
+      box.id = 'cab-confirmar-cita';
+      box.setAttribute('style', 'border:1px solid rgba(198,168,107,.30);background:#161412;border-radius:3px;padding:16px;margin-bottom:18px;');
+      box.innerHTML =
+        '<div style="font-size:8px;letter-spacing:2.5px;text-transform:uppercase;color:#C6A86B;font-weight:700;">El cliente propuso su cita de producción</div>'
+        + '<div style="font-size:17px;color:#ECE8DF;font-weight:500;margin-top:8px;">' + esc(fecha) + (hora ? ' · ' + esc(hora) : '') + '</div>'
+        + '<button type="button" class="cab-btn-gen cab-cc-btn" style="margin-top:14px;">Confirmar cita →</button>'
+        + '<div style="font-size:10px;color:#8C877D;margin-top:10px;">Un clic confirma la visita y deja el WhatsApp listo. Sin recapturar nada.</div>';
+      scroll.insertBefore(box, scroll.firstChild);
+      var b = box.querySelector('.cab-cc-btn');
+      if (b) b.onclick = function () { cabConfirmarCita(ev.id, fecha, hora); };
+    });
+  }
+
+  function cabConfirmarCita(eventId, fecha, hora) {
+    var box = byId('cab-confirmar-cita');
+    var b = box ? box.querySelector('.cab-cc-btn') : null;
+    if (b) { b.disabled = true; b.textContent = 'Confirmando…'; }
+    window.atFetch(EV_TABLE + '/' + eventId, { method: 'PATCH', body: JSON.stringify({ fields: { 'Estado': 'Confirmada' }, typecast: true }) })
+      .then(function () {
+        var a = asesorActual();
+        var prop = (byId('cab_p_prop') && byId('cab_p_prop').value) || (cab.prefill && cab.prefill.propietario) || '—';
+        var propiedad = (byId('cab_p_propiedad') && byId('cab_p_propiedad').value) || (cab.prefill && cab.prefill.propiedad) || 'su propiedad';
+        var dir = (byId('cab_p_dir') && byId('cab_p_dir').value) || (cab.prefill && cab.prefill.direccion) || '—';
+        var n0 = String(prop).split(' ')[0];
+
+        var html = '<div class="cab-card" id="cab-card">'
+          + cardHeader(a, 'Producción Inmobiliaria', 'CITA CONFIRMADA', 'La sesión de foto y video quedó agendada.')
+          + '<div class="cab-c-body">'
+          + secbar('Cita confirmada')
+          + '<div class="cab-dgrid">'
+          + '<div class="cab-dcell"><div class="cab-dlbl">Propietario</div><div class="cab-dval gold">' + esc(prop) + '</div></div>'
+          + '<div class="cab-dcell"><div class="cab-dlbl">Propiedad</div><div class="cab-dval gold">' + esc(propiedad) + '</div></div>'
+          + '<div class="cab-dcell"><div class="cab-dlbl">Fecha</div><div class="cab-dval">' + esc(fecha || '—') + '</div></div>'
+          + '<div class="cab-dcell"><div class="cab-dlbl">Hora de llegada</div><div class="cab-dval">' + esc(hora || '—') + '</div></div>'
+          + '<div class="cab-dcell full"><div class="cab-dlbl">Dirección</div><div class="cab-dval">' + esc(dir) + '</div></div>'
+          + '</div></div>'
+          + cardFooter(a, 'Método Neri · Sistema de Control de Calidad Inmobiliaria') + '</div>';
+        showCard(html);
+
+        var msg = 'Hola ' + n0 + ' 🏡\n\nConfirmamos la producción de su propiedad: *' + propiedad + '*.\n\n📅 *Fecha:* ' + (fecha || '—') + '\n🕐 *Hora de llegada del equipo:* ' + (hora || '—') + '\n\nNuestro equipo llega con todo lo necesario para presentar su propiedad en su mejor versión. Cualquier ajuste, con gusto lo vemos con anticipación.\n\n— ' + a.nombre + '\n📲 ' + a.tel + '\n*Método Neri · Sistema de Control de Calidad Inmobiliaria*';
+        showWA(msg);
+        showActionButtons('cab_bp_print', 'cab_bp_wa');
+
+        if (box) {
+          box.setAttribute('style', 'border:1px solid rgba(198,168,107,.30);background:#100F0D;border-radius:3px;padding:16px;margin-bottom:18px;');
+          box.innerHTML =
+            '<div style="font-size:11px;font-weight:600;letter-spacing:1px;color:#7BC47F;">✓ Cita confirmada · ' + esc(fecha || '') + (hora ? ' · ' + esc(hora) : '') + '</div>'
+            + '<button type="button" class="cab-btn-gen cab-cc-send" style="margin-top:13px;">Enviar confirmación por WhatsApp →</button>'
+            + '<div style="border-left:2px solid #C6A86B;background:rgba(198,168,107,.05);padding:11px 13px;margin-top:15px;">'
+            +   '<div style="font-size:8px;letter-spacing:2.5px;text-transform:uppercase;color:#C6A86B;font-weight:700;">Lo que sigue</div>'
+            +   '<div style="font-size:12px;color:#C8C3B9;line-height:1.6;margin-top:7px;">Para avanzar al siguiente movimiento, termina de llenar los datos de la propiedad mientras llega la sesión de foto y video. Con eso se arman la landing y la ficha técnica para salir al mercado.</div>'
+            + '</div>';
+          var sb = box.querySelector('.cab-cc-send');
+          if (sb) sb.onclick = function () { cabEnviarWA(); };
+        }
+      })
+      .catch(function () {
+        if (b) { b.disabled = false; b.textContent = 'Confirmar cita →'; }
+        window.alert('No se pudo confirmar la cita en Airtable. Revisa tu sesión e intenta de nuevo.');
+      });
+  }
+
   function showEventoLink(link, folio) {
     var slot = byId('cab-evlink');
     if (!slot) {
