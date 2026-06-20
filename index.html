@@ -5994,7 +5994,10 @@ async function rielContratoUpload(recId, conversion, file){
     if (typeof atFetch !== 'function') return null;
     var tabla = (typeof RIEL_VEND_TABLE === 'string' && RIEL_VEND_TABLE) ? RIEL_VEND_TABLE : 'tblQHdwEucTaNrLzm';
     var f = String(folio || '').replace(/(["\\])/g, '\\$1');
-    var formula = 'OR({Folio}="' + f + '",{Folio Vendedor}="' + f + '")';
+    // Leads Vendedores solo tiene {Folio} (el campo {Folio Vendedor} vive en Propiedades, no aquí).
+    // El folio que llega ES el del lead, así que basta {Folio}. Referenciar un campo inexistente
+    // hacía que Airtable rechazara la consulta (422) y el blindaje fallara en silencio.
+    var formula = '{Folio}="' + f + '"';
     try {
       var data = await atFetch(tabla + '?maxRecords=1&filterByFormula=' + encodeURIComponent(formula));
       return (data && data.records && data.records[0]) || null;
