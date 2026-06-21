@@ -828,6 +828,10 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
 #leadCompEditModal,#leadCompCitaModal{align-items:flex-start;overflow:auto;padding:26px 14px;background:rgba(3,3,3,.82);backdrop-filter:blur(7px)}
 #leadCompEditModal .lead-comp-edit-box,#leadCompCitaModal .lead-comp-edit-box{width:min(760px,100%);max-width:760px;margin:auto;background:linear-gradient(180deg,var(--black2),var(--black));border:1px solid rgba(111,168,224,.28);border-top:2px solid var(--steel);border-radius:3px;padding:0;box-shadow:0 28px 90px rgba(0,0,0,.58);position:relative;overflow:hidden}
 #leadCompEditModal .lead-comp-edit-box:before,#leadCompCitaModal .lead-comp-edit-box:before{content:'COMPRADOR';position:absolute;right:-10px;top:-20px;font-family:var(--fd);font-size:120px;letter-spacing:2px;color:rgba(111,168,224,.045);pointer-events:none;line-height:1}
+/* Editar Lead Vendedor — faltaba el estilo de ventana (solo existia para comprador). Verde sage de propietario; sin desenfoque de fondo. */
+#leadVendEditModal{align-items:flex-start;overflow:auto;padding:26px 14px;background:rgba(3,3,3,.86)}
+#leadVendEditModal .lead-comp-edit-box{width:min(760px,100%);max-width:760px;margin:auto;background:linear-gradient(180deg,var(--black2),var(--black));border:1px solid rgba(74,222,128,.28);border-top:2px solid var(--sage);border-radius:3px;padding:0;box-shadow:0 28px 90px rgba(0,0,0,.58);position:relative;overflow:hidden}
+#leadVendEditModal .lead-comp-edit-box:before{content:'PROPIETARIO';position:absolute;right:-10px;top:-20px;font-family:var(--fd);font-size:108px;letter-spacing:2px;color:rgba(74,222,128,.05);pointer-events:none;line-height:1}
 .lec-head{padding:22px 24px 16px;border-bottom:1px solid rgba(111,168,224,.18);background:linear-gradient(135deg,rgba(111,168,224,.10),rgba(255,255,255,.015));display:flex;justify-content:space-between;gap:16px;position:relative;z-index:2}
 .lec-ey{font-size:7px;letter-spacing:4px;text-transform:uppercase;font-weight:800;color:var(--steel);margin-bottom:7px}
 .lec-title{font-family:var(--fd);font-size:31px;letter-spacing:2.5px;color:#fff;line-height:1}
