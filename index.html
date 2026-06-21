@@ -2693,6 +2693,7 @@ function leadVendEditInput(meta, values){
 }
 function leadVendOpenEdit(rec,isNew){
   if(!leadVendRequireSession()) return;
+  closeFichaVend();
   leadVendEditState={rec:rec||null,isNew:!!isNew};
   const values=rec&&rec.fields ? rec.fields : (rec||{});
   const nombre=values['Nombre Completo'] || _fval(rec,'Nombre Completo') || 'Lead vendedor';
@@ -3102,6 +3103,7 @@ function leadCompEditInput(meta, values){
 }
 function leadCompOpenEdit(rec,isNew){
   if(!leadCompRequireSession()) return;
+  closeFichaComp();
   leadCompEditState={rec:rec||null,isNew:!!isNew};
   const values = rec && rec.fields ? rec.fields : (rec || {});
   const nombre=values['Nombre Completo'] || fcVal(rec,'Nombre Completo','nombre') || 'Nuevo comprador';
