@@ -1886,6 +1886,20 @@ let leadCompCitaState = {rec:null};
 const LEAD_VEND_TABLE = 'tblQHdwEucTaNrLzm';
 let leadVendLoaded = false;
 
+/* Blindaje de folio Lead Vendedor:
+   El index viejo usaba "Folio", pero algunos flujos/propiedades también refieren "Folio Vendedor".
+   Este helper evita que tabla, ficha, contrato y pase a Propiedades fallen si el nombre del campo cambia. */
+const LEAD_VEND_FOLIO_FIELDS = [
+  'Folio','folio','Folio Vendedor','Folio Propietario','Folio Lead',
+  'Folio NERI','Folio de Operación','Folio Operación','folioOperacion'
+];
+function leadVendFolioValue(rec){
+  return fcVal.apply(null, [rec].concat(LEAD_VEND_FOLIO_FIELDS));
+}
+function leadVendDisplayFolio(rec, fallback){
+  return leadVendFolioValue(rec) || fallback || '— sin folio —';
+}
+
 function leadVendFieldValue(rec, field){
   if(Array.isArray(field)){
     for(const f of field){ const v=leadVendFieldValue(rec,f); if(v) return v; }
@@ -1894,7 +1908,7 @@ function leadVendFieldValue(rec, field){
   return fcVal(rec, field);
 }
 function leadVendKey(v,i){
-  return fcVal(v,'Folio','folio','Folio Vendedor') || (v && v.id) || ('vendedor-'+i);
+  return leadVendFolioValue(v) || (v && v.id) || ('vendedor-'+i);
 }
 function leadVendDateMs(rec){
   const raw = (rec && rec.createdTime) || fcVal(rec,'Fecha de Entrada','Fecha') || '';
@@ -1950,6 +1964,7 @@ function leadVendNormalize(v,i){
     id:v && v.id,
     nombre:fcVal(v,'Nombre Completo','Nombre','nombre') || 'Sin nombre',
     folio:leadVendKey(v,i),
+    folioReal:leadVendFolioValue(v),
     whatsapp:fcVal(v,'Teléfono WhatsApp','WhatsApp','whatsapp','telefono'),
     tipo:fcVal(v,'Tipo de Propiedad','Tipo','tipo'),
     zona:fcVal(v,'Zona','zona'),
@@ -1979,14 +1994,6 @@ function leadVendMsg(v){
 function leadVendWaHref(v){
   const tel = fcPhone(fcVal(v,'Teléfono WhatsApp','WhatsApp','whatsapp','telefono'));
   return tel ? 'https://wa.me/' + tel + '?text=' + encodeURIComponent(leadVendMsg(v)) : '';
-}
-function leadVendNoPrimerContacto(records){
-  return (records||[]).filter(function(r){
-    const conv=String(fcVal(r,'Conversión','conversion')||'').trim();
-    const tocado=fcVal(r,'Última interacción','Ultima interacción','ultimaInteraccion','Último contacto','Ultimo contacto','Fecha Primer Contacto');
-    const cerrado=/^(Firma exclusiva|Firma venta directa|No calificó)$/i.test(conv);
-    return !tocado && !cerrado;
-  });
 }
 
 function leadCompFieldValue(rec, field){
@@ -2128,16 +2135,14 @@ function renderCaptacion(tipo){
           <td>${capChip(conversionChip(v.conversion))}</td>
           <td>${waHref?`<a class="wa-chip" id="btn-wa-${fvEscape(v.folio)}" data-action="whatsapp-lead-vendedor" data-folio="${fvEscape(v.folio)}" href="${_escAttr(waHref)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">↗ WhatsApp</a>`:`<button class="wa-chip" id="btn-wa-${fvEscape(v.folio)}" data-action="whatsapp-lead-vendedor" data-folio="${fvEscape(v.folio)}" onclick="event.stopPropagation();whatsappLeadVendedor('${fvEscape(v.folio)}')">WhatsApp</button>`}</td>
           <td><span class="muted">${fvEscape(leadVendDateLabel(raw,i))}</span></td>
-          <td><span class="folio">${fvEscape(v.folio)}</span></td>
+          <td><span class="folio">${fvEscape(v.folioReal || '— sin folio —')}</span></td>
         </tr>`;
       }).join('');
       document.getElementById('crm-tbody-vend').innerHTML=rows || renderLeadVendedoresEmpty();
       document.getElementById('crm-count-vend').innerHTML=`<b>${VENDEDORES.length}</b> registros`;
       document.getElementById('vcount-vend').textContent=VENDEDORES.length;
       const firmados=VENDEDORES.filter(raw=>/firma/i.test(fcVal(raw,'Conversión','conversion'))).length;
-      const nuevosVend=leadVendNoPrimerContacto(VENDEDORES);
-      const alertVend = nuevosVend.length ? `<div class="alert-banner" style="border-color:rgba(74,222,128,.30);background:rgba(74,222,128,.08);margin:0;border-left:0;border-right:0;border-radius:0"><span class="ab-dot" style="background:var(--sage)"></span><div><div class="ab-t"><b>${nuevosVend.length}</b> propietario${nuevosVend.length===1?'':'s'} sin primer contacto</div><div class="ab-s">Abre la ficha: el riel marca el mensaje inicial, cambio de etapa, firma y expediente.</div></div></div>` : '';
-      document.getElementById('vendBannerSlot').innerHTML=alertVend+`<div class="crm-banner sage"><span class="bd"></span><span><b>${firmados} propietarios firmados</b> ya pueden avanzar a Propiedades NERI — el proceso continúa ahí.</span><button class="bgo" onclick="event.stopPropagation();activarVertebra('prop')">Ver propiedades →</button></div>`;
+      document.getElementById('vendBannerSlot').innerHTML=`<div class="crm-banner sage"><span class="bd"></span><span><b>${firmados} propietarios firmados</b> ya pueden avanzar a Propiedades NERI — el proceso continúa ahí.</span><button class="bgo" onclick="event.stopPropagation();activarVertebra('prop')">Ver propiedades →</button></div>`;
     }catch(err){
       renderLeadVendedoresError(err && err.message ? err.message : '');
     }
@@ -2241,7 +2246,7 @@ function leadVendBusca(folioOrId){
   let found=null;
   (VENDEDORES||[]).some(function(r,i){
     const key=leadVendKey(r,i);
-    const folio=fcVal(r,'Folio','folio','Folio Vendedor');
+    const folio=leadVendFolioValue(r);
     if(key===folioOrId || folio===folioOrId || (r&&r.id===folioOrId)){
       found={rec:r,idx:i,key:key,folio:folio||key};
       return true;
@@ -2287,7 +2292,7 @@ function leadVendContratoHref(url){
 }
 function leadVendPanelHTML(rec, et){
   const recId=rec.id;
-  const folio=_fval(rec,'Folio') || recId;
+  const folio=leadVendFolioValue(rec) || recId;
   const wa=_fval(rec,'Teléfono WhatsApp') || _fval(rec,'WhatsApp');
   const contrato=_fval(rec,'Contrato Firmado');
   const verContrato = contrato ? '<a class="fv-riel-btn ghost" href="'+_escAttr(leadVendContratoHref(contrato))+'" target="_blank" rel="noopener">Ver contrato firmado</a>' : '';
@@ -2327,7 +2332,7 @@ function leadVendPanelHTML(rec, et){
     + '<div class="fv-riel-status" id="riel-status">El flujo correcto continúa en Propiedades.</div>';
 }
 function leadVendSystemLocksHTML(rec){
-  const folio=_fval(rec,'Folio')||'— sin folio —';
+  const folio=leadVendDisplayFolio(rec);
   const token=_fval(rec,'Token Expediente');
   const link=_fval(rec,'Link Expediente Documental');
   const propCreada=_fval(rec,'Propiedad Creada');
@@ -2356,7 +2361,7 @@ function openFichaVend(folio){
   const fuente=fv('Fuente')||'Landing captación vendedores';
   const razon=fv('Razón de Venta')||'Por confirmar';
   const tiempo=fv('Tiempo de Venta')||'Por confirmar';
-  const folioReal=fv('Folio')||found.folio||rec.id;
+  const folioReal=leadVendDisplayFolio(rec, found.folio||rec.id);
   const conv=fv('Conversión') || badge.txt;
   const progreso=fv('Progreso Expediente');
   const propCreada=fv('Propiedad Creada') || (et.idx>=2?'✓ Creada':'○ Pendiente');
@@ -2438,7 +2443,7 @@ async function rielPatchLeadReal(recId, fields){
   const rec=(VENDEDORES||[]).find(r=>r&&r.id===recId);
   if(rec){
     rec.fields=Object.assign({}, rec.fields||{}, fields);
-    try{ crmVendedoresFolioIndex[propNormalizeFolio(_fval(rec,'Folio'))]=rec; }catch(_){}
+    try{ crmVendedoresFolioIndex[propNormalizeFolio(leadVendFolioValue(rec))]=rec; }catch(_){}
   }
 }
 async function rielPrimerContactoReal(recId){
@@ -2476,7 +2481,7 @@ function rielSubirContratoReal(recId, conversion){
 async function rielContratoUploadReal(recId, conversion, file){
   const rec=(VENDEDORES||[]).find(r=>r&&r.id===recId);
   if(!rec) return;
-  const folio=_fval(rec,'Folio');
+  const folio=leadVendFolioValue(rec);
   if(!folio || /^—/.test(folio)){ rielSay('Este lead aún no tiene folio; espera a que Make lo asigne.'); return; }
   if(file.type !== 'application/pdf'){ rielSay('El contrato debe subirse en PDF.'); return; }
   const token=leadVendSessionToken();
@@ -2537,7 +2542,7 @@ async function leadVendRefreshRecord(recId){
     const idx=(VENDEDORES||[]).findIndex(r=>r&&r.id===recId);
     if(idx>=0 && fresh && fresh.fields){
       VENDEDORES[idx].fields=Object.assign({}, VENDEDORES[idx].fields||{}, fresh.fields);
-      try{ crmVendedoresFolioIndex[propNormalizeFolio(_fval(VENDEDORES[idx],'Folio'))]=VENDEDORES[idx]; }catch(_){}
+      try{ crmVendedoresFolioIndex[propNormalizeFolio(leadVendFolioValue(VENDEDORES[idx]))]=VENDEDORES[idx]; }catch(_){}
       return VENDEDORES[idx];
     }
     return fresh;
@@ -2610,7 +2615,7 @@ async function leadVendContinuarProceso(btn){
   const rec=leadVendFichaState.rec || ((VENDEDORES||[]).find(r=>r&&r.id===leadVendFichaState.folio));
   if(!rec) return rielSay('No encontré el lead abierto. Cierra y vuelve a abrir la ficha.');
   const recId=rec.id;
-  const folio=_fval(rec,'Folio');
+  const folio=leadVendFolioValue(rec);
   if(!leadVendFolioKey(folio)){ rielSay('No encontré el folio del lead. Cierra y vuelve a abrir la ficha para reintentar.'); return; }
   const oldText=btn?btn.textContent:'';
   if(btn){ btn.disabled=true; btn.textContent='Abriendo Propiedades…'; }
@@ -2690,7 +2695,7 @@ function leadVendOpenEdit(rec,isNew){
   leadVendEditState={rec:rec||null,isNew:!!isNew};
   const values=rec&&rec.fields ? rec.fields : (rec||{});
   const nombre=values['Nombre Completo'] || _fval(rec,'Nombre Completo') || 'Lead vendedor';
-  const folio=_fval(rec,'Folio') || (isNew?'Se genera después':'— sin folio —');
+  const folio=leadVendFolioValue(rec) || (isNew?'Se genera después':'— sin folio —');
   document.getElementById('leadVendEditEy').textContent=isNew?'Nuevo lead vendedor':'Editar lead vendedor';
   document.getElementById('leadVendEditTitle').textContent=nombre;
   document.getElementById('leadVendEditFolio').textContent=folio;
@@ -2727,7 +2732,8 @@ async function leadVendSave(){
     leadVendCloseEdit();
     mqNote(isNew?'✓ Lead vendedor creado':'✓ Lead vendedor actualizado');
     await leadVendLoad(true);
-    const folio=(rec&&(_fval(rec,'Folio')||rec.id)) || '';
+    const freshRec = rec ? ((VENDEDORES||[]).find(r=>r&&r.id===rec.id) || rec) : null;
+    const folio=(freshRec&&(leadVendFolioValue(freshRec)||freshRec.id)) || '';
     if(folio) openFichaVend(folio);
   }catch(e){ setMsg('Error al guardar: '+(e.message||e),'var(--rose)'); }
   finally{ if(btn){btn.disabled=false;btn.textContent='Guardar cambios';} }
@@ -3212,7 +3218,7 @@ function nuevoLeadVendedor(){
   if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(link).catch(()=>{});
 }
 function whatsappLeadVendedor(folio){
-  const idx=VENDEDORES.findIndex(function(x,i){return leadVendKey(x,i)===folio || fcVal(x,'Folio','folio')===folio || (x && x.id===folio);});
+  const idx=VENDEDORES.findIndex(function(x,i){return leadVendKey(x,i)===folio || leadVendFolioValue(x)===folio || (x && x.id===folio);});
   if(idx<0){ mqNote('No encontré el propietario '+folio); return; }
   const href=leadVendWaHref(VENDEDORES[idx]);
   if(!href){ mqNote('Falta Teléfono WhatsApp del propietario.'); return; }
@@ -3337,20 +3343,12 @@ async function taDocumentCards(limit){
 }
 function taLeadCards(){
   const cards=[];
-  const nuevosComp=(typeof leadCompNoPrimerContacto==='function'?leadCompNoPrimerContacto(COMPRADORES||[]):[]);
-  nuevosComp.forEach((c,i)=>{
+  const nuevos=(typeof leadCompNoPrimerContacto==='function'?leadCompNoPrimerContacto(COMPRADORES||[]):[]);
+  nuevos.forEach((c,i)=>{
     const key=fcLeadKey(c,COMPRADORES.indexOf(c));
     const nombre=taNombreComprador(c,COMPRADORES.indexOf(c));
     const hace=taHoursAgo(c,['Fecha de Entrada','Fecha']);
     cards.push({tipo:'lead',prio:TARJETAS_ACCION_ORDEN.lead,nombre,descripcion:'Llegó un comprador nuevo '+(hace||'recientemente')+'. WhatsApp listo en su ficha.',action:'abrir-ficha-lead-comprador',id:key,btn:'Abrir ficha',ts:leadCompDateMs(c)||Date.now()});
-  });
-  const nuevosVend=(typeof leadVendNoPrimerContacto==='function'?leadVendNoPrimerContacto(VENDEDORES||[]):[]);
-  nuevosVend.forEach((v,i)=>{
-    const idx=VENDEDORES.indexOf(v);
-    const key=leadVendKey(v,idx);
-    const nombre=taNombreVendedor(v,idx);
-    const hace=taHoursAgo(v,['Fecha de Entrada','Fecha']);
-    cards.push({tipo:'lead',prio:TARJETAS_ACCION_ORDEN.lead,nombre,descripcion:'Llegó un propietario nuevo '+(hace||'recientemente')+'. La ficha marca primer contacto, firma y expediente.',action:'abrir-ficha-lead-vendedor',id:key,btn:'Abrir ficha',ts:leadVendDateMs(v)||Date.now()});
   });
   return cards;
 }
@@ -3467,11 +3465,6 @@ function handleTarjetaAccion(action,id,href){
     activarVertebra('comp');
     const c=taFindComprador(id);
     openFichaComp(c?fcLeadKey(c,COMPRADORES.indexOf(c)):id);
-    return;
-  }
-  if(action==='abrir-ficha-lead-vendedor'){
-    activarVertebra('vend');
-    openFichaVend(id);
     return;
   }
   if(action==='abrir-propiedad'){
@@ -3877,7 +3870,7 @@ async function propLoadVendedoresIndex(force=false){
   if(!propCanUseAirtable()) return;
   try{
     const data=await atFetch(`${PROP_VEND_TABLE}?maxRecords=100`);
-    (data.records||[]).forEach(r=>{ const folio=propNormalizeFolio(_fval(r,'Folio')); if(folio) crmVendedoresFolioIndex[folio]=r; });
+    (data.records||[]).forEach(r=>{ const folio=propNormalizeFolio(leadVendFolioValue(r)); if(folio) crmVendedoresFolioIndex[folio]=r; });
   }catch(e){ console.warn('No se pudo cargar índice de propietarios:',e.message); }
 }
 function crmPropietarioData(propRec){
@@ -4236,7 +4229,9 @@ function portalVentaLink(rec){
 async function portalFetchVendedorPorFolio(folio){
   if(!folio||!propCanUseAirtable()) return null;
   const f=String(folio||'').replace(/(["\\])/g,'\\$1');
-  try{ const data=await atFetch(PROP_VEND_TABLE+'?maxRecords=1&filterByFormula='+encodeURIComponent('{Folio}="'+f+'"')); return (data.records&&data.records[0])||null; }catch(_){ return null; }
+  const key=leadVendFolioKey(f);
+  const formula='OR({Folio}="'+f+'",{Folio Vendedor}="'+f+'",UPPER(SUBSTITUTE({Folio}," ",""))="'+key+'",UPPER(SUBSTITUTE({Folio Vendedor}," ",""))="'+key+'")';
+  try{ const data=await atFetch(PROP_VEND_TABLE+'?maxRecords=1&filterByFormula='+encodeURIComponent(formula)); return (data.records&&data.records[0])||null; }catch(_){ return null; }
 }
 function portalAplicarTokenFresco(rec,fresh,folioRef){ if(!fresh||!fresh.fields)return; const cached=leadVendedorOriginal(rec); if(cached&&cached.fields){ if(fresh.fields['Token Expediente'])cached.fields['Token Expediente']=fresh.fields['Token Expediente']; if(fresh.fields['Link Expediente Documental'])cached.fields['Link Expediente Documental']=fresh.fields['Link Expediente Documental']; } else { crmVendedoresFolioIndex[propNormalizeFolio(folioRef)]=fresh; } }
 function portalArmarMensaje(rec,src,link){
@@ -4253,7 +4248,7 @@ async function cabEnviarPortalVenta(recId){
   let src=portalSource(rec)||rec;
   let link=portalVentaLink(rec);
   if(!link||link.indexOf('token=')===-1){
-    const folioRef=_fval(rec,'Folio Vendedor')||_fval(rec,'Folio')||'';
+    const folioRef=_fval(rec,'Folio Vendedor')||leadVendFolioValue(rec)||_fval(rec,'Folio')||'';
     if(folioRef){ const fresh=await portalFetchVendedorPorFolio(folioRef); if(fresh){ portalAplicarTokenFresco(rec,fresh,folioRef); src=portalSource(rec)||rec; link=portalVentaLink(rec); } }
   }
   if(!link){ mqNote('No envié WhatsApp: falta folio para construir el Portal de Venta.'); return; }
