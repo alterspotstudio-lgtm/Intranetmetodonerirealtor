@@ -1964,7 +1964,6 @@ function leadVendNormalize(v,i){
     id:v && v.id,
     nombre:fcVal(v,'Nombre Completo','Nombre','nombre') || 'Sin nombre',
     folio:leadVendKey(v,i),
-    folioReal:leadVendFolioValue(v),
     whatsapp:fcVal(v,'Teléfono WhatsApp','WhatsApp','whatsapp','telefono'),
     tipo:fcVal(v,'Tipo de Propiedad','Tipo','tipo'),
     zona:fcVal(v,'Zona','zona'),
@@ -2135,7 +2134,7 @@ function renderCaptacion(tipo){
           <td>${capChip(conversionChip(v.conversion))}</td>
           <td>${waHref?`<a class="wa-chip" id="btn-wa-${fvEscape(v.folio)}" data-action="whatsapp-lead-vendedor" data-folio="${fvEscape(v.folio)}" href="${_escAttr(waHref)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">↗ WhatsApp</a>`:`<button class="wa-chip" id="btn-wa-${fvEscape(v.folio)}" data-action="whatsapp-lead-vendedor" data-folio="${fvEscape(v.folio)}" onclick="event.stopPropagation();whatsappLeadVendedor('${fvEscape(v.folio)}')">WhatsApp</button>`}</td>
           <td><span class="muted">${fvEscape(leadVendDateLabel(raw,i))}</span></td>
-          <td><span class="folio">${fvEscape(v.folioReal || '— sin folio —')}</span></td>
+          <td><span class="folio">${fvEscape(v.folio)}</span></td>
         </tr>`;
       }).join('');
       document.getElementById('crm-tbody-vend').innerHTML=rows || renderLeadVendedoresEmpty();
@@ -2459,8 +2458,10 @@ async function rielPrimerContactoReal(recId){
   window.open('https://wa.me/'+(waClean.startsWith('52')?waClean:'52'+waClean)+'?text='+encodeURIComponent(msg),'_blank','noopener');
   try{
     const fields={};
+    /* Lead Vendedores no tenía "Última interacción" en la configuración viva del index viejo.
+       Si se manda junto con Conversión, Airtable rechaza TODO el PATCH y el riel no avanza.
+       Aquí solo actualizamos el campo que activa la cadena de empuje: Conversión -> En seguimiento. */
     if(!_fval(rec,'Conversión')) fields['Conversión']='En seguimiento';
-    fields['Última interacción']=new Date().toISOString();
     if(Object.keys(fields).length) await rielPatchLeadReal(recId, fields);
     rielSay('Primer contacto enviado y etapa actualizada.');
     openFichaVend(recId);
@@ -3691,7 +3692,11 @@ async function atFetch(path,opts={}){
   const text=await r.text();
   let data={};
   try{data=text?JSON.parse(text):{};}catch(e){data={raw:text};}
-  if(!r.ok) throw new Error(data.error||data.raw||('HTTP '+r.status));
+  if(!r.ok){
+    let msg=data.error||data.raw||data.message||('HTTP '+r.status);
+    if(msg && typeof msg==='object') msg=msg.message||msg.type||JSON.stringify(msg);
+    throw new Error(msg);
+  }
   return data;
 }
 function _fval(rec,name){let v=rec&&rec.fields?rec.fields[name]:'';if(v==null||v==='')return'';if(typeof v==='object')v=v.name??(Array.isArray(v)?v.map(x=>x?.name||x).join(', '):'');return String(v);}
