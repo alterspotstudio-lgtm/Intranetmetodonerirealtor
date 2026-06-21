@@ -1980,6 +1980,14 @@ function leadVendWaHref(v){
   const tel = fcPhone(fcVal(v,'Teléfono WhatsApp','WhatsApp','whatsapp','telefono'));
   return tel ? 'https://wa.me/' + tel + '?text=' + encodeURIComponent(leadVendMsg(v)) : '';
 }
+function leadVendNoPrimerContacto(records){
+  return (records||[]).filter(function(r){
+    const conv=String(fcVal(r,'Conversión','conversion')||'').trim();
+    const tocado=fcVal(r,'Última interacción','Ultima interacción','ultimaInteraccion','Último contacto','Ultimo contacto','Fecha Primer Contacto');
+    const cerrado=/^(Firma exclusiva|Firma venta directa|No calificó)$/i.test(conv);
+    return !tocado && !cerrado;
+  });
+}
 
 function leadCompFieldValue(rec, field){
   if(Array.isArray(field)){
@@ -2127,7 +2135,9 @@ function renderCaptacion(tipo){
       document.getElementById('crm-count-vend').innerHTML=`<b>${VENDEDORES.length}</b> registros`;
       document.getElementById('vcount-vend').textContent=VENDEDORES.length;
       const firmados=VENDEDORES.filter(raw=>/firma/i.test(fcVal(raw,'Conversión','conversion'))).length;
-      document.getElementById('vendBannerSlot').innerHTML=`<div class="crm-banner sage"><span class="bd"></span><span><b>${firmados} propietarios firmados</b> ya pueden avanzar a Propiedades NERI — el proceso continúa ahí.</span><button class="bgo" onclick="event.stopPropagation();activarVertebra('prop')">Ver propiedades →</button></div>`;
+      const nuevosVend=leadVendNoPrimerContacto(VENDEDORES);
+      const alertVend = nuevosVend.length ? `<div class="alert-banner" style="border-color:rgba(74,222,128,.30);background:rgba(74,222,128,.08);margin:0;border-left:0;border-right:0;border-radius:0"><span class="ab-dot" style="background:var(--sage)"></span><div><div class="ab-t"><b>${nuevosVend.length}</b> propietario${nuevosVend.length===1?'':'s'} sin primer contacto</div><div class="ab-s">Abre la ficha: el riel marca el mensaje inicial, cambio de etapa, firma y expediente.</div></div></div>` : '';
+      document.getElementById('vendBannerSlot').innerHTML=alertVend+`<div class="crm-banner sage"><span class="bd"></span><span><b>${firmados} propietarios firmados</b> ya pueden avanzar a Propiedades NERI — el proceso continúa ahí.</span><button class="bgo" onclick="event.stopPropagation();activarVertebra('prop')">Ver propiedades →</button></div>`;
     }catch(err){
       renderLeadVendedoresError(err && err.message ? err.message : '');
     }
@@ -3327,12 +3337,20 @@ async function taDocumentCards(limit){
 }
 function taLeadCards(){
   const cards=[];
-  const nuevos=(typeof leadCompNoPrimerContacto==='function'?leadCompNoPrimerContacto(COMPRADORES||[]):[]);
-  nuevos.forEach((c,i)=>{
+  const nuevosComp=(typeof leadCompNoPrimerContacto==='function'?leadCompNoPrimerContacto(COMPRADORES||[]):[]);
+  nuevosComp.forEach((c,i)=>{
     const key=fcLeadKey(c,COMPRADORES.indexOf(c));
     const nombre=taNombreComprador(c,COMPRADORES.indexOf(c));
     const hace=taHoursAgo(c,['Fecha de Entrada','Fecha']);
     cards.push({tipo:'lead',prio:TARJETAS_ACCION_ORDEN.lead,nombre,descripcion:'Llegó un comprador nuevo '+(hace||'recientemente')+'. WhatsApp listo en su ficha.',action:'abrir-ficha-lead-comprador',id:key,btn:'Abrir ficha',ts:leadCompDateMs(c)||Date.now()});
+  });
+  const nuevosVend=(typeof leadVendNoPrimerContacto==='function'?leadVendNoPrimerContacto(VENDEDORES||[]):[]);
+  nuevosVend.forEach((v,i)=>{
+    const idx=VENDEDORES.indexOf(v);
+    const key=leadVendKey(v,idx);
+    const nombre=taNombreVendedor(v,idx);
+    const hace=taHoursAgo(v,['Fecha de Entrada','Fecha']);
+    cards.push({tipo:'lead',prio:TARJETAS_ACCION_ORDEN.lead,nombre,descripcion:'Llegó un propietario nuevo '+(hace||'recientemente')+'. La ficha marca primer contacto, firma y expediente.',action:'abrir-ficha-lead-vendedor',id:key,btn:'Abrir ficha',ts:leadVendDateMs(v)||Date.now()});
   });
   return cards;
 }
@@ -3449,6 +3467,11 @@ function handleTarjetaAccion(action,id,href){
     activarVertebra('comp');
     const c=taFindComprador(id);
     openFichaComp(c?fcLeadKey(c,COMPRADORES.indexOf(c)):id);
+    return;
+  }
+  if(action==='abrir-ficha-lead-vendedor'){
+    activarVertebra('vend');
+    openFichaVend(id);
     return;
   }
   if(action==='abrir-propiedad'){
