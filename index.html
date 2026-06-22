@@ -3327,13 +3327,31 @@ function renderTarjetasAccion(tarjetas){
 }
 function taLoading(){ const grid=document.getElementById('tarjetasAccionGrid'); if(grid&&!grid.dataset.ready){ grid.innerHTML='<div class="ta-loading">Cargando tarjetas de acción…</div>'; } }
 
+function taPropIngresoMs(p){
+  const rec=(p&&p._rawRec)||null;
+  const raw=(rec&&rec.createdTime)
+    || propFirst(rec||{},['Fecha de Entrada','Fecha','Fecha Alta','Fecha de Alta','Fecha Registro','Fecha de Registro','Creado'])
+    || (p&&p.createdTime)
+    || '';
+  const ms=Date.parse(raw);
+  return Number.isNaN(ms)?0:ms;
+}
+function taUltimasPropiedadesParaDocumentos(){
+  if(!Array.isArray(PROPS)||!PROPS.length) return [];
+  return PROPS
+    .filter(p=>p&&p._recId)
+    .slice()
+    .sort((a,b)=>taPropIngresoMs(b)-taPropIngresoMs(a))
+    .slice(0,5);
+}
 async function taDocumentCards(limit){
   const cards=[];
   if(!Array.isArray(PROPS)||!PROPS.length||typeof propDocsResolve!=='function'||typeof propDocsFetch!=='function') return cards;
-  const props=PROPS.slice(0,25);
+  // Revisión documental limitada: solo últimas 5 propiedades recién ingresadas.
+  // No cambia conexiones: conserva propDocsResolve + propDocsFetch + propDocsCache.
+  const props=taUltimasPropiedadesParaDocumentos();
   for(const p of props){
     if(cards.length>=limit) break;
-    if(!p||!p._recId) continue;
     try{
       let info=propDocsCache&&propDocsCache[p._recId];
       if(!info) info=await propDocsResolve(p);
