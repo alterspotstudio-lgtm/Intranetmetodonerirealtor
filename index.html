@@ -20,7 +20,7 @@
 
 html,body{background:var(--black);color:#fff;font-family:var(--fb)}
 body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px}
-.app{width:100%;max-width:1060px}
+.app{width:100%;max-width:1240px}
 
 /* ─── EYEBROW ─── */
 .sys-eye{
@@ -417,6 +417,25 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
 @media(prefers-reduced-motion:reduce){
   *{animation:none!important}
   .seg-fill,.rail-fill{transition:none!important}
+}
+
+/* ══════════════════════════════════════════
+   TABLERO · medallón + pendientes (carril)
+   Base = móvil: 1 columna, PENDIENTES ARRIBA, medallón abajo.
+   ≥1100px = tablero de 2 columnas (medallón izq · pendientes der).
+══════════════════════════════════════════ */
+.work{display:grid;grid-template-columns:1fr;gap:18px;align-items:start;margin-bottom:24px}
+.work-main{min-width:0;order:0}
+.work-side{min-width:0;order:-1}            /* móvil: pendientes arriba */
+.work-side .ta-panel{margin:0}
+.work-side .ta-grid{grid-template-columns:1fr}          /* carril a 1 columna */
+.work-side .ta-grid .ta-card:first-child{grid-column:auto}
+@media(min-width:1100px){
+  .work{grid-template-columns:1fr 340px}
+  .work-side{order:0}                       /* computadora: a la derecha */
+  /* en columna angosta el escenario se acomoda: medallón arriba, propietario+comprador debajo */
+  .work-main .stage{grid-template-columns:1fr 1fr;gap:14px}
+  .work-main .stage .med-wrap{grid-column:1/-1;order:-1;margin-bottom:4px}
 }
 
 /* ════════ CABINA DEL ASESOR (perfil) ════════ */
@@ -816,6 +835,8 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
 .fp-actions{display:flex;justify-content:flex-end;gap:8px;background:var(--obsidian);border:1px solid var(--gb);border-top:none;padding:14px 18px;border-radius:0 0 3px 3px;position:sticky;bottom:0;z-index:10;flex-wrap:wrap}
 #fichaPropBox .m-btn{flex:0 1 auto;display:inline-flex;align-items:center;justify-content:center;padding:10px 17px;border-radius:2px;border:1px solid var(--w18);background:transparent;color:var(--w60);font-size:7px;letter-spacing:2.5px;text-transform:uppercase;font-weight:900;cursor:pointer;transition:.15s;min-height:34px;font-family:var(--fb)}
 #fichaPropBox .m-btn:hover{border-color:var(--gb2);color:var(--gold);background:var(--gd);transform:translateY(-1px)}
+#fichaPropBox .m-btn[disabled]{opacity:.42;cursor:not-allowed;filter:grayscale(.35)}
+#fichaPropBox .m-btn[disabled]:hover{transform:none;background:transparent;color:var(--w60);border-color:var(--w18)}
 #fichaPropBox .m-btn.solid{background:var(--gold);border-color:var(--gold);color:#050505}
 #fichaPropBox .m-btn.solid:hover{background:var(--gold-l);border-color:var(--gold-l);color:#050505}
 #fichaPropBox .m-btn.grow{flex:1 1 100%}
@@ -1102,18 +1123,6 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
   </div>
 
 
-  <!-- ════════ TARJETAS DE ACCIÓN — reemplaza Cabina HOY ════════ -->
-  <section class="ta-panel" id="tarjetasAccionPanel" aria-label="Tarjetas de acción de hoy">
-    <div class="ta-head">
-      <div class="ta-eyebrow">Centro de operaciones</div>
-      <div class="ta-title">Lo que toca hoy</div>
-      <div class="ta-subdate" id="taSubdate"><b>Hoy</b> · calculando situaciones reales</div>
-    </div>
-    <div class="ta-grid" id="tarjetasAccionGrid">
-      <div class="ta-loading">Cargando tarjetas de acción…</div>
-    </div>
-  </section>
-
   <!-- ════════ COLUMNA VERTEBRAL ════════ -->
   <div class="spine" id="spine">
     <div class="spine-row">
@@ -1164,6 +1173,10 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
       <span id="spine-msg">Propiedades activo · cada propiedad recorre su riel hasta el cierre, abriendo un candado a la vez.</span>
     </div>
   </div>
+
+  <!-- ════════ TABLERO · medallón (izq) + pendientes (der) ════════ -->
+  <div class="work">
+  <div class="work-main">
 
   <!-- ════════ CUERPO — Propiedades en Operación ════════ -->
   <div class="body" id="body-prop">
@@ -1336,6 +1349,24 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
       </table>
     </div>
   </div>
+
+  </div><!-- /work-main -->
+
+  <!-- ════════ PENDIENTES · carril lateral (celular: arriba) ════════ -->
+  <aside class="work-side">
+  <section class="ta-panel" id="tarjetasAccionPanel" aria-label="Tarjetas de acción de hoy">
+    <div class="ta-head">
+      <div class="ta-eyebrow">Centro de operaciones</div>
+      <div class="ta-title">Lo que toca hoy</div>
+      <div class="ta-subdate" id="taSubdate"><b>Hoy</b> · calculando situaciones reales</div>
+    </div>
+    <div class="ta-grid" id="tarjetasAccionGrid">
+      <div class="ta-loading">Cargando tarjetas de acción…</div>
+    </div>
+  </section>
+  </aside>
+
+  </div><!-- /work -->
 
   <!-- ════════ FICHA — Lead Vendedor / Propietario ════════ -->
   <div class="modal-bg" id="fichaVendModal" onclick="if(event.target===this)closeFichaVend()">
@@ -2640,8 +2671,8 @@ async function leadVendContinuarProceso(btn){
     if(prop){
       leadVendSelectPropiedad(prop);
       await leadVendMarcarPropiedadCreada(recId, leadRec);
-      mqNote('✓ Lead convertido: continúa desde Propiedades.');
-      leadVendEnfocarSiguienteJugadaPropiedad();
+      mqNote('✓ Lead convertido: completa la ficha de Propiedades antes de enviar portal.');
+      leadVendAbrirFichaPropiedadAntesPortal(prop);
       return;
     }
     const extra=activationError?' Detalle técnico: '+activationError.message:'';
@@ -3915,6 +3946,14 @@ function crmPropietarioData(propRec){
 function crmPropietarioWaHref(propRec){ const d=crmPropietarioData(propRec); const phone=(typeof fcPhone==='function'?fcPhone(d.telefono):String(d.telefono||'').replace(/\D/g,'')); return phone?'https://wa.me/'+phone:''; }
 function propActFromRecord(rec){
   const sj=propFirst(rec,['Siguiente jugada','Próximo paso','Proximo paso','Notas Internas','Pendientes visibles']);
+  const min=propV05MinimosCompletos(rec);
+  if(!min.ok){
+    return {
+      t: 'Completar ficha de propiedad antes de portal',
+      d: 'Antes de enviar el Portal de Venta, completa mínimos: '+min.pendientes.join(', ')+'.',
+      btn: 'Completar ficha', icon:'file', unlock:'Enviar portal'
+    };
+  }
   return {
     t: sj || 'Enviar Portal de Venta al propietario',
     d: 'Comparte el link madre: progreso de venta, expediente documental y confirmación de producción inmobiliaria.',
@@ -4181,6 +4220,58 @@ async function uploadIdriveFile(file,folio,doc){
   if(!put.ok) throw new Error('iDrive respondió HTTP '+put.status+' al subir '+(file.name||'video'));
   return cfg.url;
 }
+
+/* V-05 · Propiedad creada / datos básicos antes de portal.
+   No cambia conexiones: solo ordena la experiencia para que Portal se envíe después de completar mínimos. */
+function propV05VideoFields(){
+  const sec=(LANDING_FORM_MQ||[]).find(s=>s&&s.videos);
+  return (sec&&sec.videos)||[];
+}
+function propV05TieneMedia(rec){
+  if(_attInfo(rec,'Foto de portada').has) return true;
+  return propV05VideoFields().some(function(v){
+    return !!(_fval(rec,v.yt)||_fval(rec,v.idrive)||_attInfo(rec,v.mp4).has);
+  });
+}
+function propV05MinimosCompletos(rec){
+  const pendientes=[];
+  if(!_fval(rec,'Nombre Propiedad')) pendientes.push('nombre de propiedad');
+  if(!_fval(rec,'Frase Inicio')) pendientes.push('descripción corta');
+  if(!propV05TieneMedia(rec)) pendientes.push('portada o video');
+  return {ok:pendientes.length===0, pendientes:pendientes};
+}
+function propV05FichaBanner(rec){
+  const min=propV05MinimosCompletos(rec);
+  if(min.ok){
+    return '<div class="le-banner" style="border-color:rgba(74,222,128,.25);background:rgba(74,222,128,.07);color:var(--w80)">✓ Mínimos completos. Ya puedes enviar el Portal de Venta al propietario.</div>';
+  }
+  return '<div class="le-banner">V-05 · Antes de enviar portal, completa estos mínimos: <strong>'+_esc(min.pendientes.join(', '))+'</strong>. Guarda cambios y después se habilita Enviar portal.</div>';
+}
+function propV05AbrirFichaParaCompletar(p){
+  if(p) CURRENT_PROP=p;
+  if(!CURRENT_PROP) return;
+  renderFichaPropModal(CURRENT_PROP);
+  document.getElementById('fichaPropModal').classList.add('open');
+  setTimeout(function(){
+    const box=document.getElementById('fichaPropBox');
+    if(box) box.scrollTop=0;
+  },0);
+}
+function leadVendAbrirFichaPropiedadAntesPortal(prop){
+  leadVendEnfocarSiguienteJugadaPropiedad();
+  setTimeout(function(){
+    propV05AbrirFichaParaCompletar(CURRENT_PROP || (prop&&prop.fields&&typeof propMapRecord==='function'?propMapRecord(prop):prop));
+    mqNote('Completa nombre, descripción corta y portada/video antes de enviar portal.');
+  },450);
+}
+function propEnviarPortalDesdeFicha(){
+  const p=CURRENT_PROP;
+  if(!p||!p._recId||propUsingLocal){ mqNote('Enviar portal requiere una propiedad real cargada desde Airtable.'); return; }
+  const rec=getPropRecord(p._recId)||propCurrentRec(p);
+  const min=propV05MinimosCompletos(rec);
+  if(!min.ok){ mqNote('Antes de enviar portal falta: '+min.pendientes.join(', ')+'.'); propV05AbrirFichaParaCompletar(p); return; }
+  cabEnviarPortalVenta(p._recId);
+}
 function propFichaUrl(p){ const folio=(p&&p.folio)||''; return folio?(location.origin+'/ficha.html?folio='+encodeURIComponent(folio)):''; }
 function propOpenUrl(url,msg){ if(url) window.open(url,'_blank'); else mqNote(msg||'No hay link disponible en este registro.'); }
 function propCopyUrl(url){ if(!url){mqNote('No hay link para copiar.');return;} if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(()=>mqNote('✓ Link de la ficha copiado')).catch(()=>mqNote(url)); else mqNote(url); }
@@ -4190,6 +4281,8 @@ function renderFichaPropModal(p){
   const folio=_fval(rec,'Folio NERI')||p.folio||'';
   const linkComp=_fval(rec,'Link Comprador')||(p.ficha&&p.ficha.linkComprador)||'';
   const linkPort=_fval(rec,'Link Portal')||(p.ficha&&p.ficha.linkPortal)||'';
+  const min=propV05MinimosCompletos(rec);
+  const portalDisabled=min.ok?'':' disabled';
   const secs=LANDING_FORM_MQ.map(sec=>{
     let inner=sec.videos?`<div class="le-note">Pega el ID de YouTube o sube el MP4. El video se guarda en iDrive e2 y la landing lo reproduce firmado por /api/idrive-read-url.</div>`+sec.videos.map(v=>_landVideoRowMq(v,rec)).join(''):`<div class="le-grid">${sec.fields.map(fl=>_landInputMq(fl,rec)).join('')}</div>`;
     return `<details class="le-sec"${sec.open?' open':''}><summary><span class="le-ico">${sec.ico}</span>${_esc(sec.title)}<span class="le-caret">›</span></summary><div class="le-body">${inner}</div></details>`;
@@ -4199,8 +4292,8 @@ function renderFichaPropModal(p){
   document.getElementById('fichaPropBox').innerHTML=`
     <button class="modal-x" onclick="closeFichaProp()">&times;</button>
     <div class="fp-header"><div><div class="fp-sub">Editor de landing conectado</div><div class="fp-name">${_esc(nombre)}</div></div><div class="fp-folio"><div class="fp-folio-lbl">Folio</div>${_esc(folio||'— sin folio aún —')}</div></div>
-    <div class="fp-body"><div class="le-banner">Propiedades usa la conexión real del index viejo: Airtable, foto por /api/upload-documento, MP4 por /api/upload-idrive-url y guardado por /api/airtable.</div>${secs}${lockBlock}</div>
-    <div class="fp-actions"><span class="fp-status" id="prop-save-msg"></span><button class="m-btn" onclick="closeFichaProp()">Cerrar</button><button class="m-btn" data-url="${_escAttr(linkComp)}" onclick="propOpenUrl(this.dataset.url,'Esta propiedad todavía no tiene Link Comprador.')">◎ Ver landing</button><button class="m-btn" data-url="${_escAttr(propFichaUrl(p))}" onclick="propOpenUrl(this.dataset.url,'Esta propiedad todavía no tiene folio para ficha técnica.')">▣ Ver ficha técnica</button><button class="m-btn" data-url="${_escAttr(propFichaUrl(p))}" onclick="propCopyUrl(this.dataset.url)">↗ Compartir ficha</button><button class="m-btn solid grow" id="prop-save-btn" onclick="landSaveProp()">Guardar cambios</button></div>`;
+    <div class="fp-body">${propV05FichaBanner(rec)}<div class="le-banner">Propiedades usa la conexión real del index viejo: Airtable, foto por /api/upload-documento, MP4 por /api/upload-idrive-url y guardado por /api/airtable.</div>${secs}${lockBlock}</div>
+    <div class="fp-actions"><span class="fp-status" id="prop-save-msg"></span><button class="m-btn" onclick="closeFichaProp()">Cerrar</button><button class="m-btn" data-url="${_escAttr(linkComp)}" onclick="propOpenUrl(this.dataset.url,'Esta propiedad todavía no tiene Link Comprador.')">◎ Ver landing</button><button class="m-btn" data-url="${_escAttr(propFichaUrl(p))}" onclick="propOpenUrl(this.dataset.url,'Esta propiedad todavía no tiene folio para ficha técnica.')">▣ Ver ficha técnica</button><button class="m-btn" data-url="${_escAttr(propFichaUrl(p))}" onclick="propCopyUrl(this.dataset.url)">↗ Compartir ficha</button><button class="m-btn" id="prop-send-portal-btn" onclick="propEnviarPortalDesdeFicha()"${portalDisabled}>Enviar portal</button><button class="m-btn solid grow" id="prop-save-btn" onclick="landSaveProp()">Guardar cambios</button></div>`;
 }
 function abrirFichaProp(){
   if(!CURRENT_PROP) return;
@@ -4285,7 +4378,17 @@ async function cabEnviarPortalVenta(recId){
   if(!tel){ mqNote('No envié WhatsApp: falta Teléfono WhatsApp del propietario.'); return; }
   window.open('https://wa.me/'+waNumberProp(tel)+'?text='+encodeURIComponent(portalArmarMensaje(rec,src,link)),'_blank');
 }
-function propMainAction(p){ if(p&&p._recId&&!propUsingLocal) cabEnviarPortalVenta(p._recId); else mqNote('Enviar Portal de Venta se activa con una propiedad real cargada desde Airtable.'); }
+function propMainAction(p){
+  if(!(p&&p._recId&&!propUsingLocal)){ mqNote('Enviar Portal de Venta se activa con una propiedad real cargada desde Airtable.'); return; }
+  const rec=getPropRecord(p._recId)||propCurrentRec(p);
+  const min=propV05MinimosCompletos(rec);
+  if(!min.ok){
+    propV05AbrirFichaParaCompletar(p);
+    mqNote('Antes de enviar portal falta: '+min.pendientes.join(', ')+'.');
+    return;
+  }
+  cabEnviarPortalVenta(p._recId);
+}
 window.portalVentaLink=portalVentaLink;
 window.cabEnviarPortalVenta=cabEnviarPortalVenta;
 
