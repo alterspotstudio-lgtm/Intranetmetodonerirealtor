@@ -420,23 +420,63 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
 }
 
 /* ══════════════════════════════════════════
-   TABLERO · medallón + pendientes (carril)
-   Base = móvil: 1 columna, PENDIENTES ARRIBA, medallón abajo.
-   ≥1100px = tablero de 2 columnas (medallón izq · pendientes der).
+   VISTA PROPIEDADES · medallón + leads de la propiedad
+   Base = móvil: 1 columna (medallón arriba, sus leads debajo).
+   ≥1100px = 2 columnas SOLO en Propiedades (medallón izq · leads der).
+   En vistas CRM el carril se oculta y la tabla usa todo el ancho.
 ══════════════════════════════════════════ */
 .work{display:grid;grid-template-columns:1fr;gap:18px;align-items:start;margin-bottom:24px}
 .work-main{min-width:0;order:0}
-.work-side{min-width:0;order:-1}            /* móvil: pendientes arriba */
-.work-side .ta-panel{margin:0}
-.work-side .ta-grid{grid-template-columns:1fr}          /* carril a 1 columna */
-.work-side .ta-grid .ta-card:first-child{grid-column:auto}
+.work-side{min-width:0;order:1}                       /* móvil: leads debajo del medallón */
+.work:not(.view-prop) .work-side{display:none}        /* leads solo en Propiedades */
 @media(min-width:1100px){
-  .work{grid-template-columns:1fr 340px}
-  .work-side{order:0}                       /* computadora: a la derecha */
+  .work.view-prop{grid-template-columns:1fr 340px}
   /* en columna angosta el escenario se acomoda: medallón arriba, propietario+comprador debajo */
-  .work-main .stage{grid-template-columns:1fr 1fr;gap:14px}
-  .work-main .stage .med-wrap{grid-column:1/-1;order:-1;margin-bottom:4px}
+  .work.view-prop .work-main .stage{grid-template-columns:1fr 1fr;gap:14px}
+  .work.view-prop .work-main .stage .med-wrap{grid-column:1/-1;order:-1;margin-bottom:4px}
 }
+
+/* #3 — riel y siguiente paso con más jerarquía (el medallón no los opaca) */
+.work-main .rail{margin-top:28px}
+.work-main .act{margin-top:24px;border-color:rgba(198,168,107,.22)}
+.work-main .act-ey{font-size:8px;letter-spacing:4px}
+.work-main .act-t{font-size:14px}
+.work-main .act-in{padding:18px 20px 18px 24px}
+
+/* ── PANEL DE LEADS (carril contextual por propiedad) ── */
+.leads-panel{border:1px solid var(--w08);border-radius:3px;background:var(--obsidian);position:relative;overflow:hidden;padding:20px 18px}
+.leads-panel::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--steel),transparent);opacity:.5}
+.leads-head{margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--w08);position:relative}
+.leads-head::after{content:"";position:absolute;left:0;bottom:-1px;width:48px;height:1px;background:var(--steel)}
+.leads-eyebrow{display:flex;align-items:center;gap:8px;font-family:var(--fm);font-size:8px;letter-spacing:3px;text-transform:uppercase;font-weight:700;color:var(--w35);margin-bottom:7px}
+.leads-eyebrow::before{content:"";width:16px;height:1px;background:var(--steel);opacity:.6}
+.leads-title{font-family:var(--fd);font-size:24px;letter-spacing:1.2px;line-height:1;color:#fff;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.leads-sub{font-family:var(--fm);font-size:9px;letter-spacing:.6px;color:var(--w35);margin-top:7px}
+.leads-list{display:flex;flex-direction:column;gap:9px}
+.leads-empty{font-family:var(--fe);font-style:italic;font-size:12px;color:var(--w35);line-height:1.6;padding:8px 2px}
+.lead-card{position:relative;border:1px solid var(--w08);background:var(--black2);border-radius:3px;padding:13px 15px 13px 17px;overflow:hidden;transition:border-color .15s,background .15s}
+.lead-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--lc-ac,var(--steel))}
+.lead-card:hover{border-color:var(--lc-bd,rgba(111,168,224,.32));background:#131313}
+.lead-card.hot{--lc-ac:var(--rose);--lc-bd:rgba(224,111,138,.32)}
+.lead-card.warm{--lc-ac:var(--amber);--lc-bd:rgba(224,162,78,.32)}
+.lead-card.cold{--lc-ac:var(--steel);--lc-bd:rgba(111,168,224,.32)}
+.lead-card.nuevo{--lc-ac:var(--gold);--lc-bd:var(--gb2)}
+.lead-top{display:flex;align-items:center;gap:7px;margin-bottom:7px}
+.lead-dot{width:6px;height:6px;border-radius:50%;background:var(--lc-ac,var(--steel));flex-shrink:0}
+.lead-cls{font-family:var(--fm);font-size:8px;letter-spacing:1.6px;text-transform:uppercase;color:var(--lc-ac,var(--steel));font-weight:500}
+.lead-name{font-family:var(--fb);font-size:13.5px;font-weight:600;color:#fff;letter-spacing:.2px;line-height:1.25}
+.lead-note{font-family:var(--fb);font-size:11px;color:var(--w60);line-height:1.45;margin-top:4px}
+.lead-foot{display:flex;justify-content:flex-end;margin-top:11px}
+.lead-btn{font-family:var(--fm);font-size:9px;letter-spacing:1.1px;text-transform:uppercase;font-weight:500;border:1px solid var(--lc-bd,rgba(111,168,224,.32));background:transparent;color:var(--lc-ac,var(--steel));border-radius:2px;padding:7px 13px;cursor:pointer;transition:.15s}
+.lead-btn:hover{background:rgba(111,168,224,.10)}
+
+/* ── RESUMEN DE APERTURA · "Lo que toca hoy" (solo al abrir) ── */
+.ta-splash{background:rgba(0,0,0,.8)}
+.ta-splash-box{width:100%;max-width:760px;max-height:88vh;overflow-y:auto;position:relative;background:var(--black2);border:1px solid var(--gb);border-radius:4px;padding:8px}
+.ta-splash-box::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.5;z-index:2}
+.ta-splash-box .ta-panel{border:none;background:transparent;margin:0}
+.ta-splash-box .ta-panel::before{display:none}
+.ta-splash-box .modal-x{z-index:3}
 
 /* ════════ CABINA DEL ASESOR (perfil) ════════ */
 .cabina{display:flex;align-items:center;gap:16px;flex-wrap:wrap;
@@ -1352,21 +1392,38 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
 
   </div><!-- /work-main -->
 
-  <!-- ════════ PENDIENTES · carril lateral (celular: arriba) ════════ -->
+  <!-- ════════ LEADS · compradores de la propiedad seleccionada ════════ -->
   <aside class="work-side">
-  <section class="ta-panel" id="tarjetasAccionPanel" aria-label="Tarjetas de acción de hoy">
-    <div class="ta-head">
-      <div class="ta-eyebrow">Centro de operaciones</div>
-      <div class="ta-title">Lo que toca hoy</div>
-      <div class="ta-subdate" id="taSubdate"><b>Hoy</b> · calculando situaciones reales</div>
+  <section class="leads-panel" id="leadsPropPanel" aria-label="Leads de la propiedad seleccionada">
+    <div class="leads-head">
+      <div class="leads-eyebrow">Compradores interesados</div>
+      <div class="leads-title" id="leadsPropTitle">Leads</div>
+      <div class="leads-sub" id="leadsPropSub">Selecciona una propiedad</div>
     </div>
-    <div class="ta-grid" id="tarjetasAccionGrid">
-      <div class="ta-loading">Cargando tarjetas de acción…</div>
+    <div class="leads-list" id="leadsPropList">
+      <div class="leads-empty">Selecciona una propiedad para ver los compradores que llegaron por ella.</div>
     </div>
   </section>
   </aside>
 
   </div><!-- /work -->
+
+  <!-- ════════ RESUMEN DE APERTURA · "Lo que toca hoy" (solo al abrir) ════════ -->
+  <div class="modal-bg ta-splash" id="taSplashModal" onclick="if(event.target===this)cerrarTaSplash()">
+    <div class="ta-splash-box">
+      <button class="modal-x" type="button" onclick="cerrarTaSplash()" aria-label="Cerrar">×</button>
+      <section class="ta-panel" id="tarjetasAccionPanel" aria-label="Tarjetas de acción de hoy">
+        <div class="ta-head">
+          <div class="ta-eyebrow">Centro de operaciones</div>
+          <div class="ta-title">Lo que toca hoy</div>
+          <div class="ta-subdate" id="taSubdate"><b>Hoy</b> · calculando situaciones reales</div>
+        </div>
+        <div class="ta-grid" id="tarjetasAccionGrid">
+          <div class="ta-loading">Cargando tarjetas de acción…</div>
+        </div>
+      </section>
+    </div>
+  </div>
 
   <!-- ════════ FICHA — Lead Vendedor / Propietario ════════ -->
   <div class="modal-bg" id="fichaVendModal" onclick="if(event.target===this)closeFichaVend()">
@@ -3897,6 +3954,44 @@ function renderParties(p){
       '<div class="party-empty">Aún sin comprador apartado</div>'+ 
       '<div class="party-note">Cuando un comprador dé apartado, se vuelve cliente y aparece aquí.</div>';
   }
+}
+
+/* ── Leads de la propiedad seleccionada (carril derecho) ── */
+function leadCardHTML(c,i){
+  var nombre=_esc(fcVal(c,'Nombre Completo','nombre')||'Sin nombre');
+  var clasif=fcVal(c,'Clasificación','Clasificacion','clasificacion','temp')||fcVal(c,'Status del Lead','Status del lead','statusLead','Estado')||'';
+  var nota=fcVal(c,'Siguiente jugada','Última interacción','Ultima interaccion','Diagnóstico comercial','Diagnostico comercial')||'';
+  var folio=_escAttr(fcVal(c,'Folio del Comprador','Folio Comprador','folio','Folio')||'');
+  var key=String(clasif||'').toLowerCase();
+  var cls=/hot|caliente/.test(key)?'hot':/warm|tibio/.test(key)?'warm':/cold|fr[ií]o/.test(key)?'cold':'nuevo';
+  return '<div class="lead-card '+cls+'">'+
+    '<div class="lead-top"><span class="lead-dot"></span><span class="lead-cls">'+_esc(clasif||'Nuevo')+'</span></div>'+
+    '<div class="lead-name">'+nombre+'</div>'+
+    (nota?'<div class="lead-note">'+_esc(nota)+'</div>':'')+
+    '<div class="lead-foot"><button class="lead-btn" type="button" onclick="openFichaComp(\''+folio+'\','+i+')">Abrir ficha</button></div>'+
+  '</div>';
+}
+function renderLeadsProp(p){
+  var list=document.getElementById('leadsPropList');
+  var title=document.getElementById('leadsPropTitle');
+  var sub=document.getElementById('leadsPropSub');
+  if(!list) return;
+  if(!p){ if(title)title.textContent='Leads'; if(sub)sub.textContent='Selecciona una propiedad'; list.innerHTML='<div class="leads-empty">Selecciona una propiedad para ver los compradores que llegaron por ella.</div>'; return; }
+  if(title) title.textContent='Leads · '+(p.name||'—');
+  var folio=String(p.folio||'').trim().toUpperCase();
+  var nombreProp=String(p.name||'').trim().toUpperCase();
+  var arr=Array.isArray(COMPRADORES)?COMPRADORES:[];
+  var leads=[];
+  for(var i=0;i<arr.length;i++){
+    var c=arr[i];
+    var fp=String(fcVal(c,'Folio Propiedad NERI','Folio de Operación','Folio Operación','folioOperacion','folioPropiedadNeri')||'').trim().toUpperCase();
+    var pi=String(fcVal(c,'Propiedad de Interés','Propiedad de interés','propiedad')||'').trim().toUpperCase();
+    var match=(folio && fp && fp===folio) || (nombreProp && pi && (pi===nombreProp || pi.indexOf(nombreProp)>=0 || nombreProp.indexOf(pi)>=0));
+    if(match) leads.push({c:c,i:i});
+  }
+  if(sub) sub.textContent=leads.length?(leads.length+' interesado'+(leads.length>1?'s':'')):'Sin leads por ahora';
+  if(!leads.length){ list.innerHTML='<div class="leads-empty">Aún no llegan compradores para esta propiedad. Cuando entre un lead por su folio, aparece aquí.</div>'; return; }
+  list.innerHTML=leads.map(function(o){return leadCardHTML(o.c,o.i);}).join('');
 }
 
 function propCanUseAirtable(){ return typeof perfilHasToken==='function' && perfilHasToken(); }
