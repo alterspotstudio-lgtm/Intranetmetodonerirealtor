@@ -1438,7 +1438,7 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
         <div>
           <div class="lec-ey" id="leadVendEditEy">Lead vendedor</div>
           <div class="lec-title" id="leadVendEditTitle">Editar registro</div>
-          <div class="lec-sub">Guarda en Airtable usando la misma tabla y campos del index viejo.</div>
+          <div class="lec-sub">Guarda los cambios del registro con los campos autorizados.</div>
         </div>
         <div class="lec-folio" id="leadVendEditFolio">—</div>
       </div>
@@ -2020,7 +2020,7 @@ function leadVendSort(records){ return (records||[]).slice().sort((a,b)=>leadVen
 function leadVendCanUseAirtable(){ return typeof perfilHasToken==='function' && perfilHasToken() && typeof atFetch==='function'; }
 function leadVendSetLoading(){
   document.getElementById('crm-thead-vend').innerHTML='<tr>'+CAP_COLS.vend.map(c=>`<th>${c}</th>`).join('')+'</tr>';
-  document.getElementById('crm-tbody-vend').innerHTML=`<tr><td colspan="${CAP_COLS.vend.length}"><div class="crm-empty">Cargando propietarios desde Airtable…</div></td></tr>`;
+  document.getElementById('crm-tbody-vend').innerHTML=`<tr><td colspan="${CAP_COLS.vend.length}"><div class="crm-empty">Cargando propietarios…</div></td></tr>`;
   document.getElementById('crm-count-vend').innerHTML='<b>0</b> registros';
 }
 function leadVendSetRecords(records){
@@ -2037,7 +2037,7 @@ async function leadVendLoad(force=false){
     renderCaptacion('vend');
     if(typeof scheduleTarjetasAccionRefresh==='function') scheduleTarjetasAccionRefresh();
     const slot=document.getElementById('vendBannerSlot');
-    if(slot){ slot.innerHTML=`<div class="crm-banner sage"><span class="bd"></span><span><b>Sin sesión real.</b> Entra por login para cargar Lead Vendedores desde Airtable.</span></div>`; }
+    if(slot){ slot.innerHTML=`<div class="crm-banner sage"><span class="bd"></span><span><b>Sesión requerida.</b> Entra por login para cargar Lead Vendedores.</span></div>`; }
     return;
   }
   leadVendSetLoading();
@@ -2046,7 +2046,7 @@ async function leadVendLoad(force=false){
     leadVendSetRecords(leadVendSort(data.records||[]));
     renderCaptacion('vend');
     if(typeof scheduleTarjetasAccionRefresh==='function') scheduleTarjetasAccionRefresh();
-    mqNote('✓ Lead Vendedores cargado desde Airtable');
+    mqNote('✓ Lead Vendedores cargado');
   }catch(e){
     renderLeadVendedoresError(e && e.message ? e.message : 'Error de conexión');
   }
@@ -2140,7 +2140,7 @@ async function leadCompLoad(force=false){
     renderCaptacion('comp');
     if(typeof scheduleTarjetasAccionRefresh==='function') scheduleTarjetasAccionRefresh();
     const slot=document.getElementById('compBannerSlot');
-    if(slot){ slot.innerHTML=`<div class="crm-banner steel"><span class="bd"></span><span><b>Sin sesión real.</b> Entra por login para cargar Lead Compradores desde Airtable.</span></div>`; }
+    if(slot){ slot.innerHTML=`<div class="crm-banner steel"><span class="bd"></span><span><b>Sesión requerida.</b> Entra por login para cargar Lead Compradores.</span></div>`; }
     return;
   }
   leadCompSetLoading(true);
@@ -2149,14 +2149,14 @@ async function leadCompLoad(force=false){
     leadCompSetRecords(leadCompSort(data.records||[]), false);
     renderCaptacion('comp');
     if(typeof scheduleTarjetasAccionRefresh==='function') scheduleTarjetasAccionRefresh();
-    mqNote('✓ Lead Compradores cargado desde Airtable');
+    mqNote('✓ Lead Compradores cargado');
   }catch(e){
     renderLeadCompradoresError(e && e.message ? e.message : 'Error de conexión');
   }
 }
 function leadCompRequireSession(){
   if(leadCompCanUseAirtable()) return true;
-  mqNote('Necesitas sesión real para guardar en Airtable.');
+  mqNote('Necesitas iniciar sesión para guardar.');
   return false;
 }
 
@@ -2177,7 +2177,7 @@ function renderLeadCompradoresError(msg){
   document.getElementById('crm-tbody-comp').innerHTML=`<tr data-state="error-compradores"><td colspan="${CAP_COLS.comp.length}">
     <div class="crm-empty error">
       No se pudieron cargar los compradores.
-      <span class="crm-empty-note">${msg||'Revisa la conexión real antes de reintentar.'}</span>
+      <span class="crm-empty-note">${msg||'Revisa la sesión antes de reintentar.'}</span>
       <div class="crm-empty-actions">
         <button class="crm-tool-btn steel" id="btn-comp-reintentar" data-action="reintentar-lead-compradores" onclick="event.stopPropagation();recargarLeadCompradores()">Reintentar</button>
       </div>
@@ -2202,7 +2202,7 @@ function renderLeadVendedoresError(msg){
   document.getElementById('crm-tbody-vend').innerHTML=`<tr data-state="error-vendedores"><td colspan="${CAP_COLS.vend.length}">
     <div class="crm-empty error">
       No se pudieron cargar los propietarios.
-      <span class="crm-empty-note">${msg||'Revisa la conexión real antes de reintentar.'}</span>
+      <span class="crm-empty-note">${msg||'Revisa la sesión antes de reintentar.'}</span>
       <div class="crm-empty-actions">
         <button class="crm-tool-btn sage" id="btn-vend-reintentar" data-action="reintentar-lead-vendedores" onclick="event.stopPropagation();recargarLeadVendedores()">Reintentar</button>
       </div>
@@ -2266,8 +2266,8 @@ function renderCaptacion(tipo){
       const nuevos=leadCompNoPrimerContacto(COMPRADORES);
       const alert = (!leadCompUsingLocal && nuevos.length) ? `<div class="alert-banner" style="border-color:rgba(111,168,224,.30);background:rgba(111,168,224,.08);margin:0;border-left:0;border-right:0;border-radius:0"><span class="ab-dot" style="background:var(--steel)"></span><div><div class="ab-t"><b>${nuevos.length}</b> comprador${nuevos.length===1?'':'es'} sin primer contacto</div><div class="ab-s">Contáctalos pronto — mientras más rápido respondes, más citas cierras.</div></div></div>` : '';
       const banner = leadCompUsingLocal
-        ? `<div class="crm-banner steel"><span class="bd"></span><span><b>Sin sesión real.</b> Inicia sesión para cargar Airtable; esta tabla conserva el diseño sin escribir datos.</span></div>`
-        : `${alert}<div class="crm-banner steel"><span class="bd"></span><span><b>${leadCompHotCount()} compradores HOT</b> cargados desde Airtable. Clic en un comprador abre su ficha de lead, sin portal de progreso.</span></div>`;
+        ? `<div class="crm-banner steel"><span class="bd"></span><span><b>Sesión requerida.</b> Inicia sesión para cargar la información; esta tabla conserva el diseño sin escribir datos.</span></div>`
+        : `${alert}<div class="crm-banner steel"><span class="bd"></span><span><b>${leadCompHotCount()} compradores HOT</b> cargados. Clic en un comprador abre su ficha de lead, sin portal de progreso.</span></div>`;
       document.getElementById('compBannerSlot').innerHTML=banner;
     }catch(err){
       renderLeadCompradoresError(err && err.message ? err.message : '');
@@ -2331,7 +2331,7 @@ function fvEscape(v){return (v==null?'':String(v)).replace(/[&<>"]/g,function(c)
 function leadVendSessionToken(){ try{ const s=(typeof perfilSession==='function')?perfilSession():{}; return s.token || (window.SESSION&&window.SESSION.token) || ''; }catch(_){ return (window.SESSION&&window.SESSION.token)||''; } }
 function leadVendRequireSession(){
   if(typeof leadVendCanUseAirtable==='function' && leadVendCanUseAirtable()) return true;
-  mqNote('Necesitas sesión real para guardar en Airtable.');
+  mqNote('Necesitas iniciar sesión para guardar.');
   return false;
 }
 function leadVendBusca(folioOrId){
@@ -2391,10 +2391,10 @@ function leadVendPanelHTML(rec, et){
   if(et.key==='cerrado'){
     return '<div class="fv-riel-msg"><strong>No calificó.</strong> El proceso está cerrado; si la situación cambia, reabre la conversión desde Editar.</div>'
       + '<div class="fv-riel-acts"><button class="fv-riel-btn ghost" data-action="editar-registro" onclick="leadVendOpenEditByFolio(\''+_escAttr(folio)+'\')">Editar registro</button></div>'
-      + '<div class="fv-riel-status" id="riel-status">Conexión real: edición guarda en Airtable.</div>';
+      + '<div class="fv-riel-status" id="riel-status">Listo para editar el registro.</div>';
   }
   if(et.idx===0){
-    return '<div class="fv-riel-msg"><strong>Lead nuevo.</strong> El primer movimiento es el contacto. Al enviar el mensaje, el lead pasa a <strong>En seguimiento</strong> en Airtable.</div>'
+    return '<div class="fv-riel-msg"><strong>Lead nuevo.</strong> El primer movimiento es el contacto. Al enviar el mensaje, el lead queda en <strong>En seguimiento</strong>.</div>'
       + '<div class="fv-riel-acts">'
       + (wa ? '<button class="fv-riel-btn" data-action="enviar-primer-contacto-whatsapp" onclick="rielPrimerContactoReal(\''+_escAttr(recId)+'\')">Enviar primer contacto · WhatsApp</button>' : '<button class="fv-riel-btn ghost" data-action="capturar-telefono-editar" onclick="leadVendOpenEditByFolio(\''+_escAttr(folio)+'\')">Capturar teléfono en Editar</button>')
       + '</div><div class="fv-riel-status" id="riel-status">Listo para registrar primer contacto real.</div>';
@@ -2407,7 +2407,7 @@ function leadVendPanelHTML(rec, et){
       + '</div><div class="fv-riel-acts">'
       + '<button class="fv-riel-btn" data-action="subir-exclusiva-firmada-pdf" onclick="rielSubirContratoReal(\''+_escAttr(recId)+'\',\'Firma exclusiva\')">Subir exclusiva firmada · PDF</button>'
       + '<button class="fv-riel-btn" data-action="subir-venta-directa-firmada-pdf" onclick="rielSubirContratoReal(\''+_escAttr(recId)+'\',\'Firma venta directa\')">Subir venta directa firmada · PDF</button>'
-      + '</div><div class="fv-riel-status" id="riel-status">Subida real: /api/upload-idrive-url → iDrive → Airtable.</div>';
+      + '</div><div class="fv-riel-status" id="riel-status">Sube el contrato firmado para continuar con el proceso.</div>';
   }
   if(et.idx===2){
     const prog=et.prog || 'Expediente activado · esperando documentos';
@@ -2417,7 +2417,7 @@ function leadVendPanelHTML(rec, et){
       + '<div class="fv-riel-acts"><button class="fv-riel-btn" data-action="continuar-proceso" onclick="leadVendContinuarProceso(this)">Continuar proceso</button>'
       + verContrato
       + (!contrato ? '<button class="fv-riel-btn ghost" data-action="subir-pdf-contrato" onclick="rielSubirContratoReal(\''+_escAttr(recId)+'\',\''+_escAttr(et.conv)+'\')">Subir el PDF del contrato</button>' : '')
-      + '</div><div class="fv-riel-status" id="riel-status">Activación real: Make + /api/activar-expediente + token.</div>';
+      + '</div><div class="fv-riel-status" id="riel-status">Expediente listo para continuar con la siguiente etapa.</div>';
   }
   return '<div class="fv-riel-msg"><strong>Expediente completo y validado.</strong> Siguiente paso: producción inmobiliaria desde Propiedades, no desde Lead Vendedores.</div>'
     + '<div class="fv-riel-acts"><button class="fv-riel-btn" data-action="agendar-produccion-acciones-proceso" onclick="leadVendIrProduccion(this)">Ir a producción · Propiedades</button>'+verContrato+'</div>'
@@ -2432,7 +2432,7 @@ function leadVendSystemLocksHTML(rec){
   return '<div class="fv-sec"><div class="fv-sec-title"><em>🔒</em>Sistema</div>'
     + '<div class="fv-lock"><div class="fv-lock-k">Folio</div><div class="fv-lock-v">'+fvEscape(folio)+'</div></div>'
     + '<div class="fv-lock" style="margin-top:4px"><div class="fv-lock-k">Propiedad creada en sistema</div><span class="fv-badge fv-badge-active">'+fvEscape(propCreada || '○ Pendiente')+'</span></div>'
-    + (token?'<div class="fv-lock" style="margin-top:4px"><div class="fv-lock-k">Token Expediente</div><div class="fv-lock-v">'+fvEscape(String(token).slice(0,18))+'…</div></div>':'')
+    + (token?'<div class="fv-lock" style="margin-top:4px"><div class="fv-lock-k">Expediente seguro</div><div class="fv-lock-v">Generado</div></div>':'')
     + (link?'<div class="fv-lock" style="margin-top:4px"><div class="fv-lock-k">Link Expediente Documental</div><a class="fv-wa-btn" href="'+_escAttr(link)+'" target="_blank" rel="noopener">Abrir link</a></div>':'')
     + (contrato?'<div class="fv-lock" style="margin-top:4px"><div class="fv-lock-k">Contrato Firmado</div><a class="fv-wa-btn" href="'+_escAttr(leadVendContratoHref(contrato))+'" target="_blank" rel="noopener">Ver contrato</a></div>':'')
     + '</div>';
@@ -2576,7 +2576,7 @@ async function rielContratoUploadReal(recId, conversion, file){
   const rec=(VENDEDORES||[]).find(r=>r&&r.id===recId);
   if(!rec) return;
   const folio=leadVendFolioValue(rec);
-  if(!folio || /^—/.test(folio)){ rielSay('Este lead aún no tiene folio; espera a que Make lo asigne.'); return; }
+  if(!folio || /^—/.test(folio)){ rielSay('Este lead aún no tiene folio; espera a que el sistema lo asigne.'); return; }
   if(file.type !== 'application/pdf'){ rielSay('El contrato debe subirse en PDF.'); return; }
   const token=leadVendSessionToken();
   try{
@@ -2589,12 +2589,12 @@ async function rielContratoUploadReal(recId, conversion, file){
     const cfg=await pre.json().catch(()=>({}));
     if(!pre.ok) throw new Error(cfg.error || ('HTTP '+pre.status));
     if(!cfg.uploadUrl || !cfg.url) throw new Error('El endpoint no devolvió uploadUrl/url.');
-    rielSay('Subiendo contrato a iDrive…');
+    rielSay('Subiendo contrato…');
     const put=await fetch(cfg.uploadUrl,{method:'PUT',headers:{'Content-Type':'application/pdf'},body:file});
     if(!put.ok) throw new Error('iDrive respondió HTTP '+put.status);
-    rielSay('Guardando URL del contrato en Airtable…');
+    rielSay('Guardando contrato…');
     await rielPatchLeadReal(recId, {'Contrato Firmado':cfg.url, 'Conversión':conversion});
-    rielSay('Activando expediente y generando token…');
+    rielSay('Activando expediente…');
     try{ await rielActivarExpedienteReal(folio, recId, conversion); }
     catch(e){ console.warn('activar-expediente no completó después de subir contrato:', e.message); }
     await leadVendRefreshRecord(recId);
@@ -2984,7 +2984,7 @@ function fcPanelHTML(stateKey,c,key,opts){
     return `<div class="fc-riel-msg"><strong>Comprador listo para cita.</strong> Ya hay interés claro y decisión alta. El siguiente movimiento es agendar visita o confirmar la información enviada por WhatsApp.</div><div class="fc-riel-acts"><button class="fc-riel-btn" data-action="agendar-visita" data-folio="${fvEscape(key)}">Agendar visita</button>${waOk?`<button class="fc-riel-btn ghost" data-action="whatsapp-lead-comprador" data-folio="${fvEscape(key)}">WhatsApp</button>`:''}${msgOk?`<button class="fc-riel-btn ghost" data-action="copiar-mensaje-sugerido" data-folio="${fvEscape(key)}">Copiar mensaje</button>`:''}</div><div class="fc-riel-status">Acciones existentes conservadas · sin portal de progreso.</div>`;
   }
   if(stateKey==='calificacion'){
-    return `<div class="fc-riel-msg"><strong>Lead en calificación.</strong> Define si necesita opciones de compra, brújula bancaria o seguimiento de propiedad específica. El asesor debe dejar una sola siguiente jugada clara.</div><div class="fc-riel-acts">${acompPend?`<button class="fc-riel-btn" data-action="enviar-acompanamiento" data-folio="${fvEscape(key)}">Enviar acompañamiento</button>`:''}${waOk?`<button class="fc-riel-btn ghost" data-action="whatsapp-lead-comprador" data-folio="${fvEscape(key)}">WhatsApp</button>`:''}<button class="fc-riel-btn ghost" data-action="editar-registro" data-folio="${fvEscape(key)}">Editar registro</button></div><div class="fc-riel-status">Conexión real activa con sesión: WhatsApp, acompañamiento y edición guardan donde corresponde.</div>`;
+    return `<div class="fc-riel-msg"><strong>Lead en calificación.</strong> Define si necesita opciones de compra, brújula bancaria o seguimiento de propiedad específica. El asesor debe dejar una sola siguiente jugada clara.</div><div class="fc-riel-acts">${acompPend?`<button class="fc-riel-btn" data-action="enviar-acompanamiento" data-folio="${fvEscape(key)}">Enviar acompañamiento</button>`:''}${waOk?`<button class="fc-riel-btn ghost" data-action="whatsapp-lead-comprador" data-folio="${fvEscape(key)}">WhatsApp</button>`:''}<button class="fc-riel-btn ghost" data-action="editar-registro" data-folio="${fvEscape(key)}">Editar registro</button></div><div class="fc-riel-status">Acciones disponibles: WhatsApp, acompañamiento y edición.</div>`;
   }
   return `<div class="fc-riel-msg"><strong>Lead nuevo.</strong> El primer movimiento es contacto. Confirma WhatsApp, intención de compra y ruta de crédito antes de llevarlo a cita.</div><div class="fc-riel-acts">${waOk?`<button class="fc-riel-btn" data-action="whatsapp-lead-comprador" data-folio="${fvEscape(key)}">Enviar primer contacto · WhatsApp</button>`:`<button class="fc-riel-btn ghost" data-action="editar-registro" data-folio="${fvEscape(key)}">Capturar teléfono en Editar</button>`}${msgOk?`<button class="fc-riel-btn ghost" data-action="copiar-mensaje-sugerido" data-folio="${fvEscape(key)}">Copiar mensaje</button>`:''}</div><div class="fc-riel-status">Lead comprador: no abre portal del cliente hasta apartado.</div>`;
 }
@@ -3134,9 +3134,9 @@ async function enviarAcompanamientoComprador(folio){
   if(!href){ mqNote('Falta WhatsApp del comprador.'); return; }
   window.open(href,'_blank','noopener');
   if(!c.id || !leadCompCanUseAirtable()){
-    fcSetSent(c,'pendiente de confirmar en Airtable');
+    fcSetSent(c,'pendiente de confirmar');
     document.querySelectorAll('#fichaCompModal [data-action="enviar-acompanamiento"]').forEach(function(btn){ btn.textContent='Acompañamiento abierto'; btn.disabled=true; });
-    mqNote('WhatsApp abierto · entra con sesión real para marcar enviado en Airtable.');
+    mqNote('WhatsApp abierto · inicia sesión para marcarlo como enviado.');
     return;
   }
   try{
@@ -3880,12 +3880,12 @@ function perfilRenderForm(rec){
   const input=(label,field,value,attrs='')=>`<div class="perfil-fv-field"><div class="fv-row-k">${_esc(label)}</div><input class="form-inp perfil-fv-input" data-pf="${_escAttr(field)}" data-orig="${_escAttr(value)}" value="${_escAttr(value)}" ${attrs}></div>`;
   const textarea=(label,field,value)=>`<div class="perfil-fv-field full"><div class="fv-row-k">${_esc(label)}</div><textarea class="form-inp perfil-fv-input" id="perfil-frase-input" data-pf="${_escAttr(field)}" data-orig="${_escAttr(value)}" rows="3">${_esc(value)}</textarea><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">${ASESOR_FRASES.map(fr=>`<button type="button" class="asesor-pill" data-frase="${_escAttr(fr)}" onclick="document.getElementById('perfil-frase-input').value=this.dataset.frase">${_esc(fr.slice(0,38))}${fr.length>38?'…':''}</button>`).join('')}</div></div>`;
   const lock=(label,value)=>`<div class="fv-lock"><div class="fv-lock-k">🔒 ${_esc(label)}</div><div class="fv-lock-v">${value?_esc(value):'—'}</div></div>`;
-  body.innerHTML=`<div class="fv-box perfil-fv-box"><div class="fv-header perfil-fv-header"><div><div class="fv-name">${_esc(nombre)}</div><div class="fv-wa">${whatsapp?`<span>${_esc(whatsapp)}</span>`:'<span style="color:var(--w35);font-size:11px">Sin WhatsApp</span>'}${whatsapp?`<a class="fv-wa-btn" href="${asesorWa(whatsapp,'Hola, te comparto mi link de captación Método NERI.')}" target="_blank" rel="noopener">↗ WhatsApp</a>`:''}</div><div class="fv-sub">Cuenta ${_esc(cuenta)} · Puesto ${_esc(puesto)} · Estado ${_esc(estadoReal)}</div></div><div><div class="fv-folio-lbl">Link Captación</div><div class="fv-folio">${slug?_esc(slug):'— sin slug —'}</div><div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:8px">${perfilSafeAnchor(link,'Ver landing')}${perfilSafeCopyButton(link,'Copiar link')}</div></div></div><div class="fv-body perfil-fv-body"><div class="fv-sec"><div class="fv-sec-title"><em>◉</em> Datos públicos editables</div><div class="le-banner" style="margin-bottom:12px">Estos son los únicos datos que puede editar el asesor. Administración conserva control de cuenta, tipo, estado, puesto, slug y servicios.</div><div class="perfil-fv-grid">${input('Nombre','Nombre',v('Nombre'))}${input('WhatsApp','Teléfono WhatsApp',v('Teléfono WhatsApp'),'placeholder="Con lada país. Ej: 527779855687"')}${input('Email','Email',v('Email'),'type="email"')}<div class="perfil-fv-field"><div class="fv-row-k">Ciudad</div><select class="form-inp perfil-fv-input" data-pf="Ciudad" data-orig="${_escAttr(ciudadActual)}"><option value="">— Selecciona —</option>${ciudadOpts}</select></div>${textarea('Frase pública','Frase',v('Frase'))}${input('Pixel ID Meta','Pixel ID Meta',v('Pixel ID Meta'))}</div></div><div class="fv-sec"><div class="fv-sec-title"><em>▣</em> Foto pública</div><div class="perfil-fv-photo"><div class="le-attach">${fotoThumb}<span class="le-vstatus ${foto.has?'on':'off'}">${foto.has?'Cargada':'Vacía'}</span></div><div class="perfil-fv-photo-copy"><input class="form-inp perfil-fv-input" type="file" accept="image/*" data-pf-foto><div class="le-note">La foto se sube desde la intranet a Vercel Blob mediante <b>/api/upload-documento</b>. Airtable guarda solo el enlace final.</div></div></div></div><div class="fv-sec"><div class="fv-sec-title"><em>🔒</em> Administración / solo lectura</div><div class="le-banner" style="margin-bottom:10px">Campos bloqueados. Si algo está mal, lo corrige administración desde Control de Mando.</div><div class="perfil-fv-locks">${lock('Cuenta asignada',cuenta)}${lock('Tipo',tipoReal)}${lock('Estado / activación',`${estadoReal} · lo controla administración`)}${lock('Puesto',puesto)}${lock('Slug oficial',slug)}${lock('Link Captación',link||'Se genera solo con el slug')}</div></div></div><div class="fv-actions perfil-fv-actions"><span id="perfil-save-msg" style="font-size:12px;color:var(--w60);margin-right:auto"></span><button class="btn btn-ghost" onclick="perfilCancelEdit()">Cancelar</button><button class="btn btn-ghost" onclick="perfilLoad(true)">Recargar</button><button class="btn btn-primary" id="perfil-save-btn" onclick="perfilSave()">Guardar perfil público</button></div></div>`;
+  body.innerHTML=`<div class="fv-box perfil-fv-box"><div class="fv-header perfil-fv-header"><div><div class="fv-name">${_esc(nombre)}</div><div class="fv-wa">${whatsapp?`<span>${_esc(whatsapp)}</span>`:'<span style="color:var(--w35);font-size:11px">Sin WhatsApp</span>'}${whatsapp?`<a class="fv-wa-btn" href="${asesorWa(whatsapp,'Hola, te comparto mi link de captación Método NERI.')}" target="_blank" rel="noopener">↗ WhatsApp</a>`:''}</div><div class="fv-sub">Cuenta ${_esc(cuenta)} · Puesto ${_esc(puesto)} · Estado ${_esc(estadoReal)}</div></div><div><div class="fv-folio-lbl">Link Captación</div><div class="fv-folio">${slug?_esc(slug):'— sin slug —'}</div><div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:8px">${perfilSafeAnchor(link,'Ver landing')}${perfilSafeCopyButton(link,'Copiar link')}</div></div></div><div class="fv-body perfil-fv-body"><div class="fv-sec"><div class="fv-sec-title"><em>◉</em> Datos públicos editables</div><div class="le-banner" style="margin-bottom:12px">Estos son los únicos datos que puede editar el asesor. Administración conserva control de cuenta, tipo, estado, puesto, slug y servicios.</div><div class="perfil-fv-grid">${input('Nombre','Nombre',v('Nombre'))}${input('WhatsApp','Teléfono WhatsApp',v('Teléfono WhatsApp'),'placeholder="Con lada país. Ej: 527779855687"')}${input('Email','Email',v('Email'),'type="email"')}<div class="perfil-fv-field"><div class="fv-row-k">Ciudad</div><select class="form-inp perfil-fv-input" data-pf="Ciudad" data-orig="${_escAttr(ciudadActual)}"><option value="">— Selecciona —</option>${ciudadOpts}</select></div>${textarea('Frase pública','Frase',v('Frase'))}${input('Pixel ID Meta','Pixel ID Meta',v('Pixel ID Meta'))}</div></div><div class="fv-sec"><div class="fv-sec-title"><em>▣</em> Foto pública</div><div class="perfil-fv-photo"><div class="le-attach">${fotoThumb}<span class="le-vstatus ${foto.has?'on':'off'}">${foto.has?'Cargada':'Vacía'}</span></div><div class="perfil-fv-photo-copy"><input class="form-inp perfil-fv-input" type="file" accept="image/*" data-pf-foto><div class="le-note">La foto se guarda en el perfil público del asesor.</div></div></div></div><div class="fv-sec"><div class="fv-sec-title"><em>🔒</em> Administración / solo lectura</div><div class="le-banner" style="margin-bottom:10px">Campos bloqueados. Si algo está mal, lo corrige administración desde Control de Mando.</div><div class="perfil-fv-locks">${lock('Cuenta asignada',cuenta)}${lock('Tipo',tipoReal)}${lock('Estado / activación',`${estadoReal} · lo controla administración`)}${lock('Puesto',puesto)}${lock('Slug oficial',slug)}${lock('Link Captación',link||'Se genera solo con el slug')}</div></div></div><div class="fv-actions perfil-fv-actions"><span id="perfil-save-msg" style="font-size:12px;color:var(--w60);margin-right:auto"></span><button class="btn btn-ghost" onclick="perfilCancelEdit()">Cancelar</button><button class="btn btn-ghost" onclick="perfilLoad(true)">Recargar</button><button class="btn btn-primary" id="perfil-save-btn" onclick="perfilSave()">Guardar perfil público</button></div></div>`;
 }
 async function perfilSave(){
   const recId=perfilState.recId,btn=document.getElementById('perfil-save-btn'),msg=document.getElementById('perfil-save-msg'),setMsg=(txt,color)=>{if(msg){msg.style.color=color||'var(--w60)';msg.textContent=txt;}};
   if(!recId){setMsg('No hay registro para guardar.','var(--rose)');return;}
-  if(perfilState.localFallback||!perfilHasToken()){setMsg('Sin sesión real: entra por login para guardar en Airtable.','var(--gold)');showToast('Para guardar se requiere sesión activa.');return;}
+  if(perfilState.localFallback||!perfilHasToken()){setMsg('Sesión requerida: entra por login para guardar.','var(--gold)');showToast('Para guardar se requiere sesión activa.');return;}
   if(btn){btn.disabled=true;btn.textContent='Guardando…';}
   setMsg('');
   const fields={};
@@ -3921,7 +3921,7 @@ function mqNote(msg){
    con PROPS / COMPRADORES / VENDEDORES para no romper la ficha. En integración real,
    asesorLoadAll(force) conserva la consulta filtrada del index viejo. */
 let _asesorReportsLoaded=false;
-function buildAsesorReportesPanel(){ return `<div class="fv-box perfil-fv-box reportes-fv-box"><div class="fv-header reportes-fv-header"><div><div class="fv-name">REPORTES ÚTILES</div><div class="fv-wa"><span>Métricas reales para mejorar, no para confundir</span></div></div><div><div class="fv-folio-lbl">Vista asesor</div><div class="fv-folio">REPORTES</div></div></div><div class="fv-body reportes-fv-body"><div class="fv-sec"><div class="fv-sec-title"><em>◫</em> Resumen operativo</div><div class="fv-nums" id="asesor-reportes-nums"><div class="hoy-empty">Cargando reportes reales…</div></div></div><div class="fv-sec"><div class="le-banner">Estos números vienen de Airtable filtrado por asesor desde el servidor: leads, citas, progreso y propiedades.</div></div></div></div>`; }
+function buildAsesorReportesPanel(){ return `<div class="fv-box perfil-fv-box reportes-fv-box"><div class="fv-header reportes-fv-header"><div><div class="fv-name">REPORTES ÚTILES</div><div class="fv-wa"><span>Métricas reales para mejorar, no para confundir</span></div></div><div><div class="fv-folio-lbl">Vista asesor</div><div class="fv-folio">REPORTES</div></div></div><div class="fv-body reportes-fv-body"><div class="fv-sec"><div class="fv-sec-title"><em>◫</em> Resumen operativo</div><div class="fv-nums" id="asesor-reportes-nums"><div class="hoy-empty">Cargando reportes reales…</div></div></div><div class="fv-sec"><div class="le-banner">Resumen operativo filtrado por asesor: leads, citas, progreso y propiedades.</div></div></div></div>`; }
 function reportesLocalData(){return{compradores:Array.isArray(COMPRADORES)?COMPRADORES:[],vendedores:Array.isArray(VENDEDORES)?VENDEDORES:[],citas:[],progreso:Array.isArray(PROPS)?PROPS:[],propiedades:Array.isArray(PROPS)?PROPS:[]};}
 async function asesorLoadReportes(force=false){ if(_asesorReportsLoaded&&!force)return; _asesorReportsLoaded=true; const el=document.getElementById('asesor-reportes-nums'); if(!el)return; try{ const data=(typeof asesorLoadAll==='function')?await asesorLoadAll(force):reportesLocalData(); const citas=(data.citas||[]).filter(r=>['Pendiente','Confirmada','Reagendada'].includes(_fval(r,'Estado Cita'))).length; el.innerHTML=[[((data.compradores||[]).length+(data.vendedores||[]).length),'Leads / captaciones'],[citas,'Citas activas'],[(data.progreso||[]).length,'Operaciones en progreso'],[(data.propiedades||[]).length,'Propiedades asignadas']].map(n=>`<div class="fv-num"><div class="fv-num-val">${n[0]}</div><div class="fv-num-lbl">${n[1]}</div></div>`).join(''); }catch(e){ el.innerHTML=`<div class="hoy-empty err">No se pudieron cargar reportes: ${_esc(e.message)}</div>`; } }
 function openReportes(){ const modal=document.getElementById('reportesModal'); const body=document.getElementById('reportes-asesor-body'); if(body&&!body.dataset.ready){ body.innerHTML=buildAsesorReportesPanel(); body.dataset.ready='1'; } if(modal)modal.classList.add('open'); setTimeout(()=>asesorLoadReportes(false),60); }
@@ -4080,7 +4080,7 @@ function propMapRecord(rec){
     side:(owner.nombre?'Propietario · '+owner.nombre:'Propietario · sin ligar'),
     pct:propPctFromRecord(rec,active), active,
     act:propActFromRecord(rec),
-    vend:{name:owner.nombre||_fval(rec,'Folio Vendedor')||'Propietario pendiente',estado,nota:_fval(rec,'Notas Internas')||'Propiedad conectada a Airtable.',whatsapp:crmPropietarioWaHref(rec)},
+    vend:{name:owner.nombre||_fval(rec,'Folio Vendedor')||'Propietario pendiente',estado,nota:_fval(rec,'Notas Internas')||'Propiedad conectada al sistema.',whatsapp:crmPropietarioWaHref(rec)},
     comp,
     ficha:{
       folioVendedor:_fval(rec,'Folio Vendedor'),estadoProp:estado,propietario:owner.nombre,
@@ -4243,7 +4243,7 @@ async function propLoad(force=false){
     const records=(data.records||[]).slice().sort((a,b)=>propDateMs(b)-propDateMs(a));
     propSetRecords(records,false);
     buildPropList();
-    mqNote('✓ Propiedades cargadas desde Airtable.');
+    mqNote('✓ Propiedades cargadas.');
   }catch(e){
     propError=e&&e.message?e.message:String(e);
     propSetRecords(LOCAL_PROPS.slice(),true);
@@ -4255,11 +4255,11 @@ function recargarPropiedades(){ propLoaded=false; propLoad(true); }
 
 const LANDING_FORM_MQ = [
   {title:'Portada', ico:'◫', open:true, fields:[
-    {f:'Nombre Propiedad', type:'text', full:true, label:'Propiedad'},
     {f:'Frase Inicio', type:'textarea', full:true, label:'Descripción corta de la propiedad'},
     {f:'Foto de portada', type:'attach', full:true, img:true},
   ]},
-  {title:'Datos de la casa', ico:'⌂', fields:[
+  {title:'Datos de la Propiedad', ico:'⌂', fields:[
+    {f:'Nombre Propiedad', type:'text', full:true, label:'Propiedad'},
     {f:'Tipo de Propiedad', type:'select', opts:['Casa','Departamento','Terreno','Local','Oficina','Bodega']},
     {f:'Estado Propiedad', type:'select', opts:['Disponible','Apartada','Vendida','En proceso','Suspendida']},
     {f:'Habitaciones', type:'number'},{f:'Banos', type:'number'},
@@ -4278,7 +4278,7 @@ const LANDING_FORM_MQ = [
     {f:'Cuota Mantenimiento (mensual)', type:'number'},{f:'Predial Anual', type:'number'},
     {f:'Amenidades', type:'textarea', full:true, label:'Amenidades (una por línea o separadas por coma)'},
   ]},
-  {title:'Videos de la landing', ico:'▶', videos:[
+  {title:'Información Landing', ico:'▶', videos:[
     {room:'Sala',yt:'Video Sala',mp4:'Video Sala MP4',idrive:'Video Sala iDrive'},
     {room:'Cocina',yt:'Video Cocina',mp4:'Video Cocina MP4',idrive:'Video Cocina iDrive'},
     {room:'Recámara',yt:'Video Recamara',mp4:'Video Recamara MP4',idrive:'Video Recamara iDrive'},
@@ -4300,7 +4300,7 @@ function _landInputMq(fl,rec){
     const info=_attInfo(rec,name);
     const thumb=(fl.img&&info.thumb)?`<img class="le-thumb" src="${_escAttr(info.thumb)}" alt="">`:`<div class="le-thumb-empty">${info.has?'▣':'＋'}</div>`;
     const status=`<span class="le-vstatus ${info.has?'on':'off'}">${info.has?'Cargado'+(info.count>1?' ('+info.count+')':''):'Vacío'}</span>`;
-    return `<div class="le-field full"><div class="le-lbl">${_esc(lbl)}</div><div class="le-attach">${thumb}<span class="le-attach-tag">${_esc(name)}</span>${status}</div><div class="le-upload"><input class="le-in" type="file" data-upload-attach="${_escAttr(name)}" data-upload-doc="${_escAttr(name)}" accept="image/*,video/mp4,video/quicktime,application/pdf"></div><input class="le-in" type="text" data-attach="${_escAttr(name)}" placeholder="O pegar URL pública para reemplazar (opcional)"><div class="le-note">Sube el archivo desde aquí. La intranet usa /api/upload-documento y guarda solo la URL en Airtable.</div></div>`;
+    return `<div class="le-field full"><div class="le-lbl">${_esc(lbl)}</div><div class="le-attach">${thumb}<span class="le-attach-tag">${_esc(name)}</span>${status}</div><div class="le-upload"><input class="le-in" type="file" data-upload-attach="${_escAttr(name)}" data-upload-doc="${_escAttr(name)}" accept="image/*,video/mp4,video/quicktime,application/pdf"></div><input class="le-in" type="text" data-attach="${_escAttr(name)}" placeholder="O pegar URL pública para reemplazar (opcional)"><div class="le-note">Sube el archivo desde aquí. El sistema guarda el enlace final para usarlo en la landing.</div></div>`;
   }
   if(fl.type==='textarea') return `<div class="le-field${full}"><div class="le-lbl">${_esc(lbl)}</div><textarea class="le-ta" data-field="${_escAttr(name)}" data-ftype="text" data-orig="${_escAttr(orig)}" placeholder="—">${_esc(val)}</textarea></div>`;
   if(fl.type==='select') return `<div class="le-field${full}"><div class="le-lbl">${_esc(lbl)}</div><select class="le-sel" data-field="${_escAttr(name)}" data-ftype="select" data-orig="${_escAttr(orig)}"><option value="">—</option>${(fl.opts||[]).map(o=>`<option value="${_escAttr(o)}"${o===val?' selected':''}>${_esc(o)}</option>`).join('')}</select></div>`;
@@ -4371,7 +4371,7 @@ function leadVendAbrirFichaPropiedadAntesPortal(prop){
 }
 function propEnviarPortalDesdeFicha(){
   const p=CURRENT_PROP;
-  if(!p||!p._recId||propUsingLocal){ mqNote('Enviar portal requiere una propiedad real cargada desde Airtable.'); return; }
+  if(!p||!p._recId||propUsingLocal){ mqNote('Enviar portal requiere una propiedad cargada correctamente.'); return; }
   const rec=getPropRecord(p._recId)||propCurrentRec(p);
   const min=propV05MinimosCompletos(rec);
   if(!min.ok){ mqNote('Antes de enviar portal falta: '+min.pendientes.join(', ')+'.'); propV05AbrirFichaParaCompletar(p); return; }
@@ -4389,15 +4389,15 @@ function renderFichaPropModal(p){
   const min=propV05MinimosCompletos(rec);
   const portalDisabled=min.ok?'':' disabled';
   const secs=LANDING_FORM_MQ.map(sec=>{
-    let inner=sec.videos?`<div class="le-note">Pega el ID de YouTube o sube el MP4. El video se guarda en iDrive e2 y la landing lo reproduce firmado por /api/idrive-read-url.</div>`+sec.videos.map(v=>_landVideoRowMq(v,rec)).join(''):`<div class="le-grid">${sec.fields.map(fl=>_landInputMq(fl,rec)).join('')}</div>`;
+    let inner=sec.videos?`<div class="le-note">Pega el ID de YouTube o sube el MP4. El sistema lo dejará listo para reproducirse en la landing.</div>`+sec.videos.map(v=>_landVideoRowMq(v,rec)).join(''):`<div class="le-grid">${sec.fields.map(fl=>_landInputMq(fl,rec)).join('')}</div>`;
     return `<details class="le-sec"${sec.open?' open':''}><summary><span class="le-ico">${sec.ico}</span>${_esc(sec.title)}<span class="le-caret">›</span></summary><div class="le-body">${inner}</div></details>`;
   }).join('');
   const lockRow=(k,v)=>v?`<div class="le-lock"><div class="le-lock-k">🔒 ${_esc(k)}</div><div class="le-lock-v">${_esc(v)}</div></div>`:'';
-  const lockBlock=`<details class="le-sec"><summary><span class="le-ico">🔒</span>Folio y enlaces (solo lectura)<span class="le-caret">›</span></summary><div class="le-body"><div class="le-banner2">Estos los genera el sistema solo. La intranet nunca escribe folio maestro ni links automáticos.</div>${lockRow('Folio NERI',folio)}${lockRow('Folio Vendedor',_fval(rec,'Folio Vendedor'))}${lockRow('Link Comprador',linkComp)}${lockRow('Link Portal',linkPort)}</div></details>`;
+  const lockBlock=`<details class="le-sec"><summary><span class="le-ico">🔒</span>Folio y enlaces (solo lectura)<span class="le-caret">›</span></summary><div class="le-body"><div class="le-banner2">Estos datos se generan automáticamente. No los edites manualmente.</div>${lockRow('Folio NERI',folio)}${lockRow('Folio Vendedor',_fval(rec,'Folio Vendedor'))}${lockRow('Link Comprador',linkComp)}${lockRow('Link Portal',linkPort)}</div></details>`;
   document.getElementById('fichaPropBox').innerHTML=`
     <button class="modal-x" onclick="closeFichaProp()">&times;</button>
     <div class="fp-header"><div><div class="fp-sub">Editor de landing conectado</div><div class="fp-name">${_esc(nombre)}</div></div><div class="fp-folio"><div class="fp-folio-lbl">Folio</div>${_esc(folio||'— sin folio aún —')}</div></div>
-    <div class="fp-body">${propV05FichaBanner(rec)}<div id="med-reloj-mount" data-folio="${_escAttr(folio)}"></div><div class="le-banner">Propiedades usa la conexión real del index viejo: Airtable, foto por /api/upload-documento, MP4 por /api/upload-idrive-url y guardado por /api/airtable.</div>${secs}${lockBlock}</div>
+    <div class="fp-body">${propV05FichaBanner(rec)}<div id="med-reloj-mount" data-folio="${_escAttr(folio)}"></div><div class="le-banner">Completa portada, datos e información de landing antes de enviar el portal.</div>${secs}${lockBlock}</div>
     <div class="fp-actions"><span class="fp-status" id="prop-save-msg"></span><button class="m-btn" onclick="closeFichaProp()">Cerrar</button><button class="m-btn" data-url="${_escAttr(linkComp)}" onclick="propOpenUrl(this.dataset.url,'Esta propiedad todavía no tiene Link Comprador.')">◎ Ver landing</button><button class="m-btn" data-url="${_escAttr(propFichaUrl(p))}" onclick="propOpenUrl(this.dataset.url,'Esta propiedad todavía no tiene folio para ficha técnica.')">▣ Ver ficha técnica</button><button class="m-btn" data-url="${_escAttr(propFichaUrl(p))}" onclick="propCopyUrl(this.dataset.url)">↗ Compartir ficha</button><button class="m-btn" id="prop-send-portal-btn" onclick="propEnviarPortalDesdeFicha()"${portalDisabled}>Enviar portal</button><button class="m-btn solid grow" id="prop-save-btn" onclick="landSaveProp()">Guardar cambios</button></div>`;
   if(typeof window.medRelojMount==='function'){ try{ window.medRelojMount(folio); }catch(_){} }
 }
@@ -4412,7 +4412,7 @@ async function landSaveProp(){
   const rec=p&&p._rawRec;
   const btn=document.getElementById('prop-save-btn');
   const msg=document.getElementById('prop-save-msg');
-  if(!rec||!p._recId||propUsingLocal||!propCanUseAirtable()){ if(msg)msg.textContent='Sin sesión real: entra por login para guardar en Airtable.'; mqNote('Para guardar Propiedades se requiere sesión activa.'); return; }
+  if(!rec||!p._recId||propUsingLocal||!propCanUseAirtable()){ if(msg)msg.textContent='Sesión requerida: entra por login para guardar.'; mqNote('Para guardar Propiedades necesitas sesión activa.'); return; }
   btn.textContent='Guardando…'; btn.disabled=true; if(msg){msg.style.color='var(--w60)';msg.textContent='';}
   const fields={};
   document.querySelectorAll('#fichaPropBox [data-field]').forEach(el=>{
@@ -4485,7 +4485,7 @@ async function cabEnviarPortalVenta(recId){
   window.open('https://wa.me/'+waNumberProp(tel)+'?text='+encodeURIComponent(portalArmarMensaje(rec,src,link)),'_blank');
 }
 function propMainAction(p){
-  if(!(p&&p._recId&&!propUsingLocal)){ mqNote('Enviar Portal de Venta se activa con una propiedad real cargada desde Airtable.'); return; }
+  if(!(p&&p._recId&&!propUsingLocal)){ mqNote('Enviar Portal de Venta se activa con una propiedad cargada correctamente.'); return; }
   const rec=getPropRecord(p._recId)||propCurrentRec(p);
   const min=propV05MinimosCompletos(rec);
   if(!min.ok){
