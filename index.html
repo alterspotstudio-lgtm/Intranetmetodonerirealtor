@@ -4397,8 +4397,9 @@ function renderFichaPropModal(p){
   document.getElementById('fichaPropBox').innerHTML=`
     <button class="modal-x" onclick="closeFichaProp()">&times;</button>
     <div class="fp-header"><div><div class="fp-sub">Editor de landing conectado</div><div class="fp-name">${_esc(nombre)}</div></div><div class="fp-folio"><div class="fp-folio-lbl">Folio</div>${_esc(folio||'— sin folio aún —')}</div></div>
-    <div class="fp-body">${propV05FichaBanner(rec)}<div class="le-banner">Propiedades usa la conexión real del index viejo: Airtable, foto por /api/upload-documento, MP4 por /api/upload-idrive-url y guardado por /api/airtable.</div>${secs}${lockBlock}</div>
+    <div class="fp-body">${propV05FichaBanner(rec)}<div id="med-reloj-mount" data-folio="${_escAttr(folio)}"></div><div class="le-banner">Propiedades usa la conexión real del index viejo: Airtable, foto por /api/upload-documento, MP4 por /api/upload-idrive-url y guardado por /api/airtable.</div>${secs}${lockBlock}</div>
     <div class="fp-actions"><span class="fp-status" id="prop-save-msg"></span><button class="m-btn" onclick="closeFichaProp()">Cerrar</button><button class="m-btn" data-url="${_escAttr(linkComp)}" onclick="propOpenUrl(this.dataset.url,'Esta propiedad todavía no tiene Link Comprador.')">◎ Ver landing</button><button class="m-btn" data-url="${_escAttr(propFichaUrl(p))}" onclick="propOpenUrl(this.dataset.url,'Esta propiedad todavía no tiene folio para ficha técnica.')">▣ Ver ficha técnica</button><button class="m-btn" data-url="${_escAttr(propFichaUrl(p))}" onclick="propCopyUrl(this.dataset.url)">↗ Compartir ficha</button><button class="m-btn" id="prop-send-portal-btn" onclick="propEnviarPortalDesdeFicha()"${portalDisabled}>Enviar portal</button><button class="m-btn solid grow" id="prop-save-btn" onclick="landSaveProp()">Guardar cambios</button></div>`;
+  if(typeof window.medRelojMount==='function'){ try{ window.medRelojMount(folio); }catch(_){} }
 }
 function abrirFichaProp(){
   if(!CURRENT_PROP) return;
@@ -4506,6 +4507,285 @@ window.cabEnviarPortalVenta=cabEnviarPortalVenta;
 (function bootSession(){
   const stored=perfilReadStoredSession();
   if(stored && stored.token){ enterApp(); }
+})();
+
+/* ============================================================================
+   MÉTODO NERI · MEDALLÓN · Riel de cierre (Bloque B)
+   ----------------------------------------------------------------------------
+   Sección embebida en la ficha de la propiedad (la que abre el medallón).
+   El medallón = la propiedad: punto de encuentro del riel vendedor y comprador.
+   Lee la tabla Progreso por Folio NERI y muestra el reloj POR FASE, el semáforo,
+   el motivo de bloqueo y el botón de siguiente paso. Todo en el front: sin Make,
+   sin función Vercel nueva. Una sola fuente de datos (tabla Progreso).
+   El asesor ve el detalle completo; el cliente (otro portal) solo ve avance+rango.
+   ========================================================================== */
+(function () {
+  'use strict';
+
+  var PROG_TABLE = 'tblyC9VjjtoRKJPQL';
+  var DAY = 86400000, HOUR = 3600000;
+
+  /* 8 fases del cierre. meta = días por [recurso propio, INFONAVIT, bancario].
+     Los nombres son EXACTOS a las opciones de "Fase Actual" en Airtable.
+     (Totales: 28 / 49 / 56 — coinciden con la meta interna del brief.) */
+  var FASES = [
+    { n: 'Apartado',               meta: [2, 2, 2] },
+    { n: 'Revisión de compra',     meta: [2, 2, 2] },
+    { n: 'Preparando documentos',  meta: [5, 10, 12] },
+    { n: 'Acuerdo de compra',      meta: [3, 3, 3] },
+    { n: 'Revisión en notaría',    meta: [9, 25, 30] },
+    { n: 'Últimas confirmaciones', meta: [3, 3, 3] },
+    { n: 'Día de firma',           meta: [2, 2, 2] },
+    { n: 'Entrega de llaves',      meta: [2, 2, 2] }
+  ];
+  var FASE_CORTA = ['Apartado', 'Rev. compra', 'Documentos', 'Acuerdo', 'Notaría', 'Últimas conf.', 'Firma', 'Entrega'];
+
+  /* Forma de Pago → columna de meta + rango visible al cliente. Cofinavit hereda bancario. */
+  var PAGO = {
+    'recurso propio':   { col: 0, rango: '30–40 días' },
+    'infonavit':        { col: 1, rango: '45–60 días' },
+    'credito bancario': { col: 2, rango: '50–70 días' },
+    'cofinavit':        { col: 2, rango: '50–70 días' }
+  };
+  var PAGO_OPC = ['Recurso propio', 'INFONAVIT', 'Crédito bancario', 'Cofinavit'];
+  var MOTIVO_OPC = ['Ninguno / en tiempo', 'Falta documento del comprador', 'Falta documento del vendedor', 'Pendiente banco', 'Pendiente INFONAVIT', 'Pendiente notaría', 'Pendiente avalúo', 'Pendiente pago', 'Pendiente firma', 'Sin seguimiento del asesor'];
+
+  var MED_CACHE = {}; /* folio -> registro de Progreso cacheado para las escrituras */
+
+  /* ---------- helpers ---------- */
+  function norm(s) { return String(s == null ? '' : s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim(); }
+  function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  function attr(s) { return esc(s).replace(/'/g, '&#39;'); }
+  function fval(rec, name) {
+    var v = rec && rec.fields ? rec.fields[name] : '';
+    if (v == null || v === '') return '';
+    if (typeof v === 'object') v = v.name != null ? v.name : (Array.isArray(v) ? v.map(function (x) { return (x && x.name) || x; }).join(', ') : '');
+    return String(v);
+  }
+  function parseDate(s) { if (!s) return null; var d = new Date(s); return isNaN(d.getTime()) ? null : d; }
+  function isoDate(d) { d = d || new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
+  function dias(a, b) { return (a && b) ? Math.floor((b.getTime() - a.getTime()) / DAY) : 0; }
+  function horas(a, b) { return (a && b) ? Math.floor((b.getTime() - a.getTime()) / HOUR) : 0; }
+  function note(m) { if (typeof mqNote === 'function') mqNote(m); else if (typeof showToast === 'function') showToast(m); }
+
+  function faseIndex(val) {
+    var v = norm(val); if (!v) return 0;
+    if (/apartad/.test(v)) return 0;
+    if (/revis/.test(v) && /compra/.test(v)) return 1;
+    if (/prepar|document|expediente/.test(v)) return 2;
+    if (/acuerdo/.test(v)) return 3;
+    if (/notar/.test(v)) return 4;
+    if (/ultima|confirmacion/.test(v)) return 5;
+    if (/firma/.test(v)) return 6;
+    if (/entrega|llaves|postcierre/.test(v)) return 7;
+    for (var i = 0; i < FASES.length; i++) { if (norm(FASES[i].n) === v) return i; }
+    return 0;
+  }
+  function pagoInfo(val) { return PAGO[norm(val)] || null; }
+  function bloqueoActivo(m) { var v = norm(m); return !!v && v.indexOf('ninguno') !== 0; }
+
+  /* ---------- semáforo POR FASE ----------
+     verde <70% · amarillo 70% · rojo 100% · negro +48h.
+     Bloqueo por tercero NO congela: pasa a seguimiento cada 48h; 48h sin update = crítico. */
+  function estado(idx, col, inicio, ahora, bloqueo, ultimoSeg) {
+    var meta = FASES[idx].meta[col];
+    var d = inicio ? dias(inicio, ahora) : 0;
+    if (idx === 7) return { c: 'done', l: 'Operación cerrada', d: d, meta: meta, sub: 'Entrega de llaves completada.' };
+    if (bloqueoActivo(bloqueo)) {
+      var ref = ultimoSeg || inicio || ahora;
+      var h = horas(ref, ahora);
+      if (h >= 48) return { c: 'negro', l: 'Crítico · sin seguimiento', d: d, meta: meta, sub: 'Bloqueada por ' + bloqueo + ' · ' + h + ' h sin actualizar. Sube al director.' };
+      return { c: 'segui', l: 'En seguimiento', d: d, meta: meta, sub: 'Bloqueada por ' + bloqueo + ' · próximo seguimiento en ' + (48 - h) + ' h.' };
+    }
+    if (d >= meta + 2) return { c: 'negro', l: 'Vencida +48 h', d: d, meta: meta, sub: 'Superó la meta de la fase por más de 48 h.' };
+    if (d >= meta)     return { c: 'rojo', l: 'Vencida', d: d, meta: meta, sub: 'La fase alcanzó o pasó su meta.' };
+    if (d >= meta * 0.7) return { c: 'amarillo', l: 'Cerca del límite', d: d, meta: meta, sub: 'Acercándose a la meta de la fase.' };
+    return { c: 'verde', l: 'En tiempo', d: d, meta: meta, sub: 'Dentro del plazo de la fase.' };
+  }
+
+  /* ---------- lectura del registro de Progreso ---------- */
+  async function fetchProgreso(folio) {
+    if (typeof atFetch !== 'function') throw new Error('atFetch no disponible');
+    var f = String(folio || '').replace(/"/g, '');
+    var formulas = ['{Folio NERI}="' + f + '"', '{Folio}="' + f + '"'];
+    for (var i = 0; i < formulas.length; i++) {
+      try {
+        var data = await atFetch(PROG_TABLE + '?maxRecords=1&filterByFormula=' + encodeURIComponent(formulas[i]));
+        if (data && data.records && data.records[0]) return data.records[0];
+      } catch (e) { /* nombre de campo no existe → probar siguiente */ }
+    }
+    return null;
+  }
+  async function patch(rid, fields) {
+    return atFetch(PROG_TABLE + '/' + rid, { method: 'PATCH', body: JSON.stringify({ fields: fields, typecast: true }) });
+  }
+
+  /* ---------- render ---------- */
+  function railHTML(idx) {
+    return '<div class="med-rail">' + FASES.map(function (f, i) {
+      var cls = i < idx ? 'done' : (i === idx ? 'cur' : '');
+      var dot = '<div class="med-node ' + cls + '"><div class="med-dot">' + (i < idx ? '✓' : (i + 1)) + '</div><div class="med-lbl">' + esc(FASE_CORTA[i]) + '</div></div>';
+      var bar = i < FASES.length - 1 ? '<div class="med-bar ' + (i < idx ? 'on' : '') + '"></div>' : '';
+      return dot + bar;
+    }).join('') + '</div>';
+  }
+  function panelHTML(est, pago, bloqueo) {
+    var chips = '';
+    if (est.meta != null && est.c !== 'done') chips += '<span class="med-chip">Meta fase: ' + est.meta + ' d</span><span class="med-chip">Lleva: ' + est.d + ' d</span>';
+    if (pago) chips += '<span class="med-chip">El cliente ve: ' + pago.rango + '</span>';
+    var motivo = bloqueoActivo(bloqueo) ? '<div class="med-motivo">⚠ ' + esc(bloqueo) + ' · sube al director</div>' : '';
+    return '<div class="med-panel ' + est.c + '">'
+      + '<div class="med-estado"><span class="med-sem ' + est.c + '"></span><span class="med-estado-l">' + esc(est.l) + '</span></div>'
+      + (est.sub ? '<div class="med-sub">' + esc(est.sub) + '</div>' : '')
+      + (chips ? '<div class="med-chips">' + chips + '</div>' : '')
+      + motivo + '</div>';
+  }
+  function accionesHTML(rec, folio, idx, pago, bloqueo) {
+    var pagoSel = norm(fval(rec, 'Forma de Pago'));
+    var motSel = norm(fval(rec, 'Motivo de Bloqueo') || 'Ninguno / en tiempo');
+    var acc = '<div class="med-acc">';
+    if (idx < 7) acc += '<button class="med-btn" onclick="medAvanzar(\'' + attr(folio) + '\')">Avanzar a: ' + esc(FASE_CORTA[idx + 1]) + '</button>';
+    if (bloqueoActivo(bloqueo)) acc += '<button class="med-btn ghost" onclick="medSeguimiento(\'' + attr(folio) + '\')">Registrar seguimiento (48 h)</button>';
+    acc += '</div>';
+    var pagoOptions = '<option value="">— definir —</option>' + PAGO_OPC.map(function (o) { return '<option' + (norm(o) === pagoSel ? ' selected' : '') + '>' + esc(o) + '</option>'; }).join('');
+    var motOptions = MOTIVO_OPC.map(function (o) { return '<option' + (norm(o) === motSel ? ' selected' : '') + '>' + esc(o) + '</option>'; }).join('');
+    var sel = '<div class="med-selrow">'
+      + '<label class="med-sel"><span>Forma de pago</span><select onchange="medFormaPago(\'' + attr(folio) + '\',this.value)">' + pagoOptions + '</select></label>'
+      + '<label class="med-sel"><span>Motivo de bloqueo</span><select onchange="medMotivo(\'' + attr(folio) + '\',this.value)">' + motOptions + '</select></label>'
+      + '</div>';
+    return acc + sel;
+  }
+  function vista(rec, folio) {
+    var idx = faseIndex(fval(rec, 'Fase Actual'));
+    var pago = pagoInfo(fval(rec, 'Forma de Pago'));
+    var bloqueo = fval(rec, 'Motivo de Bloqueo');
+    var proximo = fval(rec, 'Próximo paso');
+    var ahora = new Date();
+    var inicio = parseDate(fval(rec, 'Fecha Inicio Fase'))
+      || parseDate(fval(rec, 'Fase Modificada'))
+      || (idx === 0 ? parseDate(fval(rec, 'Fecha de Conversión')) : null)
+      || parseDate(rec.createdTime) || ahora;
+
+    var head = '<div class="med-head"><div class="med-k">Riel de cierre</div><div class="med-prop">' + esc(fval(rec, 'Nombre Propiedad')) + ' · ' + esc(folio) + '</div></div>';
+    var cuerpo;
+    if (idx === 7) {
+      cuerpo = panelHTML({ c: 'done', l: 'Operación cerrada', d: 0, meta: null, sub: 'Entrega de llaves completada.' }, pago, '');
+    } else if (!pago) {
+      cuerpo = '<div class="med-panel pause"><div class="med-estado"><span class="med-sem gris"></span><span class="med-estado-l">Reloj en pausa</span></div>'
+        + '<div class="med-sub">Falta definir la <b>forma de pago</b> para activar el reloj de esta operación. El sistema no estima tiempos sin ese dato.</div></div>';
+    } else {
+      cuerpo = panelHTML(estado(idx, pago.col, inicio, ahora, bloqueo, parseDate(fval(rec, 'Fecha Último Seguimiento'))), pago, bloqueo);
+    }
+    var prox = proximo ? '<div class="med-prox"><div class="med-prox-k">Próximo paso</div><div class="med-prox-v">' + esc(proximo) + '</div></div>' : '';
+    return '<div class="med-card">' + head + railHTML(idx) + cuerpo + prox + accionesHTML(rec, folio, idx, pago, bloqueo) + '</div>';
+  }
+
+  async function render(mount, folio) {
+    mount.innerHTML = '<div class="med-load">Cargando riel de cierre…</div>';
+    var rec;
+    try { rec = await fetchProgreso(folio); }
+    catch (e) { mount.innerHTML = '<div class="med-empty">No pude leer el riel de cierre. ' + esc(e.message || '') + '</div>'; return; }
+    if (!rec) { mount.innerHTML = '<div class="med-empty"><b>Sin riel de cierre todavía.</b><div class="med-empty-s">El riel nace cuando un comprador da apartado sobre esta propiedad.</div></div>'; return; }
+    MED_CACHE[folio] = rec;
+    mount.innerHTML = vista(rec, folio);
+  }
+  function remount(folio) { var m = document.getElementById('med-reloj-mount'); if (m) render(m, folio); }
+  function busy() { var m = document.getElementById('med-reloj-mount'); if (m) { var c = m.querySelector('.med-card'); if (c) c.classList.add('busy'); } }
+
+  /* ---------- API global (usada por los onclick) ---------- */
+  window.medRelojMount = function (folio) {
+    var m = document.getElementById('med-reloj-mount');
+    if (!m) return;
+    var f = folio || m.getAttribute('data-folio') || '';
+    injectCss();
+    if (!f) { m.innerHTML = '<div class="med-empty">Sin folio para leer el riel de cierre.</div>'; return; }
+    render(m, f);
+  };
+  window.medAvanzar = async function (folio) {
+    var rec = MED_CACHE[folio]; if (!rec) return;
+    var idx = faseIndex(fval(rec, 'Fase Actual'));
+    if (idx >= 7) { note('La operación ya está en la última fase.'); return; }
+    var sig = FASES[idx + 1].n;
+    if (!window.confirm('¿Avanzar la operación a "' + sig + '"? Se registrará la fecha de inicio de esa fase.')) return;
+    busy();
+    try { await patch(rec.id, { 'Fase Actual': sig, 'Fecha Inicio Fase': isoDate(new Date()) }); note('Fase avanzada a: ' + sig); remount(folio); }
+    catch (e) { note('No se pudo avanzar: ' + (e.message || '')); remount(folio); }
+  };
+  window.medSeguimiento = async function (folio) {
+    var rec = MED_CACHE[folio]; if (!rec) return;
+    busy();
+    try { await patch(rec.id, { 'Fecha Último Seguimiento': new Date().toISOString() }); note('Seguimiento registrado. Reloj de 48 h reiniciado.'); remount(folio); }
+    catch (e) { note('No se pudo registrar el seguimiento: ' + (e.message || '')); remount(folio); }
+  };
+  window.medFormaPago = async function (folio, val) {
+    var rec = MED_CACHE[folio]; if (!rec) return;
+    busy();
+    try { await patch(rec.id, { 'Forma de Pago': val || null }); note(val ? ('Forma de pago: ' + val) : 'Forma de pago borrada.'); remount(folio); }
+    catch (e) { note('No se pudo guardar la forma de pago: ' + (e.message || '')); remount(folio); }
+  };
+  window.medMotivo = async function (folio, val) {
+    var rec = MED_CACHE[folio]; if (!rec) return;
+    busy();
+    var fields = { 'Motivo de Bloqueo': val || 'Ninguno / en tiempo' };
+    if (bloqueoActivo(val)) fields['Fecha Último Seguimiento'] = new Date().toISOString();
+    try { await patch(rec.id, fields); note('Motivo actualizado: ' + (val || 'Ninguno / en tiempo')); remount(folio); }
+    catch (e) { note('No se pudo guardar el motivo: ' + (e.message || '')); remount(folio); }
+  };
+
+  /* ---------- CSS (sistema NERI: obsidiana + oro, radius 2–3px, sin gradientes/sombras) ---------- */
+  function injectCss() {
+    if (document.getElementById('med-reloj-css')) return;
+    var css = ''
+      + '.med-reloj-wrap,#med-reloj-mount{display:block;margin:0 0 16px}'
+      + '.med-card{border:1px solid var(--w08);border-left:2px solid var(--gold);background:rgba(255,255,255,.02);border-radius:3px;padding:16px 16px 14px;transition:opacity .15s}'
+      + '.med-card.busy{opacity:.5;pointer-events:none}'
+      + '.med-head{display:flex;flex-direction:column;gap:3px;margin-bottom:14px}'
+      + '.med-k{font-family:var(--fm);font-size:8px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold)}'
+      + '.med-prop{font-size:12px;color:var(--w80);font-weight:600;line-height:1.3}'
+      + '.med-rail{display:flex;align-items:flex-start;overflow-x:auto;padding-bottom:6px;margin-bottom:14px}'
+      + '.med-node{display:flex;flex-direction:column;align-items:center;gap:6px;width:60px;flex:0 0 auto}'
+      + '.med-dot{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid var(--w18);background:var(--black2);color:var(--w35);font-family:var(--fm);font-size:9px;font-weight:700}'
+      + '.med-node.done .med-dot{background:var(--gd);border-color:var(--gb);color:var(--gold)}'
+      + '.med-node.cur .med-dot{background:var(--sage);border-color:var(--sage);color:#050505;box-shadow:0 0 0 4px rgba(74,222,128,.10)}'
+      + '.med-lbl{font-size:6.5px;letter-spacing:.6px;text-transform:uppercase;color:var(--w35);font-weight:800;text-align:center;line-height:1.2}'
+      + '.med-node.done .med-lbl{color:var(--gold)}.med-node.cur .med-lbl{color:var(--sage)}'
+      + '.med-bar{height:1px;background:var(--w18);flex:1;min-width:14px;margin-top:11px}.med-bar.on{background:var(--gb)}'
+      + '.med-panel{border:1px solid var(--w08);border-radius:2px;padding:12px 14px;margin-bottom:10px}'
+      + '.med-panel.pause{border-style:dashed}'
+      + '.med-estado{display:flex;align-items:center;gap:8px}'
+      + '.med-sem{width:10px;height:10px;border-radius:50%;flex:0 0 auto}'
+      + '.med-estado-l{font-size:11px;font-weight:700;letter-spacing:.3px}'
+      + '.med-sub{font-size:11px;color:var(--w60);line-height:1.6;margin-top:6px}'
+      + '.med-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}'
+      + '.med-chip{font-family:var(--fm);font-size:8.5px;letter-spacing:.4px;color:var(--w60);border:1px solid var(--w08);border-radius:2px;padding:3px 7px}'
+      + '.med-motivo{margin-top:9px;font-size:10.5px;color:#d3a26a;border-left:2px solid #a9762f;padding:6px 9px;background:rgba(169,118,47,.06)}'
+      + '.med-sem.verde{background:var(--sage)}.med-panel.verde .med-estado-l{color:var(--sage)}'
+      + '.med-sem.amarillo{background:#cf9a2a}.med-panel.amarillo .med-estado-l{color:#d6a73a}'
+      + '.med-sem.rojo{background:#c0563f}.med-panel.rojo .med-estado-l{color:#cf6a52}'
+      + '.med-sem.negro{background:#7a2e2e}.med-panel.negro{border-color:#5a2424;background:rgba(120,46,46,.10)}.med-panel.negro .med-estado-l{color:#d98a8a}'
+      + '.med-sem.segui{background:var(--steel)}.med-panel.segui .med-estado-l{color:var(--steel)}'
+      + '.med-sem.gris{background:var(--w35)}'
+      + '.med-sem.done{background:var(--gold)}.med-panel.done .med-estado-l{color:var(--gold)}'
+      + '.med-prox{border:1px solid var(--w08);border-radius:2px;padding:10px 12px;margin-bottom:10px}'
+      + '.med-prox-k{font-family:var(--fm);font-size:7.5px;letter-spacing:2px;text-transform:uppercase;color:var(--w35);margin-bottom:4px}'
+      + '.med-prox-v{font-size:11px;color:var(--w80);line-height:1.55}'
+      + '.med-acc{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}'
+      + '.med-btn{flex:1;min-width:150px;display:inline-flex;align-items:center;justify-content:center;padding:11px 14px;border:1px solid var(--gold);background:var(--gold);color:#050505;border-radius:2px;font-size:8px;letter-spacing:1.6px;text-transform:uppercase;font-weight:900;cursor:pointer;transition:.15s;min-height:38px}'
+      + '.med-btn:hover{background:var(--gold-l);border-color:var(--gold-l)}'
+      + '.med-btn.ghost{background:transparent;border-color:var(--w18);color:var(--w60)}'
+      + '.med-btn.ghost:hover{border-color:var(--gb);color:var(--gold);background:var(--gd)}'
+      + '.med-selrow{display:flex;gap:10px;flex-wrap:wrap}'
+      + '.med-sel{flex:1;min-width:150px;display:flex;flex-direction:column;gap:4px}'
+      + '.med-sel span{font-family:var(--fm);font-size:7.5px;letter-spacing:1.5px;text-transform:uppercase;color:var(--w35)}'
+      + '.med-sel select{background:var(--obsidian);border:1px solid var(--w18);color:var(--w80);border-radius:2px;padding:8px 9px;font-size:11px;font-family:inherit}'
+      + '.med-sel select:focus{border-color:var(--gb);outline:none}'
+      + '.med-load,.med-empty{font-size:11px;color:var(--w60);padding:12px 2px;line-height:1.6}'
+      + '.med-empty b{color:var(--w80)}.med-empty-s{font-size:10.5px;color:var(--w35);margin-top:4px}';
+    var st = document.createElement('style');
+    st.id = 'med-reloj-css';
+    st.textContent = css;
+    document.head.appendChild(st);
+  }
 })();
 </script>
 </body>
