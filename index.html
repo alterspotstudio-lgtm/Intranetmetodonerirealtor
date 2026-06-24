@@ -4054,8 +4054,8 @@ function propActFromRecord(rec){
   const min=propV05MinimosCompletos(rec);
   if(!min.ok){
     return {
-      t: 'Completar ficha de propiedad antes de portal',
-      d: 'Antes de enviar el Portal de Venta, completa mínimos: '+min.pendientes.join(', ')+'.',
+      t: 'Completar datos de propiedad antes de portal',
+      d: 'Antes de enviar el Portal de Venta, completa datos básicos: '+min.pendientes.join(', ')+'.',
       btn: 'Completar ficha', icon:'file', unlock:'Enviar portal'
     };
   }
@@ -4254,11 +4254,7 @@ async function propLoad(force=false){
 function recargarPropiedades(){ propLoaded=false; propLoad(true); }
 
 const LANDING_FORM_MQ = [
-  {title:'Portada', ico:'◫', open:true, fields:[
-    {f:'Frase Inicio', type:'textarea', full:true, label:'Descripción corta de la propiedad'},
-    {f:'Foto de portada', type:'attach', full:true, img:true},
-  ]},
-  {title:'Datos de la Propiedad', ico:'⌂', fields:[
+  {title:'Datos de la Propiedad', ico:'⌂', open:true, fields:[
     {f:'Nombre Propiedad', type:'text', full:true, label:'Propiedad'},
     {f:'Tipo de Propiedad', type:'select', opts:['Casa','Departamento','Terreno','Local','Oficina','Bodega']},
     {f:'Estado Propiedad', type:'select', opts:['Disponible','Apartada','Vendida','En proceso','Suspendida']},
@@ -4278,7 +4274,10 @@ const LANDING_FORM_MQ = [
     {f:'Cuota Mantenimiento (mensual)', type:'number'},{f:'Predial Anual', type:'number'},
     {f:'Amenidades', type:'textarea', full:true, label:'Amenidades (una por línea o separadas por coma)'},
   ]},
-  {title:'Información Landing', ico:'▶', videos:[
+  {title:'Información Landing', ico:'▶', fields:[
+    {f:'Frase Inicio', type:'textarea', full:true, label:'Descripción corta de la propiedad'},
+    {f:'Foto de portada', type:'attach', full:true, img:true},
+  ], videos:[
     {room:'Sala',yt:'Video Sala',mp4:'Video Sala MP4',idrive:'Video Sala iDrive'},
     {room:'Cocina',yt:'Video Cocina',mp4:'Video Cocina MP4',idrive:'Video Cocina iDrive'},
     {room:'Recámara',yt:'Video Recamara',mp4:'Video Recamara MP4',idrive:'Video Recamara iDrive'},
@@ -4338,11 +4337,17 @@ function propV05TieneMedia(rec){
     return !!(_fval(rec,v.yt)||_fval(rec,v.idrive)||_attInfo(rec,v.mp4).has);
   });
 }
+function propV05DatosBasicosPendientes(rec){
+  const requeridos=[
+    ['Nombre Propiedad','nombre de propiedad'],
+    ['Tipo de Propiedad','tipo de propiedad'],
+    ['Zona / Colonia','zona / colonia'],
+    ['Precio Lista','precio de lista']
+  ];
+  return requeridos.filter(function(item){ return !_fval(rec,item[0]); }).map(function(item){ return item[1]; });
+}
 function propV05MinimosCompletos(rec){
-  const pendientes=[];
-  if(!_fval(rec,'Nombre Propiedad')) pendientes.push('nombre de propiedad');
-  if(!_fval(rec,'Frase Inicio')) pendientes.push('descripción corta');
-  if(!propV05TieneMedia(rec)) pendientes.push('portada o video');
+  const pendientes=propV05DatosBasicosPendientes(rec);
   return {ok:pendientes.length===0, pendientes:pendientes};
 }
 function propV05FichaBanner(rec){
@@ -4350,7 +4355,7 @@ function propV05FichaBanner(rec){
   if(min.ok){
     return '<div class="le-banner" style="border-color:rgba(74,222,128,.25);background:rgba(74,222,128,.07);color:var(--w80)">✓ Mínimos completos. Ya puedes enviar el Portal de Venta al propietario.</div>';
   }
-  return '<div class="le-banner">V-05 · Antes de enviar portal, completa estos mínimos: <strong>'+_esc(min.pendientes.join(', '))+'</strong>. Guarda cambios y después se habilita Enviar portal.</div>';
+  return '<div class="le-banner">V-05 · Antes de enviar portal, completa estos datos de la propiedad: <strong>'+_esc(min.pendientes.join(', '))+'</strong>. Portada y videos van después en Información Landing.</div>';
 }
 function propV05AbrirFichaParaCompletar(p){
   if(p) CURRENT_PROP=p;
@@ -4366,7 +4371,7 @@ function leadVendAbrirFichaPropiedadAntesPortal(prop){
   leadVendEnfocarSiguienteJugadaPropiedad();
   setTimeout(function(){
     propV05AbrirFichaParaCompletar(CURRENT_PROP || (prop&&prop.fields&&typeof propMapRecord==='function'?propMapRecord(prop):prop));
-    mqNote('Completa nombre, descripción corta y portada/video antes de enviar portal.');
+    mqNote('Completa los datos básicos de la propiedad antes de enviar portal. Portada y videos van después.');
   },450);
 }
 function propEnviarPortalDesdeFicha(){
@@ -4374,7 +4379,7 @@ function propEnviarPortalDesdeFicha(){
   if(!p||!p._recId||propUsingLocal){ mqNote('Enviar portal requiere una propiedad cargada correctamente.'); return; }
   const rec=getPropRecord(p._recId)||propCurrentRec(p);
   const min=propV05MinimosCompletos(rec);
-  if(!min.ok){ mqNote('Antes de enviar portal falta: '+min.pendientes.join(', ')+'.'); propV05AbrirFichaParaCompletar(p); return; }
+  if(!min.ok){ mqNote('Antes de enviar portal falta completar datos de propiedad: '+min.pendientes.join(', ')+'.'); propV05AbrirFichaParaCompletar(p); return; }
   cabEnviarPortalVenta(p._recId);
 }
 function propFichaUrl(p){ const folio=(p&&p.folio)||''; return folio?(location.origin+'/ficha.html?folio='+encodeURIComponent(folio)):''; }
@@ -4389,7 +4394,9 @@ function renderFichaPropModal(p){
   const min=propV05MinimosCompletos(rec);
   const portalDisabled=min.ok?'':' disabled';
   const secs=LANDING_FORM_MQ.map(sec=>{
-    let inner=sec.videos?`<div class="le-note">Pega el ID de YouTube o sube el MP4. El sistema lo dejará listo para reproducirse en la landing.</div>`+sec.videos.map(v=>_landVideoRowMq(v,rec)).join(''):`<div class="le-grid">${sec.fields.map(fl=>_landInputMq(fl,rec)).join('')}</div>`;
+    let inner='';
+    if(sec.fields){ inner+=`<div class="le-grid">${sec.fields.map(fl=>_landInputMq(fl,rec)).join('')}</div>`; }
+    if(sec.videos){ inner+=`<div class="le-note">Portada y videos se completan después de enviar el portal y agendar la producción inmobiliaria.</div>`+sec.videos.map(v=>_landVideoRowMq(v,rec)).join(''); }
     return `<details class="le-sec"${sec.open?' open':''}><summary><span class="le-ico">${sec.ico}</span>${_esc(sec.title)}<span class="le-caret">›</span></summary><div class="le-body">${inner}</div></details>`;
   }).join('');
   const lockRow=(k,v)=>v?`<div class="le-lock"><div class="le-lock-k">🔒 ${_esc(k)}</div><div class="le-lock-v">${_esc(v)}</div></div>`:'';
@@ -4397,7 +4404,7 @@ function renderFichaPropModal(p){
   document.getElementById('fichaPropBox').innerHTML=`
     <button class="modal-x" onclick="closeFichaProp()">&times;</button>
     <div class="fp-header"><div><div class="fp-sub">Editor de landing conectado</div><div class="fp-name">${_esc(nombre)}</div></div><div class="fp-folio"><div class="fp-folio-lbl">Folio</div>${_esc(folio||'— sin folio aún —')}</div></div>
-    <div class="fp-body">${propV05FichaBanner(rec)}<div id="med-reloj-mount" data-folio="${_escAttr(folio)}"></div><div class="le-banner">Completa portada, datos e información de landing antes de enviar el portal.</div>${secs}${lockBlock}</div>
+    <div class="fp-body">${propV05FichaBanner(rec)}<div id="med-reloj-mount" data-folio="${_escAttr(folio)}"></div><div class="le-banner">Para enviar el portal solo se requieren datos básicos de la propiedad. Portada y videos se completan después de agendar producción inmobiliaria.</div>${secs}${lockBlock}</div>
     <div class="fp-actions"><span class="fp-status" id="prop-save-msg"></span><button class="m-btn" onclick="closeFichaProp()">Cerrar</button><button class="m-btn" data-url="${_escAttr(linkComp)}" onclick="propOpenUrl(this.dataset.url,'Esta propiedad todavía no tiene Link Comprador.')">◎ Ver landing</button><button class="m-btn" data-url="${_escAttr(propFichaUrl(p))}" onclick="propOpenUrl(this.dataset.url,'Esta propiedad todavía no tiene folio para ficha técnica.')">▣ Ver ficha técnica</button><button class="m-btn" data-url="${_escAttr(propFichaUrl(p))}" onclick="propCopyUrl(this.dataset.url)">↗ Compartir ficha</button><button class="m-btn" id="prop-send-portal-btn" onclick="propEnviarPortalDesdeFicha()"${portalDisabled}>Enviar portal</button><button class="m-btn solid grow" id="prop-save-btn" onclick="landSaveProp()">Guardar cambios</button></div>`;
   if(typeof window.medRelojMount==='function'){ try{ window.medRelojMount(folio); }catch(_){} }
 }
@@ -4429,12 +4436,49 @@ async function landSaveProp(){
     if(blobInputs.length||idriveInputs.length){ btn.textContent=(blobInputs.length+idriveInputs.length)===1?'Subiendo archivo…':'Subiendo archivos…'; }
     for(const el of blobInputs){ const url=await uploadBlobFile(el.files[0],folioUpload,el.dataset.uploadDoc||el.dataset.uploadAttach); fields[el.dataset.uploadAttach]=[{url}]; }
     for(const el of idriveInputs){ const url=await uploadIdriveFile(el.files[0],folioUpload,el.dataset.uploadDoc||el.dataset.uploadIdrive); fields[el.dataset.uploadIdrive]=url; }
-    if(!Object.keys(fields).length){ if(msg){msg.style.color='var(--w60)';msg.textContent='No hay cambios para guardar.';} return; }
+    if(!Object.keys(fields).length){
+      const minActual=propV05MinimosCompletos(rec);
+      if(msg){msg.style.color=minActual.ok?'var(--emerald)':'var(--w60)';msg.textContent=minActual.ok?'Datos de propiedad completos. Ya puedes enviar portal.':'No hay cambios para guardar.';}
+      if(minActual.ok){
+        p.act=propActFromRecord(rec);
+        renderProp(p);
+        mqNote('✓ Datos de propiedad completos. Ya puedes enviar el Portal de Venta.');
+      }
+      return;
+    }
     btn.textContent='Guardando…';
-    await atFetch(`${PROP_TABLE}/${p._recId}`,{method:'PATCH',body:JSON.stringify({fields,typecast:true})});
-    mqNote('✓ Landing actualizada');
+    const updatedRec=await atFetch(`${PROP_TABLE}/${p._recId}`,{method:'PATCH',body:JSON.stringify({fields,typecast:true})});
+
+    // Refresca el registro actual en memoria para que el riel y "Lo que toca ahora"
+    // cambien de inmediato sin esperar a otra recarga manual ni perder la propiedad seleccionada.
+    const recAfter=(updatedRec&&updatedRec.fields)?updatedRec:rec;
+    if(!(updatedRec&&updatedRec.fields)){
+      recAfter.fields=recAfter.fields||{};
+      Object.keys(fields).forEach(k=>{recAfter.fields[k]=fields[k];});
+    }
+    p._rawRec=recAfter;
+    propRecIndex[p._recId]=recAfter;
+    const mapped=propMapRecord(recAfter);
+    Object.assign(p,mapped);
+    CURRENT_PROP=p;
+
+    const minAfter=propV05MinimosCompletos(recAfter);
+    if(msg){
+      msg.style.color=minAfter.ok?'var(--emerald)':'var(--w60)';
+      msg.textContent=minAfter.ok?'Datos de propiedad completos. Ya puedes enviar portal.':'Guardado. Falta: '+minAfter.pendientes.join(', ')+'.';
+    }
+    mqNote(minAfter.ok?'✓ Datos de propiedad completos. Ya puedes enviar el Portal de Venta.':'✓ Cambios guardados. Falta: '+minAfter.pendientes.join(', ')+'.');
     closeFichaProp();
-    await propLoad(true);
+    renderProp(p);
+
+    const keepId=p._recId;
+    try{
+      await propLoad(true);
+      const fresh=(PROPS||[]).find(q=>q&&q._recId===keepId);
+      if(fresh){ CURRENT_PROP=fresh; renderProp(fresh); }
+    }catch(_){
+      // El guardado ya fue exitoso; si la recarga falla, se conserva el estado local actualizado.
+    }
   }catch(e){ if(msg){msg.style.color='var(--rose)';msg.textContent='Error: '+(e.message||e);} else mqNote('Error: '+(e.message||e)); }
   finally{ btn.textContent='Guardar cambios'; btn.disabled=false; }
 }
