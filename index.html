@@ -4049,17 +4049,50 @@ function crmPropietarioData(propRec){
   };
 }
 function crmPropietarioWaHref(propRec){ const d=crmPropietarioData(propRec); const phone=(typeof fcPhone==='function'?fcPhone(d.telefono):String(d.telefono||'').replace(/\D/g,'')); return phone?'https://wa.me/'+phone:''; }
+
+function propPortalLocalKey(rec){
+  const folio=propFirst(rec,['Folio NERI','Folio','Folio Vendedor']) || (rec&&rec.id) || '';
+  return 'neri.portalEnviado.'+String(folio||'').trim().toUpperCase();
+}
+function propPortalLocalGet(rec){
+  try{ return !!(rec && localStorage.getItem(propPortalLocalKey(rec))); }catch(_){ return false; }
+}
+function propPortalLocalSet(rec){
+  try{ if(rec) localStorage.setItem(propPortalLocalKey(rec), new Date().toISOString()); }catch(_){ }
+}
+function propPortalEnviado(rec){
+  if(!rec) return false;
+  const direct=propFirst(rec,['Portal Enviado','Portal enviado','Portal de Venta Enviado','Fecha Portal Enviado','Fecha Envío Portal','Fecha Envio Portal','Portal enviado el']);
+  if(direct) return true;
+  if(propPortalLocalGet(rec)) return true;
+  const estado=String(propFirst(rec,['Estado Portal','Estatus Portal','Estado Portal Venta'])||'').toLowerCase();
+  if(/enviad|compartid/.test(estado)) return true;
+  const sj=String(propFirst(rec,['Siguiente jugada','Próximo paso','Proximo paso','Pendientes visibles'])||'').toLowerCase();
+  if(/portal\s+enviad|producci[oó]n inmobiliaria|confirmaci[oó]n de producci[oó]n|foto y video/.test(sj)) return true;
+  return false;
+}
+function propActProduccion(){
+  return {
+    key:'produccion',
+    t:'Producción inmobiliaria',
+    d:'Portal enviado. Ahora el siguiente paso es confirmar la cita de foto y video desde el portal de venta.',
+    btn:'Ver portal', icon:'send', unlock:'Confirmación de producción'
+  };
+}
 function propActFromRecord(rec){
   const sj=propFirst(rec,['Siguiente jugada','Próximo paso','Proximo paso','Notas Internas','Pendientes visibles']);
   const min=propV05MinimosCompletos(rec);
   if(!min.ok){
     return {
+      key:'completar-propiedad',
       t: 'Completar datos de propiedad antes de portal',
       d: 'Antes de enviar el Portal de Venta, completa datos básicos: '+min.pendientes.join(', ')+'.',
       btn: 'Completar ficha', icon:'file', unlock:'Enviar portal'
     };
   }
+  if(propPortalEnviado(rec)) return propActProduccion();
   return {
+    key:'enviar-portal',
     t: sj || 'Enviar Portal de Venta al propietario',
     d: 'Comparte el link madre: progreso de venta, expediente documental y confirmación de producción inmobiliaria.',
     btn: 'Enviar Portal', icon:'send', unlock:'Producción'
@@ -4516,19 +4549,43 @@ function propTel(rec,src){ return _fval(src,'Teléfono WhatsApp')||_fval(rec,'Te
 function waNumberProp(raw){ const tel=String(raw||'').replace(/\D/g,''); if(!tel)return''; return tel.length===10?'52'+tel:tel; }
 async function cabEnviarPortalVenta(recId){
   let rec=getPropRecord(recId);
-  if(!rec){ mqNote('No encontré la propiedad seleccionada.'); return; }
+  if(!rec){ mqNote('No encontré la propiedad seleccionada.'); return false; }
   let src=portalSource(rec)||rec;
   let link=portalVentaLink(rec);
   if(!link||link.indexOf('token=')===-1){
     const folioRef=_fval(rec,'Folio Vendedor')||leadVendFolioValue(rec)||_fval(rec,'Folio')||'';
     if(folioRef){ const fresh=await portalFetchVendedorPorFolio(folioRef); if(fresh){ portalAplicarTokenFresco(rec,fresh,folioRef); src=portalSource(rec)||rec; link=portalVentaLink(rec); } }
   }
-  if(!link){ mqNote('No envié WhatsApp: falta folio para construir el Portal de Venta.'); return; }
+  if(!link){ mqNote('No envié WhatsApp: falta folio para construir el Portal de Venta.'); return false; }
   const tel=propTel(rec,src);
-  if(!tel){ mqNote('No envié WhatsApp: falta Teléfono WhatsApp del propietario.'); return; }
+  if(!tel){ mqNote('No envié WhatsApp: falta Teléfono WhatsApp del propietario.'); return false; }
   window.open('https://wa.me/'+waNumberProp(tel)+'?text='+encodeURIComponent(portalArmarMensaje(rec,src,link)),'_blank');
+  return true;
 }
-function propMainAction(p){
+
+async function propMarcarPortalEnviado(recId){
+  let rec=getPropRecord(recId);
+  if(!rec) return;
+  propPortalLocalSet(rec);
+  const fields={'Siguiente jugada':'Producción inmobiliaria: confirmar cita de foto y video desde el portal de venta.'};
+  let updatedRec=null;
+  if(propCanUseAirtable() && recId && !propUsingLocal){
+    try{
+      updatedRec=await atFetch(`${PROP_TABLE}/${recId}`,{method:'PATCH',body:JSON.stringify({fields,typecast:true})});
+    }catch(e){
+      console.warn('No se pudo guardar Siguiente jugada después de enviar portal. Se conserva avance visual local.', e&&e.message?e.message:e);
+    }
+  }
+  const recAfter=(updatedRec&&updatedRec.fields)?updatedRec:rec;
+  recAfter.fields=recAfter.fields||{};
+  if(!(updatedRec&&updatedRec.fields)) recAfter.fields['Siguiente jugada']=fields['Siguiente jugada'];
+  propRecIndex[recId]=recAfter;
+  const mapped=propMapRecord(recAfter);
+  const current=(CURRENT_PROP&&CURRENT_PROP._recId===recId)?CURRENT_PROP:(PROPS||[]).find(q=>q&&q._recId===recId);
+  if(current){ Object.assign(current,mapped); CURRENT_PROP=current; renderProp(current); }
+  mqNote('✓ Portal marcado como enviado. Siguiente paso: producción inmobiliaria.');
+}
+async function propMainAction(p){
   if(!(p&&p._recId&&!propUsingLocal)){ mqNote('Enviar Portal de Venta se activa con una propiedad cargada correctamente.'); return; }
   const rec=getPropRecord(p._recId)||propCurrentRec(p);
   const min=propV05MinimosCompletos(rec);
@@ -4537,7 +4594,13 @@ function propMainAction(p){
     mqNote('Antes de enviar portal falta: '+min.pendientes.join(', ')+'.');
     return;
   }
-  cabEnviarPortalVenta(p._recId);
+  if(propPortalEnviado(rec) || (p.act&&p.act.key==='produccion')){
+    const link=portalVentaLink(rec);
+    propOpenUrl(link,'Todavía no puedo abrir el portal: falta folio o token del propietario.');
+    return;
+  }
+  const enviado=await cabEnviarPortalVenta(p._recId);
+  if(enviado) await propMarcarPortalEnviado(p._recId);
 }
 window.portalVentaLink=portalVentaLink;
 window.cabEnviarPortalVenta=cabEnviarPortalVenta;
