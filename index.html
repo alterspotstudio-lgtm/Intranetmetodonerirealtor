@@ -1784,18 +1784,22 @@ async function propDocsFetch(folio, token){
   if(!r.ok) throw new Error(j.error||('HTTP '+r.status));
   return j.documents||[];
 }
-function propDocsAlertHTML(recId, pend){
-  return '<button class="pda-alert" type="button" onclick="propDocsOpen(\''+recId+'\')" aria-label="Revisar documentos pendientes">'
+function propDocsAlertHTML(recId, pend, faltan){
+  const txt = pend>0
+    ? '<b>'+pend+'</b> documento'+(pend>1?'s':'')+' espera'+(pend>1?'n':'')+' revisión'
+    : '<b>'+faltan+'</b> documento'+(faltan>1?'s':'')+' mínimo'+(faltan>1?'s':'')+' pendiente'+(faltan>1?'s':'')+' para publicar';
+  return '<button class="pda-alert" type="button" onclick="propDocsOpen(\''+recId+'\')" aria-label="Revisar expediente documental">'
     +'<span class="pda-dot"></span>'
-    +'<span class="pda-txt"><b>'+pend+'</b> documento'+(pend>1?'s':'')+' espera'+(pend>1?'n':'')+' revisión</span>'
+    +'<span class="pda-txt">'+txt+'</span>'
     +'<span class="pda-cta">Revisar</span></button>';
 }
 function propDocsCountPend(docs){ return (docs||[]).filter(d=>String(d.estado||'')==='Recibido').length; }
+function propDocsGatePend(docs){ return (docs||[]).filter(d=>d.gate_publicacion && String(d.estado||'')!=='Validado').length; }
 function propDocsPaintAlert(recId, docs){
   if(propDocsActiveRecId!==recId) return;
   const slot=document.getElementById('propDocsAlert'); if(!slot) return;
-  const pend=propDocsCountPend(docs);
-  if(pend>0){ slot.style.display=''; slot.innerHTML=propDocsAlertHTML(recId, pend); }
+  const pend=propDocsCountPend(docs), faltan=propDocsGatePend(docs);
+  if(pend>0 || faltan>0){ slot.style.display=''; slot.innerHTML=propDocsAlertHTML(recId, pend, faltan); }
   else { slot.style.display='none'; slot.innerHTML=''; }
 }
 async function propDocsCheck(p){
@@ -1834,24 +1838,41 @@ async function propDocsOpen(recId){
 function propDocsRender(docs, folio, recId){
   const body=document.getElementById('propDocsBody'); if(!body) return;
   if(!docs.length){ body.innerHTML='<div class="pdoc-empty">Este propietario aún no ha subido documentos.</div>'; return; }
-  body.innerHTML=docs.map(function(d){
+  const gateTotal=(docs||[]).filter(d=>d.gate_publicacion).length;
+  const gateOk=(docs||[]).filter(d=>d.gate_publicacion && String(d.estado||'')==='Validado').length;
+  const recibidos=(docs||[]).filter(d=>['Recibido','Validado'].includes(String(d.estado||''))).length;
+  const summary='<div class="pdoc" style="border-color:rgba(198,168,107,.22);background:rgba(198,168,107,.045)"><div class="pdoc-h"><span class="pdoc-tipo">Gate de publicación</span> '+(gateOk>=gateTotal?'<span class="pdoc-badge pdoc-badge-ok">Listo para publicar</span>':'<span class="pdoc-badge pdoc-badge-warn">Pendiente</span>')+'</div><div class="pdoc-desc">Mínimos validados: '+gateOk+'/'+gateTotal+' · Documentos recibidos: '+recibidos+'/'+docs.length+'. Los condicionales pueden marcarse como No aplica.</div></div>';
+  body.innerHTML=summary+docs.map(function(d){
     const id=d.id||'', estado=d.estado||'Pendiente', verUrl=d.archivo_url?propDocsVerUrl(d.archivo_url):'';
     const fecha=d.fecha_carga?'<span class="pdoc-fecha">'+_esc(String(d.fecha_carga).slice(0,10))+'</span>':'';
     const critico=d.critico?'<span class="pdoc-crit">CRÍTICO</span>':'';
-    const motivo=(estado==='Rechazado'&&d.motivo_rechazo)?'<div class="pdoc-motivo">Motivo: '+_esc(d.motivo_rechazo)+'</div>':'';
+    const meta=[d.bloque||'', d.aplica==='condicional'?'Condicional':'Siempre', d.gate_publicacion?'Bloquea publicación':''].filter(Boolean).join(' · ');
+    const metaHtml=meta?'<div class="pdoc-desc" style="font-family:var(--fm);font-size:8px;letter-spacing:.7px;text-transform:uppercase;color:var(--w35)">'+_esc(meta)+'</div>':'';
+    const motivo=((estado==='Rechazado'||estado==='No aplica')&&d.motivo_rechazo)?'<div class="pdoc-motivo">Motivo: '+_esc(d.motivo_rechazo)+'</div>':'';
     const ver=verUrl?'<a class="pdoc-pill" href="'+_esc(verUrl)+'" target="_blank" rel="noopener">Ver</a>':'';
     const avisar=(estado==='Rechazado')?propDocsWaBtn(recId, d.tipo||'documento', d.motivo_rechazo||'documento ilegible o incompleto'):'';
     const subido=(estado==='Recibido'||estado==='Validado'||estado==='Rechazado');
-    const botones=subido
-      ?'<button class="pdoc-pill gold" type="button" onclick="propDocsAccion(\''+folio+'\',\''+id+'\',\'validar\',\''+recId+'\')">Validar</button><button class="pdoc-pill bad" type="button" onclick="propDocsRechazo(\''+folio+'\',\''+id+'\',\''+recId+'\')">Rechazar</button>'
-      :'<span class="pdoc-pend">Pendiente de carga del propietario</span>';
+    let acciones=[];
+    if(ver) acciones.push(ver);
+    if(subido){
+      acciones.push('<button class="pdoc-pill gold" type="button" onclick="propDocsAccion(\''+folio+'\',\''+id+'\',\'validar\',\''+recId+'\')">Validar</button>');
+      acciones.push('<button class="pdoc-pill bad" type="button" onclick="propDocsRechazo(\''+folio+'\',\''+id+'\',\''+recId+'\')">Rechazar</button>');
+    }else if(estado==='No aplica'){
+      acciones.push('<span class="pdoc-pend">Marcado como No aplica</span>');
+    }else{
+      acciones.push('<span class="pdoc-pend">Pendiente de carga del propietario</span>');
+    }
+    if(d.aplica==='condicional' && estado!=='No aplica' && estado!=='Validado'){
+      acciones.push('<button class="pdoc-pill" type="button" onclick="propDocsAccion(\''+folio+'\',\''+id+'\',\'no_aplica\',\''+recId+'\')">No aplica</button>');
+    }
+    if(avisar) acciones.push(avisar);
     return '<div class="pdoc"><div class="pdoc-h"><span class="pdoc-tipo">'+_esc(d.tipo||'Documento')+'</span> '+critico+' '+propDocsBadge(estado)+fecha+'</div>'
-      +(d.descripcion?'<div class="pdoc-desc">'+_esc(d.descripcion)+'</div>':'')+motivo
-      +'<div class="pdoc-acc">'+ver+botones+avisar+'</div>'
+      +metaHtml+(d.descripcion?'<div class="pdoc-desc">'+_esc(d.descripcion)+'</div>':'')+motivo
+      +'<div class="pdoc-acc">'+acciones.join('')+'</div>'
       +'<div class="pdoc-rech" id="pdoc-rech-'+id+'" style="display:none"></div></div>';
   }).join('');
 }
-function propDocsBadge(e){ const m={'Validado':'ok','Rechazado':'bad','Recibido':'warn','Pendiente':'pend','No aplica':'pend'}; return '<span class="pdoc-badge pdoc-badge-'+(m[e]||'pend')+'">'+_esc(e)+'</span>'; }
+function propDocsBadge(e){ const m={'Validado':'ok','Rechazado':'bad','Recibido':'warn','Pendiente':'pend','No aplica':'ok'}; return '<span class="pdoc-badge pdoc-badge-'+(m[e]||'pend')+'">'+_esc(e)+'</span>'; }
 function propDocsVerUrl(u){ u=String(u||''); if(!u) return ''; if(/idrivee2\.com/i.test(u)) return location.origin+'/api/idrive-read-url?url='+encodeURIComponent(u); return u; }
 function propDocsWaBtn(recId, tipo, motivo){
   const c=propDocsCache[recId]; const vend=c&&c.vend; if(!vend) return '';
@@ -1876,7 +1897,8 @@ function propDocsCancelRechazo(id){ const b=document.getElementById('pdoc-rech-'
 async function propDocsAccion(folio,id,accion,recId){
   const motivo=accion==='rechazar'?((document.getElementById('pdoc-motivo-'+id)||{}).value||'').trim():'';
   if(accion==='rechazar'&&!motivo){ propDocsStatus('Indica un motivo de rechazo.'); return; }
-  propDocsStatus('Aplicando '+(accion==='validar'?'validación':'rechazo')+'…');
+  const lbl=accion==='validar'?'validación':(accion==='rechazar'?'rechazo':'No aplica');
+  propDocsStatus('Aplicando '+lbl+'…');
   try{
     const tok=(typeof perfilSession==='function'&&perfilSession().token)||'';
     const r=await fetch('/api/expediente-documentos',{ method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok}, body:JSON.stringify({ action:accion, folio:folio, document_id:id, motivo:motivo }) });
