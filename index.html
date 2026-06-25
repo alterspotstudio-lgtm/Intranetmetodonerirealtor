@@ -4631,6 +4631,11 @@ async function propMarcarPortalEnviado(recId){
 async function propMainAction(p){
   if(!(p&&p._recId&&!propUsingLocal)){ mqNote('Enviar Portal de Venta se activa con una propiedad cargada correctamente.'); return; }
   const rec=getPropRecord(p._recId)||propCurrentRec(p);
+  if(propPortalEnviado(rec) || (p.act&&p.act.key==='produccion')){
+    const link=portalVentaLink(rec);
+    propOpenUrl(link,'Todavía no puedo abrir el portal: falta folio o token del propietario.');
+    return;
+  }
   const min=propV05MinimosCompletos(rec);
   if(!min.ok){
     propV05AbrirFichaParaCompletar(p);
@@ -4641,11 +4646,6 @@ async function propMainAction(p){
   if(!gate.ok){
     mqNote(gate.checked?'Antes de enviar portal falta validar expediente propietario: '+gate.faltan+' documento(s) mínimo(s).':gate.msg);
     propDocsCheck(p);
-    return;
-  }
-  if(propPortalEnviado(rec) || (p.act&&p.act.key==='produccion')){
-    const link=portalVentaLink(rec);
-    propOpenUrl(link,'Todavía no puedo abrir el portal: falta folio o token del propietario.');
     return;
   }
   const enviado=await cabEnviarPortalVenta(p._recId);
