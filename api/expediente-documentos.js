@@ -6,7 +6,8 @@
 //   GET  ?folio=&token=                 → lista los documentos del folio
 //   POST {action:'documento_recibido'}  → el propietario subió un archivo
 //                                          (auth: folio + token)  · CHECK-IN
-//   POST {action:'validar'|'rechazar'}  → el asesor revisa un documento
+//   POST {action:'validar'|'rechazar'|'no_aplica'}
+//                                      → el asesor revisa o marca no aplicable
 //                                          (auth: sesión NERI Bearer)
 //
 //  Cada subida hace "check-in" en el lead (campo Progreso Expediente) para que
@@ -26,14 +27,35 @@ const LEADS_TABLE = 'tblQHdwEucTaNrLzm';
 const DOCS_TABLE = 'Expediente Documentos';
 
 const DOCS = [
-  { id: 'escritura',         tipo: 'Escritura',                                 descripcion: 'Documento base que acredita la propiedad.',                   critico: true },
-  { id: 'predial',           tipo: 'Predial',                                   descripcion: 'Boleta o comprobante de predial reciente.',                   critico: true },
-  { id: 'ine',               tipo: 'Identificación Oficial (INE)',              descripcion: 'Identificación vigente del propietario.',                     critico: true },
-  { id: 'libertad_gravamen', tipo: 'Libertad de Gravamen',                      descripcion: 'Para verificar si la propiedad está libre de gravamen.',      critico: true },
-  { id: 'agua_luz',          tipo: 'Agua / Luz',                                descripcion: 'Comprobante de servicios recientes.',                          critico: false },
-  { id: 'constancia_fiscal', tipo: 'Constancia Situación Fiscal',               descripcion: 'Necesaria para revisar correctamente el tema fiscal.',         critico: false },
-  { id: 'domicilio',         tipo: 'Comprobante de Domicilio',                  descripcion: 'Comprobante vigente del propietario.',                         critico: false },
-  { id: 'acta_matrimonio',   tipo: 'Acta de Matrimonio / Régimen Matrimonial',  descripcion: 'Aplica cuando la situación civil lo requiere.',                critico: false },
+  // Bloque 1 · Identidad y persona — siempre
+  { id: 'ine',               tipo: 'Identificación oficial vigente',            bloque: 'Identidad y persona', aplica: 'siempre',     gate_publicacion: true,  descripcion: 'Identificación vigente del propietario.',                                  critico: true },
+  { id: 'curp',              tipo: 'CURP',                                      bloque: 'Identidad y persona', aplica: 'siempre',     gate_publicacion: true,  descripcion: 'Clave Única de Registro de Población.',                                  critico: true },
+  { id: 'constancia_fiscal', tipo: 'RFC / constancia fiscal',                   bloque: 'Identidad y persona', aplica: 'siempre',     gate_publicacion: true,  descripcion: 'Necesaria para revisar correctamente el tema fiscal e ISR.',              critico: true },
+  { id: 'acta_nacimiento',   tipo: 'Acta de nacimiento',                        bloque: 'Identidad y persona', aplica: 'siempre',     gate_publicacion: true,  descripcion: 'Acredita identidad y datos legales para escritura.',                      critico: true },
+  { id: 'domicilio',         tipo: 'Comprobante de domicilio',                  bloque: 'Identidad y persona', aplica: 'siempre',     gate_publicacion: true,  descripcion: 'Comprobante vigente del propietario.',                                    critico: true },
+  { id: 'clabe_bancaria',    tipo: 'CLABE bancaria',                            bloque: 'Identidad y persona', aplica: 'siempre',     gate_publicacion: true,  descripcion: 'Cuenta para dispersión del pago al cierre.',                              critico: true },
+
+  // Bloque 2 · Estado civil y representación — condicional
+  { id: 'acta_matrimonio',   tipo: 'Acta de matrimonio / régimen matrimonial',  bloque: 'Estado civil y representación', aplica: 'condicional', gate_publicacion: false, descripcion: 'Aplica cuando la situación civil lo requiere.',                           critico: false },
+  { id: 'conyuge_id_docs',   tipo: 'ID y documentos del cónyuge',               bloque: 'Estado civil y representación', aplica: 'condicional', gate_publicacion: false, descripcion: 'Aplica si hay sociedad conyugal o firma del cónyuge.',                     critico: false },
+  { id: 'poder_notarial',    tipo: 'Poder notarial + ID apoderado',             bloque: 'Estado civil y representación', aplica: 'condicional', gate_publicacion: false, descripcion: 'Aplica si firma un apoderado.',                                         critico: false },
+
+  // Bloque 3 · Propiedad / legal — siempre
+  { id: 'escritura',         tipo: 'Escritura pública o título inscrito',        bloque: 'Propiedad / legal', aplica: 'siempre',     gate_publicacion: true,  descripcion: 'Documento base que acredita la propiedad.',                               critico: true },
+  { id: 'predial',           tipo: 'Último predial / boleta predial',            bloque: 'Propiedad / legal', aplica: 'siempre',     gate_publicacion: true,  descripcion: 'Boleta o comprobante de predial reciente.',                              critico: true },
+  { id: 'agua_luz',          tipo: 'Último recibo de agua',                     bloque: 'Propiedad / legal', aplica: 'siempre',     gate_publicacion: true,  descripcion: 'Recibo de agua reciente. La luz no forma parte del set canónico.',        critico: true },
+  { id: 'no_adeudo_predial', tipo: 'Certificado no adeudo predial',              bloque: 'Propiedad / legal', aplica: 'siempre',     gate_publicacion: true,  descripcion: 'Documento de Catastro municipal para notaría / ISABI.',                   critico: true },
+  { id: 'no_adeudo_agua',    tipo: 'Certificado no adeudo agua',                 bloque: 'Propiedad / legal', aplica: 'siempre',     gate_publicacion: true,  descripcion: 'Documento del organismo de agua para notaría / cierre.',                 critico: true },
+  { id: 'plano_catastral',   tipo: 'Plano catastral actualizado',                bloque: 'Propiedad / legal', aplica: 'siempre',     gate_publicacion: true,  descripcion: 'Necesario para avalúo / ISABI cuando corresponda.',                       critico: true },
+
+  // Bloques condicionales
+  { id: 'regimen_condominio',       tipo: 'Régimen de condominio',               bloque: 'Condicionales', aplica: 'condicional', gate_publicacion: false, descripcion: 'Aplica cuando la propiedad está en condominio.',                         critico: false },
+  { id: 'reglamento_condominio',    tipo: 'Reglamento de condominio',            bloque: 'Condicionales', aplica: 'condicional', gate_publicacion: false, descripcion: 'Aplica cuando la administración lo requiere.',                            critico: false },
+  { id: 'no_adeudo_mantenimiento',  tipo: 'Constancia no adeudo mantenimiento',  bloque: 'Condicionales', aplica: 'condicional', gate_publicacion: false, descripcion: 'Aplica en condominios o fraccionamientos con mantenimiento.',            critico: false },
+  { id: 'carta_saldo',              tipo: 'Carta saldo',                         bloque: 'Condicionales', aplica: 'condicional', gate_publicacion: false, descripcion: 'Aplica si existe crédito vigente sobre la vivienda.',                    critico: false },
+  { id: 'exencion_isr',             tipo: 'Comprobantes exención ISR',           bloque: 'Condicionales', aplica: 'condicional', gate_publicacion: false, descripcion: 'Aplica si el propietario busca exención de ISR.',                          critico: false },
+  { id: 'licencia_terminacion_obra', tipo: 'Licencia / terminación obra / uso suelo', bloque: 'Condicionales', aplica: 'condicional', gate_publicacion: false, descripcion: 'Aplica si existe irregularidad o regularización municipal.',             critico: false },
+  { id: 'libertad_gravamen',        tipo: 'Libertad de gravamen',                bloque: 'Condicionales', aplica: 'condicional', gate_publicacion: false, descripcion: 'Documento legal/notarial si se solicita para verificar gravamen.',          critico: false },
 ];
 const DOC_BY_ID = Object.fromEntries(DOCS.map(d => [d.id, d]));
 
@@ -64,25 +86,13 @@ async function handleList(req, res) {
     return res.status(401).json({ error: 'Token inválido.' });
   }
 
-  const rows = await airListDocs(folio);
+  let rows = await airListDocs(folio);
   if (rows === null) return res.status(200).json({ documents: [] }); // tabla aún no creada → portal muestra checklist base
+  rows = await syncChecklist(folio, lead, rows);
 
-  const documents = rows.map(r => {
-    const f = r.fields || {};
-    const docId = f['Document ID'] || '';
-    const base = DOC_BY_ID[docId] || {};
-    return {
-      id: docId || r.id,
-      tipo: f['Tipo de Documento'] || base.tipo || 'Documento',
-      descripcion: base.descripcion || 'Carga el archivo correspondiente a este documento.',
-      estado: pickName(f['Estado del Documento']) || 'Pendiente',
-      critico: Boolean(f['Documento Crítico']),
-      archivo_url: f['Archivo URL'] || '',
-      fecha_carga: f['Fecha de Carga'] || '',
-      motivo_rechazo: f['Motivo de Rechazo'] || '',
-    };
-  });
-  return res.status(200).json({ documents });
+  const documents = rowsToDocuments(rows);
+  const gate = calcGate(rows);
+  return res.status(200).json({ documents, gate });
 }
 
 /* ───────── POST: ruteo por acción ───────── */
@@ -91,7 +101,7 @@ async function handlePost(req, res) {
   const action = String(body.action || '').trim();
 
   if (action === 'documento_recibido') return await handleReceived(req, res, body);
-  if (action === 'validar' || action === 'rechazar') return await handleReview(req, res, body, action);
+  if (action === 'validar' || action === 'rechazar' || action === 'no_aplica') return await handleReview(req, res, body, action);
   return res.status(400).json({ error: 'Acción no reconocida.' });
 }
 
@@ -128,8 +138,9 @@ async function handleReceived(req, res, body) {
 
   let guardado = false;
   await ensureDocsTable();
-  const existing = await airListDocs(folio);
+  let existing = await airListDocs(folio);
   if (existing !== null) {
+    existing = await syncChecklist(folio, lead, existing);
     const row = existing.find(r => (r.fields && r.fields['Document ID']) === documentId);
     try {
       if (row) await airPatch(DOCS_TABLE, row.id, fields);
@@ -158,9 +169,17 @@ async function handleReview(req, res, body, action) {
   const row = recordId ? rows.find(r => r.id === recordId) : rows.find(r => (r.fields && r.fields['Document ID']) === documentId);
   if (!row) return res.status(404).json({ error: 'Documento no encontrado.' });
 
-  const fields = action === 'validar'
-    ? { 'Estado del Documento': 'Validado', 'Motivo de Rechazo': '' }
-    : { 'Estado del Documento': 'Rechazado', 'Motivo de Rechazo': String(body.motivo || 'Documento ilegible o incompleto.') };
+  const docId = (row.fields && row.fields['Document ID']) || documentId;
+  const base = DOC_BY_ID[docId] || {};
+  let fields;
+  if (action === 'validar') {
+    fields = { 'Estado del Documento': 'Validado', 'Motivo de Rechazo': '' };
+  } else if (action === 'no_aplica') {
+    if (base.aplica !== 'condicional') return res.status(409).json({ error: 'Solo los documentos condicionales pueden marcarse como No aplica.' });
+    fields = { 'Estado del Documento': 'No aplica', 'Motivo de Rechazo': String(body.motivo || 'No aplica para esta operación.') };
+  } else {
+    fields = { 'Estado del Documento': 'Rechazado', 'Motivo de Rechazo': String(body.motivo || 'Documento ilegible o incompleto.') };
+  }
   await airPatch(DOCS_TABLE, row.id, fields);
 
   try {
@@ -173,18 +192,77 @@ async function handleReview(req, res, body, action) {
 
 /* ───────── check-in: escribe el avance en el lead ───────── */
 async function checkInLead(lead, folio, rows, lastDocId) {
-  let recibidos = 0;
-  if (Array.isArray(rows)) {
-    recibidos = rows.filter(r => ['Recibido', 'Validado'].includes(pickName(r.fields && r.fields['Estado del Documento']))).length;
-    if (lastDocId && !rows.some(r => (r.fields && r.fields['Document ID']) === lastDocId)) recibidos += 1;
-  } else if (lastDocId) {
-    recibidos = 1;
+  let workRows = Array.isArray(rows) ? rows.slice() : [];
+  if (lastDocId && !workRows.some(r => (r.fields && r.fields['Document ID']) === lastDocId)) {
+    workRows.push({ fields: { 'Document ID': lastDocId, 'Estado del Documento': 'Recibido' } });
   }
-  const total = DOCS.length;
-  const label = recibidos >= total
-    ? 'Documentos completos (' + total + '/' + total + ') · listo para revisión'
-    : 'Documentos recibidos: ' + recibidos + '/' + total;
+  const always = DOCS.filter(d => d.aplica === 'siempre');
+  const gateDocs = DOCS.filter(d => d.gate_publicacion);
+  const stateById = Object.fromEntries(workRows.map(r => [r.fields && r.fields['Document ID'], pickName(r.fields && r.fields['Estado del Documento'])]));
+  const baseRecibida = always.filter(d => ['Recibido', 'Validado'].includes(stateById[d.id])).length;
+  const gateValidada = gateDocs.filter(d => stateById[d.id] === 'Validado').length;
+  const label = gateValidada >= gateDocs.length
+    ? 'Expediente propietario mínimo validado (' + gateValidada + '/' + gateDocs.length + ') · listo para publicar'
+    : 'Base recibida: ' + baseRecibida + '/' + always.length + ' · mínimo validado ' + gateValidada + '/' + gateDocs.length;
   await airPatch(LEADS_TABLE, lead.id, { 'Progreso Expediente': label });
+}
+
+
+function rowsToDocuments(rows) {
+  const order = Object.fromEntries(DOCS.map((d, i) => [d.id, i]));
+  return (rows || []).slice().sort((a, b) => {
+    const aid = a.fields && a.fields['Document ID'];
+    const bid = b.fields && b.fields['Document ID'];
+    return (order[aid] ?? 999) - (order[bid] ?? 999);
+  }).map(r => {
+    const f = r.fields || {};
+    const docId = f['Document ID'] || '';
+    const base = DOC_BY_ID[docId] || {};
+    return {
+      id: docId || r.id,
+      tipo: f['Tipo de Documento'] || base.tipo || 'Documento',
+      descripcion: base.descripcion || 'Carga el archivo correspondiente a este documento.',
+      estado: pickName(f['Estado del Documento']) || 'Pendiente',
+      critico: Boolean(f['Documento Crítico']) || Boolean(base.critico),
+      bloque: base.bloque || '',
+      aplica: base.aplica || 'siempre',
+      gate_publicacion: Boolean(base.gate_publicacion),
+      archivo_url: f['Archivo URL'] || '',
+      fecha_carga: f['Fecha de Carga'] || '',
+      motivo_rechazo: f['Motivo de Rechazo'] || '',
+    };
+  });
+}
+function calcGate(rows) {
+  const stateById = Object.fromEntries((rows || []).map(r => [r.fields && r.fields['Document ID'], pickName(r.fields && r.fields['Estado del Documento'])]));
+  const gateDocs = DOCS.filter(d => d.gate_publicacion);
+  const validados = gateDocs.filter(d => stateById[d.id] === 'Validado').length;
+  const pendientes = gateDocs.filter(d => stateById[d.id] !== 'Validado').map(d => ({ id: d.id, tipo: d.tipo, estado: stateById[d.id] || 'Pendiente' }));
+  return { ok: validados === gateDocs.length, validados, total: gateDocs.length, pendientes };
+}
+async function syncChecklist(folio, lead, rows) {
+  const existingIds = new Set((rows || []).map(r => r.fields && r.fields['Document ID']).filter(Boolean));
+  const missing = DOCS.filter(d => !existingIds.has(d.id));
+  if (!missing.length) return rows || [];
+  const asesor = String(lead.fields['Asesor'] || '');
+  const now = new Date().toISOString();
+  const records = missing.map(d => ({
+    fields: {
+      'Documento': folio + ' · ' + d.tipo,
+      'Folio': folio,
+      'Tipo de Documento': d.tipo,
+      'Document ID': d.id,
+      'Estado del Documento': 'Pendiente',
+      'Documento Crítico': Boolean(d.critico),
+      'Subido por': 'Sistema',
+      'Fecha Solicitud': now,
+      'Asesor': asesor,
+    },
+  }));
+  for (let i = 0; i < records.length; i += 10) {
+    await airCreate(DOCS_TABLE, records.slice(i, i + 10));
+  }
+  return await airListDocs(folio) || rows || [];
 }
 
 /* ───────── Airtable REST ───────── */
