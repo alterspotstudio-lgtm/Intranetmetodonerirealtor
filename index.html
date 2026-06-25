@@ -4112,12 +4112,30 @@ function propPortalEnviado(rec){
   if(/portal\s+enviad|producci[oó]n inmobiliaria|confirmaci[oó]n de producci[oó]n|foto y video/.test(sj)) return true;
   return false;
 }
-function propActProduccion(){
+function propProduccionInfo(rec){
+  const fecha=propFirst(rec,['Fecha propuesta producción','Fecha Producción','Fecha de Producción','Producción Fecha','Fecha Produccion']);
+  const estado=String(propFirst(rec,['Estado Producción','Producción Confirmada','Produccion Confirmada','Confirmación Producción'])||'').toLowerCase();
+  const owner=(typeof crmPropietarioData==='function')?crmPropietarioData(rec):null;
+  const nombre=(owner&&owner.nombre)||propFirst(rec,['Propietario','Nombre Propietario'])||'propietario';
+  const tel=(owner&&owner.telefono)||propFirst(rec,['Teléfono WhatsApp','WhatsApp','Telefono','Teléfono'])||'';
+  const phone=(typeof fcPhone==='function')?fcPhone(tel):waNumberProp(tel);
+  return {fecha, estado, owner, nombre, tel, phone, pendiente:!!(fecha && !/confirm|realizad|cancel/.test(estado))};
+}
+function propActProduccion(rec){
+  const prod=propProduccionInfo(rec);
+  if(prod.pendiente){
+    return {
+      key:'produccion',
+      t:'Confirmar producción inmobiliaria',
+      d:'El propietario propuso '+prod.fecha+'. El siguiente paso es confirmar la cita de foto y video.',
+      btn:'Confirmar producción', icon:'calendar', unlock:'Producción confirmada'
+    };
+  }
   return {
     key:'produccion',
     t:'Producción inmobiliaria',
-    d:'Portal enviado. Ahora el siguiente paso es confirmar la cita de foto y video desde el portal de venta.',
-    btn:'Ver portal', icon:'send', unlock:'Confirmación de producción'
+    d:'Portal enviado. Ahora toca que el propietario proponga día y hora desde el portal. Da seguimiento si aún no lo ha hecho.',
+    btn:'Dar seguimiento', icon:'calendar', unlock:'Propuesta de producción'
   };
 }
 function propActFromRecord(rec){
@@ -4131,7 +4149,7 @@ function propActFromRecord(rec){
       btn: 'Completar ficha', icon:'file', unlock:'Enviar portal'
     };
   }
-  if(propPortalEnviado(rec)) return propActProduccion();
+  if(propPortalEnviado(rec)) return propActProduccion(rec);
   return {
     key:'enviar-portal',
     t: sj || 'Enviar Portal de Venta al propietario',
@@ -4454,8 +4472,6 @@ async function propEnviarPortalDesdeFicha(){
   const rec=getPropRecord(p._recId)||propCurrentRec(p);
   const min=propV05MinimosCompletos(rec);
   if(!min.ok){ mqNote('Antes de enviar portal falta completar datos de propiedad: '+min.pendientes.join(', ')+'.'); propV05AbrirFichaParaCompletar(p); return; }
-  const gate=await propDocsGateOkForProp(p);
-  if(!gate.ok){ mqNote(gate.checked?'Antes de enviar portal falta validar expediente propietario: '+gate.faltan+' documento(s) mínimo(s).':gate.msg); propDocsCheck(p); return; }
   cabEnviarPortalVenta(p._recId);
 }
 function propFichaUrl(p){ const folio=(p&&p.folio)||''; return folio?(location.origin+'/ficha.html?folio='+encodeURIComponent(folio)):''; }
@@ -4628,24 +4644,32 @@ async function propMarcarPortalEnviado(recId){
   if(current){ Object.assign(current,mapped); CURRENT_PROP=current; renderProp(current); }
   mqNote('✓ Portal marcado como enviado. Siguiente paso: producción inmobiliaria.');
 }
+function propProduccionAction(p){
+  const rec=getPropRecord(p._recId)||propCurrentRec(p);
+  const prod=propProduccionInfo(rec);
+  const propName=_fval(rec,'Nombre Propiedad')||_fval(rec,'Propiedad')||(p&&p.name)||'la propiedad';
+  if(prod.pendiente){
+    const msg='Hola '+prod.nombre+', vi que propusiste '+prod.fecha+' para la producción de '+propName+'. ¿Me confirmas si seguimos con esa fecha?';
+    if(prod.phone){ window.open('https://wa.me/'+prod.phone+'?text='+encodeURIComponent(msg),'_blank'); return; }
+    mqNote('El propietario propuso '+prod.fecha+'. Falta WhatsApp para confirmar producción.');
+    return;
+  }
+  const msg='Hola '+prod.nombre+', ya te compartí el Portal de Venta. Cuando puedas, entra al portal y propone día y hora para la producción inmobiliaria de '+propName+'.';
+  if(prod.phone){ window.open('https://wa.me/'+prod.phone+'?text='+encodeURIComponent(msg),'_blank'); return; }
+  mqNote('Portal enviado. Siguiente paso: esperar o solicitar propuesta de día y hora para producción inmobiliaria.');
+}
+
 async function propMainAction(p){
   if(!(p&&p._recId&&!propUsingLocal)){ mqNote('Enviar Portal de Venta se activa con una propiedad cargada correctamente.'); return; }
   const rec=getPropRecord(p._recId)||propCurrentRec(p);
   if(propPortalEnviado(rec) || (p.act&&p.act.key==='produccion')){
-    const link=portalVentaLink(rec);
-    propOpenUrl(link,'Todavía no puedo abrir el portal: falta folio o token del propietario.');
+    propProduccionAction(p);
     return;
   }
   const min=propV05MinimosCompletos(rec);
   if(!min.ok){
     propV05AbrirFichaParaCompletar(p);
     mqNote('Antes de enviar portal falta: '+min.pendientes.join(', ')+'.');
-    return;
-  }
-  const gate=await propDocsGateOkForProp(p);
-  if(!gate.ok){
-    mqNote(gate.checked?'Antes de enviar portal falta validar expediente propietario: '+gate.faltan+' documento(s) mínimo(s).':gate.msg);
-    propDocsCheck(p);
     return;
   }
   const enviado=await cabEnviarPortalVenta(p._recId);
