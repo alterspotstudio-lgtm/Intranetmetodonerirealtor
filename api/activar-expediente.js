@@ -5,11 +5,11 @@
 //   1. El asesor pide el link del expediente de un lead firmado.
 //   2. El servidor genera UNA sola vez el token de seguridad (idempotente),
 //      lo guarda en el lead (Token Expediente) junto con el link armado.
-//   3. Asegura que exista la tabla "Expediente Documentos" (la crea si falta)
-//      y siembra el checklist de 8 documentos en estado "Pendiente".
+//   3. Asegura que exista la tabla "Expediente Documentos" y siembra / sincroniza
+//      el checklist canónico del propietario en estado "Pendiente".
 //   4. Devuelve SOLO el link armado (nunca el token suelto).
 //
-//  Variables Vercel necesarias (ya existen):
+//  Variables Vercel necesarias:
 //   - AIRTABLE_TOKEN, AIRTABLE_BASE, NERI_SESSION_SECRET
 // =============================================================
 
@@ -24,16 +24,37 @@ const DOCS_TABLE = 'Expediente Documentos';         // se direcciona por nombre
 const EXP_DOC_BASE = 'https://expedientedocumentalpropietario.vercel.app';
 const ETAPAS_FIRMADAS = ['Firma exclusiva', 'Firma venta directa'];
 
-// Checklist canónico (mismo que muestra el portal del propietario)
+// Checklist canónico del propietario. Debe mantenerse alineado con api/expediente-documentos.js
 const DOCS = [
-  { id: 'escritura',         tipo: 'Escritura',                                 critico: true },
-  { id: 'predial',           tipo: 'Predial',                                   critico: true },
-  { id: 'ine',               tipo: 'Identificación Oficial (INE)',              critico: true },
-  { id: 'libertad_gravamen', tipo: 'Libertad de Gravamen',                      critico: true },
-  { id: 'agua_luz',          tipo: 'Agua / Luz',                                critico: false },
-  { id: 'constancia_fiscal', tipo: 'Constancia Situación Fiscal',               critico: false },
-  { id: 'domicilio',         tipo: 'Comprobante de Domicilio',                  critico: false },
-  { id: 'acta_matrimonio',   tipo: 'Acta de Matrimonio / Régimen Matrimonial',  critico: false },
+  // Bloque 1 · Identidad y persona — siempre
+  { id: 'ine',               tipo: 'Identificación oficial vigente',            bloque: 'Identidad y persona', aplica: 'siempre',     gate_publicacion: true,  descripcion: 'Identificación vigente del propietario.',                                  critico: true },
+  { id: 'curp',              tipo: 'CURP',                                      bloque: 'Identidad y persona', aplica: 'siempre',     gate_publicacion: true,  descripcion: 'Clave Única de Registro de Población.',                                  critico: true },
+  { id: 'constancia_fiscal', tipo: 'RFC / constancia fiscal',                   bloque: 'Identidad y persona', aplica: 'siempre',     gate_publicacion: true,  descripcion: 'Necesaria para revisar correctamente el tema fiscal e ISR.',              critico: true },
+  { id: 'acta_nacimiento',   tipo: 'Acta de nacimiento',                        bloque: 'Identidad y persona', aplica: 'siempre',     gate_publicacion: true,  descripcion: 'Acredita identidad y datos legales para escritura.',                      critico: true },
+  { id: 'domicilio',         tipo: 'Comprobante de domicilio',                  bloque: 'Identidad y persona', aplica: 'siempre',     gate_publicacion: true,  descripcion: 'Comprobante vigente del propietario.',                                    critico: true },
+  { id: 'clabe_bancaria',    tipo: 'CLABE bancaria',                            bloque: 'Identidad y persona', aplica: 'siempre',     gate_publicacion: true,  descripcion: 'Cuenta para dispersión del pago al cierre.',                              critico: true },
+
+  // Bloque 2 · Estado civil y representación — condicional
+  { id: 'acta_matrimonio',   tipo: 'Acta de matrimonio / régimen matrimonial',  bloque: 'Estado civil y representación', aplica: 'condicional', gate_publicacion: false, descripcion: 'Aplica cuando la situación civil lo requiere.',                           critico: false },
+  { id: 'conyuge_id_docs',   tipo: 'ID y documentos del cónyuge',               bloque: 'Estado civil y representación', aplica: 'condicional', gate_publicacion: false, descripcion: 'Aplica si hay sociedad conyugal o firma del cónyuge.',                     critico: false },
+  { id: 'poder_notarial',    tipo: 'Poder notarial + ID apoderado',             bloque: 'Estado civil y representación', aplica: 'condicional', gate_publicacion: false, descripcion: 'Aplica si firma un apoderado.',                                         critico: false },
+
+  // Bloque 3 · Propiedad / legal — siempre
+  { id: 'escritura',         tipo: 'Escritura pública o título inscrito',        bloque: 'Propiedad / legal', aplica: 'siempre',     gate_publicacion: true,  descripcion: 'Documento base que acredita la propiedad.',                               critico: true },
+  { id: 'predial',           tipo: 'Último predial / boleta predial',            bloque: 'Propiedad / legal', aplica: 'siempre',     gate_publicacion: true,  descripcion: 'Boleta o comprobante de predial reciente.',                              critico: true },
+  { id: 'agua_luz',          tipo: 'Último recibo de agua',                     bloque: 'Propiedad / legal', aplica: 'siempre',     gate_publicacion: true,  descripcion: 'Recibo de agua reciente. La luz no forma parte del set canónico.',        critico: true },
+  { id: 'no_adeudo_predial', tipo: 'Certificado no adeudo predial',              bloque: 'Propiedad / legal', aplica: 'siempre',     gate_publicacion: true,  descripcion: 'Documento de Catastro municipal para notaría / ISABI.',                   critico: true },
+  { id: 'no_adeudo_agua',    tipo: 'Certificado no adeudo agua',                 bloque: 'Propiedad / legal', aplica: 'siempre',     gate_publicacion: true,  descripcion: 'Documento del organismo de agua para notaría / cierre.',                 critico: true },
+  { id: 'plano_catastral',   tipo: 'Plano catastral actualizado',                bloque: 'Propiedad / legal', aplica: 'siempre',     gate_publicacion: true,  descripcion: 'Necesario para avalúo / ISABI cuando corresponda.',                       critico: true },
+
+  // Bloques condicionales
+  { id: 'regimen_condominio',       tipo: 'Régimen de condominio',               bloque: 'Condicionales', aplica: 'condicional', gate_publicacion: false, descripcion: 'Aplica cuando la propiedad está en condominio.',                         critico: false },
+  { id: 'reglamento_condominio',    tipo: 'Reglamento de condominio',            bloque: 'Condicionales', aplica: 'condicional', gate_publicacion: false, descripcion: 'Aplica cuando la administración lo requiere.',                            critico: false },
+  { id: 'no_adeudo_mantenimiento',  tipo: 'Constancia no adeudo mantenimiento',  bloque: 'Condicionales', aplica: 'condicional', gate_publicacion: false, descripcion: 'Aplica en condominios o fraccionamientos con mantenimiento.',            critico: false },
+  { id: 'carta_saldo',              tipo: 'Carta saldo',                         bloque: 'Condicionales', aplica: 'condicional', gate_publicacion: false, descripcion: 'Aplica si existe crédito vigente sobre la vivienda.',                    critico: false },
+  { id: 'exencion_isr',             tipo: 'Comprobantes exención ISR',           bloque: 'Condicionales', aplica: 'condicional', gate_publicacion: false, descripcion: 'Aplica si el propietario busca exención de ISR.',                          critico: false },
+  { id: 'licencia_terminacion_obra', tipo: 'Licencia / terminación obra / uso suelo', bloque: 'Condicionales', aplica: 'condicional', gate_publicacion: false, descripcion: 'Aplica si existe irregularidad o regularización municipal.',             critico: false },
+  { id: 'libertad_gravamen',        tipo: 'Libertad de gravamen',                bloque: 'Condicionales', aplica: 'condicional', gate_publicacion: false, descripcion: 'Documento legal/notarial si se solicita para verificar gravamen.',          critico: false },
 ];
 
 export default async function handler(req, res) {
@@ -74,7 +95,7 @@ export default async function handler(req, res) {
       await airPatch(LEADS_TABLE, lead.id, patch);
     }
 
-    // 3) Asegurar tabla + sembrar checklist (no bloquea la respuesta si falla)
+    // 3) Asegurar tabla + sembrar/sincronizar checklist (no bloquea la respuesta si falla)
     let tablaLista = false;
     try {
       tablaLista = await ensureDocsTable();
@@ -166,24 +187,29 @@ async function ensureDocsTable() {
 async function seedChecklist(folio, lead) {
   const existing = await airListDocs(folio);
   if (existing === null) return;          // tabla no disponible
-  if (existing.length > 0) return;        // ya sembrado (idempotente)
+
+  const existingIds = new Set((existing || []).map(r => r.fields && r.fields['Document ID']).filter(Boolean));
+  const missing = DOCS.filter(d => !existingIds.has(d.id));
+  if (!missing.length) return;            // ya sembrado / sincronizado (idempotente)
+
   const asesor = String(lead.fields['Asesor'] || '');
   const now = new Date().toISOString();
-  const records = DOCS.map(d => ({
+  const records = missing.map(d => ({
     fields: {
       'Documento': folio + ' · ' + d.tipo,
       'Folio': folio,
       'Tipo de Documento': d.tipo,
       'Document ID': d.id,
       'Estado del Documento': 'Pendiente',
-      'Documento Crítico': d.critico,
+      'Documento Crítico': Boolean(d.critico),
       'Subido por': 'Sistema',
       'Fecha Solicitud': now,
       'Asesor': asesor,
     },
   }));
-  // Airtable permite hasta 10 por request; son 8.
-  await airCreate(DOCS_TABLE, records);
+  for (let i = 0; i < records.length; i += 10) {
+    await airCreate(DOCS_TABLE, records.slice(i, i + 10));
+  }
 }
 
 /* ───────── utilidades ───────── */
