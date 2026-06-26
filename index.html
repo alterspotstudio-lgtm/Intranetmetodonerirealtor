@@ -9,12 +9,12 @@
 *{box-sizing:border-box;margin:0;padding:0}
 
 :root{
-  --black:#0A0A0A; --black2:#101010; --black3:#161616; --obsidian:#060606;
+  --black:#0A0A0A; --black2:#111111; --black3:#181818; --obsidian:#060606;
   --gold:#C6A86B; --gold-l:#E2C98A; --gold-d:#7A5510; --gold-deep:#3D2200; --champ:#F5E8B0;
   --steel:#6FA8E0; --amber:#E0A24E; --emerald:#46D06E; --rose:#E06F8A; --sky:#60a5fa; --sage:#4ade80;
   --w80:rgba(255,255,255,.80); --w60:rgba(255,255,255,.60); --w35:rgba(255,255,255,.35);
   --w22:rgba(255,255,255,.22); --w18:rgba(255,255,255,.18); --w08:rgba(255,255,255,.08); --w04:rgba(255,255,255,.04);
-  --gd:rgba(198,168,107,.10); --gb:rgba(198,168,107,.20); --gb2:rgba(198,168,107,.32);
+  --gd:rgba(198,168,107,.12); --gb:rgba(198,168,107,.22); --gb2:rgba(198,168,107,.32);
   --fd:'Bebas Neue',sans-serif; --fb:'Montserrat',sans-serif; --fe:'Cormorant Garamond',serif; --fm:'DM Mono',monospace;
 }
 
@@ -972,15 +972,15 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
 .login-brand em{color:var(--gold);font-style:normal}
 .login-sub{font-size:10.5px;color:var(--w60);line-height:1.65;margin-bottom:26px;max-width:300px}
 
-.login-field{margin-bottom:14px}
-.login-label{display:block;font-size:7px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);font-weight:800;margin-bottom:6px}
+.login-field{margin-bottom:22px}
+.login-label{display:block;font-size:8px;letter-spacing:3px;text-transform:uppercase;color:rgba(198,168,107,0.6);font-weight:700;margin-bottom:8px}
 .login-input{
-  width:100%;padding:12px 14px;background:rgba(255,255,255,.05);
-  border:1px solid var(--w18);border-radius:2px;color:#fff;font-size:13px;font-family:var(--fb);
-  outline:none;transition:border-color .15s,background .15s;
+  width:100%;padding:12px 0;background:transparent;
+  border:none;border-bottom:1px solid var(--w18);color:#fff;font-size:14px;font-weight:300;font-family:var(--fb);
+  outline:none;transition:border-color .3s;
 }
-.login-input:focus{border-color:var(--gb2);background:var(--gd)}
-.login-input::placeholder{color:var(--w35)}
+.login-input:focus{border-color:var(--gb2);}
+.login-input::placeholder{color:var(--w18);}
 
 .login-err{min-height:16px;font-size:11px;color:var(--rose);margin:4px 0 8px;text-align:center}
 
@@ -1118,11 +1118,11 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
   <div class="login-card">
     <div class="login-eye">Método NERI · Centro de operaciones</div>
     <div class="login-brand">MÉTODO <em>NERI</em></div>
-    <div class="login-sub">Bienvenido. Ingresa con tu usuario y contraseña para acceder a tu cabina y tus propiedades activas.</div>
+    <div class="login-sub">Sistema privado de operación.<br>Solo acceso autorizado.</div>
 
     <div class="login-field">
       <label class="login-label" for="login-user">Usuario</label>
-      <input class="login-input" id="login-user" type="text" placeholder="tu-slug" autocomplete="username">
+      <input class="login-input" id="login-user" type="text" placeholder="ej: rodrigo.neri" autocomplete="username">
     </div>
     <div class="login-field">
       <label class="login-label" for="login-pass">Contraseña</label>
@@ -2445,7 +2445,7 @@ function leadVendPanelHTML(rec, et){
   if(et.idx===0){
     return '<div class="fv-riel-msg"><strong>Lead nuevo.</strong> El primer movimiento es el contacto. Al enviar el mensaje, el lead queda en <strong>En seguimiento</strong>.</div>'
       + '<div class="fv-riel-acts">'
-      + (wa ? '<button class="fv-riel-btn" data-action="enviar-primer-contacto-whatsapp" onclick="rielPrimerContactoReal(\''+_escAttr(recId)+'\')">Enviar primer contacto · WhatsApp</button>' : '<button class="fv-riel-btn ghost" data-action="capturar-telefono-editar" onclick="leadVendOpenEditByFolio(\''+_escAttr(folio)+'\')">Capturar teléfono en Editar</button>')
+      + (wa ? '<button class="fv-riel-btn" data-action="enviar-primer-contacto-whatsapp" onclick="rielPrimerContactoReal(\''+_escAttr(recId)+'\')">Abrir primer contacto · WhatsApp</button>' : '<button class="fv-riel-btn ghost" data-action="capturar-telefono-editar" onclick="leadVendOpenEditByFolio(\''+_escAttr(folio)+'\')">Capturar teléfono en Editar</button>')
       + '</div><div class="fv-riel-status" id="riel-status">Listo para registrar primer contacto real.</div>';
   }
   if(et.idx===1){
@@ -2463,7 +2463,7 @@ function leadVendPanelHTML(rec, et){
     const tipoFirma=et.conv==='Firma venta directa' ? 'venta directa' : 'firma exclusiva';
     return '<div class="fv-riel-celebrate"><div class="fv-riel-celebrate-k">Firma lograda</div><div class="fv-riel-celebrate-t">Lo lograste.</div><div class="fv-riel-celebrate-p">Ya tienes una propiedad más en inventario. Ahora continúa desde <strong>Propiedades</strong>, donde se envía el expediente documental del propietario.</div></div>'
       + '<div class="fv-riel-msg"><strong>'+fvEscape(et.conv)+'.</strong> Contrato de '+fvEscape(tipoFirma)+' registrado. Progreso: <strong>'+fvEscape(prog)+'</strong></div>'
-      + '<div class="fv-riel-acts"><button class="fv-riel-btn" data-action="continuar-proceso" onclick="leadVendContinuarProceso(this)">Continuar proceso</button>'
+      + '<div class="fv-riel-acts"><button class="fv-riel-btn" data-action="continuar-proceso" onclick="leadVendContinuarProceso(this)">Avanzar proceso</button>'
       + verContrato
       + (!contrato ? '<button class="fv-riel-btn ghost" data-action="subir-pdf-contrato" onclick="rielSubirContratoReal(\''+_escAttr(recId)+'\',\''+_escAttr(et.conv)+'\')">Subir el PDF del contrato</button>' : '')
       + '</div><div class="fv-riel-status" id="riel-status">Expediente listo para continuar con la siguiente etapa.</div>';
@@ -3022,12 +3022,12 @@ function fcPanelHTML(stateKey,c,key,opts){
     return `<div class="fc-riel-msg"><strong>Apartado detectado.</strong> El comprador ya puede moverse al proceso de operación desde Propiedades. Esta ficha se mantiene como origen del lead.</div><div class="fc-riel-acts"><button class="fc-riel-btn" data-action="editar-registro" data-folio="${fvEscape(key)}">Editar registro</button></div><div class="fc-riel-status">Portal del cliente nace hasta apartado; no se agrega desde esta ficha.</div>`;
   }
   if(stateKey==='cita'){
-    return `<div class="fc-riel-msg"><strong>Comprador listo para cita.</strong> Ya hay interés claro y decisión alta. El siguiente movimiento es agendar visita o confirmar la información enviada por WhatsApp.</div><div class="fc-riel-acts"><button class="fc-riel-btn" data-action="agendar-visita" data-folio="${fvEscape(key)}">Agendar visita</button>${waOk?`<button class="fc-riel-btn ghost" data-action="whatsapp-lead-comprador" data-folio="${fvEscape(key)}">WhatsApp</button>`:''}${msgOk?`<button class="fc-riel-btn ghost" data-action="copiar-mensaje-sugerido" data-folio="${fvEscape(key)}">Copiar mensaje</button>`:''}</div><div class="fc-riel-status">Acciones existentes conservadas · sin portal de progreso.</div>`;
+    return `<div class="fc-riel-msg"><strong>Comprador listo para cita.</strong> Ya hay interés claro y decisión alta. El siguiente movimiento es confirmar cita o verificar la información enviada por WhatsApp.</div><div class="fc-riel-acts"><button class="fc-riel-btn" data-action="agendar-visita" data-folio="${fvEscape(key)}">Confirmar cita</button>${waOk?`<button class="fc-riel-btn ghost" data-action="whatsapp-lead-comprador" data-folio="${fvEscape(key)}">WhatsApp</button>`:''}${msgOk?`<button class="fc-riel-btn ghost" data-action="copiar-mensaje-sugerido" data-folio="${fvEscape(key)}">Copiar mensaje</button>`:''}</div><div class="fc-riel-status">Acciones existentes conservadas · sin portal de progreso.</div>`;
   }
   if(stateKey==='calificacion'){
-    return `<div class="fc-riel-msg"><strong>Lead en calificación.</strong> Define si necesita opciones de compra, brújula bancaria o seguimiento de propiedad específica. El asesor debe dejar una sola siguiente jugada clara.</div><div class="fc-riel-acts">${acompPend?`<button class="fc-riel-btn" data-action="enviar-acompanamiento" data-folio="${fvEscape(key)}">Enviar acompañamiento</button>`:''}${waOk?`<button class="fc-riel-btn ghost" data-action="whatsapp-lead-comprador" data-folio="${fvEscape(key)}">WhatsApp</button>`:''}<button class="fc-riel-btn ghost" data-action="editar-registro" data-folio="${fvEscape(key)}">Editar registro</button></div><div class="fc-riel-status">Acciones disponibles: WhatsApp, acompañamiento y edición.</div>`;
+    return `<div class="fc-riel-msg"><strong>Lead en calificación.</strong> Define si necesita opciones de compra, brújula bancaria o seguimiento de propiedad específica. El asesor debe dejar una sola siguiente jugada clara.</div><div class="fc-riel-acts">${acompPend?`<button class="fc-riel-btn" data-action="enviar-acompanamiento" data-folio="${fvEscape(key)}">Activar acompañamiento</button>`:''}${waOk?`<button class="fc-riel-btn ghost" data-action="whatsapp-lead-comprador" data-folio="${fvEscape(key)}">WhatsApp</button>`:''}<button class="fc-riel-btn ghost" data-action="editar-registro" data-folio="${fvEscape(key)}">Editar registro</button></div><div class="fc-riel-status">Acciones disponibles: WhatsApp, acompañamiento y edición.</div>`;
   }
-  return `<div class="fc-riel-msg"><strong>Lead nuevo.</strong> El primer movimiento es contacto. Confirma WhatsApp, intención de compra y ruta de crédito antes de llevarlo a cita.</div><div class="fc-riel-acts">${waOk?`<button class="fc-riel-btn" data-action="whatsapp-lead-comprador" data-folio="${fvEscape(key)}">Enviar primer contacto · WhatsApp</button>`:`<button class="fc-riel-btn ghost" data-action="editar-registro" data-folio="${fvEscape(key)}">Capturar teléfono en Editar</button>`}${msgOk?`<button class="fc-riel-btn ghost" data-action="copiar-mensaje-sugerido" data-folio="${fvEscape(key)}">Copiar mensaje</button>`:''}</div><div class="fc-riel-status">Lead comprador: no abre portal del cliente hasta apartado.</div>`;
+  return `<div class="fc-riel-msg"><strong>Lead nuevo.</strong> El primer movimiento es contacto. Confirma WhatsApp, intención de compra y ruta de crédito antes de llevarlo a cita.</div><div class="fc-riel-acts">${waOk?`<button class="fc-riel-btn" data-action="whatsapp-lead-comprador" data-folio="${fvEscape(key)}">Abrir primer contacto · WhatsApp</button>`:`<button class="fc-riel-btn ghost" data-action="editar-registro" data-folio="${fvEscape(key)}">Capturar teléfono en Editar</button>`}${msgOk?`<button class="fc-riel-btn ghost" data-action="copiar-mensaje-sugerido" data-folio="${fvEscape(key)}">Copiar mensaje</button>`:''}</div><div class="fc-riel-status">Lead comprador: no abre portal del cliente hasta apartado.</div>`;
 }
 function openFichaComp(folio,idx){
   const c=buscarComprador(folio,idx);
@@ -3122,8 +3122,8 @@ function openFichaComp(folio,idx){
       <button type="button" class="fc-btn" data-action="cerrar-ficha-comp">Cerrar</button>
       ${waHref ? `<button type="button" class="fc-btn" data-action="whatsapp-lead-comprador" data-folio="${fvEscape(key)}">WhatsApp</button>` : ''}
       ${msg ? `<button type="button" class="fc-btn" data-action="copiar-mensaje-sugerido" data-folio="${fvEscape(key)}">Copiar mensaje</button>` : ''}
-      ${acompPendiente ? `<button type="button" class="fc-btn" data-action="enviar-acompanamiento" data-folio="${fvEscape(key)}">Enviar acompañamiento</button>` : ''}
-      <button type="button" class="fc-btn" data-action="agendar-visita" data-folio="${fvEscape(key)}">Agendar visita</button>
+      ${acompPendiente ? `<button type="button" class="fc-btn" data-action="enviar-acompanamiento" data-folio="${fvEscape(key)}">Activar acompañamiento</button>` : ''}
+      <button type="button" class="fc-btn" data-action="agendar-visita" data-folio="${fvEscape(key)}">Confirmar cita</button>
       <button type="button" class="fc-btn primary" data-action="editar-registro" data-folio="${fvEscape(key)}">Editar registro</button>
     </div>`;
   document.getElementById('fichaCompModal').classList.add('open');
@@ -4487,7 +4487,7 @@ function renderFichaPropModal(p){
     <button class="modal-x" onclick="closeFichaProp()">&times;</button>
     <div class="fp-header"><div><div class="fp-sub">Editor de landing conectado</div><div class="fp-name">${_esc(nombre)}</div></div><div class="fp-folio"><div class="fp-folio-lbl">Folio</div>${_esc(folio||'— sin folio aún —')}</div></div>
     <div class="fp-body">${propV05FichaBanner(rec)}<div id="med-reloj-mount" data-folio="${_escAttr(folio)}"></div><div class="le-banner">Para enviar el portal solo se requieren datos básicos de la propiedad. Portada y videos se completan después de agendar producción inmobiliaria.</div>${secs}${lockBlock}</div>
-    <div class="fp-actions"><span class="fp-status" id="prop-save-msg"></span><button class="m-btn" onclick="closeFichaProp()">Cerrar</button><button class="m-btn" data-url="${_escAttr(linkComp)}" onclick="propOpenUrl(this.dataset.url,'Esta propiedad todavía no tiene Link Comprador.')">◎ Ver landing</button><button class="m-btn" data-url="${_escAttr(propFichaUrl(p))}" onclick="propOpenUrl(this.dataset.url,'Esta propiedad todavía no tiene folio para ficha técnica.')">▣ Ver ficha técnica</button><button class="m-btn" data-url="${_escAttr(propFichaUrl(p))}" onclick="propCopyUrl(this.dataset.url)">↗ Compartir ficha</button><button class="m-btn" id="prop-send-portal-btn" onclick="propEnviarPortalDesdeFicha()"${portalDisabled}>Enviar portal</button><button class="m-btn solid grow" id="prop-save-btn" onclick="landSaveProp()">Guardar cambios</button></div>`;
+    <div class="fp-actions"><span class="fp-status" id="prop-save-msg"></span><button class="m-btn" onclick="closeFichaProp()">Cerrar</button><button class="m-btn" data-url="${_escAttr(linkComp)}" onclick="propOpenUrl(this.dataset.url,'Esta propiedad todavía no tiene Link Comprador.')">◎ Ver landing</button><button class="m-btn" data-url="${_escAttr(propFichaUrl(p))}" onclick="propOpenUrl(this.dataset.url,'Esta propiedad todavía no tiene folio para ficha técnica.')">▣ Ver ficha técnica</button><button class="m-btn" data-url="${_escAttr(propFichaUrl(p))}" onclick="propCopyUrl(this.dataset.url)">↗ Compartir ficha</button><button class="m-btn" id="prop-send-portal-btn" onclick="propEnviarPortalDesdeFicha()"${portalDisabled}>Activar portal de cliente</button><button class="m-btn solid grow" id="prop-save-btn" onclick="landSaveProp()">Guardar cambios</button></div>`;
   if(typeof window.medRelojMount==='function'){ try{ window.medRelojMount(folio); }catch(_){} }
 }
 function abrirFichaProp(){
