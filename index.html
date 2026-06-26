@@ -2002,7 +2002,7 @@ const LEAD_COMP_EDITABLE = [
   {f:'Siguiente jugada',      type:'text'},
   {f:'Última interacción',    type:'text'},
   {f:'Método / Crédito',      type:'text'},
-  {f:'Asesor',                type:'text'},
+  {f:'Asesor',                type:'readonly'},
   {f:'Score del Lead',        type:'text'},
 ];
 const LEAD_COMP_CITA_EDITABLE = [
@@ -2028,7 +2028,15 @@ const LEAD_VEND_FOLIO_FIELDS = [
   'Folio NERI','Folio de Operación','Folio Operación','folioOperacion'
 ];
 function leadVendFolioValue(rec){
-  return fcVal.apply(null, [rec].concat(LEAD_VEND_FOLIO_FIELDS));
+  var primary='Folio';
+  var primaryVal=rec&&rec.fields?rec.fields[primary]:null;
+  if(primaryVal!=null&&primaryVal!=='') return String(primaryVal);
+  for(var _i=1;_i<LEAD_VEND_FOLIO_FIELDS.length;_i++){
+    var alias=LEAD_VEND_FOLIO_FIELDS[_i];
+    var v=rec&&rec.fields?rec.fields[alias]:null;
+    if(v!=null&&v!==''){console.warn('[MetodoNeri] leadVendFolioValue: usando alias "'+alias+'" en lugar del campo primario "'+primary+'". Revisar Airtable. RecordId:',(rec&&rec.id)||'?');return String(v);}
+  }
+  return '';
 }
 function leadVendDisplayFolio(rec, fallback){
   return leadVendFolioValue(rec) || fallback || '— sin folio —';
@@ -2348,7 +2356,7 @@ const LEAD_VEND_EDITABLE = [
   {f:'Nombre Completo',    type:'text'},
   {f:'Teléfono WhatsApp',  type:'text'},
   {f:'Fuente',             type:'text'},
-  {f:'Asesor',             type:'text'},
+  {f:'Asesor',             type:'readonly'},
   {f:'Tipo de Propiedad',  type:'text'},
   {f:'Zona',               type:'text'},
   {f:'Estado',             type:'text'},
@@ -2648,17 +2656,6 @@ async function rielContratoUploadReal(recId, conversion, file){
   }
 }
 async function rielActivarExpedienteReal(folio, recId, conversion){
-  const MAKE_WEBHOOK='https://hook.us2.make.com/ssvbsjs3on1i87616fefilx8shk42ncv';
-  try{
-    const mRes=await fetch(MAKE_WEBHOOK,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({folio:folio, recordId:recId||'', conversion:conversion||''})
-    });
-    if(!mRes.ok) console.warn('Make webhook respondió HTTP', mRes.status);
-  }catch(mErr){
-    console.warn('Make webhook no disponible, continuando con respaldo:', mErr.message);
-  }
   const res=await fetch('/api/activar-expediente',{
     method:'POST',
     headers:{'Content-Type':'application/json','Authorization':'Bearer '+leadVendSessionToken()},
@@ -2822,6 +2819,9 @@ function leadVendEditInput(meta, values){
   }
   if(meta.type==='textarea'){
     return `<div class="lec-field full"><div class="lec-label">${fvEscape(meta.f)}</div><textarea class="lec-in" data-field="${fieldAttr}" data-orig="${valAttr}" rows="3" placeholder="—">${fvEscape(val)}</textarea></div>`;
+  }
+  if(meta.type==='readonly'){
+    return `<div class="lec-field${full}"><div class="lec-label">${fvEscape(meta.f)} <span style="font-size:9px;opacity:.5;letter-spacing:.5px">🔒 solo lectura</span></div><input class="lec-in" type="text" value="${valAttr}" disabled style="opacity:.55;cursor:not-allowed"></div>`;
   }
   return `<div class="lec-field${full}"><div class="lec-label">${fvEscape(meta.f)}</div><input class="lec-in" type="text" data-field="${fieldAttr}" data-orig="${valAttr}" value="${valAttr}" placeholder="—"></div>`;
 }
@@ -3232,6 +3232,9 @@ function leadCompEditInput(meta, values){
   }
   if(meta.type==='textarea'){
     return `<div class="lec-field full"><div class="lec-label">${fvEscape(meta.f)}</div><textarea class="lec-in" data-field="${fieldAttr}" data-orig="${valAttr}" rows="3" placeholder="${_escAttr(meta.placeholder||'—')}">${fvEscape(val)}</textarea></div>`;
+  }
+  if(meta.type==='readonly'){
+    return `<div class="lec-field${full}"><div class="lec-label">${fvEscape(meta.f)} <span style="font-size:9px;opacity:.5;letter-spacing:.5px">🔒 solo lectura</span></div><input class="lec-in" type="text" value="${valAttr}" disabled style="opacity:.55;cursor:not-allowed"></div>`;
   }
   return `<div class="lec-field${full}"><div class="lec-label">${fvEscape(meta.f)}</div><input class="lec-in" type="text" data-field="${fieldAttr}" data-orig="${valAttr}" value="${valAttr}" placeholder="${_escAttr(meta.placeholder||'—')}"></div>`;
 }
@@ -4091,26 +4094,12 @@ function crmPropietarioData(propRec){
 }
 function crmPropietarioWaHref(propRec){ const d=crmPropietarioData(propRec); const phone=(typeof fcPhone==='function'?fcPhone(d.telefono):String(d.telefono||'').replace(/\D/g,'')); return phone?'https://wa.me/'+phone:''; }
 
-function propPortalLocalKey(rec){
-  const folio=propFirst(rec,['Folio NERI','Folio','Folio Vendedor']) || (rec&&rec.id) || '';
-  return 'neri.portalEnviado.'+String(folio||'').trim().toUpperCase();
-}
-function propPortalLocalGet(rec){
-  try{ return !!(rec && localStorage.getItem(propPortalLocalKey(rec))); }catch(_){ return false; }
-}
-function propPortalLocalSet(rec){
-  try{ if(rec) localStorage.setItem(propPortalLocalKey(rec), new Date().toISOString()); }catch(_){ }
-}
 function propPortalEnviado(rec){
   if(!rec) return false;
-  const direct=propFirst(rec,['Portal Enviado','Portal enviado','Portal de Venta Enviado','Fecha Portal Enviado','Fecha Envío Portal','Fecha Envio Portal','Portal enviado el']);
-  if(direct) return true;
-  if(propPortalLocalGet(rec)) return true;
-  const estado=String(propFirst(rec,['Estado Portal','Estatus Portal','Estado Portal Venta'])||'').toLowerCase();
-  if(/enviad|compartid/.test(estado)) return true;
-  const sj=String(propFirst(rec,['Siguiente jugada','Próximo paso','Proximo paso','Pendientes visibles'])||'').toLowerCase();
-  if(/portal\s+enviad|producci[oó]n inmobiliaria|confirmaci[oó]n de producci[oó]n|foto y video/.test(sj)) return true;
-  return false;
+  // Fuente de verdad operativa: Airtable > Propiedades NERI > Fecha Portal Enviado.
+  // No inferir desde navegador ni desde “Siguiente jugada”. Si el campo está vacío, el portal sigue pendiente.
+  const direct=propFirst(rec,['Fecha Portal Enviado','Portal Enviado','Portal enviado','Portal de Venta Enviado']);
+  return !!direct;
 }
 function propProduccionInfo(rec){
   const fecha=propFirst(rec,['Fecha propuesta producción','Fecha Producción','Fecha de Producción','Producción Fecha','Fecha Produccion']);
@@ -4472,7 +4461,8 @@ async function propEnviarPortalDesdeFicha(){
   const rec=getPropRecord(p._recId)||propCurrentRec(p);
   const min=propV05MinimosCompletos(rec);
   if(!min.ok){ mqNote('Antes de enviar portal falta completar datos de propiedad: '+min.pendientes.join(', ')+'.'); propV05AbrirFichaParaCompletar(p); return; }
-  cabEnviarPortalVenta(p._recId);
+  const enviado=await cabEnviarPortalVenta(p._recId);
+  if(enviado) await propMarcarPortalEnviado(p._recId);
 }
 function propFichaUrl(p){ const folio=(p&&p.folio)||''; return folio?(location.origin+'/ficha.html?folio='+encodeURIComponent(folio)):''; }
 function propOpenUrl(url,msg){ if(url) window.open(url,'_blank'); else mqNote(msg||'No hay link disponible en este registro.'); }
@@ -4624,25 +4614,36 @@ async function cabEnviarPortalVenta(recId){
 
 async function propMarcarPortalEnviado(recId){
   let rec=getPropRecord(recId);
-  if(!rec) return;
-  propPortalLocalSet(rec);
-  const fields={'Siguiente jugada':'Producción inmobiliaria: confirmar cita de foto y video desde el portal de venta.'};
-  let updatedRec=null;
-  if(propCanUseAirtable() && recId && !propUsingLocal){
-    try{
-      updatedRec=await atFetch(`${PROP_TABLE}/${recId}`,{method:'PATCH',body:JSON.stringify({fields,typecast:true})});
-    }catch(e){
-      console.warn('No se pudo guardar Siguiente jugada después de enviar portal. Se conserva avance visual local.', e&&e.message?e.message:e);
-    }
+  if(!rec) return false;
+  if(!(propCanUseAirtable() && recId && !propUsingLocal)){
+    console.warn('[MetodoNeri] propMarcarPortalEnviado: no hay conexión válida a Airtable. No se marca Portal Enviado.');
+    mqNote('Portal abierto, pero NO quedó registrado en Airtable. Verifica sesión/conexión.');
+    return false;
   }
-  const recAfter=(updatedRec&&updatedRec.fields)?updatedRec:rec;
-  recAfter.fields=recAfter.fields||{};
-  if(!(updatedRec&&updatedRec.fields)) recAfter.fields['Siguiente jugada']=fields['Siguiente jugada'];
+  const fields={
+    'Fecha Portal Enviado':new Date().toISOString(),
+    'Siguiente jugada':'Producción inmobiliaria: confirmar cita de foto y video desde el portal de venta.'
+  };
+  let updatedRec=null;
+  try{
+    updatedRec=await atFetch(`${PROP_TABLE}/${recId}`,{method:'PATCH',body:JSON.stringify({fields,typecast:true})});
+  }catch(e){
+    console.warn('[MetodoNeri] propMarcarPortalEnviado: PATCH obligatorio a Airtable falló. No se marca portal enviado. Error:', e&&e.message?e.message:e);
+    mqNote('Portal abierto, pero NO se pudo registrar en Airtable. No se avanzó el proceso.');
+    return false;
+  }
+  if(!(updatedRec&&updatedRec.fields&&propPortalEnviado(updatedRec))){
+    console.warn('[MetodoNeri] propMarcarPortalEnviado: Airtable respondió sin Fecha Portal Enviado. No se avanza visualmente.');
+    mqNote('Airtable no confirmó Fecha Portal Enviado. No se avanzó el proceso.');
+    return false;
+  }
+  const recAfter=updatedRec;
   propRecIndex[recId]=recAfter;
   const mapped=propMapRecord(recAfter);
   const current=(CURRENT_PROP&&CURRENT_PROP._recId===recId)?CURRENT_PROP:(PROPS||[]).find(q=>q&&q._recId===recId);
   if(current){ Object.assign(current,mapped); CURRENT_PROP=current; renderProp(current); }
-  mqNote('✓ Portal marcado como enviado. Siguiente paso: producción inmobiliaria.');
+  mqNote('✓ Portal registrado en Airtable. Siguiente paso: producción inmobiliaria.');
+  return true;
 }
 function propProduccionAction(p){
   const rec=getPropRecord(p._recId)||propCurrentRec(p);
