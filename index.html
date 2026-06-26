@@ -22,16 +22,12 @@ html,body{background:var(--black);color:#fff;font-family:var(--fb)}
 body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px}
 .app{width:100%;max-width:1240px}
 
-/* ─── EYEBROW ─── */
 .sys-eye{
   font-size:7px;letter-spacing:4px;text-transform:uppercase;color:var(--w35);
   font-weight:600;display:flex;align-items:center;gap:10px;margin-bottom:14px;
 }
 .sys-eye::before{content:'';width:18px;height:1px;background:var(--gold);opacity:.4}
 
-/* ══════════════════════════════════════════
-   COLUMNA VERTEBRAL
-══════════════════════════════════════════ */
 .spine{
   border:1px solid var(--w08);border-radius:3px;background:var(--obsidian);
   margin-bottom:24px;position:relative;overflow:hidden;
@@ -87,9 +83,6 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
   animation:blink 2.8s ease-in-out infinite;flex-shrink:0}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
 
-/* ══════════════════════════════════════════
-   CUERPO COMPARTIDO
-══════════════════════════════════════════ */
 .body{
   display:grid;grid-template-columns:228px 1fr;gap:1px;
   background:var(--w04);border:1px solid var(--w08);border-radius:3px;overflow:hidden;
@@ -126,9 +119,6 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
 .pi-folio{font-family:var(--fm);font-size:8px;color:var(--w35);margin-top:3px;letter-spacing:.5px}
 .pi-badge{font-family:var(--fd);font-size:14px;letter-spacing:1px;flex-shrink:0}
 
-/* ══════════════════════════════════════════
-   PANEL PRINCIPAL (columna derecha)
-══════════════════════════════════════════ */
 .main{background:var(--black);padding:24px 28px 28px;position:relative;overflow:hidden;display:flex;flex-direction:column}
 .main::after{content:"";position:absolute;inset:0;pointer-events:none;
   background:radial-gradient(ellipse 70% 38% at 50% -4%,rgba(198,168,107,.05),transparent 70%)}
@@ -142,7 +132,6 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
   text-transform:uppercase;white-space:nowrap;flex-shrink:0;border:1px solid transparent;transition:all .4s
 }
 
-/* ── MEDALLÓN (propiedades) ── */
 .med-wrap{display:flex;justify-content:center;position:relative;z-index:2;margin:14px 0 6px}
 .med{position:relative;width:300px;height:300px}
 .med-glow{position:absolute;inset:0;border-radius:50%;filter:blur(34px);opacity:0;transition:opacity 1s ease,background 1s ease;z-index:0}
@@ -160,7 +149,6 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
 .mc-fase{font-family:var(--fe);font-style:italic;font-size:13px;color:var(--w60);margin-top:9px;letter-spacing:.4px;transition:color .4s}
 .mc-etapa{font-family:var(--fm);font-size:8px;letter-spacing:2px;color:var(--w35);margin-top:5px}
 
-/* ── RIEL DE ETAPAS ── */
 .rail{position:relative;z-index:2;margin:18px 2px 4px;padding:0 6px}
 .rail-line{position:absolute;top:17px;left:24px;right:24px;height:1px;background:var(--w08);z-index:0}
 .rail-fill{position:absolute;top:17px;left:24px;height:1px;z-index:1;width:0;
@@ -180,7 +168,6 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
 .rn.done .rn-lbl{color:rgba(198,168,107,.5)}
 .rn.active .rn-lbl{color:#fff}
 
-/* ── ACCIÓN DE AHORA ── */
 .act{position:relative;z-index:2;margin-top:20px;border-radius:3px;overflow:hidden;
   border:1px solid var(--w08);background:linear-gradient(180deg,var(--black3),var(--black2))}
 .act-bar{position:absolute;left:0;top:0;bottom:0;width:3px;transition:background .4s}
@@ -201,7 +188,6 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
 .act-unlock{font-family:var(--fm);font-size:8px;letter-spacing:.5px;color:var(--w60);display:flex;align-items:center;gap:6px}
 .act-unlock svg{width:12px;height:12px;opacity:.8}
 
-/* ── ESCENARIO: propietario · propiedad · comprador ── */
 .stage{display:grid;grid-template-columns:1fr 300px 1fr;gap:16px;align-items:center;position:relative;z-index:2;margin:14px 0 6px}
 .stage .med-wrap{margin:0}
 .party{position:relative;border:1px solid var(--w08);border-radius:3px;background:var(--black2);padding:15px 15px 15px 17px;overflow:hidden}
@@ -218,9 +204,6 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
   .med-wrap{order:-1}
 }
 
-/* ══════════════════════════════════════════
-   PANEL CAPTACIÓN (compradores / vendedores)
-══════════════════════════════════════════ */
 .cap-main{background:var(--black);padding:24px 28px 28px;position:relative;overflow:hidden;display:flex;flex-direction:column;gap:20px}
 
 /* semáforo de temperatura */
@@ -286,13 +269,6 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
 /* placeholder vacío */
 .lst-empty{padding:28px 14px;text-align:center;color:var(--w18);font-size:10px;letter-spacing:1px;font-style:italic;font-family:var(--fe)}
 
-
-
-/* ══════════════════════════════════════════
-   TABLA OPERATIVA — compradores / vendedores
-   Tomada de centro-operaciones-neri para sustituir solo captación.
-   Propiedades conserva su diseño original.
-══════════════════════════════════════════ */
 .crm-body{
   display:block;
   min-height:0;
@@ -373,9 +349,6 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
 .crm-body .crm-empty{padding:40px 20px;text-align:center;color:var(--w22);font-size:11px;letter-spacing:.5px}
 @media(max-width:760px){.crm-body .crm-tbar{flex-wrap:wrap}.crm-body .crm-search{max-width:none;width:100%}.crm-body .crm-actions{width:100%}.crm-body .crm-count{margin-left:0}}
 
-/* ══════════════════════════════════════════
-   EXPEDIENTES CERRADOS — archivo solo lectura
-══════════════════════════════════════════ */
 .exp-body{background:var(--black);border-color:var(--gb);}
 .exp-banner{display:flex;align-items:center;gap:12px;padding:13px 18px;border-bottom:1px solid var(--w04);font-size:11.5px;line-height:1.5;background:var(--gd);color:var(--w60)}
 .exp-banner .bd{width:6px;height:6px;border-radius:50%;background:var(--gold);flex-shrink:0;animation:blink 2s ease-in-out infinite}
@@ -398,9 +371,6 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
 .exp-readonly-note{font-size:10.5px;color:var(--w35);font-family:var(--fe);font-style:italic;line-height:1.55;margin-top:12px}.exp-actions{display:flex;justify-content:flex-end;gap:8px;background:var(--obsidian);border-top:1px solid var(--w08);padding:14px 18px;position:sticky;bottom:0}.exp-close{display:inline-flex;align-items:center;justify-content:center;padding:10px 17px;border-radius:2px;border:1px solid var(--w18);background:transparent;color:var(--w60);font-size:7px;letter-spacing:2.5px;text-transform:uppercase;font-weight:900;cursor:pointer}.exp-close:hover{border-color:var(--gb);color:var(--gold);background:var(--gd)}
 @media(max-width:640px){.exp-grid,.exp-docs{grid-template-columns:1fr}.exp-title{font-size:29px}.exp-head,.exp-body-in{padding-left:22px;padding-right:22px}}
 
-/* ══════════════════════════════════════════
-   RESPONSIVE
-══════════════════════════════════════════ */
 @media(max-width:780px){
   .body{grid-template-columns:1fr}
   .lst{display:flex;gap:8px;overflow-x:auto;padding:13px}
@@ -419,12 +389,6 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
   .seg-fill,.rail-fill{transition:none!important}
 }
 
-/* ══════════════════════════════════════════
-   VISTA PROPIEDADES · medallón + leads de la propiedad
-   Base = móvil: 1 columna (medallón arriba, sus leads debajo).
-   ≥1100px = 2 columnas SOLO en Propiedades (medallón izq · leads der).
-   En vistas CRM el carril se oculta y la tabla usa todo el ancho.
-══════════════════════════════════════════ */
 .work{display:grid;grid-template-columns:1fr;gap:18px;align-items:start;margin-bottom:24px}
 .work-main{min-width:0;order:0}
 .work-side{min-width:0;order:1}                       /* móvil: leads debajo del medallón */
@@ -443,7 +407,6 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
 .work-main .act-t{font-size:14px}
 .work-main .act-in{padding:18px 20px 18px 24px}
 
-/* ── PANEL DE LEADS (carril contextual por propiedad) ── */
 .leads-panel{border:1px solid var(--w08);border-radius:3px;background:var(--obsidian);position:relative;overflow:hidden;padding:20px 18px}
 .leads-panel::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--steel),transparent);opacity:.5}
 .leads-head{margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--w08);position:relative}
@@ -470,7 +433,6 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
 .lead-btn{font-family:var(--fm);font-size:9px;letter-spacing:1.1px;text-transform:uppercase;font-weight:500;border:1px solid var(--lc-bd,rgba(111,168,224,.32));background:transparent;color:var(--lc-ac,var(--steel));border-radius:2px;padding:7px 13px;cursor:pointer;transition:.15s}
 .lead-btn:hover{background:rgba(111,168,224,.10)}
 
-/* ── RESUMEN DE APERTURA · "Lo que toca hoy" (solo al abrir) ── */
 .ta-splash{background:rgba(0,0,0,.8)}
 .ta-splash-box{width:100%;max-width:760px;max-height:88vh;overflow-y:auto;position:relative;background:var(--black2);border:1px solid var(--gb);border-radius:4px;padding:8px}
 .ta-splash-box::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.5;z-index:2}
@@ -478,7 +440,6 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
 .ta-splash-box .ta-panel::before{display:none}
 .ta-splash-box .modal-x{z-index:3}
 
-/* ════════ CABINA DEL ASESOR (perfil) ════════ */
 .cabina{display:flex;align-items:center;gap:16px;flex-wrap:wrap;
   border:1px solid var(--w08);border-radius:3px;background:var(--obsidian);
   padding:13px 16px;margin-bottom:18px;position:relative;overflow:hidden}
@@ -504,11 +465,11 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
   .cab-link{border-left:none;padding-left:0;border-top:1px solid var(--w04);padding-top:11px;flex-basis:100%;order:3}
   .cab-perfil{order:2}
 }
-/* ════════ medallón clicable + pista ════════ */
+
 .med.clickable{cursor:pointer}
 .med.clickable:hover .med-glow{opacity:.34!important}
 .med-hint{text-align:center;font-size:8px;letter-spacing:1.6px;text-transform:uppercase;color:var(--w22);font-weight:700;margin-top:10px}
-/* ════════ modal de perfil ════════ */
+
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.74);display:none;align-items:center;justify-content:center;padding:20px;z-index:1000;animation:mfade .2s}
 .modal-bg.open{display:flex}
 @keyframes mfade{from{opacity:0}to{opacity:1}}
@@ -537,7 +498,6 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
 .m-btn:hover{background:var(--gd)}
 .m-btn.solid{background:var(--gold);color:#0A0A0A;border-color:var(--gold);font-weight:700}
 
-/* ── Ficha de propiedad = Editor de Landing (misma ficha, piel nueva) ── */
 .ficha-modal{max-width:780px}
 .le-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:6px}
 .le-title{font-family:var(--fd);font-size:26px;letter-spacing:1.5px;color:#fff;line-height:1}
@@ -578,8 +538,6 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
 .le-actions .m-btn{flex:0 1 auto;padding:11px 14px}
 .le-actions .m-btn.grow{flex:1 1 100%}
 
-
-/* ════════ FICHA LEAD VENDEDOR / PROPIETARIO — migrada desde vista aprobada ════════ */
 #fichaVendModal{background:rgba(0,0,0,.82)}
 #fichaVendModal .fv-box{width:min(760px,100%);max-height:92vh;overflow-y:auto;animation:mfade .2s;box-shadow:0 28px 90px rgba(0,0,0,.55)}
 #fichaVendModal .fv-box::-webkit-scrollbar{width:3px}
@@ -604,9 +562,6 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
 .fv-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:3px;font-size:7px;letter-spacing:1.5px;text-transform:uppercase;font-weight:900;white-space:nowrap}.fv-badge:before{content:'';width:4px;height:4px;border-radius:50%;background:currentColor}.fv-badge-contact{background:rgba(224,162,78,.08);border:1px solid rgba(224,162,78,.22);color:var(--amber)}.fv-badge-offer{background:var(--gd);border:1px solid var(--gb);color:var(--gold)}.fv-badge-close{background:rgba(74,222,128,.10);border:1px solid rgba(74,222,128,.25);color:var(--sage)}.fv-badge-active{background:var(--gd);border:1px solid var(--gb);color:var(--gold)}.fv-badge-lost{background:rgba(224,111,138,.08);border:1px solid rgba(224,111,138,.2);color:var(--rose)}
 @media(max-width:640px){#fichaVendModal .fv-box{max-height:92vh}.fv-header{grid-template-columns:1fr}.fv-grid{grid-template-columns:1fr}.fv-nums{grid-template-columns:1fr 1fr}.fv-action-grid{grid-template-columns:1fr}.fv-riel-track{overflow-x:auto;padding-bottom:4px}.fv-actions{flex-wrap:wrap}.fv-btn,.fv-riel-btn{width:100%}}
 
-
-
-/* ════════ FICHA LEAD COMPRADOR / CAPTADOR COMPRADORES — misma lógica que vendedor, piel steel ════════ */
 #fichaCompModal{background:rgba(0,0,0,.82)}
 #fichaCompModal .ficha-comp-modal{
   width:min(760px,100%);max-width:760px;max-height:92vh;overflow-y:auto;
@@ -700,12 +655,6 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
   .fc-actions{flex-wrap:wrap}.fc-btn,.fc-riel-btn{width:100%}.fc-folio{text-align:left}.fc-name{font-size:29px}
 }
 
-
-
-/* ══════════════════════════════════════════
-   FAMILIA VISUAL PREMIUM · FICHAS MÉTODO NERI
-   Se replica el patrón fc-* de comprador sin tocar lógica ni conexiones.
-══════════════════════════════════════════ */
 .theme-steel{--theme-accent:var(--steel);--theme-soft:rgba(111,168,224,.08);--theme-soft2:rgba(111,168,224,.14);--theme-border:rgba(111,168,224,.30);--theme-border2:rgba(111,168,224,.45);--theme-hover:#9ec7ed}
 .theme-sage{--theme-accent:var(--sage);--theme-soft:rgba(74,222,128,.08);--theme-soft2:rgba(74,222,128,.14);--theme-border:rgba(74,222,128,.30);--theme-border2:rgba(74,222,128,.45);--theme-hover:#78f2a0}
 .theme-gold,.theme-property{--theme-accent:var(--gold);--theme-soft:var(--gd);--theme-soft2:var(--gb);--theme-border:var(--gb);--theme-border2:var(--gb2);--theme-hover:var(--gold-l)}
@@ -756,9 +705,7 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
 .fv-badge-offer,.fv-badge-active{background:rgba(74,222,128,.10);border:1px solid rgba(74,222,128,.25);color:var(--sage)}
 @media(max-width:640px){.fv-header{grid-template-columns:1fr;padding:22px 22px 18px}.fv-body{padding:0 22px 22px}.fv-folio{text-align:left}.fv-name{font-size:29px}}
 
-
 /* Perfil Asesor migrado del index viejo, con piel de ficha premium */
-:root{--red:var(--rose);--green:var(--sage);--goldbdr:var(--gb2);--golddim:var(--gd);--w50:var(--w35);--w30:var(--w22);--w65:var(--w60);--display:var(--fd);--mono:var(--fm)}
 #perfilModal{align-items:flex-start;overflow:auto;padding:26px 14px;background:rgba(3,3,3,.84);backdrop-filter:blur(8px)}
 #perfilModal .perfil-modal-shell{width:min(980px,100%);margin:auto;position:relative;box-shadow:0 28px 90px rgba(0,0,0,.58)}
 #perfilModal .perfil-modal-x{position:fixed;top:22px;right:22px;z-index:20;background:rgba(10,10,10,.86);border-color:var(--gb2);color:var(--gold)}
@@ -866,7 +813,7 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
 #fichaPropBox .le-lock-v{color:var(--gold)}
 #fichaPropBox .le-banner{font-size:10px;color:var(--w60);line-height:1.55;font-family:var(--fe);font-style:italic;border:1px solid var(--gb);background:var(--gd);padding:11px 13px;border-radius:2px;margin-bottom:10px}
 #fichaPropBox .le-upload{margin-top:8px}
-#fichaPropBox .le-upload input[type=file]{width:100%;font-size:10px;color:var(--w50);border:1px solid var(--w08);border-radius:2px;padding:8px;background:var(--obsidian)}
+#fichaPropBox .le-upload input[type=file]{width:100%;font-size:10px;color:var(--w35);border:1px solid var(--w08);border-radius:2px;padding:8px;background:var(--obsidian)}
 #fichaPropBox .le-thumb,#fichaPropBox .le-thumb-empty{width:58px;height:58px;border-radius:3px;border:1px solid var(--gb2);background:var(--obsidian);object-fit:cover;display:flex;align-items:center;justify-content:center;color:var(--gold);font-family:var(--fd);font-size:22px;flex-shrink:0}
 #fichaPropBox .le-vstatus{font-size:7px;letter-spacing:1.7px;text-transform:uppercase;font-weight:900;border-radius:999px;padding:4px 9px;border:1px solid var(--w18);color:var(--w35);white-space:nowrap}
 #fichaPropBox .le-vstatus.on{border-color:rgba(74,222,128,.28);background:rgba(74,222,128,.08);color:var(--sage)}
@@ -882,10 +829,6 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
 #fichaPropBox .m-btn.grow{flex:1 1 100%}
 @media(max-width:640px){.fp-header{grid-template-columns:1fr;padding:22px 22px 18px}.fp-body{padding:0 22px 22px}.fp-folio{text-align:left}.fp-name{font-size:29px}#fichaPropBox .le-grid{grid-template-columns:1fr}.fp-actions .m-btn{width:100%}}
 
-
-
-
-/* ════════ MODALES CONEXIÓN — Lead Compradores / Captación Compradores ════════ */
 #leadCompEditModal,#leadCompCitaModal{align-items:flex-start;overflow:auto;padding:26px 14px;background:rgba(3,3,3,.82);backdrop-filter:blur(7px)}
 #leadCompEditModal .lead-comp-edit-box,#leadCompCitaModal .lead-comp-edit-box{width:min(760px,100%);max-width:760px;margin:auto;background:linear-gradient(180deg,var(--black2),var(--black));border:1px solid rgba(111,168,224,.28);border-top:2px solid var(--steel);border-radius:3px;padding:0;box-shadow:0 28px 90px rgba(0,0,0,.58);position:relative;overflow:hidden}
 #leadCompEditModal .lead-comp-edit-box:before,#leadCompCitaModal .lead-comp-edit-box:before{content:'COMPRADOR';position:absolute;right:-10px;top:-20px;font-family:var(--fd);font-size:120px;letter-spacing:2px;color:rgba(111,168,224,.045);pointer-events:none;line-height:1}
@@ -914,7 +857,6 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
 .lec-btn[disabled]{opacity:.6;cursor:wait;transform:none}
 @media(max-width:680px){.lec-head{display:block}.lec-folio{text-align:left;margin-top:12px}.lec-grid{grid-template-columns:1fr}.lec-actions .lec-btn{width:100%}}
 
-/* ════════ FICHA / MODAL — Reportes migrado desde index_viejo_funciona.html ════════ */
 #reportesModal{align-items:flex-start;overflow:auto;padding:26px 14px;background:rgba(3,3,3,.84);backdrop-filter:blur(8px)}
 #reportesModal .reportes-modal-shell{width:min(980px,100%);margin:auto;position:relative;box-shadow:0 28px 90px rgba(0,0,0,.58)}
 #reportesModal .reportes-modal-x{position:fixed;top:22px;right:22px;z-index:20;background:rgba(10,10,10,.86);border-color:var(--gb2);color:var(--gold)}
@@ -930,12 +872,6 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
 #reportesModal .hoy-empty.err{color:var(--rose)}
 @media(max-width:760px){#reportesModal .reportes-modal-x{position:absolute;top:10px;right:10px}#reportesModal .reportes-fv-body{padding-left:18px;padding-right:18px}#reportesModal .fv-nums{grid-template-columns:1fr 1fr}}
 
-/* ════════════════════════════════════════════
-   FASE 1 · LOGIN STANDALONE
-   Una pantalla completa hasta que la sesión es válida.
-   Misma lógica de /api/login + sessionStorage del index viejo,
-   con la piel del Index 33 (columna vertebral, Bebas + Montserrat, obsidiana/dorado).
-════════════════════════════════════════════ */
 .hidden{display:none!important}
 
 #screen-login{
@@ -1000,7 +936,6 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
 }
 @media(max-width:420px){.login-card{padding:28px 22px 24px}.login-brand{font-size:32px}}
 
-/* ════════ botón de cierre de sesión — siempre visible en la cabina ════════ */
 .cab-logout{
   font-family:var(--fm);font-size:9px;letter-spacing:1px;text-transform:uppercase;
   border:1px solid var(--w18);background:transparent;color:var(--w35);
@@ -1009,12 +944,6 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
 }
 .cab-logout:hover{border-color:rgba(224,111,138,.5);color:var(--rose);background:rgba(224,111,138,.08)}
 
-
-
-/* ══════════════════════════════════════════
-   TARJETAS DE ACCIÓN — reemplazo operativo de Cabina HOY
-   Máximo 5 situaciones accionables. Sin KPIs, sin gráficas.
-══════════════════════════════════════════ */
 .ta-panel{border:1px solid var(--w08);border-radius:3px;background:var(--obsidian);margin:0 0 24px;position:relative;overflow:hidden;padding:22px 24px 24px}
 .ta-panel::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.48}
 .ta-head{margin-bottom:18px;padding-bottom:15px;border-bottom:1px solid var(--w08);position:relative}
@@ -1053,9 +982,6 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
 .ta-loading{grid-column:1/-1;border:1px solid var(--w08);background:var(--black2);border-radius:3px;padding:18px 20px;font-family:var(--fm);font-size:10px;letter-spacing:1px;color:var(--w35);text-transform:uppercase;text-align:center}
 @media(max-width:720px){.ta-panel{padding:18px 16px}.ta-title{font-size:30px}}
 
-</style>
-<style id="propdocs-css">
-/* ── Fase 2 · alerta de documentos dentro de la ficha ── */
 #propDocsAlert{margin:12px 0 0}
 .pda-alert{display:flex;align-items:center;gap:11px;width:100%;text-align:left;cursor:default;font-family:var(--fb);background:rgba(224,162,78,.07);border:1px solid rgba(224,162,78,.30);border-radius:3px;padding:11px 13px;transition:background .15s,border-color .15s}
 .pda-alert:hover{background:rgba(224,162,78,.12);border-color:rgba(224,162,78,.5)}
@@ -1066,7 +992,7 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
 .pda-txt b{color:var(--champ);font-weight:700}
 .pda-cta{font-size:8.5px;letter-spacing:1.2px;text-transform:uppercase;font-weight:700;color:var(--gold);border:1px solid var(--gb2);padding:5px 10px;border-radius:2px;flex-shrink:0}
 .pda-alert:hover .pda-cta{border-color:var(--gold);color:var(--gold-l)}
-/* ── Fase 2 · modal ligero de revisión ── */
+
 .pdocs-modal{max-width:560px;padding:24px 22px 20px}
 .pdocs-title{font-family:var(--fd);font-size:22px;letter-spacing:1px;color:#fff;line-height:1;margin-bottom:2px}
 .pdocs-body{margin-top:16px;max-height:60vh;overflow-y:auto}
@@ -1105,6 +1031,7 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
 .pdoc-empty{font-size:11px;color:var(--w35);text-align:center;padding:24px 10px;font-family:var(--fb)}
 .pdoc-empty.err{color:var(--rose)}
 </style>
+
 </head>
 <body>
 
@@ -1161,7 +1088,6 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
     <button class="cab-perfil" onclick="openReportes()" title="Abrir ficha de Reportes">Reportes</button>
     <button class="cab-logout" onclick="doLogout()" title="Cerrar sesión">↩ Cerrar sesión</button>
   </div>
-
 
   <!-- ════════ COLUMNA VERTEBRAL ════════ -->
   <div class="spine" id="spine">
@@ -1364,10 +1290,6 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
     </div>
   </div>
 
-
-
-
-
   <!-- ════════ CUERPO — Expedientes Cerrados ════════ -->
   <div class="body crm-body exp-body" id="body-exp" style="display:none">
     <div class="exp-banner">
@@ -1457,8 +1379,6 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
     <div class="modal ficha-modal ficha-comp-modal" id="fichaCompBox" role="dialog" aria-modal="true" aria-label="Ficha Lead Comprador" tabindex="-1"></div>
   </div>
 
-
-
   <!-- ════════ MODAL CONEXIÓN — Editar / Nuevo Lead Comprador ════════ -->
   <div class="modal-bg" id="leadCompEditModal" onclick="if(event.target===this)leadCompCloseEdit()">
     <section class="lead-comp-edit-box" role="dialog" aria-modal="true" aria-label="Editar Lead Comprador">
@@ -1513,7 +1433,6 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
     </section>
   </div>
 
-
   <!-- ════════ MODAL / FICHA — Reportes ════════ -->
   <div class="modal-bg" id="reportesModal" onclick="if(event.target===this)closeReportes()">
     <section class="reportes-modal-shell" role="dialog" aria-modal="true" aria-label="Ficha Reportes">
@@ -1521,8 +1440,6 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
       <div id="reportes-asesor-body"><div class="crm-empty">Cargando reportes…</div></div>
     </section>
   </div>
-
-
 
   <!-- ════════ FICHA — Expediente Cerrado (solo lectura) ════════ -->
   <div class="modal-bg" id="expModal" onclick="if(event.target===this)closeExpediente()">
@@ -1540,9 +1457,7 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
 </div><!-- /app -->
 
 <script>
-/* ═══════════════════════════════════════════
-   ICONOS
-═══════════════════════════════════════════ */
+
 const IC = {
   key:      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="4.2"/><path d="M11 11l9 9"/><path d="M16 16l2.4 2.4"/><path d="M19 13l2.4 2.4"/></svg>',
   search:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.2"/><path d="M20 20l-4.2-4.2"/></svg>',
@@ -1556,10 +1471,6 @@ const IC = {
   phone:    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2 4.2 2 2 0 0 1 4 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.9a2 2 0 0 1-.4 2.1L8.1 9.9a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c1 .3 2 .6 3 .7A2 2 0 0 1 22 16.9z"/></svg>',
   user:     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>',
 };
-
-/* ═══════════════════════════════════════════
-   DATOS BASE OPERATIVOS
-═══════════════════════════════════════════ */
 
 /* ── Propiedades en Operación ── */
 const ACCENT = { gold:'#E2C98A', amber:'#E0A24E', steel:'#6FA8E0', emerald:'#46D06E' };
@@ -1586,16 +1497,12 @@ let propError = '';
 let propRecIndex = {};
 let crmVendedoresFolioIndex = {};
 
-
 /* ── Lead Compradores ── */
 const COMPRADORES = [];
 
 /* ── Lead Vendedores / Propietarios ── */
 const VENDEDORES = [];
 
-/* ═══════════════════════════════════════════
-   MEDALLÓN (geometría, copiado del original)
-═══════════════════════════════════════════ */
 const CX=150,CY=150,R=95,N=7;
 const SEG=360/N,GAP=5.4,STROKE=13;
 const LIP_IN=R-(STROKE/2)-1.6, LIP_OUT=R+(STROKE/2)+1.6;
@@ -1714,10 +1621,6 @@ function renderProp(p){
   propDocsCheck(p);
 }
 
-/* ═══════════════════════════════════════════
-   LISTAS DE PROPIEDADES
-═══════════════════════════════════════════ */
-
 function propSetListLoading(msg){
   const lst=document.getElementById('lst-prop');
   if(!lst) return;
@@ -1756,13 +1659,6 @@ function buildPropList(){
   if(typeof scheduleTarjetasAccionRefresh==='function') scheduleTarjetasAccionRefresh();
 }
 
-/* ═══════════════════════════════════════════
-   FASE 2 · MESA DE DOCUMENTOS POR PROPIEDAD
-   Semáforo dentro de la ficha: aparece solo si el
-   propietario subió documentos que esperan revisión.
-   Cero ruido cuando todo está en orden.
-   Reusa /api/expediente-documentos (sin función nueva).
-═══════════════════════════════════════════ */
 var propDocsCache = {};          // recId -> {folio, token, vend, ownerName, docs}
 var propDocsActiveRecId = null;  // guarda la propiedad activa (anti-carrera)
 
@@ -1945,11 +1841,6 @@ function propDocsEnsureModal(){
 }
 if(typeof window!=='undefined'){ window.propDocsOpen=propDocsOpen; window.propDocsCerrar=propDocsCerrar; window.propDocsAccion=propDocsAccion; window.propDocsRechazo=propDocsRechazo; window.propDocsSetMotivo=propDocsSetMotivo; window.propDocsCancelRechazo=propDocsCancelRechazo; window.propDocsCheck=propDocsCheck; }
 
-
-/* ═══════════════════════════════════════════
-   CAPTACIÓN — TABLAS OPERATIVAS
-   Compradores, vendedores y propiedades operativas.
-═══════════════════════════════════════════ */
 function capChip(arr){
   return arr ? `<span class="chip ${arr[0]}"><span class="cd"></span>${arr[1]}</span>` : '<span class="muted">—</span>';
 }
@@ -2208,7 +2099,6 @@ function leadCompRequireSession(){
   mqNote('Necesitas iniciar sesión para guardar.');
   return false;
 }
-
 
 function renderLeadCompradoresEmpty(){
   return `<tr data-state="empty-compradores"><td colspan="${CAP_COLS.comp.length}">
@@ -3376,11 +3266,6 @@ function copiarLinkCaptacionVendedores(){
 renderCaptacion('vend');
 renderCaptacion('comp');
 
-/* ═══════════════════════════════════════════
-   TARJETAS DE ACCIÓN — entrada operativa
-   buildTarjetasAccion() consulta COMPRADORES, VENDEDORES, PROPS y citas.
-   Orden: documento > lead nuevo > propiedad bloqueada > cita > producción.
-═══════════════════════════════════════════ */
 const TARJETAS_ACCION_MAX = 5;
 const TARJETAS_ACCION_ORDEN = {documento:1,lead:2,riesgo:3,cita:4,produccion:5};
 let tarjetasAccionTimer = null;
@@ -3653,18 +3538,11 @@ document.addEventListener('keydown',function(e){
   if(e.key==='Enter'||e.key===' '){ e.preventDefault(); handleTarjetaAccion(card.dataset.action,card.dataset.id,card.dataset.href||''); }
 });
 
-
-/* ═══════════════════════════════════════════
-   ICONOS EN VÉRTEBRAS
-═══════════════════════════════════════════ */
 document.getElementById('vic-vend').innerHTML=IC.key;
 document.getElementById('vic-comp').innerHTML=IC.search;
 document.getElementById('vic-prop').innerHTML=IC.home;
 document.getElementById('vic-exp').innerHTML=IC.file;
 
-/* ═══════════════════════════════════════════
-   NAVEGACIÓN DE VÉRTEBRAS
-═══════════════════════════════════════════ */
 const MSGS = {
   prop:'Propiedades en Operación · cada propiedad recorre su riel hasta el cierre, abriendo un candado a la vez.',
   comp:'Captación Compradores · leads en seguimiento por temperatura y siguiente jugada.',
@@ -3708,15 +3586,6 @@ function activarVertebra(v){
   if(typeof scheduleTarjetasAccionRefresh==='function') scheduleTarjetasAccionRefresh();
 }
 
-/* ═══════════════════════════════════════════
-   CABINA / PERFIL DEL ASESOR
-   FASE 1 · CONEXIONES REALES MIGRADAS DESDE index_viejo_funciona.html
-   - Tabla real: Asesor captación · tblIRPmLIyj8sWyEk
-   - Lectura por Slug desde SESSION real
-   - Guardado por /api/airtable con token de sesión
-   - Foto por /api/upload-documento
-   - El diseño/modal premium se conserva
-═══════════════════════════════════════════ */
 const ADVISOR = {nombre:'Asesor',iniciales:'NA',puesto:'Asesor Inmobiliario',estado:'Pendiente / Inactivo',tipo:'Asesor',zona:'—',whatsapp:'',email:'',slug:'',foto:'',pixel:'',cuenta:'—',frase:'',linkCaptacion:''};
 const SESSION_STORE_KEY = 'neri_signed_session_v1';
 const AT_PROXY = '/api/airtable';
@@ -3757,11 +3626,6 @@ function perfilSession(){
 }
 function perfilHasToken(){return !!perfilSession().token;}
 
-/* ═══════════════════════════════════════════
-   FASE 1 · LOGIN / LOGOUT / BOOT
-   Misma lógica que index_viejo_funciona.html (/api/login, validación
-   server-side, sessionStorage). Sin credenciales en el frontend.
-═══════════════════════════════════════════ */
 const LOGIN_MODE='real';
 
 async function doLogin(){
@@ -3972,7 +3836,6 @@ function openReportes(){ const modal=document.getElementById('reportesModal'); c
 function closeReportes(){ const modal=document.getElementById('reportesModal'); if(modal)modal.classList.remove('open'); }
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'){closePerfil();closeReportes();closeFichaProp(); if(typeof closeFichaVend==='function') closeFichaVend(); if(typeof closeFichaComp==='function') closeFichaComp();} });
 
-/* ════════ FICHA DE PROPIEDAD — conexiones reales migradas desde index_viejo_funciona.html ════════ */
 let CURRENT_PROP = (typeof PROPS!=='undefined' && PROPS.length)?PROPS[0]:null;
 const _renderPropBase = renderProp;
 renderProp = function(p){ CURRENT_PROP=p; return _renderPropBase(p); };
@@ -4679,12 +4542,6 @@ async function propMainAction(p){
 window.portalVentaLink=portalVentaLink;
 window.cabEnviarPortalVenta=cabEnviarPortalVenta;
 
-/* ═══════════════════════════════════════════
-   ARRANQUE
-   Si sessionStorage trae un token válido, saltamos el login
-   automáticamente y entramos directo a las tarjetas de acción.
-   Si no, la pantalla de login (visible por defecto) se queda.
-═══════════════════════════════════════════ */
 (function bootSession(){
   const stored=perfilReadStoredSession();
   if(stored && stored.token){ enterApp(); }
