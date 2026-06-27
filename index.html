@@ -1088,6 +1088,49 @@ a.owner-wa-link:hover{opacity:.75}
 .ta-loading{grid-column:1/-1;border:1px solid var(--w08);background:var(--black2);border-radius:3px;padding:18px 20px;font-family:var(--fm);font-size:10px;letter-spacing:1px;color:var(--w35);text-transform:uppercase;text-align:center}
 @media(max-width:720px){.ta-panel{padding:18px 16px}.ta-title{font-size:30px}}
 
+
+
+/* ════════ PATCH V3 · LOGIN CENTRADO / SIN DESCUADRE ════════
+   Solo corrige posición visual y autofill del login. No toca JS ni conexiones. */
+#screen-login{
+  position:fixed!important;
+  top:0!important;left:0!important;right:auto!important;bottom:auto!important;
+  width:100vw!important;height:100dvh!important;min-height:100vh!important;
+  display:grid!important;place-items:center!important;
+  padding:24px!important;margin:0!important;overflow:auto!important;
+}
+#screen-login .login-card{
+  width:min(380px, calc(100vw - 48px))!important;
+  max-width:380px!important;
+  margin:0 auto!important;
+  justify-self:center!important;
+  align-self:center!important;
+}
+#screen-login::before{
+  right:-4vw!important;
+  bottom:-15vw!important;
+  transform:none!important;
+}
+#screen-login .login-input{
+  background:rgba(255,255,255,.035)!important;
+  border:1px solid var(--w08)!important;
+  border-bottom:1px solid var(--w18)!important;
+  padding:12px 13px!important;
+  color:#fff!important;
+}
+#screen-login .login-input:-webkit-autofill,
+#screen-login .login-input:-webkit-autofill:hover,
+#screen-login .login-input:-webkit-autofill:focus{
+  -webkit-text-fill-color:#fff!important;
+  box-shadow:0 0 0 1000px #0f0f0f inset!important;
+  caret-color:#fff!important;
+  border:1px solid var(--gb2)!important;
+}
+@media(max-width:420px){
+  #screen-login{padding:18px!important;}
+  #screen-login .login-card{width:min(100%, calc(100vw - 36px))!important;}
+}
+
 </style>
 <style id="propdocs-css">
 /* ── Fase 2 · alerta de documentos dentro de la ficha ── */
