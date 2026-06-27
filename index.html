@@ -893,6 +893,14 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
 #leadVendEditModal{align-items:flex-start;overflow:auto;padding:26px 14px;background:rgba(3,3,3,.86)}
 #leadVendEditModal .lead-comp-edit-box{width:min(760px,100%);max-width:760px;margin:auto;background:linear-gradient(180deg,var(--black2),var(--black));border:1px solid rgba(74,222,128,.28);border-top:2px solid var(--sage);border-radius:3px;padding:0;box-shadow:0 28px 90px rgba(0,0,0,.58);position:relative;overflow:hidden}
 #leadVendEditModal .lead-comp-edit-box:before{content:'PROPIETARIO';position:absolute;right:-10px;top:-20px;font-family:var(--fd);font-size:108px;letter-spacing:2px;color:rgba(74,222,128,.05);pointer-events:none;line-height:1}
+#leadVendEditModal .lec-head{border-bottom-color:rgba(74,222,128,.18);background:linear-gradient(135deg,rgba(74,222,128,.10),rgba(255,255,255,.015))}
+#leadVendEditModal .lec-ey,#leadVendEditModal .lec-folio{color:var(--sage)}
+#leadVendEditModal .lec-folio{border-color:rgba(74,222,128,.28);background:rgba(74,222,128,.08)}
+#leadVendEditModal .lec-in:focus{border-color:rgba(74,222,128,.45);background:rgba(74,222,128,.05)}
+#leadVendEditModal .lec-actions{border-top-color:rgba(74,222,128,.18)}
+#leadVendEditModal .lec-btn:hover{border-color:rgba(74,222,128,.42);color:var(--sage);background:rgba(74,222,128,.08)}
+#leadVendEditModal .lec-btn.primary{background:var(--sage);border-color:var(--sage);color:#050505}
+#leadVendEditModal .lec-btn.primary:hover{background:#68f08c;border-color:#68f08c;color:#050505}
 .lec-head{padding:22px 24px 16px;border-bottom:1px solid rgba(111,168,224,.18);background:linear-gradient(135deg,rgba(111,168,224,.10),rgba(255,255,255,.015));display:flex;justify-content:space-between;gap:16px;position:relative;z-index:2}
 .lec-ey{font-size:7px;letter-spacing:4px;text-transform:uppercase;font-weight:800;color:var(--steel);margin-bottom:7px}
 .lec-title{font-family:var(--fd);font-size:31px;letter-spacing:2.5px;color:#fff;line-height:1}
@@ -1352,7 +1360,7 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
       <div class="crm-actions" aria-label="Acciones de Lead Vendedores">
         <!-- Botones visuales preparados para migrar conexiones reales de Lead Vendedores -->
         <button class="crm-tool-btn sage" id="btn-vend-recargar" data-action="recargar-lead-vendedores" onclick="event.stopPropagation();recargarLeadVendedores()">Recargar</button>
-        <button class="crm-tool-btn sage primary" id="btn-vend-nuevo" data-action="nuevo-lead-vendedor" onclick="event.stopPropagation();nuevoLeadVendedor()">Abrir expediente</button>
+        <button class="crm-tool-btn sage primary" id="btn-vend-nuevo" data-action="nuevo-lead-vendedor" onclick="event.stopPropagation();nuevoLeadVendedor()">+ Abrir expediente</button>
       </div>
       <div class="crm-count" id="crm-count-vend"><b>0</b> registros</div>
     </div>
@@ -2050,6 +2058,42 @@ function leadVendDisplayFolio(rec, fallback){
   return leadVendFolioValue(rec) || fallback || '— sin folio —';
 }
 
+/* Apertura manual de expediente desde Lead Vendedores.
+   Usa campos existentes: Folio, Fuente, Estado, Asesor y Fecha de Entrada.
+   No toca riel, contrato, expediente ni pase a Propiedades. */
+function leadVendManualFolioPrefix(){
+  var s={};
+  try{ s=(typeof perfilSession==='function'?perfilSession():{})||{}; }catch(_){}
+  var zone=[s.ciudad,s.zona,s.empresa,(typeof ADVISOR!=='undefined'&&ADVISOR&&ADVISOR.zona)||''].join(' ');
+  zone=String(zone||'').toLowerCase();
+  if(zone.indexOf('cuernavaca')>-1 || zone.indexOf('morelos')>-1) return 'CVA';
+  return 'NERI';
+}
+function leadVendNextManualFolio(){
+  var prefix=leadVendManualFolioPrefix();
+  var year=String(new Date().getFullYear());
+  var max=0;
+  var re=new RegExp('^'+prefix+'[\\-‐‑‒–—―]'+year+'[\\-‐‑‒–—―](\\d+)$','i');
+  (VENDEDORES||[]).forEach(function(rec){
+    var m=String(leadVendFolioValue(rec)||'').trim().match(re);
+    if(m){ var n=parseInt(m[1],10); if(!isNaN(n)&&n>max) max=n; }
+  });
+  var n=max?max+1:parseInt(String(Date.now()).slice(-4),10);
+  if(!n || n<1000) n=1000+Math.floor(Math.random()*9000);
+  return prefix+'-'+year+'-'+String(n).padStart(4,'0');
+}
+function leadVendManualDefaults(){
+  var s={};
+  try{ s=(typeof perfilSession==='function'?perfilSession():{})||{}; }catch(_){}
+  return {fields:{
+    'Folio':leadVendNextManualFolio(),
+    'Fuente':'Acceso por referencia',
+    'Estado':'Lead Nuevo',
+    'Fecha de Entrada':new Date().toISOString(),
+    'Asesor':s.nombre || ((typeof ADVISOR!=='undefined'&&ADVISOR&&ADVISOR.nombre)||'')
+  }};
+}
+
 function leadVendFieldValue(rec, field){
   if(Array.isArray(field)){
     for(const f of field){ const v=leadVendFieldValue(rec,f); if(v) return v; }
@@ -2247,8 +2291,9 @@ function renderLeadVendedoresEmpty(){
   return `<tr data-state="empty-vendedores"><td colspan="${CAP_COLS.vend.length}">
     <div class="crm-empty">
       No hay registros en esta vista.
-      <span class="crm-empty-note">Comparte tu liga de captación para recibir propietarios nuevos.</span>
+      <span class="crm-empty-note">Puedes compartir la liga de captación o abrir un expediente con folio propio.</span>
       <div class="crm-empty-actions">
+        <button class="crm-tool-btn sage primary" id="btn-vend-new-empty" data-action="nuevo-lead-vendedor" onclick="event.stopPropagation();nuevoLeadVendedor()">+ Abrir expediente</button>
         <button class="crm-tool-btn gold" id="btn-vend-copy-empty" data-action="copiar-link-captacion-vendedores" onclick="event.stopPropagation();copiarLinkCaptacionVendedores()">Copiar link</button>
       </div>
     </div>
@@ -2842,9 +2887,9 @@ function leadVendOpenEdit(rec,isNew){
   closeFichaVend();
   leadVendEditState={rec:rec||null,isNew:!!isNew};
   const values=rec&&rec.fields ? rec.fields : (rec||{});
-  const nombre=values['Nombre Completo'] || _fval(rec,'Nombre Completo') || 'Lead vendedor';
-  const folio=leadVendFolioValue(rec) || (isNew?'Se genera después':'— sin folio —');
-  document.getElementById('leadVendEditEy').textContent=isNew?'Nuevo lead vendedor':'Editar lead vendedor';
+  const nombre=values['Nombre Completo'] || _fval(rec,'Nombre Completo') || (isNew?'Apertura de expediente de propietario':'Lead vendedor');
+  const folio=leadVendFolioValue(rec) || (isNew?'Folio pendiente':'— sin folio —');
+  document.getElementById('leadVendEditEy').textContent=isNew?'Apertura de expediente':'Editar lead vendedor';
   document.getElementById('leadVendEditTitle').textContent=nombre;
   document.getElementById('leadVendEditFolio').textContent=folio;
   document.getElementById('leadVendEditMsg').textContent='';
@@ -2868,6 +2913,10 @@ async function leadVendSave(){
     if(isNew || val!==orig) fields[el.dataset.field]=val;
   });
   if(isNew){
+    const initial=rec&&rec.fields ? rec.fields : (rec||{});
+    ['Folio','Fuente','Estado','Fecha de Entrada'].forEach(function(f){
+      if(initial[f]!=null && initial[f]!=='' && fields[f]==null) fields[f]=initial[f];
+    });
     const s=typeof perfilSession==='function'?perfilSession():{};
     if(!fields['Asesor'] && (s.nombre || (typeof ADVISOR!=='undefined'&&ADVISOR.nombre))) fields['Asesor']=s.nombre||ADVISOR.nombre;
   }
@@ -2875,13 +2924,27 @@ async function leadVendSave(){
   if(btn){btn.disabled=true;btn.textContent='Guardando…';}
   setMsg('');
   try{
-    if(isNew){ await atFetch(LEAD_VEND_TABLE,{method:'POST',body:JSON.stringify({fields:fields,typecast:true})}); }
-    else { await atFetch(`${LEAD_VEND_TABLE}/${rec.id}`,{method:'PATCH',body:JSON.stringify({fields:fields,typecast:true})}); }
+    let savedRec=null;
+    if(isNew){
+      try{
+        savedRec=await atFetch(LEAD_VEND_TABLE,{method:'POST',body:JSON.stringify({fields:fields,typecast:true})});
+      }catch(firstErr){
+        const emsg=String((firstErr&&firstErr.message)||firstErr||'');
+        if(fields['Folio'] && /Folio|computed|read.?only|cannot accept/i.test(emsg)){
+          const retryFields=Object.assign({},fields);
+          delete retryFields['Folio'];
+          savedRec=await atFetch(LEAD_VEND_TABLE,{method:'POST',body:JSON.stringify({fields:retryFields,typecast:true})});
+        } else { throw firstErr; }
+      }
+    }
+    else { savedRec=await atFetch(`${LEAD_VEND_TABLE}/${rec.id}`,{method:'PATCH',body:JSON.stringify({fields:fields,typecast:true})}); }
     leadVendCloseEdit();
-    mqNote(isNew?'✓ Lead vendedor creado':'✓ Lead vendedor actualizado');
     await leadVendLoad(true);
-    const freshRec = rec ? ((VENDEDORES||[]).find(r=>r&&r.id===rec.id) || rec) : null;
-    const folio=(freshRec&&(leadVendFolioValue(freshRec)||freshRec.id)) || '';
+    const freshRec = isNew
+      ? (((VENDEDORES||[]).find(r=>savedRec&&r&&r.id===savedRec.id) || (VENDEDORES||[]).find(r=>leadVendFolioValue(r)===fields['Folio'])) || savedRec)
+      : ((VENDEDORES||[]).find(r=>r&&r.id===rec.id) || savedRec || rec);
+    const folio=(freshRec&&(leadVendFolioValue(freshRec)||freshRec.id)) || fields['Folio'] || '';
+    mqNote(isNew ? ('✓ Expediente de propietario abierto'+(folio?' · '+folio:'')) : '✓ Lead vendedor actualizado');
     if(folio) openFichaVend(folio);
   }catch(e){ setMsg('Error al guardar: '+(e.message||e),'var(--rose)'); }
   finally{ if(btn){btn.disabled=false;btn.textContent='Guardar cambios';} }
@@ -3365,9 +3428,8 @@ function recargarLeadVendedores(){
   leadVendLoad(true);
 }
 function nuevoLeadVendedor(){
-  const link = (typeof capLinkUrl==='function') ? capLinkUrl() : location.href;
-  mqNote('Nuevo Lead Vendedor se genera desde la landing de captación. Link listo para copiar.');
-  if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(link).catch(()=>{});
+  if(!leadVendRequireSession()) return;
+  leadVendOpenEdit(leadVendManualDefaults(), true);
 }
 function whatsappLeadVendedor(folio){
   const idx=VENDEDORES.findIndex(function(x,i){return leadVendKey(x,i)===folio || leadVendFolioValue(x)===folio || (x && x.id===folio);});
