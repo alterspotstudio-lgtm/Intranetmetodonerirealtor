@@ -3975,10 +3975,15 @@ let perfilState={recId:null,rec:null,editMode:false,localFallback:false};
 function perfilReadStoredSession(){
   try{
     if(window.SESSION && typeof window.SESSION==='object') return window.SESSION;
-    const raw=sessionStorage.getItem(SESSION_STORE_KEY);
+    const raw=localStorage.getItem(SESSION_STORE_KEY);
     if(!raw) return null;
     const s=JSON.parse(raw);
     if(s && typeof s==='object'){
+      /* Verificar que el token no tenga más de 7 días */
+      if(s._ts && (Date.now()-s._ts > 7*24*60*60*1000)){
+        localStorage.removeItem(SESSION_STORE_KEY);
+        return null;
+      }
       window.SESSION=s;
       return s;
     }
@@ -4027,9 +4032,9 @@ async function doLogin(){
     const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user,pass,rol,mode:LOGIN_MODE})});
     const data=await r.json().catch(()=>({}));
     if(!r.ok) throw new Error(data.error||'No se pudo iniciar sesión.');
-    const session={...(data.user||{}),token:data.token,user};
+    const session={...(data.user||{}),token:data.token,user,_ts:Date.now()};
     window.SESSION=session;
-    try{ sessionStorage.setItem(SESSION_STORE_KEY,JSON.stringify(session)); }catch(e){}
+    try{ localStorage.setItem(SESSION_STORE_KEY,JSON.stringify(session)); }catch(e){}
     if(errEl)errEl.textContent='';
     if(passEl)passEl.value='';
     enterApp();
@@ -4043,6 +4048,7 @@ async function doLogin(){
 function doLogout(){
   window.SESSION=null;
   try{ sessionStorage.removeItem(SESSION_STORE_KEY); }catch(e){}
+  try{ localStorage.removeItem(SESSION_STORE_KEY); }catch(e){}
   _perfilLoaded=false;
   perfilState={recId:null,rec:null,editMode:false,localFallback:false};
   const loginScreen=document.getElementById('screen-login');
@@ -4191,6 +4197,7 @@ async function perfilSave(){
     if(fields['Email'])next.email=fields['Email'];
     if(fields['Pixel ID Meta'])next.pixel=fields['Pixel ID Meta'];
     window.SESSION=next;
+    try{localStorage.setItem(SESSION_STORE_KEY,JSON.stringify({...next,_ts:Date.now()}));}catch(e){}
     try{sessionStorage.setItem(SESSION_STORE_KEY,JSON.stringify(next));}catch(e){}
     refreshChrome();showToast('✓ Perfil actualizado');perfilState.editMode=false;_perfilLoaded=false;await perfilLoad(true);
   }catch(e){setMsg('Error al guardar: '+e.message,'var(--rose)');}
