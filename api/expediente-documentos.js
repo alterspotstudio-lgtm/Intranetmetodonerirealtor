@@ -30,32 +30,31 @@ const DOCS = [
   // Bloque 1 · Identidad y persona — siempre
   { id: 'ine',               tipo: 'Identificación oficial vigente',            bloque: 'Identidad y persona', aplica: 'siempre',     gate_publicacion: true,  descripcion: 'Identificación vigente del propietario.',                                  critico: true },
   { id: 'curp',              tipo: 'CURP',                                      bloque: 'Identidad y persona', aplica: 'siempre',     gate_publicacion: true,  descripcion: 'Clave Única de Registro de Población.',                                  critico: true },
-  { id: 'constancia_fiscal', tipo: 'RFC / constancia fiscal',                   bloque: 'Identidad y persona', aplica: 'siempre',     gate_publicacion: true,  descripcion: 'Necesaria para revisar correctamente el tema fiscal e ISR.',              critico: true },
+  { id: 'constancia_fiscal', tipo: 'RFC / constancia fiscal',                   bloque: 'Identidad y persona', aplica: 'siempre',     gate_publicacion: true,  descripcion: 'Necesaria para revisar correctamente el tema fiscal e ISR.',              critico: true, vigencia_dias: 60 },
   { id: 'acta_nacimiento',   tipo: 'Acta de nacimiento',                        bloque: 'Identidad y persona', aplica: 'siempre',     gate_publicacion: true,  descripcion: 'Acredita identidad y datos legales para escritura.',                      critico: true },
-  { id: 'domicilio',         tipo: 'Comprobante de domicilio',                  bloque: 'Identidad y persona', aplica: 'siempre',     gate_publicacion: true,  descripcion: 'Comprobante vigente del propietario.',                                    critico: true },
-  { id: 'clabe_bancaria',    tipo: 'CLABE bancaria',                            bloque: 'Identidad y persona', aplica: 'siempre',     gate_publicacion: true,  descripcion: 'Cuenta para dispersión del pago al cierre.',                              critico: true },
+  { id: 'domicilio',         tipo: 'Comprobante de domicilio',                  bloque: 'Identidad y persona', aplica: 'siempre',     gate_publicacion: true,  descripcion: 'Comprobante vigente del propietario.',                                    critico: true, vigencia_dias: 60 },
 
   // Bloque 2 · Estado civil y representación — condicional
-  { id: 'acta_matrimonio',   tipo: 'Acta de matrimonio / régimen matrimonial',  bloque: 'Estado civil y representación', aplica: 'condicional', gate_publicacion: false, descripcion: 'Aplica cuando la situación civil lo requiere.',                           critico: false },
+  { id: 'acta_matrimonio',   tipo: 'Acta de matrimonio, si está casado',         bloque: 'Estado civil y representación', aplica: 'condicional', gate_publicacion: false, descripcion: 'Aplica cuando la situación civil lo requiere.',                           critico: false },
   { id: 'conyuge_id_docs',   tipo: 'ID y documentos del cónyuge',               bloque: 'Estado civil y representación', aplica: 'condicional', gate_publicacion: false, descripcion: 'Aplica si hay sociedad conyugal o firma del cónyuge.',                     critico: false },
-  { id: 'poder_notarial',    tipo: 'Poder notarial + ID apoderado',             bloque: 'Estado civil y representación', aplica: 'condicional', gate_publicacion: false, descripcion: 'Aplica si firma un apoderado.',                                         critico: false },
+  { id: 'poder_notarial',    tipo: 'Poder notarial + ID del apoderado',          bloque: 'Estado civil y representación', aplica: 'condicional', gate_publicacion: false, descripcion: 'Aplica si firma un apoderado.',                                         critico: false },
 
   // Bloque 3 · Propiedad / legal — siempre
   { id: 'escritura',         tipo: 'Escritura pública o título inscrito',        bloque: 'Propiedad / legal', aplica: 'siempre',     gate_publicacion: true,  descripcion: 'Documento base que acredita la propiedad.',                               critico: true },
-  { id: 'predial',           tipo: 'Último predial / boleta predial',            bloque: 'Propiedad / legal', aplica: 'siempre',     gate_publicacion: true,  descripcion: 'Boleta o comprobante de predial reciente.',                              critico: true },
-  { id: 'agua_luz',          tipo: 'Último recibo de agua',                     bloque: 'Propiedad / legal', aplica: 'siempre',     gate_publicacion: true,  descripcion: 'Recibo de agua reciente. La luz no forma parte del set canónico.',        critico: true },
-  { id: 'no_adeudo_predial', tipo: 'Certificado no adeudo predial',              bloque: 'Propiedad / legal', aplica: 'siempre',     gate_publicacion: true,  descripcion: 'Documento de Catastro municipal para notaría / ISABI.',                   critico: true },
-  { id: 'no_adeudo_agua',    tipo: 'Certificado no adeudo agua',                 bloque: 'Propiedad / legal', aplica: 'siempre',     gate_publicacion: true,  descripcion: 'Documento del organismo de agua para notaría / cierre.',                 critico: true },
-  { id: 'plano_catastral',   tipo: 'Plano catastral actualizado',                bloque: 'Propiedad / legal', aplica: 'siempre',     gate_publicacion: true,  descripcion: 'Necesario para avalúo / ISABI cuando corresponda.',                       critico: true },
+  { id: 'predial',           tipo: 'Último predial / boleta predial',            bloque: 'Propiedad / legal', aplica: 'siempre',     gate_publicacion: true,  descripcion: 'Boleta o comprobante de predial reciente.',                              critico: true, vigencia_dias: 60 },
+  { id: 'agua_luz',          tipo: 'Último recibo de agua',                     bloque: 'Propiedad / legal', aplica: 'siempre',     gate_publicacion: true,  descripcion: 'Recibo de agua reciente. La luz no forma parte del set canónico.',        critico: true, vigencia_dias: 60 },
+  { id: 'no_adeudo_predial', tipo: 'Certificado no adeudo predial',              bloque: 'Propiedad / legal', aplica: 'siempre',     gate_publicacion: true,  descripcion: 'Documento de Catastro municipal para notaría / ISABI.',                   critico: true, vigencia_dias: 60 },
+  { id: 'no_adeudo_agua',    tipo: 'Certificado no adeudo agua',                 bloque: 'Propiedad / legal', aplica: 'siempre',     gate_publicacion: true,  descripcion: 'Documento del organismo de agua para notaría / cierre.',                 critico: true, vigencia_dias: 60 },
+  { id: 'plano_catastral',   tipo: 'Plano catastral actualizado',                bloque: 'Propiedad / legal', aplica: 'siempre',     gate_publicacion: true,  descripcion: 'Necesario para avalúo / ISABI cuando corresponda.',                       critico: true, vigencia_dias: 60 },
 
   // Bloques condicionales
   { id: 'regimen_condominio',       tipo: 'Régimen de condominio',               bloque: 'Condicionales', aplica: 'condicional', gate_publicacion: false, descripcion: 'Aplica cuando la propiedad está en condominio.',                         critico: false },
   { id: 'reglamento_condominio',    tipo: 'Reglamento de condominio',            bloque: 'Condicionales', aplica: 'condicional', gate_publicacion: false, descripcion: 'Aplica cuando la administración lo requiere.',                            critico: false },
-  { id: 'no_adeudo_mantenimiento',  tipo: 'Constancia no adeudo mantenimiento',  bloque: 'Condicionales', aplica: 'condicional', gate_publicacion: false, descripcion: 'Aplica en condominios o fraccionamientos con mantenimiento.',            critico: false },
-  { id: 'carta_saldo',              tipo: 'Carta saldo',                         bloque: 'Condicionales', aplica: 'condicional', gate_publicacion: false, descripcion: 'Aplica si existe crédito vigente sobre la vivienda.',                    critico: false },
-  { id: 'exencion_isr',             tipo: 'Comprobantes exención ISR',           bloque: 'Condicionales', aplica: 'condicional', gate_publicacion: false, descripcion: 'Aplica si el propietario busca exención de ISR.',                          critico: false },
-  { id: 'licencia_terminacion_obra', tipo: 'Licencia / terminación obra / uso suelo', bloque: 'Condicionales', aplica: 'condicional', gate_publicacion: false, descripcion: 'Aplica si existe irregularidad o regularización municipal.',             critico: false },
-  { id: 'libertad_gravamen',        tipo: 'Libertad de gravamen',                bloque: 'Condicionales', aplica: 'condicional', gate_publicacion: false, descripcion: 'Documento legal/notarial si se solicita para verificar gravamen.',          critico: false },
+  { id: 'no_adeudo_mantenimiento',  tipo: 'Constancia de no adeudo de mantenimiento', bloque: 'Condicionales', aplica: 'condicional', gate_publicacion: false, descripcion: 'Aplica en condominios o fraccionamientos con mantenimiento.',            critico: false, vigencia_dias: 60 },
+  { id: 'carta_saldo',              tipo: 'Carta saldo, si hay crédito vigente',  bloque: 'Condicionales', aplica: 'condicional', gate_publicacion: false, descripcion: 'Aplica si existe crédito vigente sobre la vivienda.',                    critico: false, vigencia_dias: 60 },
+  { id: 'exencion_isr',             tipo: 'Comprobantes de exención ISR',         bloque: 'Condicionales', aplica: 'condicional', gate_publicacion: false, descripcion: 'Aplica si el propietario busca exención de ISR.',                          critico: false, vigencia_dias: 60 },
+  { id: 'licencia_terminacion_obra', tipo: 'Licencia / terminación de obra / uso de suelo', bloque: 'Condicionales', aplica: 'condicional', gate_publicacion: false, descripcion: 'Aplica si existe irregularidad o regularización municipal.',             critico: false, vigencia_dias: 60 },
+  { id: 'clabe_bancaria',           tipo: 'CLABE bancaria',                      bloque: 'Condicionales', aplica: 'condicional', gate_publicacion: false, descripcion: 'Cuenta para dispersión del pago al cierre.',                              critico: false, vigencia_dias: 60 },
 ];
 const DOC_BY_ID = Object.fromEntries(DOCS.map(d => [d.id, d]));
 
@@ -194,51 +193,85 @@ async function handleReview(req, res, body, action) {
 async function checkInLead(lead, folio, rows, lastDocId) {
   let workRows = Array.isArray(rows) ? rows.slice() : [];
   if (lastDocId && !workRows.some(r => (r.fields && r.fields['Document ID']) === lastDocId)) {
-    workRows.push({ fields: { 'Document ID': lastDocId, 'Estado del Documento': 'Recibido' } });
+    workRows.push({ fields: { 'Document ID': lastDocId, 'Estado del Documento': 'Recibido', 'Fecha de Carga': new Date().toISOString() } });
   }
   const always = DOCS.filter(d => d.aplica === 'siempre');
   const gateDocs = DOCS.filter(d => d.gate_publicacion);
+  const rowById = Object.fromEntries(workRows.map(r => [r.fields && r.fields['Document ID'], r]));
   const stateById = Object.fromEntries(workRows.map(r => [r.fields && r.fields['Document ID'], pickName(r.fields && r.fields['Estado del Documento'])]));
   const baseRecibida = always.filter(d => ['Recibido', 'Validado'].includes(stateById[d.id])).length;
-  const gateValidada = gateDocs.filter(d => stateById[d.id] === 'Validado').length;
-  const label = gateValidada >= gateDocs.length
+  const gateValidada = gateDocs.filter(d => stateById[d.id] === 'Validado' && !isDocExpired(rowById[d.id] && rowById[d.id].fields, d)).length;
+  const gateVencida = gateDocs.filter(d => stateById[d.id] === 'Validado' && isDocExpired(rowById[d.id] && rowById[d.id].fields, d)).length;
+  const label = gateValidada >= gateDocs.length && gateVencida === 0
     ? 'Expediente propietario mínimo validado (' + gateValidada + '/' + gateDocs.length + ') · listo para publicar'
-    : 'Base recibida: ' + baseRecibida + '/' + always.length + ' · mínimo validado ' + gateValidada + '/' + gateDocs.length;
+    : 'Base recibida: ' + baseRecibida + '/' + always.length + ' · mínimo validado ' + gateValidada + '/' + gateDocs.length + (gateVencida ? ' · vigencia vencida ' + gateVencida : '');
   await airPatch(LEADS_TABLE, lead.id, { 'Progreso Expediente': label });
 }
 
 
 function rowsToDocuments(rows) {
   const order = Object.fromEntries(DOCS.map((d, i) => [d.id, i]));
-  return (rows || []).slice().sort((a, b) => {
-    const aid = a.fields && a.fields['Document ID'];
-    const bid = b.fields && b.fields['Document ID'];
-    return (order[aid] ?? 999) - (order[bid] ?? 999);
-  }).map(r => {
-    const f = r.fields || {};
-    const docId = f['Document ID'] || '';
-    const base = DOC_BY_ID[docId] || {};
-    return {
-      id: docId || r.id,
-      tipo: f['Tipo de Documento'] || base.tipo || 'Documento',
-      descripcion: base.descripcion || 'Carga el archivo correspondiente a este documento.',
-      estado: pickName(f['Estado del Documento']) || 'Pendiente',
-      critico: Boolean(f['Documento Crítico']) || Boolean(base.critico),
-      bloque: base.bloque || '',
-      aplica: base.aplica || 'siempre',
-      gate_publicacion: Boolean(base.gate_publicacion),
-      archivo_url: f['Archivo URL'] || '',
-      fecha_carga: f['Fecha de Carga'] || '',
-      motivo_rechazo: f['Motivo de Rechazo'] || '',
-    };
-  });
+  return (rows || [])
+    .filter(r => DOC_BY_ID[(r.fields && r.fields['Document ID']) || ''])
+    .slice().sort((a, b) => {
+      const aid = a.fields && a.fields['Document ID'];
+      const bid = b.fields && b.fields['Document ID'];
+      return (order[aid] ?? 999) - (order[bid] ?? 999);
+    }).map(r => {
+      const f = r.fields || {};
+      const docId = f['Document ID'] || '';
+      const base = DOC_BY_ID[docId] || {};
+      const vigencia = calcVigencia(f['Fecha de Carga'], base.vigencia_dias);
+      return {
+        id: docId || r.id,
+        tipo: base.tipo || f['Tipo de Documento'] || 'Documento',
+        descripcion: base.descripcion || 'Carga el archivo correspondiente a este documento.',
+        estado: pickName(f['Estado del Documento']) || 'Pendiente',
+        critico: Boolean(base.critico),
+        bloque: base.bloque || '',
+        aplica: base.aplica || 'siempre',
+        gate_publicacion: Boolean(base.gate_publicacion),
+        vigencia_dias: Number(base.vigencia_dias || 0),
+        fecha_vencimiento: vigencia.fecha_vencimiento,
+        vigencia_estado: vigencia.estado,
+        dias_para_vencer: vigencia.dias_para_vencer,
+        requiere_actualizacion: vigencia.estado === 'Vencido',
+        archivo_url: f['Archivo URL'] || '',
+        fecha_carga: f['Fecha de Carga'] || '',
+        motivo_rechazo: f['Motivo de Rechazo'] || '',
+      };
+    });
 }
 function calcGate(rows) {
+  const rowById = Object.fromEntries((rows || []).map(r => [r.fields && r.fields['Document ID'], r]));
   const stateById = Object.fromEntries((rows || []).map(r => [r.fields && r.fields['Document ID'], pickName(r.fields && r.fields['Estado del Documento'])]));
   const gateDocs = DOCS.filter(d => d.gate_publicacion);
-  const validados = gateDocs.filter(d => stateById[d.id] === 'Validado').length;
-  const pendientes = gateDocs.filter(d => stateById[d.id] !== 'Validado').map(d => ({ id: d.id, tipo: d.tipo, estado: stateById[d.id] || 'Pendiente' }));
-  return { ok: validados === gateDocs.length, validados, total: gateDocs.length, pendientes };
+  const validados = gateDocs.filter(d => stateById[d.id] === 'Validado' && !isDocExpired(rowById[d.id] && rowById[d.id].fields, d)).length;
+  const pendientes = gateDocs
+    .filter(d => stateById[d.id] !== 'Validado' || isDocExpired(rowById[d.id] && rowById[d.id].fields, d))
+    .map(d => {
+      const expired = stateById[d.id] === 'Validado' && isDocExpired(rowById[d.id] && rowById[d.id].fields, d);
+      return { id: d.id, tipo: d.tipo, estado: expired ? 'Vencido' : (stateById[d.id] || 'Pendiente') };
+    });
+  const vencidos = pendientes.filter(p => p.estado === 'Vencido');
+  return { ok: validados === gateDocs.length && vencidos.length === 0, validados, total: gateDocs.length, pendientes, vencidos };
+}
+function calcVigencia(fechaCarga, vigenciaDias) {
+  const dias = Number(vigenciaDias || 0);
+  if (!dias || !fechaCarga) return { estado: '', fecha_vencimiento: '', dias_para_vencer: null };
+  const loaded = new Date(fechaCarga);
+  if (Number.isNaN(loaded.getTime())) return { estado: '', fecha_vencimiento: '', dias_para_vencer: null };
+  const vence = new Date(loaded.getTime() + dias * 86400000);
+  const diff = Math.ceil((vence.getTime() - Date.now()) / 86400000);
+  return {
+    estado: diff < 0 ? 'Vencido' : (diff <= 15 ? 'Por vencer' : 'Vigente'),
+    fecha_vencimiento: vence.toISOString(),
+    dias_para_vencer: diff,
+  };
+}
+function isDocExpired(fields, base) {
+  const vigencia = calcVigencia(fields && fields['Fecha de Carga'], base && base.vigencia_dias);
+  return vigencia.estado === 'Vencido';
 }
 async function syncChecklist(folio, lead, rows) {
   const existingIds = new Set((rows || []).map(r => r.fields && r.fields['Document ID']).filter(Boolean));
