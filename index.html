@@ -3230,16 +3230,19 @@ function fcStateFor(c){
   const status=fcVal(c,'Status del Lead','Status del lead','statusLead','estadoLead','Estado').toLowerCase();
   const clasif=fcVal(c,'Clasificación','Clasificacion','clasificacion','temp').toLowerCase();
   const decision=Number(fcDecisionNum(fcVal(c,'Decisión','Decisión 1-10','Decisión 1–10','Decisión 1 - 10','Decision','Decisión de Compra','Nivel de Decisión','Intención','Intención de Compra','decision'))||0);
-  const wa=fcVal(c,'Teléfono WhatsApp','WhatsApp','whatsapp','telefono','tel');
   const propiedad=fcVal(c,'Propiedad de Interés','Propiedad de interés','propiedad');
   const acomp=fcVal(c,'Acompañamiento sugerido','Acompanamiento sugerido','acompanamientoSugerido');
   const enviado=fcVal(c,'Acompañamiento enviado','Acompanamiento enviado','acompanamientoEnviado');
+  // El asesor "ganó" el contacto solo si hay evidencia real: acompañamiento enviado o status movido por él.
+  const contactoHecho = fcSent(enviado) || /seguimiento|contactad|calific|en\s*proceso|cita|visita|oferta|apartad/i.test(status);
+  // Estados explícitos primero (no se infieren del puntaje de la IA).
   if(status.includes('apartado') || status.includes('cliente activo')) return 'apartado';
-  if(status.includes('cerrado') || status.includes('perdido') || status.includes('frío') || status.includes('frio') || clasif==='cold' || decision<=3 && decision>0) return 'frio';
+  if(status.includes('cerrado') || status.includes('perdido') || status.includes('frío') || status.includes('frio') || clasif==='cold') return 'frio';
+  // Compuerta de contacto: nada avanza hasta que el asesor escribió. La IA no salta este paso.
+  if(!contactoHecho) return 'nuevo';
+  // Ya contactado: pasa a cita si hay propiedad e intención clara; si no, sigue en calificación.
   if(fcIsPropertyDefined(propiedad) && (clasif==='hot' || decision>=8)) return 'cita';
-  if(status.includes('seguimiento') || acompanamientoPendiente(acomp,enviado) || decision>=4) return 'calificacion';
-  if(!wa) return 'nuevo';
-  return 'nuevo';
+  return 'calificacion';
 }
 function fcRielHTML(stateKey){
   const idxMap={nuevo:0,calificacion:1,cita:2,apartado:3,frio:1};
@@ -3256,20 +3259,26 @@ function fcStateBadge(stateKey,clasif,status){
   return {txt:status || 'Lead nuevo',cls:'fc-badge steel'};
 }
 function fcPanelHTML(stateKey,c,key,opts){
-  const waOk=!!opts.waHref, msgOk=!!opts.msg, acompPend=!!opts.acompPendiente;
+  const waOk=!!opts.waHref, acompPend=!!opts.acompPendiente;
+  const f=fvEscape(key);
   if(stateKey==='frio'){
-    return `<div class="fc-riel-msg"><strong>Lead frío o detenido.</strong> Revisa si todavía busca propiedad antes de invertir más tiempo. El registro se conserva para seguimiento y auditoría.</div><div class="fc-riel-acts"><button class="fc-riel-btn ghost" data-action="editar-registro" data-folio="${fvEscape(key)}">Editar registro</button></div><div class="fc-riel-status">No se abre portal ni expediente para un lead comprador.</div>`;
+    return `<div class="fc-riel-msg"><strong>Lead frío o detenido.</strong> Confirma si todavía busca propiedad antes de invertir más tiempo. El registro se conserva para seguimiento y auditoría.</div><div class="fc-riel-acts"><button class="fc-riel-btn ghost" data-action="editar-registro" data-folio="${f}">Revisar registro</button></div>`;
   }
   if(stateKey==='apartado'){
-    return `<div class="fc-riel-msg"><strong>Apartado detectado.</strong> El comprador ya puede moverse al proceso de operación desde Propiedades. Esta ficha se mantiene como origen del lead.</div><div class="fc-riel-acts"><button class="fc-riel-btn" data-action="editar-registro" data-folio="${fvEscape(key)}">Editar registro</button></div><div class="fc-riel-status">Portal del cliente nace hasta apartado; no se agrega desde esta ficha.</div>`;
+    return `<div class="fc-riel-msg"><strong>Apartado detectado.</strong> El comprador pasa al proceso de operación desde Propiedades. Esta ficha queda como origen del lead.</div><div class="fc-riel-acts"><button class="fc-riel-btn ghost" data-action="editar-registro" data-folio="${f}">Editar registro</button></div><div class="fc-riel-status">El portal del cliente nace en Propiedades, no desde aquí.</div>`;
   }
   if(stateKey==='cita'){
-    return `<div class="fc-riel-msg"><strong>Comprador listo para cita.</strong> Ya hay interés claro y decisión alta. El siguiente movimiento es confirmar cita o verificar la información enviada por WhatsApp.</div><div class="fc-riel-acts"><button class="fc-riel-btn" data-action="agendar-visita" data-folio="${fvEscape(key)}">Confirmar cita</button>${waOk?`<button class="fc-riel-btn ghost" data-action="whatsapp-lead-comprador" data-folio="${fvEscape(key)}">WhatsApp</button>`:''}${msgOk?`<button class="fc-riel-btn ghost" data-action="copiar-mensaje-sugerido" data-folio="${fvEscape(key)}">Copiar mensaje</button>`:''}</div><div class="fc-riel-status">Acciones existentes conservadas · sin portal de progreso.</div>`;
+    return `<div class="fc-riel-msg"><strong>Siguiente: llevar a visita.</strong> Calificado y con interés claro. La visita debe terminar en una de cuatro: descarta, le interesa, oferta o siguiente paso. No visitas turísticas.</div><div class="fc-riel-acts"><button class="fc-riel-btn" data-action="agendar-visita" data-folio="${f}">Confirmar cita</button>${waOk?`<button class="fc-riel-btn ghost" data-action="whatsapp-lead-comprador" data-folio="${f}">WhatsApp</button>`:''}</div>`;
   }
   if(stateKey==='calificacion'){
-    return `<div class="fc-riel-msg"><strong>Lead en calificación.</strong> Define si necesita opciones de compra, brújula bancaria o seguimiento de propiedad específica. El asesor debe dejar una sola siguiente jugada clara.</div><div class="fc-riel-acts">${acompPend?`<button class="fc-riel-btn" data-action="enviar-acompanamiento" data-folio="${fvEscape(key)}">Activar acompañamiento</button>`:''}${waOk?`<button class="fc-riel-btn ghost" data-action="whatsapp-lead-comprador" data-folio="${fvEscape(key)}">WhatsApp</button>`:''}<button class="fc-riel-btn ghost" data-action="editar-registro" data-folio="${fvEscape(key)}">Editar registro</button></div><div class="fc-riel-status">Acciones disponibles: WhatsApp, acompañamiento y edición.</div>`;
+    const ruta=fcVal(c,'Ruta de crédito','Ruta de credito','rutaCredito','Método / Crédito','Metodo / Credito','credito');
+    const rutaTxt = ruta ? 'La IA sugiere ruta <strong>'+fvEscape(ruta)+'</strong>. ' : '';
+    const golden = acompPend
+      ? `<button class="fc-riel-btn" data-action="enviar-acompanamiento" data-folio="${f}">Calificar · enviar acompañamiento</button>`
+      : `<button class="fc-riel-btn" data-action="editar-registro" data-folio="${f}">Registrar forma de pago</button>`;
+    return `<div class="fc-riel-msg"><strong>Ahora: calificar.</strong> ${rutaTxt}Confirma forma de pago antes de negociar: recurso propio comprobable, bancario preautorizado o Infonavit precalificado.</div><div class="fc-riel-acts">${golden}${waOk?`<button class="fc-riel-btn ghost" data-action="whatsapp-lead-comprador" data-folio="${f}">WhatsApp</button>`:''}</div>`;
   }
-  return `<div class="fc-riel-msg"><strong>Lead nuevo.</strong> El primer movimiento es contacto. Confirma WhatsApp, intención de compra y ruta de crédito antes de llevarlo a cita.</div><div class="fc-riel-acts">${waOk?`<button class="fc-riel-btn" data-action="whatsapp-lead-comprador" data-folio="${fvEscape(key)}">Abrir primer contacto · WhatsApp</button>`:`<button class="fc-riel-btn ghost" data-action="editar-registro" data-folio="${fvEscape(key)}">Capturar teléfono en Editar</button>`}${msgOk?`<button class="fc-riel-btn ghost" data-action="copiar-mensaje-sugerido" data-folio="${fvEscape(key)}">Copiar mensaje</button>`:''}</div><div class="fc-riel-status">Lead comprador: no abre portal del cliente hasta apartado.</div>`;
+  return `<div class="fc-riel-msg"><strong>Primero: contactar.</strong> Antes que nada, escríbele. Confirma que sigue buscando, su forma de pago y la propiedad de interés. No lo dejes como registro muerto.</div><div class="fc-riel-acts">${waOk?`<button class="fc-riel-btn" data-action="whatsapp-lead-comprador" data-folio="${f}">Contactar ahora · WhatsApp</button>`:`<button class="fc-riel-btn" data-action="editar-registro" data-folio="${f}">Capturar teléfono para contactar</button>`}</div>`;
 }
 function openFichaComp(folio,idx){
   const c=buscarComprador(folio,idx);
@@ -3298,7 +3307,7 @@ function openFichaComp(folio,idx){
   const statusBadge = status && status!==clasif ? `<span class="fc-badge steel">${fvEscape(status)}</span>` : '';
   const acompEstado = fcSent(enviado) ? '✓ Enviado · '+enviado : (acompPendiente ? 'Pendiente de enviar' : 'Sin acompañamiento pendiente');
   const msgHtml = msg ? fvEscape(msg) : 'Sin mensaje sugerido';
-  const telHtml = wa ? `<span>${fvEscape(wa)}</span>${waHref?`<button class="fc-wa-btn" data-action="whatsapp-lead-comprador" data-folio="${fvEscape(key)}">↗ WhatsApp</button>`:''}` : '<span class="muted">WhatsApp pendiente</span>';
+  const telHtml = wa ? `<span>${fvEscape(wa)}</span>` : '<span class="muted">WhatsApp pendiente</span>';
 
   document.getElementById('fichaCompBox').innerHTML = `
     <button type="button" class="modal-x" data-action="cerrar-ficha-comp">&times;</button>
@@ -3327,7 +3336,7 @@ function openFichaComp(folio,idx){
         <div class="fc-nums">
           ${fcNum('Decisión', decision)}
           ${fcNum('Clasificación', clasif)}
-          ${fcNum('Status', status)}
+          ${(status && clasif && status.trim().toLowerCase()===clasif.trim().toLowerCase()) ? '' : fcNum('Status', status)}
           ${fcNum('Crédito', credito)}
         </div>
       </div>
@@ -3362,10 +3371,6 @@ function openFichaComp(folio,idx){
     </div>
     <div class="fc-actions">
       <button type="button" class="fc-btn" data-action="cerrar-ficha-comp">Cerrar</button>
-      ${waHref ? `<button type="button" class="fc-btn" data-action="whatsapp-lead-comprador" data-folio="${fvEscape(key)}">WhatsApp</button>` : ''}
-      ${msg ? `<button type="button" class="fc-btn" data-action="copiar-mensaje-sugerido" data-folio="${fvEscape(key)}">Copiar mensaje</button>` : ''}
-      ${acompPendiente ? `<button type="button" class="fc-btn" data-action="enviar-acompanamiento" data-folio="${fvEscape(key)}">Activar acompañamiento</button>` : ''}
-      <button type="button" class="fc-btn" data-action="agendar-visita" data-folio="${fvEscape(key)}">Confirmar cita</button>
       <button type="button" class="fc-btn primary" data-action="editar-registro" data-folio="${fvEscape(key)}">Editar registro</button>
     </div>`;
   document.getElementById('fichaCompModal').classList.add('open');
