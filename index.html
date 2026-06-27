@@ -1086,6 +1086,7 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
 .pdoc-h{display:flex;align-items:center;flex-wrap:wrap;gap:7px;margin-bottom:4px}
 .pdoc-tipo{font-size:11.5px;font-weight:700;color:#fff;letter-spacing:.2px;font-family:var(--fb)}
 .pdoc-fecha{font-size:8.5px;color:var(--w35);font-family:var(--fm);letter-spacing:.5px;margin-left:auto}
+.pdoc-vig{font-size:8px;color:var(--amber);font-family:var(--fm);letter-spacing:.5px;border:1px solid rgba(224,162,78,.30);background:rgba(224,162,78,.08);padding:3px 6px;border-radius:2px}
 .pdoc-desc{font-size:10px;color:var(--w35);line-height:1.5;margin:3px 0 6px;font-family:var(--fb)}
 .pdoc-motivo{font-size:10px;color:var(--rose);line-height:1.5;margin:3px 0 6px;font-family:var(--fb)}
 .pdoc-crit{font-size:7px;letter-spacing:1px;font-weight:700;color:var(--rose);border:1px solid rgba(224,111,138,.4);background:rgba(224,111,138,.1);padding:2px 5px;border-radius:2px}
@@ -1821,7 +1822,7 @@ function propDocsAlertHTML(recId, pend, faltan){
     +'<span class="pda-txt"><b>Expediente documental</b> · '+txt+'<small>'+paso+'</small></span></div>';
 }
 function propDocsCountPend(docs){ return (docs||[]).filter(d=>String(d.estado||'')==='Recibido').length; }
-function propDocsGatePend(docs){ return (docs||[]).filter(d=>d.gate_publicacion && String(d.estado||'')!=='Validado').length; }
+function propDocsGatePend(docs){ return (docs||[]).filter(d=>d.gate_publicacion && (String(d.estado||'')!=='Validado' || d.requiere_actualizacion || d.vigencia_estado==='Vencido')).length; }
 function propDocsPaintAlert(recId, docs){
   if(propDocsActiveRecId!==recId) return;
   const slot=document.getElementById('propDocsAlert'); if(!slot) return;
@@ -1862,16 +1863,27 @@ async function propDocsOpen(recId){
     propDocsPaintAlert(recId, docs);
   }catch(e){ if(!hadCache) body.innerHTML='<div class="pdoc-empty err">No se pudo cargar el expediente: '+_esc(e.message)+'</div>'; }
 }
+function propDocsVigenciaTag(d){
+  if(!d || !d.vigencia_dias) return '';
+  const estado=String(d.vigencia_estado||'');
+  const fv=d.fecha_vencimiento?String(d.fecha_vencimiento).slice(0,10):'';
+  if(estado==='Vencido') return '<span class="pdoc-vig">Vigencia vencida'+(fv?': '+_esc(fv):'')+'</span>';
+  if(estado==='Por vencer') return '<span class="pdoc-vig">Por vencer'+(fv?': '+_esc(fv):'')+'</span>';
+  if(fv) return '<span class="pdoc-fecha">Vigente hasta '+_esc(fv)+'</span>';
+  return '<span class="pdoc-fecha">Vigencia 2 meses</span>';
+}
 function propDocsRender(docs, folio, recId){
   const body=document.getElementById('propDocsBody'); if(!body) return;
   if(!docs.length){ body.innerHTML='<div class="pdoc-empty">Este propietario aún no ha subido documentos.</div>'; return; }
   const gateTotal=(docs||[]).filter(d=>d.gate_publicacion).length;
-  const gateOk=(docs||[]).filter(d=>d.gate_publicacion && String(d.estado||'')==='Validado').length;
+  const gateOk=(docs||[]).filter(d=>d.gate_publicacion && String(d.estado||'')==='Validado' && !(d.requiere_actualizacion||d.vigencia_estado==='Vencido')).length;
+  const gateVencidos=(docs||[]).filter(d=>d.gate_publicacion && String(d.estado||'')==='Validado' && (d.requiere_actualizacion||d.vigencia_estado==='Vencido')).length;
   const recibidos=(docs||[]).filter(d=>['Recibido','Validado'].includes(String(d.estado||''))).length;
-  const summary='<div class="pdoc" style="border-color:rgba(198,168,107,.22);background:rgba(198,168,107,.045)"><div class="pdoc-h"><span class="pdoc-tipo">Gate de publicación</span> '+(gateOk>=gateTotal?'<span class="pdoc-badge pdoc-badge-ok">Listo para publicar</span>':'<span class="pdoc-badge pdoc-badge-warn">Pendiente</span>')+'</div><div class="pdoc-desc">Mínimos validados: '+gateOk+'/'+gateTotal+' · Documentos recibidos: '+recibidos+'/'+docs.length+'. Los condicionales pueden marcarse como No aplica.</div></div>';
+  const summary='<div class="pdoc" style="border-color:rgba(198,168,107,.22);background:rgba(198,168,107,.045)"><div class="pdoc-h"><span class="pdoc-tipo">Gate de publicación</span> '+(gateOk>=gateTotal&&gateVencidos===0?'<span class="pdoc-badge pdoc-badge-ok">Listo para publicar</span>':'<span class="pdoc-badge pdoc-badge-warn">Pendiente</span>')+'</div><div class="pdoc-desc">Mínimos validados: '+gateOk+'/'+gateTotal+' · Documentos recibidos: '+recibidos+'/'+docs.length+(gateVencidos?' · Vigencia vencida: '+gateVencidos:'')+'. Los condicionales pueden marcarse como No aplica.</div></div>';
   body.innerHTML=summary+docs.map(function(d){
     const id=d.id||'', estado=d.estado||'Pendiente', verUrl=d.archivo_url?propDocsVerUrl(d.archivo_url):'';
     const fecha=d.fecha_carga?'<span class="pdoc-fecha">'+_esc(String(d.fecha_carga).slice(0,10))+'</span>':'';
+    const vigencia=propDocsVigenciaTag(d);
     const critico=d.critico?'<span class="pdoc-crit">CRÍTICO</span>':'';
     const meta=[d.bloque||'', d.aplica==='condicional'?'Condicional':'Siempre', d.gate_publicacion?'Bloquea publicación':''].filter(Boolean).join(' · ');
     const metaHtml=meta?'<div class="pdoc-desc" style="font-family:var(--fm);font-size:8px;letter-spacing:.7px;text-transform:uppercase;color:var(--w35)">'+_esc(meta)+'</div>':'';
@@ -1893,7 +1905,7 @@ function propDocsRender(docs, folio, recId){
       acciones.push('<button class="pdoc-pill" type="button" onclick="propDocsAccion(\''+folio+'\',\''+id+'\',\'no_aplica\',\''+recId+'\')">No aplica</button>');
     }
     if(avisar) acciones.push(avisar);
-    return '<div class="pdoc"><div class="pdoc-h"><span class="pdoc-tipo">'+_esc(d.tipo||'Documento')+'</span> '+critico+' '+propDocsBadge(estado)+fecha+'</div>'
+    return '<div class="pdoc"><div class="pdoc-h"><span class="pdoc-tipo">'+_esc(d.tipo||'Documento')+'</span> '+critico+' '+propDocsBadge(estado)+fecha+vigencia+'</div>'
       +metaHtml+(d.descripcion?'<div class="pdoc-desc">'+_esc(d.descripcion)+'</div>':'')+motivo
       +'<div class="pdoc-acc">'+acciones.join('')+'</div>'
       +'<div class="pdoc-rech" id="pdoc-rech-'+id+'" style="display:none"></div></div>';
@@ -2463,7 +2475,7 @@ function leadVendEtapa(rec){
   if(conv === 'No calificó') return {idx:-1,key:'cerrado',conv,prog};
   if(!conv) return {idx:0,key:'nuevo',conv,prog};
   if(LEAD_VEND_FIRMAS.indexOf(conv)!==-1){
-    const docsOk=/8\s*\/\s*8/.test(prog) && /valid|complet/i.test(prog);
+    const docsOk=/listo para publicar|expediente propietario mínimo validado|m[ií]nimo validado\s+(\d+)\s*\/\s*\1/i.test(prog);
     return {idx:docsOk?3:2,key:docsOk?'produccion':'firma',conv,prog,docsOk};
   }
   return {idx:1,key:'seguimiento',conv,prog};
@@ -4738,6 +4750,12 @@ async function propMainAction(p){
   if(!(p&&p._recId&&!propUsingLocal)){ mqNote('Enviar Portal de Venta se activa con una propiedad cargada correctamente.'); return; }
   const rec=getPropRecord(p._recId)||propCurrentRec(p);
   if(propPortalEnviado(rec) || (p.act&&p.act.key==='produccion')){
+    const gate=await propDocsGateOkForProp(p);
+    if(!gate.checked || !gate.ok){
+      if(p&&p._recId){ try{ await propDocsOpen(p._recId); }catch(_){} }
+      mqNote(gate.msg || ('Gate de publicación pendiente: '+(gate.faltan||0)+' documento(s) mínimo(s) por validar o actualizar.'));
+      return;
+    }
     propProduccionAction(p);
     return;
   }
