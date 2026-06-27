@@ -1352,7 +1352,7 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
       <div class="crm-actions" aria-label="Acciones de Lead Vendedores">
         <!-- Botones visuales preparados para migrar conexiones reales de Lead Vendedores -->
         <button class="crm-tool-btn sage" id="btn-vend-recargar" data-action="recargar-lead-vendedores" onclick="event.stopPropagation();recargarLeadVendedores()">Recargar</button>
-        <button class="crm-tool-btn sage primary" id="btn-vend-nuevo" data-action="nuevo-lead-vendedor" onclick="event.stopPropagation();nuevoLeadVendedor()">+ Nuevo</button>
+        <button class="crm-tool-btn sage primary" id="btn-vend-nuevo" data-action="nuevo-lead-vendedor" onclick="event.stopPropagation();nuevoLeadVendedor()">Abrir expediente</button>
       </div>
       <div class="crm-count" id="crm-count-vend"><b>0</b> registros</div>
     </div>
@@ -1967,6 +1967,14 @@ function conversionChip(txt){
   if(t.includes('no calific')) return ['pend','No calificó'];
   return null;
 }
+function estadoVendChip(v){
+  const est=(v.estado||'').toLowerCase();
+  const conv=(v.conversion||'').toLowerCase();
+  if(est.includes('propiedad')||est.includes('activ')||est.includes('operac')) return ['directa','En propiedades'];
+  if(conv.includes('firma')) return ['pend','Sin avanzar'];
+  if(est.includes('seguimiento')||conv.includes('seguimiento')) return ['seg','En seguimiento'];
+  return ['cold','Nuevo'];
+}
 function clasificacionChip(txt){
   const t=(txt||'').toUpperCase();
   if(t==='HOT') return ['hot','HOT'];
@@ -1977,7 +1985,7 @@ function localFecha(i){ return '—'; }
 
 const CAP_COLS = {
   // Lead Vendedores: se quita "Expediente/Abrir" del listado; eso pertenece a ficha u otro diseño.
-  vend:['Nombre','Tipo','Zona','Precio','Conversión','WhatsApp','Fecha','Folio'],
+  vend:['Nombre','Tipo','Zona','Precio','Modalidad','Estado','Fecha','Folio'],
   comp:['Nombre','Propiedad de Interés','Decisión','Crédito','Clasificación','Fecha','Folio']
 };
 
@@ -2266,7 +2274,6 @@ function renderCaptacion(tipo){
     try{
       const rows=VENDEDORES.map((raw,i)=>{
         const v=leadVendNormalize(raw,i);
-        const waHref=leadVendWaHref(raw);
         const fiscal=(v.diagnosticoFiscal && /atenci/i.test(v.diagnosticoFiscal)) ? '<span class="chip fiscal"><span class="cd"></span>Atención</span>' : '';
         return `<tr onclick="abrirFichaCaptacion('vend','${fvEscape(v.folio)}')">
           <td class="name">${fvEscape(v.nombre)}${fiscal}</td>
@@ -2274,7 +2281,7 @@ function renderCaptacion(tipo){
           <td><span class="muted">${fvEscape(v.zona||'—')}</span></td>
           <td><span class="price ${priceClass(v.precio)}">${fvEscape(v.precio||'—')}</span></td>
           <td>${capChip(conversionChip(v.conversion))}</td>
-          <td>${waHref?`<a class="wa-chip" id="btn-wa-${fvEscape(v.folio)}" data-action="whatsapp-lead-vendedor" data-folio="${fvEscape(v.folio)}" href="${_escAttr(waHref)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">↗ WhatsApp</a>`:`<button class="wa-chip" id="btn-wa-${fvEscape(v.folio)}" data-action="whatsapp-lead-vendedor" data-folio="${fvEscape(v.folio)}" onclick="event.stopPropagation();whatsappLeadVendedor('${fvEscape(v.folio)}')">WhatsApp</button>`}</td>
+          <td>${capChip(estadoVendChip(v))}</td>
           <td><span class="muted">${fvEscape(leadVendDateLabel(raw,i))}</span></td>
           <td><span class="folio">${fvEscape(v.folio)}</span></td>
         </tr>`;
@@ -2283,7 +2290,12 @@ function renderCaptacion(tipo){
       document.getElementById('crm-count-vend').innerHTML=`<b>${VENDEDORES.length}</b> registros`;
       document.getElementById('vcount-vend').textContent=VENDEDORES.length;
       const firmados=VENDEDORES.filter(raw=>/firma/i.test(fcVal(raw,'Conversión','conversion'))).length;
-      document.getElementById('vendBannerSlot').innerHTML=`<div class="crm-banner sage"><span class="bd"></span><span><b>${firmados} propietarios firmados</b> ya pueden avanzar a Propiedades NERI — el proceso continúa ahí.</span><button class="bgo" onclick="event.stopPropagation();activarVertebra('prop')">Ver propiedades →</button></div>`;
+      const enProp=VENDEDORES.filter(raw=>{ const est=(fcVal(raw,'Estado','estado')||'').toLowerCase(); return est.includes('propiedad')||est.includes('activ')||est.includes('operac'); }).length;
+      const sinAvanzar=firmados-enProp;
+      const bannerMsg=sinAvanzar>0
+        ? `<b>${sinAvanzar} propietario${sinAvanzar===1?'':'s'} firmado${sinAvanzar===1?'':' s'} sin avanzar a Propiedades.</b> El expediente está listo — el proceso no puede continuar sin ese paso.`
+        : `<b>${firmados} propietario${firmados===1?'':'s'} firmado${firmados===1?'':' s'}.</b> Todos han avanzado a Propiedades NERI.`;
+      document.getElementById('vendBannerSlot').innerHTML=`<div class="crm-banner sage"><span class="bd"></span><span>${bannerMsg}</span><button class="bgo" onclick="event.stopPropagation();activarVertebra('prop')">Ver propiedades →</button></div>`;
     }catch(err){
       renderLeadVendedoresError(err && err.message ? err.message : '');
     }
