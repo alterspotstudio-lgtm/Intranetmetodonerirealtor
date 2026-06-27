@@ -1319,7 +1319,7 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
       <div class="stage">
         <aside class="party party-vend" id="partyVend"></aside>
         <div class="med-wrap">
-        <div class="med clickable" onclick="abrirFichaProp()" title="Abrir ficha de la propiedad">
+        <div class="med clickable" onclick="openFichaProp()" title="Abrir ficha de la propiedad">
           <div class="med-glow" id="glow"></div>
           <svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
             <defs>
@@ -4656,6 +4656,7 @@ function openFichaProp(){
   renderFichaPropModal(CURRENT_PROP);
   document.getElementById('fichaPropModal').classList.add('open');
 }
+function abrirFichaProp(){ openFichaProp(); }
 function closeFichaProp(){ document.getElementById('fichaPropModal').classList.remove('open'); }
 async function landSaveProp(){
   const p=CURRENT_PROP;
