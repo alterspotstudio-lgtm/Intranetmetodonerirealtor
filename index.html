@@ -3836,10 +3836,22 @@ async function buildTarjetasAccion(){
   return cards.sort((a,b)=>(a.prio-b.prio)||((b.ts||0)-(a.ts||0))).slice(0,TARJETAS_ACCION_MAX);
 }
 function abrirTaSplash(){ var m=document.getElementById('taSplashModal'); if(m) m.classList.add('open'); }
-function cerrarTaSplash(){ var m=document.getElementById('taSplashModal'); if(m) m.classList.remove('open'); }
+function cerrarTaSplash(){
+  var m=document.getElementById('taSplashModal');
+  if(m) m.classList.remove('open');
+  /* Al cerrar el splash, asegurar que la vértebra activa tenga sus datos */
+  if(typeof activarVertebra==='function') activarVertebra('prop');
+}
 function taSplashMaybeOpen(){
-  try{ if(sessionStorage.getItem('taSplashShown')) return; sessionStorage.setItem('taSplashShown','1'); }
-  catch(e){ if(window._taSplashShown) return; window._taSplashShown=1; }
+  /* Usar localStorage para que el splash solo aparezca una vez por dispositivo,
+     no cada vez que el usuario cierra y vuelve a abrir la pestaña */
+  try{
+    if(localStorage.getItem('taSplashShown')) return;
+    localStorage.setItem('taSplashShown','1');
+  } catch(e){
+    if(window._taSplashShown) return;
+    window._taSplashShown=1;
+  }
   abrirTaSplash();
 }
 async function refreshTarjetasAccion(){
@@ -4076,6 +4088,8 @@ function enterApp(){
     if(typeof propLoad==='function') propLoad(false);
     if(typeof leadCompLoad==='function') leadCompLoad(false);
     if(typeof leadVendLoad==='function') leadVendLoad(false);
+    /* Activar vértebra de propiedades explícitamente para que el cuerpo esté listo */
+    if(typeof activarVertebra==='function') activarVertebra('prop');
     if(typeof scheduleTarjetasAccionRefresh==='function') scheduleTarjetasAccionRefresh(500);
   },0);
 }
