@@ -1561,9 +1561,9 @@ a.owner-wa-link:hover{opacity:.75}
   </div><!-- /work -->
 
   <!-- ════════ RESUMEN DE APERTURA · "Lo que toca hoy" (solo al abrir) ════════ -->
-  <div class="modal-bg ta-splash" id="taSplashModal" onclick="if(event.target===this)cerrarTaSplash()">
+  <div class="modal-bg ta-splash" id="taSplashModal" onclick="if(event.target===this)cerrarTaSplash(event)">
     <div class="ta-splash-box">
-      <button class="modal-x" type="button" onclick="cerrarTaSplash()" aria-label="Cerrar">×</button>
+      <button class="modal-x" type="button" onclick="cerrarTaSplash(event);return false;" aria-label="Cerrar">×</button>
       <section class="ta-panel" id="tarjetasAccionPanel" aria-label="Tarjetas de acción de hoy">
         <div class="ta-head">
           <div class="ta-eyebrow">Centro de operaciones</div>
@@ -3835,13 +3835,44 @@ async function buildTarjetasAccion(){
   cards.push(...taProduccionCards());
   return cards.sort((a,b)=>(a.prio-b.prio)||((b.ts||0)-(a.ts||0))).slice(0,TARJETAS_ACCION_MAX);
 }
-function abrirTaSplash(){ var m=document.getElementById('taSplashModal'); if(m) m.classList.add('open'); }
-function cerrarTaSplash(){ var m=document.getElementById('taSplashModal'); if(m) m.classList.remove('open'); }
-function taSplashMaybeOpen(){
-  try{ if(sessionStorage.getItem('taSplashShown')) return; sessionStorage.setItem('taSplashShown','1'); }
-  catch(e){ if(window._taSplashShown) return; window._taSplashShown=1; }
-  abrirTaSplash();
+function abrirTaSplash(){
+  var m=document.getElementById('taSplashModal');
+  if(m) m.classList.add('open');
 }
+function _taHasSession(){
+  try{
+    var raw=sessionStorage.getItem(SESSION_STORE_KEY);
+    if(raw){ var s=JSON.parse(raw); if(s&&s.token) return true; }
+  }catch(e){}
+  return !!(window.SESSION&&window.SESSION.token);
+}
+function cerrarTaSplash(ev){
+  if(ev&&ev.preventDefault) ev.preventDefault();
+  if(ev&&ev.stopPropagation) ev.stopPropagation();
+  if(ev&&ev.stopImmediatePropagation) ev.stopImmediatePropagation();
+  var m=document.getElementById('taSplashModal');
+  if(m) m.classList.remove('open');
+  /* Blindaje: cerrar “Lo que toca hoy” nunca debe cerrar sesión ni regresar al login. */
+  if(_taHasSession()){
+    var login=document.getElementById('screen-login');
+    var app=document.getElementById('screen-app');
+    if(login) login.classList.add('hidden');
+    if(app) app.classList.remove('hidden');
+  }
+  try{ sessionStorage.setItem('taSplashShown','1'); }catch(e){ window._taSplashShown=1; }
+}
+function taSplashMaybeOpen(){
+  /* Reparación de entrada: no abrir splash automático al entrar.
+     Las tarjetas se siguen cargando; se evita que el modal bloquee la intranet. */
+  try{ sessionStorage.setItem('taSplashShown','1'); }catch(e){ window._taSplashShown=1; }
+  return;
+}
+/* Captura defensiva para que el botón X del splash no dispare otros clicks debajo. */
+document.addEventListener('click',function(e){
+  var btn=e.target&&e.target.closest?e.target.closest('#taSplashModal .modal-x'):null;
+  if(!btn) return;
+  cerrarTaSplash(e);
+},true);
 async function refreshTarjetasAccion(){
   const token=++tarjetasAccionLastToken;
   taLoading();
@@ -3965,6 +3996,7 @@ function activarVertebra(v){
 ═══════════════════════════════════════════ */
 const ADVISOR = {nombre:'Asesor',iniciales:'NA',puesto:'Asesor Inmobiliario',estado:'Pendiente / Inactivo',tipo:'Asesor',zona:'—',whatsapp:'',email:'',slug:'',foto:'',pixel:'',cuenta:'—',frase:'',linkCaptacion:''};
 const SESSION_STORE_KEY = 'neri_signed_session_v1';
+try{ localStorage.removeItem(SESSION_STORE_KEY); localStorage.removeItem('taSplashShown'); }catch(e){}
 const AT_PROXY = '/api/airtable';
 const ASESOR_PERFIL_TABLE='tblIRPmLIyj8sWyEk';
 const ASESOR_CIUDADES=["Cuernavaca","Jiutepec","Temixco","Emiliano Zapata","Xochitepec","Yautepec","Cuautla","Tepoztlán","Jojutla","Zacatepec","Puente de Ixtla","Ayala","Yecapixtla","Tlaltizápan","Tlaquiltenango","Tlayacapan","Huitzilac","Miacatlán","Mazatepec","Tetecala","Coatlán del Río","Amacuzac","Axochiapan","Tepalcingo","Jantetelco","Jonacatepec","Temoac","Tetela del Volcán","Ocuituco","Atlatlahucan","Totolapan","Tlalnepantla","Zacualpan de Amilpas","Hueyapan","Coatetelco","Xoxocotla","Otra"];
