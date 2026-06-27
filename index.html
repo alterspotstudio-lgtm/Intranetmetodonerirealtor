@@ -5135,11 +5135,13 @@ window.cabEnviarPortalVenta=cabEnviarPortalVenta;
   }
 })();
 </script>
+
+<script>
 /* ══════════════════════════════════════════════════════════════════════
    MÓDULO: PRECIO DE MERCADO · pmktMount(folio, rec, prop)
-   Se inyecta en la ficha de propiedad justo debajo del riel de cierre.
-   Llama a la API de Claude con los datos que ya existen en Airtable.
-   Sin ventana nueva. Sin repo separado. Sin formularios extra.
+   Capa 2: búsqueda web activa vía tool use de Claude.
+   La IA busca comparables reales antes de generar el rango de precio.
+   Vive dentro de la ficha de propiedad. Sin ventana nueva. Sin repo extra.
 ══════════════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
@@ -5189,21 +5191,24 @@ window.cabEnviarPortalVenta=cabEnviarPortalVenta;
     var precioLista  = fv('Precio Lista');
     var precioMinimo = fv('Precio Minimo');
     var plusvalia = fv('Plusvalia Valor');
-    var estado    = fv('Estado Propiedad');
+    var urgencia  = (prop && prop.vend && prop.vend.nota) ? prop.vend.nota : '';
 
-    /* Urgencia aproximada desde la intención del propietario (viene de Lead Vendedores vía prop.vend) */
-    var urgencia = '';
-    if (prop && prop.vend && prop.vend.nota) urgencia = prop.vend.nota;
+    var ubicacion = [zona, municipio, entidad].filter(Boolean).join(', ');
 
     var lineas = [
-      'Eres un analista experto en mercado inmobiliario mexicano. Analiza esta propiedad y devuelve ÚNICAMENTE un objeto JSON válido con la estructura indicada, sin texto adicional ni markdown.',
+      'Eres un analista experto en mercado inmobiliario mexicano. Tienes acceso a búsqueda web.',
+      '',
+      'PASO 1: Usa la herramienta web_search para buscar propiedades comparables activas en portales como Inmuebles24, Lamudi o Vivanuncios.',
+      'Busca: "' + (tipo||'casa') + ' en venta ' + ubicacion + ' ' + (mConst ? mConst + ' m2' : '') + '"',
+      'También busca: "precio ' + (tipo||'casa') + ' ' + (zona||municipio||'') + ' ' + (entidad||'') + '"',
+      '',
+      'PASO 2: Con los comparables encontrados y los datos de la propiedad, devuelve ÚNICAMENTE un objeto JSON válido.',
+      'No incluyas texto adicional, ni markdown, ni explicaciones fuera del JSON.',
       '',
       'DATOS DE LA PROPIEDAD:',
       'Folio: ' + (folio || '—'),
       'Tipo: ' + (tipo || 'No especificado'),
-      'Zona / Colonia: ' + (zona || '—'),
-      'Municipio: ' + (municipio || '—'),
-      'Estado / Entidad: ' + (entidad || '—'),
+      'Ubicación: ' + (ubicacion || '—'),
       'm² construcción: ' + (mConst || '—'),
       'm² terreno: ' + (mTerr || '—'),
       'Recámaras: ' + (hab || '—'),
@@ -5214,50 +5219,56 @@ window.cabEnviarPortalVenta=cabEnviarPortalVenta;
       'Precio solicitado por propietario: ' + (precioLista ? pmktFmt(precioLista) : '—'),
       'Precio mínimo declarado: ' + (precioMinimo ? pmktFmt(precioMinimo) : '—'),
       'Plusvalía zona: ' + (plusvalia || '—'),
-      'Estado de la propiedad: ' + (estado || '—'),
-      'Urgencia propietario (nota interna): ' + (urgencia || '—'),
+      'Urgencia propietario: ' + (urgencia || '—'),
       '',
-      'CONTEXTO DE MERCADO 2025-2026 (México):',
-      'SHF reportó apreciación anual sostenida en vivienda durante 1T 2026.',
-      'BBVA Research reportó contracción del crédito hipotecario por debilidad laboral y precios al alza.',
+      'CONTEXTO MACRO 2025-2026:',
+      'SHF reportó apreciación anual sostenida en vivienda 1T 2026.',
+      'BBVA Research: contracción del crédito hipotecario por debilidad laboral y precios al alza.',
       'El precio sube pero el poder de compra bancario no crece al mismo ritmo.',
       '',
-      'INSTRUCCIÓN: Devuelve SOLO el siguiente JSON (sin backticks, sin markdown, sin explicaciones):',
+      'JSON requerido (solo esto, sin nada más):',
       '{',
-      '  "precio_minimo_viable": "número en pesos MXN sin formato",',
-      '  "precio_optimo_salida": "número en pesos MXN sin formato",',
-      '  "precio_aspiracional": "número en pesos MXN sin formato",',
+      '  "precio_minimo_viable": "número MXN sin formato",',
+      '  "precio_optimo_salida": "número MXN sin formato",',
+      '  "precio_aspiracional": "número MXN sin formato",',
+      '  "comparables_encontrados": "resumen de 1-2 oraciones de los precios reales encontrados en portales, o 'Sin comparables directos encontrados' si no hubo resultados",',
       '  "riesgo_precio_emocional": true o false,',
-      '  "argumento_precio": "1-2 oraciones explicando la brecha si existe, o confirmando competitividad",',
+      '  "argumento_precio": "1-2 oraciones con la brecha o confirmación, citando comparables si los hay",',
       '  "comprabilidad_contado": "viable / probable / poco probable",',
       '  "comprabilidad_bancario": "viable / probable / poco probable",',
       '  "comprabilidad_infonavit": "viable / probable / no aplica",',
       '  "nivel_alerta": "ok" o "warn" o "risk",',
-      '  "siguiente_jugada": "Una sola oración accionable para el asesor sobre cómo presentar el precio al propietario o cómo ajustar la estrategia de salida"',
+      '  "siguiente_jugada": "Una sola oración accionable para el asesor"',
       '}'
     ];
 
     return lineas.join('\n');
   }
 
-  /* ── Llamada a la API de Claude ── */
+  /* ── Llamada a la API de Claude con web_search habilitado (Capa 2) ── */
   async function pmktCallClaude(prompt) {
     var res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
-        max_tokens: 1000,
+        max_tokens: 2000,
+        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
         messages: [{ role: 'user', content: prompt }]
       })
     });
     var data = await res.json();
     if (!res.ok) throw new Error((data && data.error && data.error.message) || ('HTTP ' + res.status));
-    var text = (data.content || []).map(function(b){ return b.type === 'text' ? b.text : ''; }).join('');
-    /* Limpiar posibles backticks o texto extra */
+
+    /* Recolectar todo el texto de los bloques content (puede haber tool_use + text) */
+    var text = (data.content || [])
+      .map(function(b){ return b.type === 'text' ? b.text : ''; })
+      .join('');
+
+    /* Limpiar posibles backticks o prefijos de markdown */
     text = text.replace(/```json|```/g, '').trim();
     var match = text.match(/\{[\s\S]*\}/);
-    if (!match) throw new Error('La IA no devolvió JSON válido.');
+    if (!match) throw new Error('La IA no devolvió JSON válido. Intenta de nuevo.');
     return JSON.parse(match[0]);
   }
 
@@ -5278,9 +5289,22 @@ window.cabEnviarPortalVenta=cabEnviarPortalVenta;
 
     var now = new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
 
+    /* Bloque de comparables reales — solo si la búsqueda encontró algo útil */
+    var comparablesHTML = '';
+    var comp = String(result.comparables_encontrados || '');
+    if (comp && comp !== 'Sin comparables directos encontrados' && comp.length > 10) {
+      comparablesHTML =
+        '<div class="pmkt-alert ok" style="border-color:rgba(111,168,224,.25);background:rgba(111,168,224,.05)">' +
+          '<span class="pmkt-adot" style="background:var(--steel)"></span>' +
+          '<span><b style="color:var(--steel)">Comparables encontrados en portales</b><br>' +
+          pmktEsc(comp) + '</span>' +
+        '</div>';
+    }
+
     body.innerHTML =
       '<div class="pmkt-result">' +
-        '<div class="pmkt-ts">Análisis generado ' + now + ' · ' + pmktEsc(folio) + '</div>' +
+        '<div class="pmkt-ts">Análisis con búsqueda web · ' + now + ' · ' + pmktEsc(folio) + '</div>' +
+        comparablesHTML +
         '<div class="pmkt-sk">Rango de precio recomendado</div>' +
         '<div class="pmkt-prices">' +
           '<div class="pmkt-pcell"><div class="pmkt-plbl">Mínimo viable</div><div class="pmkt-pval">' + pmktFmt(result.precio_minimo_viable) + '</div></div>' +
@@ -5302,7 +5326,7 @@ window.cabEnviarPortalVenta=cabEnviarPortalVenta;
           '<div class="pmkt-jv">' + pmktEsc(result.siguiente_jugada || '—') + '</div>' +
         '</div>' +
         '<div class="pmkt-actions">' +
-          '<button class="pmkt-btn ghost" onclick="window.pmktRefresh()">↺ Regenerar análisis</button>' +
+          '<button class="pmkt-btn ghost" onclick="window.pmktRefresh()">↺ Actualizar búsqueda</button>' +
         '</div>' +
       '</div>';
   }
@@ -5358,7 +5382,7 @@ window.cabEnviarPortalVenta=cabEnviarPortalVenta;
     body.classList.add('open');
 
     /* Estado de carga */
-    body.innerHTML = '<div class="pmkt-loading">Generando análisis de precio con IA…</div>';
+    body.innerHTML = '<div class="pmkt-loading">Buscando comparables en portales y generando análisis…</div>';
     if (chip) chip.textContent = 'Analizando…';
 
     var prompt = pmktBuildPrompt(folio, rec, prop);
@@ -5387,6 +5411,7 @@ window.cabEnviarPortalVenta=cabEnviarPortalVenta;
   };
 
 })();
+</script>
 
 </body>
 </html>
