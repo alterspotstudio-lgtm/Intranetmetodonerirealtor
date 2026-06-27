@@ -337,6 +337,8 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
 .crm-body .crm-empty-note{display:block;color:var(--w35);font-size:10px;letter-spacing:.4px;margin-top:6px;line-height:1.5}
 .crm-body button.wa-chip{font-family:var(--fb);cursor:pointer}
 .crm-body button.wa-chip:hover{background:rgba(74,222,128,.16);border-color:rgba(74,222,128,.45)}
+a.owner-wa-link{color:var(--steel);text-decoration:none;font-weight:600;transition:opacity .15s}
+a.owner-wa-link:hover{opacity:.75}
 
 .crm-body .crm-search{flex:1;max-width:340px;display:flex;align-items:center;gap:9px;background:var(--black2);border:1px solid var(--w08);border-radius:2px;padding:9px 13px;transition:.15s}
 .crm-body .crm-search:focus-within{border-color:var(--gb2)}
@@ -1412,7 +1414,7 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
       <div class="crm-actions" aria-label="Acciones de Lead Compradores">
         <!-- Botones visuales preparados para migrar conexiones reales de Lead Compradores -->
         <button class="crm-tool-btn steel" id="btn-comp-recargar" data-action="recargar-lead-compradores" onclick="event.stopPropagation();recargarLeadCompradores()">Recargar</button>
-        <button class="crm-tool-btn steel primary" id="btn-comp-nuevo" data-action="nuevo-lead-comprador" onclick="event.stopPropagation();nuevoLeadComprador()">+ Nuevo</button>
+        <button class="crm-tool-btn steel primary" id="btn-comp-nuevo" data-action="nuevo-lead-comprador" onclick="event.stopPropagation();nuevoLeadComprador()">Iniciar evaluación</button>
       </div>
       <div class="crm-count" id="crm-count-comp"><b>0</b> registros</div>
     </div>
@@ -2075,12 +2077,21 @@ function clasificacionChip(txt){
   if(t==='WARM') return ['warm','WARM'];
   return ['cold','COLD'];
 }
+function intencionChip(txt){
+  const t=(txt||'').toLowerCase();
+  if(!t||t==='—') return null;
+  if(/r[aá]pido|asegurar|oportunidad|decidid|ahora|ya quiero/i.test(t)) return ['hot','Decisión alta'];
+  if(/cambi|vida|momento|list[ao]/i.test(t)) return ['warm','Listo · espera momento'];
+  if(/compar|opciones|zona|evaluando|todav/i.test(t)) return ['warm','Comparando opciones'];
+  if(/plazo|largo|futuro|a[ñn]o|meses/i.test(t)) return ['cold','Plazo largo'];
+  return ['cold','En exploración'];
+}
 function localFecha(i){ return '—'; }
 
 const CAP_COLS = {
   // Lead Vendedores: se quita "Expediente/Abrir" del listado; eso pertenece a ficha u otro diseño.
   vend:['Nombre','Tipo','Zona','Precio','Modalidad','Estado','Fecha','Folio'],
-  comp:['Nombre','Propiedad de Interés','Decisión','Crédito','Clasificación','Fecha','Folio']
+  comp:['Nombre','Propiedad de Interés','Intención','Siguiente jugada','Crédito','Clasificación','Fecha','Folio']
 };
 
 /* FASE 2 · Lead Captación Compradores — conexiones reales migradas del index viejo */
@@ -2438,6 +2449,7 @@ function renderCaptacion(tipo){
         const nombre=fcVal(c,'Nombre Completo','nombre') || 'Sin nombre';
         const propiedad=fcVal(c,'Propiedad de Interés','Propiedad de interés','propiedad') || '—';
         const decision=fcVal(c,'Decisión','Decisión 1-10','Decisión 1–10','Decisión 1 - 10','Decision','Decisión de Compra','Nivel de Decisión','Intención','Intención de Compra','decision') || '—';
+        const siguienteJugada=fcVal(c,'Siguiente jugada','Siguiente Jugada','siguiente_jugada','next_step') || '—';
         const credito=fcVal(c,'Método / Crédito','Ruta de crédito','credito','rutaCredito') || '—';
         const clasif=fcVal(c,'Clasificación','clasificacion','temp');
         const folioLead=fcVal(c,'Folio del Comprador','Folio Comprador','Folio Propiedad NERI','folio') || key;
@@ -2445,8 +2457,9 @@ function renderCaptacion(tipo){
         return `<tr class="js-ficha-comp" data-action="abrir-ficha-lead-comprador" data-folio="${fvEscape(key)}" data-comp-idx="${i}">
           <td class="name">${waHref?`<a class="owner-wa-link" href="${_escAttr(waHref)}" target="_blank" rel="noopener" onclick="event.stopPropagation()" title="Abrir WhatsApp con comprador">${fvEscape(nombre)}</a>`:fvEscape(nombre)}</td>
           <td><span class="muted">${fvEscape(propiedad)}</span></td>
-          <td>${fvEscape(decision)}</td>
-          <td>${fvEscape(credito)}</td>
+          <td>${capChip(intencionChip(decision))}</td>
+          <td><span class="muted" style="font-size:11px">${fvEscape(siguienteJugada)}</span></td>
+          <td><span class="muted" style="font-size:11px">${fvEscape(credito)}</span></td>
           <td>${capChip(clasificacionChip(clasif))}</td>
           <td><span class="muted">${fvEscape(leadCompDateLabel(c,i))}</span></td>
           <td><span class="folio">${fvEscape(folioLead)}</span></td>
@@ -2456,7 +2469,7 @@ function renderCaptacion(tipo){
       document.getElementById('crm-count-comp').innerHTML=`<b>${COMPRADORES.length}</b> registros`;
       document.getElementById('vcount-comp').textContent=COMPRADORES.length;
       const nuevos=leadCompNoPrimerContacto(COMPRADORES);
-      const alert = (!leadCompUsingLocal && nuevos.length) ? `<div class="alert-banner" style="border-color:rgba(111,168,224,.30);background:rgba(111,168,224,.08);margin:0;border-left:0;border-right:0;border-radius:0"><span class="ab-dot" style="background:var(--steel)"></span><div><div class="ab-t"><b>${nuevos.length}</b> comprador${nuevos.length===1?'':'es'} sin primer contacto</div><div class="ab-s">Contáctalos pronto — mientras más rápido respondes, más citas cierras.</div></div></div>` : '';
+      const alert = (!leadCompUsingLocal && nuevos.length) ? `<div class="alert-banner" style="border-color:rgba(111,168,224,.30);background:rgba(111,168,224,.08);margin:0;border-left:0;border-right:0;border-radius:0"><span class="ab-dot" style="background:var(--steel)"></span><div><div class="ab-t"><b>${nuevos.length}</b> comprador${nuevos.length===1?'':'es'} sin primer contacto</div><div class="ab-s">El diagnóstico no puede avanzar sin ese dato inicial.</div></div></div>` : '';
       const banner = leadCompUsingLocal
         ? `<div class="crm-banner steel"><span class="bd"></span><span><b>Sesión requerida.</b> Inicia sesión para cargar la información; esta tabla conserva el diseño sin escribir datos.</span></div>`
         : `${alert}<div class="crm-banner steel"><span class="bd"></span><span><b>${leadCompHotCount()} compradores HOT</b> cargados. Clic en un comprador abre su ficha de lead, sin portal de progreso.</span></div>`;
