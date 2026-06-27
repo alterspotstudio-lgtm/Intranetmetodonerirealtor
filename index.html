@@ -1099,6 +1099,15 @@ a.owner-wa-link:hover{opacity:.75}
   display:grid!important;place-items:center!important;
   padding:24px!important;margin:0!important;overflow:auto!important;
 }
+
+/* FIX ENTRADA · El login tenía display:grid!important por ID y eso ganaba contra .hidden.
+   Al iniciar sesión la app sí cargaba, pero el login quedaba encima. */
+#screen-login.hidden{
+  display:none!important;
+  visibility:hidden!important;
+  opacity:0!important;
+  pointer-events:none!important;
+}
 #screen-login .login-card{
   width:min(380px, calc(100vw - 48px))!important;
   max-width:380px!important;
@@ -1561,9 +1570,9 @@ a.owner-wa-link:hover{opacity:.75}
   </div><!-- /work -->
 
   <!-- ════════ RESUMEN DE APERTURA · "Lo que toca hoy" (solo al abrir) ════════ -->
-  <div class="modal-bg ta-splash" id="taSplashModal" onclick="if(event.target===this)cerrarTaSplash(event)">
+  <div class="modal-bg ta-splash" id="taSplashModal" onclick="if(event.target===this)cerrarTaSplash()">
     <div class="ta-splash-box">
-      <button class="modal-x" type="button" onclick="cerrarTaSplash(event);return false;" aria-label="Cerrar">×</button>
+      <button class="modal-x" type="button" onclick="cerrarTaSplash()" aria-label="Cerrar">×</button>
       <section class="ta-panel" id="tarjetasAccionPanel" aria-label="Tarjetas de acción de hoy">
         <div class="ta-head">
           <div class="ta-eyebrow">Centro de operaciones</div>
@@ -3835,44 +3844,17 @@ async function buildTarjetasAccion(){
   cards.push(...taProduccionCards());
   return cards.sort((a,b)=>(a.prio-b.prio)||((b.ts||0)-(a.ts||0))).slice(0,TARJETAS_ACCION_MAX);
 }
-function abrirTaSplash(){
-  var m=document.getElementById('taSplashModal');
-  if(m) m.classList.add('open');
-}
-function _taHasSession(){
-  try{
-    var raw=sessionStorage.getItem(SESSION_STORE_KEY);
-    if(raw){ var s=JSON.parse(raw); if(s&&s.token) return true; }
-  }catch(e){}
-  return !!(window.SESSION&&window.SESSION.token);
-}
-function cerrarTaSplash(ev){
-  if(ev&&ev.preventDefault) ev.preventDefault();
-  if(ev&&ev.stopPropagation) ev.stopPropagation();
-  if(ev&&ev.stopImmediatePropagation) ev.stopImmediatePropagation();
+function abrirTaSplash(){ var m=document.getElementById('taSplashModal'); if(m) m.classList.add('open'); }
+function cerrarTaSplash(){
   var m=document.getElementById('taSplashModal');
   if(m) m.classList.remove('open');
-  /* Blindaje: cerrar “Lo que toca hoy” nunca debe cerrar sesión ni regresar al login. */
-  if(_taHasSession()){
-    var login=document.getElementById('screen-login');
-    var app=document.getElementById('screen-app');
-    if(login) login.classList.add('hidden');
-    if(app) app.classList.remove('hidden');
-  }
-  try{ sessionStorage.setItem('taSplashShown','1'); }catch(e){ window._taSplashShown=1; }
+  if(typeof activarVertebra==='function') activarVertebra('prop');
 }
 function taSplashMaybeOpen(){
-  /* Reparación de entrada: no abrir splash automático al entrar.
-     Las tarjetas se siguen cargando; se evita que el modal bloquee la intranet. */
-  try{ sessionStorage.setItem('taSplashShown','1'); }catch(e){ window._taSplashShown=1; }
-  return;
+  try{ if(localStorage.getItem('taSplashShown')) return; localStorage.setItem('taSplashShown','1'); }
+  catch(e){ if(window._taSplashShown) return; window._taSplashShown=1; }
+  abrirTaSplash();
 }
-/* Captura defensiva para que el botón X del splash no dispare otros clicks debajo. */
-document.addEventListener('click',function(e){
-  var btn=e.target&&e.target.closest?e.target.closest('#taSplashModal .modal-x'):null;
-  if(!btn) return;
-  cerrarTaSplash(e);
-},true);
 async function refreshTarjetasAccion(){
   const token=++tarjetasAccionLastToken;
   taLoading();
@@ -3996,7 +3978,6 @@ function activarVertebra(v){
 ═══════════════════════════════════════════ */
 const ADVISOR = {nombre:'Asesor',iniciales:'NA',puesto:'Asesor Inmobiliario',estado:'Pendiente / Inactivo',tipo:'Asesor',zona:'—',whatsapp:'',email:'',slug:'',foto:'',pixel:'',cuenta:'—',frase:'',linkCaptacion:''};
 const SESSION_STORE_KEY = 'neri_signed_session_v1';
-try{ localStorage.removeItem(SESSION_STORE_KEY); localStorage.removeItem('taSplashShown'); }catch(e){}
 const AT_PROXY = '/api/airtable';
 const ASESOR_PERFIL_TABLE='tblIRPmLIyj8sWyEk';
 const ASESOR_CIUDADES=["Cuernavaca","Jiutepec","Temixco","Emiliano Zapata","Xochitepec","Yautepec","Cuautla","Tepoztlán","Jojutla","Zacatepec","Puente de Ixtla","Ayala","Yecapixtla","Tlaltizápan","Tlaquiltenango","Tlayacapan","Huitzilac","Miacatlán","Mazatepec","Tetecala","Coatlán del Río","Amacuzac","Axochiapan","Tepalcingo","Jantetelco","Jonacatepec","Temoac","Tetela del Volcán","Ocuituco","Atlatlahucan","Totolapan","Tlalnepantla","Zacualpan de Amilpas","Hueyapan","Coatetelco","Xoxocotla","Otra"];
@@ -4007,10 +3988,14 @@ let perfilState={recId:null,rec:null,editMode:false,localFallback:false};
 function perfilReadStoredSession(){
   try{
     if(window.SESSION && typeof window.SESSION==='object') return window.SESSION;
-    const raw=sessionStorage.getItem(SESSION_STORE_KEY);
+    const raw=localStorage.getItem(SESSION_STORE_KEY);
     if(!raw) return null;
     const s=JSON.parse(raw);
     if(s && typeof s==='object'){
+      if(s._ts && (Date.now()-s._ts > 7*24*60*60*1000)){
+        localStorage.removeItem(SESSION_STORE_KEY);
+        return null;
+      }
       window.SESSION=s;
       return s;
     }
@@ -4059,8 +4044,9 @@ async function doLogin(){
     const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user,pass,rol,mode:LOGIN_MODE})});
     const data=await r.json().catch(()=>({}));
     if(!r.ok) throw new Error(data.error||'No se pudo iniciar sesión.');
-    const session={...(data.user||{}),token:data.token,user};
+    const session={...(data.user||{}),token:data.token,user,_ts:Date.now()};
     window.SESSION=session;
+    try{ localStorage.setItem(SESSION_STORE_KEY,JSON.stringify(session)); }catch(e){}
     try{ sessionStorage.setItem(SESSION_STORE_KEY,JSON.stringify(session)); }catch(e){}
     if(errEl)errEl.textContent='';
     if(passEl)passEl.value='';
@@ -4075,12 +4061,17 @@ async function doLogin(){
 function doLogout(){
   window.SESSION=null;
   try{ sessionStorage.removeItem(SESSION_STORE_KEY); }catch(e){}
+  try{ localStorage.removeItem(SESSION_STORE_KEY); }catch(e){}
   _perfilLoaded=false;
   perfilState={recId:null,rec:null,editMode:false,localFallback:false};
   const loginScreen=document.getElementById('screen-login');
   const appScreen=document.getElementById('screen-app');
-  if(appScreen)appScreen.classList.add('hidden');
-  if(loginScreen)loginScreen.classList.remove('hidden');
+  if(appScreen){ appScreen.classList.add('hidden'); appScreen.style.display='none'; }
+  if(loginScreen){
+    loginScreen.classList.remove('hidden');
+    loginScreen.style.display='grid';
+    loginScreen.style.pointerEvents='';
+  }
   const userEl=document.getElementById('login-user');
   const passEl=document.getElementById('login-pass');
   const errEl=document.getElementById('login-err');
@@ -4094,8 +4085,15 @@ function doLogout(){
 function enterApp(){
   const loginScreen=document.getElementById('screen-login');
   const appScreen=document.getElementById('screen-app');
-  if(loginScreen)loginScreen.classList.add('hidden');
-  if(appScreen)appScreen.classList.remove('hidden');
+  if(loginScreen){
+    loginScreen.classList.add('hidden');
+    loginScreen.style.display='none';
+    loginScreen.style.pointerEvents='none';
+  }
+  if(appScreen){
+    appScreen.classList.remove('hidden');
+    appScreen.style.display='';
+  }
   renderCabina();
   setTimeout(function(){
     if(typeof perfilLoad==='function') perfilLoad(true);
@@ -4223,6 +4221,7 @@ async function perfilSave(){
     if(fields['Email'])next.email=fields['Email'];
     if(fields['Pixel ID Meta'])next.pixel=fields['Pixel ID Meta'];
     window.SESSION=next;
+    try{localStorage.setItem(SESSION_STORE_KEY,JSON.stringify({...next,_ts:Date.now()}));}catch(e){}
     try{sessionStorage.setItem(SESSION_STORE_KEY,JSON.stringify(next));}catch(e){}
     refreshChrome();showToast('✓ Perfil actualizado');perfilState.editMode=false;_perfilLoaded=false;await perfilLoad(true);
   }catch(e){setMsg('Error al guardar: '+e.message,'var(--rose)');}
