@@ -1114,6 +1114,80 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
 .pdoc-empty{font-size:11px;color:var(--w35);text-align:center;padding:24px 10px;font-family:var(--fb)}
 .pdoc-empty.err{color:var(--rose)}
 </style>
+
+<style id="pmkt-css">
+/* ══ MÓDULO PRECIO DE MERCADO — vive dentro de la ficha de propiedad ══ */
+.pmkt-wrap{margin:0 0 14px}
+.pmkt-trigger{
+  width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:11px 15px;border:1px solid rgba(198,168,107,.22);border-left:2px solid var(--gold);
+  background:rgba(198,168,107,.04);border-radius:3px;cursor:pointer;
+  font-family:var(--fm);font-size:8px;letter-spacing:2px;text-transform:uppercase;
+  font-weight:700;color:var(--gold);transition:.15s;
+}
+.pmkt-trigger:hover{background:rgba(198,168,107,.09)}
+.pmkt-trigger .pmkt-lbl{flex:1;text-align:left}
+.pmkt-chip{font-size:7px;letter-spacing:1px;padding:3px 8px;border-radius:2px;
+  border:1px solid rgba(198,168,107,.28);background:rgba(198,168,107,.08);color:var(--gold);
+  white-space:nowrap;font-weight:700}
+.pmkt-body{
+  border:1px solid rgba(198,168,107,.14);border-top:none;border-radius:0 0 3px 3px;
+  background:rgba(0,0,0,.18);padding:16px 16px 14px;display:none;
+}
+.pmkt-body.open{display:block}
+.pmkt-loading{display:flex;align-items:center;gap:10px;font-size:11px;color:var(--w60);padding:4px 0}
+.pmkt-loading::before{content:'';width:11px;height:11px;border-radius:50%;
+  border:1.5px solid var(--gold);border-top-color:transparent;
+  animation:pmktSpin .8s linear infinite;flex-shrink:0}
+@keyframes pmktSpin{to{transform:rotate(360deg)}}
+.pmkt-result{display:flex;flex-direction:column;gap:10px}
+.pmkt-ts{font-family:var(--fm);font-size:7.5px;color:var(--w22);letter-spacing:.5px;text-align:right}
+.pmkt-prices{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-top:2px}
+.pmkt-pcell{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:4px;padding:13px 10px;background:rgba(255,255,255,.018);border-radius:2px;text-align:center}
+.pmkt-pcell.rec{background:rgba(198,168,107,.07);border:1px solid rgba(198,168,107,.2)}
+.pmkt-plbl{font-size:7px;letter-spacing:1.5px;text-transform:uppercase;color:var(--w35);
+  font-weight:800;text-align:center}
+.pmkt-pcell.rec .pmkt-plbl{color:var(--gold)}
+.pmkt-pval{font-family:var(--fd);font-size:18px;letter-spacing:.8px;color:var(--w60);
+  line-height:1;text-align:center;word-break:break-all}
+.pmkt-pcell.rec .pmkt-pval{color:var(--gold-l)}
+.pmkt-alert{
+  display:flex;align-items:flex-start;gap:9px;
+  padding:11px 13px;border-radius:2px;border:1px solid;font-size:11px;line-height:1.55;
+}
+.pmkt-alert.warn{border-color:rgba(224,162,78,.28);background:rgba(224,162,78,.05);color:var(--w80)}
+.pmkt-alert.ok{border-color:rgba(74,222,128,.25);background:rgba(74,222,128,.04);color:var(--w80)}
+.pmkt-alert.risk{border-color:rgba(224,111,138,.28);background:rgba(224,111,138,.05);color:var(--w80)}
+.pmkt-adot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:3px}
+.pmkt-alert.warn .pmkt-adot{background:var(--amber)}
+.pmkt-alert.ok   .pmkt-adot{background:var(--sage)}
+.pmkt-alert.risk .pmkt-adot{background:var(--rose)}
+.pmkt-compra{display:grid;grid-template-columns:repeat(3,1fr);gap:2px}
+.pmkt-ccell{padding:10px 11px;background:rgba(255,255,255,.018);border-radius:2px;text-align:center}
+.pmkt-ck{font-size:7px;letter-spacing:1.2px;text-transform:uppercase;color:var(--w35);font-weight:800;margin-bottom:4px}
+.pmkt-cv{font-size:10.5px;color:var(--w60);line-height:1.45}
+.pmkt-jugada{
+  border:1px solid rgba(198,168,107,.18);border-left:2px solid var(--gold);
+  background:rgba(198,168,107,.04);padding:12px 14px;border-radius:2px;
+}
+.pmkt-jk{font-family:var(--fm);font-size:7.5px;letter-spacing:2px;text-transform:uppercase;
+  color:var(--gold);margin-bottom:5px}
+.pmkt-jv{font-size:11.5px;color:var(--w80);line-height:1.6}
+.pmkt-sk{font-family:var(--fm);font-size:7.5px;letter-spacing:2px;text-transform:uppercase;
+  color:var(--w35);margin:2px 0 6px}
+.pmkt-actions{display:flex;gap:8px;flex-wrap:wrap}
+.pmkt-btn{
+  font-family:var(--fm);font-size:8px;letter-spacing:1px;text-transform:uppercase;
+  border:1px solid var(--gb2);background:var(--gd);color:var(--gold);
+  padding:8px 13px;border-radius:2px;cursor:pointer;white-space:nowrap;transition:.15s;
+}
+.pmkt-btn:hover{background:var(--gb)}
+.pmkt-btn.ghost{background:transparent;border-color:var(--w18);color:var(--w35)}
+.pmkt-btn.ghost:hover{border-color:var(--gb2);color:var(--gold)}
+.pmkt-empty{font-size:11px;color:var(--w35);font-style:italic;padding:4px 0;line-height:1.5}
+@media(max-width:640px){.pmkt-prices,.pmkt-compra{grid-template-columns:1fr}}
+</style>
 </head>
 <body>
 
@@ -4572,11 +4646,11 @@ function renderFichaPropModal(p){
   document.getElementById('fichaPropBox').innerHTML=`
     <button class="modal-x" onclick="closeFichaProp()">&times;</button>
     <div class="fp-header"><div><div class="fp-sub">Editor de landing conectado</div><div class="fp-name">${_esc(nombre)}</div></div><div class="fp-folio"><div class="fp-folio-lbl">Folio</div>${_esc(folio||'— sin folio aún —')}</div></div>
-    <div class="fp-body">${propV05FichaBanner(rec)}<div id="med-reloj-mount" data-folio="${_escAttr(folio)}"></div><div class="le-banner">Para enviar el portal solo se requieren datos básicos de la propiedad. Portada y videos se completan después de agendar producción inmobiliaria.</div>${secs}${lockBlock}</div>
+    <div class="fp-body">${propV05FichaBanner(rec)}<div id="med-reloj-mount" data-folio="${_escAttr(folio)}"></div><div id="pmkt-mount" data-folio="${_escAttr(folio)}"></div><div class="le-banner">Para enviar el portal solo se requieren datos básicos de la propiedad. Portada y videos se completan después de agendar producción inmobiliaria.</div>${secs}${lockBlock}</div>
     <div class="fp-actions"><span class="fp-status" id="prop-save-msg"></span><button class="m-btn" onclick="closeFichaProp()">Cerrar</button><button class="m-btn" data-url="${_escAttr(linkComp)}" onclick="propOpenUrl(this.dataset.url,'Esta propiedad todavía no tiene Link Comprador.')">◎ Ver landing</button><button class="m-btn" data-url="${_escAttr(propFichaUrl(p))}" onclick="propOpenUrl(this.dataset.url,'Esta propiedad todavía no tiene folio para ficha técnica.')">▣ Ver ficha técnica</button><button class="m-btn" data-url="${_escAttr(propFichaUrl(p))}" onclick="propCopyUrl(this.dataset.url)">↗ Compartir ficha</button><button class="m-btn" id="prop-send-portal-btn" onclick="propEnviarPortalDesdeFicha()"${portalDisabled}>Activar portal de cliente</button><button class="m-btn solid grow" id="prop-save-btn" onclick="landSaveProp()">Guardar cambios</button></div>`;
   if(typeof window.medRelojMount==='function'){ try{ window.medRelojMount(folio); }catch(_){} }
+  if(typeof window.pmktMount==='function'){ try{ window.pmktMount(folio, rec, p); }catch(_){} }
 }
-function abrirFichaProp(){
   if(!CURRENT_PROP) return;
   renderFichaPropModal(CURRENT_PROP);
   document.getElementById('fichaPropModal').classList.add('open');
@@ -5061,5 +5135,258 @@ window.cabEnviarPortalVenta=cabEnviarPortalVenta;
   }
 })();
 </script>
+/* ══════════════════════════════════════════════════════════════════════
+   MÓDULO: PRECIO DE MERCADO · pmktMount(folio, rec, prop)
+   Se inyecta en la ficha de propiedad justo debajo del riel de cierre.
+   Llama a la API de Claude con los datos que ya existen en Airtable.
+   Sin ventana nueva. Sin repo separado. Sin formularios extra.
+══════════════════════════════════════════════════════════════════════ */
+(function () {
+  'use strict';
+
+  var PMKT_CACHE = {}; /* folio → resultado cacheado */
+
+  function pmktEsc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function pmktFmt(v) {
+    var n = Number(String(v || '').replace(/[^0-9.]/g, ''));
+    if (!n || isNaN(n)) return String(v || '—');
+    return '$' + n.toLocaleString('es-MX', { maximumFractionDigits: 0 });
+  }
+
+  /* ── Construir el prompt con los datos que ya existen en el rec de Airtable ── */
+  function pmktBuildPrompt(folio, rec, prop) {
+    function fv() {
+      for (var i = 0; i < arguments.length; i++) {
+        var k = arguments[i];
+        var v = '';
+        if (rec) {
+          if (rec[k] != null && rec[k] !== '') v = rec[k];
+          else if (rec.fields && rec.fields[k] != null && rec.fields[k] !== '') v = rec.fields[k];
+        }
+        if (v == null || v === '') continue;
+        if (typeof v === 'object') v = Array.isArray(v) ? v.map(function(x){return x&&x.name?x.name:x}).join(', ') : (v.name||'');
+        if (String(v).trim()) return String(v);
+      }
+      return '';
+    }
+
+    var tipo      = fv('Tipo de Propiedad');
+    var zona      = fv('Zona / Colonia');
+    var municipio = fv('Municipio');
+    var entidad   = fv('Estado / Entidad');
+    var mConst    = fv('Metros Construccion');
+    var mTerr     = fv('Metros Terreno');
+    var hab       = fv('Habitaciones');
+    var banos     = fv('Banos');
+    var estac     = fv('Estacionamientos');
+    var amenidades= fv('Amenidades');
+    var regimen   = fv('Régimen de Propiedad');
+    var precioLista  = fv('Precio Lista');
+    var precioMinimo = fv('Precio Minimo');
+    var plusvalia = fv('Plusvalia Valor');
+    var estado    = fv('Estado Propiedad');
+
+    /* Urgencia aproximada desde la intención del propietario (viene de Lead Vendedores vía prop.vend) */
+    var urgencia = '';
+    if (prop && prop.vend && prop.vend.nota) urgencia = prop.vend.nota;
+
+    var lineas = [
+      'Eres un analista experto en mercado inmobiliario mexicano. Analiza esta propiedad y devuelve ÚNICAMENTE un objeto JSON válido con la estructura indicada, sin texto adicional ni markdown.',
+      '',
+      'DATOS DE LA PROPIEDAD:',
+      'Folio: ' + (folio || '—'),
+      'Tipo: ' + (tipo || 'No especificado'),
+      'Zona / Colonia: ' + (zona || '—'),
+      'Municipio: ' + (municipio || '—'),
+      'Estado / Entidad: ' + (entidad || '—'),
+      'm² construcción: ' + (mConst || '—'),
+      'm² terreno: ' + (mTerr || '—'),
+      'Recámaras: ' + (hab || '—'),
+      'Baños: ' + (banos || '—'),
+      'Estacionamientos: ' + (estac || '—'),
+      'Régimen: ' + (regimen || '—'),
+      'Amenidades: ' + (amenidades || '—'),
+      'Precio solicitado por propietario: ' + (precioLista ? pmktFmt(precioLista) : '—'),
+      'Precio mínimo declarado: ' + (precioMinimo ? pmktFmt(precioMinimo) : '—'),
+      'Plusvalía zona: ' + (plusvalia || '—'),
+      'Estado de la propiedad: ' + (estado || '—'),
+      'Urgencia propietario (nota interna): ' + (urgencia || '—'),
+      '',
+      'CONTEXTO DE MERCADO 2025-2026 (México):',
+      'SHF reportó apreciación anual sostenida en vivienda durante 1T 2026.',
+      'BBVA Research reportó contracción del crédito hipotecario por debilidad laboral y precios al alza.',
+      'El precio sube pero el poder de compra bancario no crece al mismo ritmo.',
+      '',
+      'INSTRUCCIÓN: Devuelve SOLO el siguiente JSON (sin backticks, sin markdown, sin explicaciones):',
+      '{',
+      '  "precio_minimo_viable": "número en pesos MXN sin formato",',
+      '  "precio_optimo_salida": "número en pesos MXN sin formato",',
+      '  "precio_aspiracional": "número en pesos MXN sin formato",',
+      '  "riesgo_precio_emocional": true o false,',
+      '  "argumento_precio": "1-2 oraciones explicando la brecha si existe, o confirmando competitividad",',
+      '  "comprabilidad_contado": "viable / probable / poco probable",',
+      '  "comprabilidad_bancario": "viable / probable / poco probable",',
+      '  "comprabilidad_infonavit": "viable / probable / no aplica",',
+      '  "nivel_alerta": "ok" o "warn" o "risk",',
+      '  "siguiente_jugada": "Una sola oración accionable para el asesor sobre cómo presentar el precio al propietario o cómo ajustar la estrategia de salida"',
+      '}'
+    ];
+
+    return lineas.join('\n');
+  }
+
+  /* ── Llamada a la API de Claude ── */
+  async function pmktCallClaude(prompt) {
+    var res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    var data = await res.json();
+    if (!res.ok) throw new Error((data && data.error && data.error.message) || ('HTTP ' + res.status));
+    var text = (data.content || []).map(function(b){ return b.type === 'text' ? b.text : ''; }).join('');
+    /* Limpiar posibles backticks o texto extra */
+    text = text.replace(/```json|```/g, '').trim();
+    var match = text.match(/\{[\s\S]*\}/);
+    if (!match) throw new Error('La IA no devolvió JSON válido.');
+    return JSON.parse(match[0]);
+  }
+
+  /* ── Renderizar el resultado dentro del panel ── */
+  function pmktRenderResult(body, result, folio) {
+    var alerta = result.nivel_alerta || 'ok';
+    var alertaCls = alerta === 'risk' ? 'risk' : alerta === 'warn' ? 'warn' : 'ok';
+    var alertaTxt = alerta === 'risk'
+      ? '⚠ Riesgo alto de precio emocional'
+      : alerta === 'warn'
+      ? '◈ Precio con brecha respecto al mercado'
+      : '✓ Precio alineado con el mercado';
+
+    var compraTrad = function(v) {
+      var m = { 'viable': '✓ Viable', 'probable': '◎ Probable', 'poco probable': '✕ Poco probable', 'no aplica': '— No aplica' };
+      return m[String(v||'').toLowerCase()] || pmktEsc(v||'—');
+    };
+
+    var now = new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+
+    body.innerHTML =
+      '<div class="pmkt-result">' +
+        '<div class="pmkt-ts">Análisis generado ' + now + ' · ' + pmktEsc(folio) + '</div>' +
+        '<div class="pmkt-sk">Rango de precio recomendado</div>' +
+        '<div class="pmkt-prices">' +
+          '<div class="pmkt-pcell"><div class="pmkt-plbl">Mínimo viable</div><div class="pmkt-pval">' + pmktFmt(result.precio_minimo_viable) + '</div></div>' +
+          '<div class="pmkt-pcell rec"><div class="pmkt-plbl">Precio óptimo ★</div><div class="pmkt-pval">' + pmktFmt(result.precio_optimo_salida) + '</div></div>' +
+          '<div class="pmkt-pcell"><div class="pmkt-plbl">Aspiracional</div><div class="pmkt-pval">' + pmktFmt(result.precio_aspiracional) + '</div></div>' +
+        '</div>' +
+        '<div class="pmkt-alert ' + alertaCls + '">' +
+          '<span class="pmkt-adot"></span>' +
+          '<span><b>' + alertaTxt + '</b><br>' + pmktEsc(result.argumento_precio || '') + '</span>' +
+        '</div>' +
+        '<div class="pmkt-sk">Comprabilidad estimada por perfil</div>' +
+        '<div class="pmkt-compra">' +
+          '<div class="pmkt-ccell"><div class="pmkt-ck">Contado</div><div class="pmkt-cv">' + compraTrad(result.comprabilidad_contado) + '</div></div>' +
+          '<div class="pmkt-ccell"><div class="pmkt-ck">Bancario</div><div class="pmkt-cv">' + compraTrad(result.comprabilidad_bancario) + '</div></div>' +
+          '<div class="pmkt-ccell"><div class="pmkt-ck">INFONAVIT</div><div class="pmkt-cv">' + compraTrad(result.comprabilidad_infonavit) + '</div></div>' +
+        '</div>' +
+        '<div class="pmkt-jugada">' +
+          '<div class="pmkt-jk">Siguiente jugada para el asesor</div>' +
+          '<div class="pmkt-jv">' + pmktEsc(result.siguiente_jugada || '—') + '</div>' +
+        '</div>' +
+        '<div class="pmkt-actions">' +
+          '<button class="pmkt-btn ghost" onclick="window.pmktRefresh()">↺ Regenerar análisis</button>' +
+        '</div>' +
+      '</div>';
+  }
+
+  /* ── Función pública principal ── */
+  window.pmktMount = function (folio, rec, prop) {
+    var el = document.getElementById('pmkt-mount');
+    if (!el) return;
+
+    /* ── Renderizar el contenedor colapsable ── */
+    el.innerHTML =
+      '<div class="pmkt-wrap">' +
+        '<button class="pmkt-trigger" onclick="window.pmktToggle()" aria-expanded="false">' +
+          '<span class="pmkt-lbl">◈ Precio de mercado · Análisis IA</span>' +
+          '<span class="pmkt-chip" id="pmkt-chip">Haz clic para generar</span>' +
+        '</button>' +
+        '<div class="pmkt-body" id="pmkt-body">' +
+          '<div class="pmkt-empty">Presiona el botón para generar el análisis de precio con inteligencia artificial.</div>' +
+          '<div class="pmkt-actions" style="margin-top:10px">' +
+            '<button class="pmkt-btn" onclick="window.pmktGenerar()">Generar análisis de precio</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+
+    /* Guardar contexto para regenerar */
+    window._pmktCtx = { folio: folio, rec: rec, prop: prop };
+
+    /* Si hay caché, pre-abrir y mostrar resultado inmediato */
+    if (folio && PMKT_CACHE[folio]) {
+      var body = document.getElementById('pmkt-body');
+      var chip = document.getElementById('pmkt-chip');
+      if (body) { body.classList.add('open'); pmktRenderResult(body, PMKT_CACHE[folio], folio); }
+      if (chip) chip.textContent = 'Análisis listo';
+    }
+  };
+
+  window.pmktToggle = function () {
+    var body = document.getElementById('pmkt-body');
+    if (!body) return;
+    body.classList.toggle('open');
+  };
+
+  window.pmktGenerar = async function () {
+    var ctx = window._pmktCtx || {};
+    var folio = ctx.folio || '';
+    var rec   = ctx.rec   || {};
+    var prop  = ctx.prop  || {};
+    var body  = document.getElementById('pmkt-body');
+    var chip  = document.getElementById('pmkt-chip');
+    if (!body) return;
+
+    /* Asegurar panel abierto */
+    body.classList.add('open');
+
+    /* Estado de carga */
+    body.innerHTML = '<div class="pmkt-loading">Generando análisis de precio con IA…</div>';
+    if (chip) chip.textContent = 'Analizando…';
+
+    var prompt = pmktBuildPrompt(folio, rec, prop);
+
+    try {
+      var result = await pmktCallClaude(prompt);
+      if (folio) PMKT_CACHE[folio] = result;
+      pmktRenderResult(body, result, folio);
+      if (chip) chip.textContent = 'Análisis listo';
+    } catch (e) {
+      body.innerHTML =
+        '<div class="pmkt-empty" style="color:var(--rose)">No se pudo generar el análisis: ' +
+        pmktEsc(e.message || e) + '</div>' +
+        '<div class="pmkt-actions" style="margin-top:10px">' +
+          '<button class="pmkt-btn" onclick="window.pmktGenerar()">Reintentar</button>' +
+        '</div>';
+      if (chip) chip.textContent = 'Error — Reintentar';
+    }
+  };
+
+  window.pmktRefresh = function () {
+    /* Borra el caché del folio activo y regenera */
+    var ctx = window._pmktCtx || {};
+    if (ctx.folio) delete PMKT_CACHE[ctx.folio];
+    window.pmktGenerar();
+  };
+
+})();
+
 </body>
 </html>
