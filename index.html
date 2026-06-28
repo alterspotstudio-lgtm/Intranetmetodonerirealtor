@@ -3398,6 +3398,7 @@ function openFichaComp(folio,idx){
         <div class="fc-sec-title"><em>◇</em>Siguiente paso</div>
         <div class="fc-riel-track">${fcRielHTML(st)}</div>
         <div class="fc-riel-panel">${fcPanelHTML(st,c,key,{waHref,msg,acompPendiente})}</div>
+        ${fcSeguimientoHTML(c,key)}
       </div>
       <div class="fc-sec">
         <div class="fc-sec-title"><em>◎</em>El comprador</div>
@@ -3503,9 +3504,13 @@ async function enviarAcompanamientoComprador(folio){
   }
   try{
     const enviadoIso=new Date().toISOString();
-    await atFetch(`${LEAD_COMP_TABLE}/${c.id}`,{method:'PATCH',body:JSON.stringify({fields:{'Acompañamiento enviado':enviadoIso},typecast:true})});
+    // El primer contacto enciende el reloj de seguimiento: próximo recordatorio en 24 h, ciclo 0. De aquí lo avanza el botón de seguimiento.
+    const proxIso=new Date(Date.now()+24*3600*1000).toISOString();
+    await atFetch(`${LEAD_COMP_TABLE}/${c.id}`,{method:'PATCH',body:JSON.stringify({fields:{'Acompañamiento enviado':enviadoIso,'Próximo Seguimiento':proxIso,'Ciclo Seguimiento':0},typecast:true})});
     c.fields=c.fields||{};
     c.fields['Acompañamiento enviado']=enviadoIso;
+    c.fields['Próximo Seguimiento']=proxIso;
+    c.fields['Ciclo Seguimiento']=0;
     fcSetSent(c,enviadoIso);
     document.querySelectorAll('#fichaCompModal [data-action="enviar-acompanamiento"]').forEach(function(btn){ btn.textContent='Acompañamiento enviado'; btn.disabled=true; });
     mqNote('✓ Acompañamiento marcado como enviado');
@@ -3612,12 +3617,22 @@ async function leadCompSaveCita(){
   const asesor=fcVal(c,'Asesor','asesor') || (typeof perfilSession==='function' ? perfilSession().nombre : '') || (ADVISOR&&ADVISOR.nombre) || '';
   const fields={'Folio Cliente Origen':folioLead,'Comprador':nombre,'Propiedad':propiedad,'Asesor':asesor};
   document.querySelectorAll('#leadCompCitaFields [data-field]').forEach(el=>{ const val=(el.value||'').trim(); if(val) fields[el.dataset.field]=val; });
+  // Folio de la cita en tiempo real: lo arma el intranet al crear la cita (folio comprador + -C + consecutivo),
+  // reservando el número en Contador Citas del lead. Si algo falla, la cita se crea sin folio y el respaldo de Make lo asigna.
+  if(c && c.id && folioLead && leadCompCanUseAirtable()){
+    try{
+      const sig=(Number(fcVal(c,'Contador Citas','contadorCitas'))||0)+1;
+      await atFetch(`${LEAD_COMP_TABLE}/${c.id}`,{method:'PATCH',body:JSON.stringify({fields:{'Contador Citas':sig},typecast:true})});
+      c.fields=c.fields||{}; c.fields['Contador Citas']=sig;
+      fields['Folio Cita']=folioLead+'-C'+(sig<10?'0':'')+sig;
+    }catch(_){ /* sin folio local: el respaldo de Make lo genera */ }
+  }
   if(btn){btn.disabled=true;btn.textContent='Guardando…';}
   setMsg('');
   try{
     await atFetch(LEAD_COMP_CITA_TABLE,{method:'POST',body:JSON.stringify({fields,typecast:true})});
     leadCompCloseCita();
-    mqNote('✓ Cita guardada');
+    mqNote('✓ Cita guardada'+(fields['Folio Cita']?' · '+fields['Folio Cita']:''));
   }catch(e){ setMsg('Error al guardar cita: '+(e.message||e),'var(--rose)'); }
   finally{ if(btn){btn.disabled=false;btn.textContent='Guardar cita';} }
 }
@@ -3642,6 +3657,7 @@ document.addEventListener('click', function(e){
   if(action==='enviar-acompanamiento'){ enviarAcompanamientoComprador(folio); return; }
   if(action==='agendar-visita'){ agendarVisitaComprador(folio); return; }
   if(action==='editar-registro'){ editarRegistroComprador(folio); return; }
+  if(action==='seguimiento-comprador'){ seguimientoComprador(folio); return; }
 });
 document.addEventListener('keydown', function(e){
   if(e.key==='Escape') closeFichaComp();
