@@ -3289,71 +3289,6 @@ function fcPanelHTML(stateKey,c,key,opts){
   }
   return `<div class="fc-riel-msg"><strong>Primero: contactar.</strong> Antes que nada, escríbele. Confirma que sigue buscando, su forma de pago y la propiedad de interés. No lo dejes como registro muerto.</div><div class="fc-riel-acts">${waOk?`<button class="fc-riel-btn" data-action="whatsapp-lead-comprador" data-folio="${f}">Contactar ahora · WhatsApp</button>`:`<button class="fc-riel-btn" data-action="editar-registro" data-folio="${f}">Capturar teléfono para contactar</button>`}</div>`;
 }
-/* ════════ Seguimiento del comprador · reloj 24h→72h→semanal, lo enciende el primer contacto (Acompañamiento enviado) ════════ */
-function fcSeguimientoState(c){
-  const proxRaw=fcVal(c,'Próximo Seguimiento','proximoSeguimiento');
-  if(!proxRaw) return {due:false,ciclo:0,prox:null};
-  const prox=new Date(proxRaw);
-  if(isNaN(prox.getTime())) return {due:false,ciclo:0,prox:null};
-  const ciclo=Number(fcVal(c,'Ciclo Seguimiento','cicloSeguimiento'))||0;
-  const st=fcStateFor(c);
-  const activo = st==='calificacion' || st==='cita';
-  return {due: activo && prox.getTime()<=Date.now(), ciclo:ciclo, prox:prox};
-}
-function fcSeguimientoIntervaloMs(cicloAntes){
-  // Tras el 1er recordatorio (ciclo 0): 72 h. De ahí en adelante: semanal.
-  return cicloAntes<=0 ? 72*3600*1000 : 7*24*3600*1000;
-}
-function fcSeguimientoMsg(c, ciclo){
-  const nombre=fcFirstName(fcVal(c,'Nombre Completo','nombre'));
-  const propiedad=fcVal(c,'Propiedad de Interés','Propiedad de interés','propiedad');
-  const conProp = propiedad ? ' de '+propiedad : '';
-  let base;
-  if(ciclo<=0) base='Hola '+nombre+', ¿pudiste revisar la información'+conProp+' que te envié? Quedo al pendiente de cualquier duda.';
-  else if(ciclo===1) base='Hola '+nombre+', sigo al pendiente para ayudarte'+conProp+'. ¿Te late que agendemos una llamada rápida?';
-  else base='Hola '+nombre+', ¿sigues en la búsqueda? Tengo esta y otras opciones que te pueden servir.';
-  const ruta=String(fcVal(c,'Ruta de crédito','Ruta de credito','rutaCredito','credito')||'').toLowerCase();
-  if(ciclo>=1){
-    if(ruta.includes('banc')) base+=' ¿Ya avanzaste con tu precalificación?';
-    else if(ruta.includes('infonavit')) base+=' ¿Ya revisaste tu precalificación de Infonavit?';
-    else if(ruta.includes('propio')||ruta.includes('recurso')||ruta.includes('contado')) base+=' Si ya tienes el recurso listo, podemos avanzar cuando quieras.';
-  }
-  return base;
-}
-function fcSeguimientoHTML(c, key){
-  const s=fcSeguimientoState(c);
-  if(!s.due) return '';
-  const f=fvEscape(key);
-  const n=(s.ciclo||0)+1;
-  const etiqueta = s.ciclo<=0 ? 'Primer recordatorio' : (s.ciclo===1 ? 'Segundo recordatorio' : 'Recordatorio semanal');
-  return '<div class="fc-riel-msg" style="margin-top:8px"><strong>⏱ Toca seguimiento.</strong> Pasó el tiempo sin avance. '+etiqueta+' (#'+n+'). El mensaje ya va listo; tú solo confirmas y envías.</div><div class="fc-riel-acts"><button class="fc-riel-btn" data-action="seguimiento-comprador" data-folio="'+f+'">Enviar seguimiento · WhatsApp</button></div>';
-}
-async function seguimientoComprador(folio){
-  const c=buscarComprador(folio);
-  if(!c){ mqNote('No encontré el comprador '+folio); return; }
-  const s=fcSeguimientoState(c);
-  const ciclo=s.ciclo||0;
-  const href=fcWaHref(c, fcSeguimientoMsg(c, ciclo));
-  if(!href){ mqNote('Falta WhatsApp del comprador · '+folio); return; }
-  window.open(href,'_blank','noopener');
-  if(!c.id || !leadCompCanUseAirtable()){
-    mqNote('WhatsApp abierto · inicia sesión para mover el reloj de seguimiento.');
-    return;
-  }
-  try{
-    const proxIso=new Date(Date.now()+fcSeguimientoIntervaloMs(ciclo)).toISOString();
-    const sigCiclo=ciclo+1;
-    await atFetch(`${LEAD_COMP_TABLE}/${c.id}`,{method:'PATCH',body:JSON.stringify({fields:{'Próximo Seguimiento':proxIso,'Ciclo Seguimiento':sigCiclo},typecast:true})});
-    c.fields=c.fields||{};
-    c.fields['Próximo Seguimiento']=proxIso;
-    c.fields['Ciclo Seguimiento']=sigCiclo;
-    mqNote('✓ Seguimiento enviado · próximo en '+(ciclo<=0?'72 h':'1 semana'));
-    openFichaComp(fcLeadKey(c), COMPRADORES.indexOf(c));
-    renderCaptacion('comp');
-  }catch(e){
-    mqNote('WhatsApp abierto; no se pudo mover el reloj: '+(e.message||e));
-  }
-}
 function openFichaComp(folio,idx){
   const c=buscarComprador(folio,idx);
   if(!c){ mqNote('No encontré el comprador '+folio); return; }
@@ -3398,7 +3333,6 @@ function openFichaComp(folio,idx){
         <div class="fc-sec-title"><em>◇</em>Siguiente paso</div>
         <div class="fc-riel-track">${fcRielHTML(st)}</div>
         <div class="fc-riel-panel">${fcPanelHTML(st,c,key,{waHref,msg,acompPendiente})}</div>
-        ${fcSeguimientoHTML(c,key)}
       </div>
       <div class="fc-sec">
         <div class="fc-sec-title"><em>◎</em>El comprador</div>
@@ -3504,13 +3438,9 @@ async function enviarAcompanamientoComprador(folio){
   }
   try{
     const enviadoIso=new Date().toISOString();
-    // El primer contacto enciende el reloj de seguimiento: próximo recordatorio en 24 h, ciclo 0. De aquí lo avanza el botón de seguimiento.
-    const proxIso=new Date(Date.now()+24*3600*1000).toISOString();
-    await atFetch(`${LEAD_COMP_TABLE}/${c.id}`,{method:'PATCH',body:JSON.stringify({fields:{'Acompañamiento enviado':enviadoIso,'Próximo Seguimiento':proxIso,'Ciclo Seguimiento':0},typecast:true})});
+    await atFetch(`${LEAD_COMP_TABLE}/${c.id}`,{method:'PATCH',body:JSON.stringify({fields:{'Acompañamiento enviado':enviadoIso},typecast:true})});
     c.fields=c.fields||{};
     c.fields['Acompañamiento enviado']=enviadoIso;
-    c.fields['Próximo Seguimiento']=proxIso;
-    c.fields['Ciclo Seguimiento']=0;
     fcSetSent(c,enviadoIso);
     document.querySelectorAll('#fichaCompModal [data-action="enviar-acompanamiento"]').forEach(function(btn){ btn.textContent='Acompañamiento enviado'; btn.disabled=true; });
     mqNote('✓ Acompañamiento marcado como enviado');
@@ -3617,22 +3547,12 @@ async function leadCompSaveCita(){
   const asesor=fcVal(c,'Asesor','asesor') || (typeof perfilSession==='function' ? perfilSession().nombre : '') || (ADVISOR&&ADVISOR.nombre) || '';
   const fields={'Folio Cliente Origen':folioLead,'Comprador':nombre,'Propiedad':propiedad,'Asesor':asesor};
   document.querySelectorAll('#leadCompCitaFields [data-field]').forEach(el=>{ const val=(el.value||'').trim(); if(val) fields[el.dataset.field]=val; });
-  // Folio de la cita en tiempo real: lo arma el intranet al crear la cita (folio comprador + -C + consecutivo),
-  // reservando el número en Contador Citas del lead. Si algo falla, la cita se crea sin folio y el respaldo de Make lo asigna.
-  if(c && c.id && folioLead && leadCompCanUseAirtable()){
-    try{
-      const sig=(Number(fcVal(c,'Contador Citas','contadorCitas'))||0)+1;
-      await atFetch(`${LEAD_COMP_TABLE}/${c.id}`,{method:'PATCH',body:JSON.stringify({fields:{'Contador Citas':sig},typecast:true})});
-      c.fields=c.fields||{}; c.fields['Contador Citas']=sig;
-      fields['Folio Cita']=folioLead+'-C'+(sig<10?'0':'')+sig;
-    }catch(_){ /* sin folio local: el respaldo de Make lo genera */ }
-  }
   if(btn){btn.disabled=true;btn.textContent='Guardando…';}
   setMsg('');
   try{
     await atFetch(LEAD_COMP_CITA_TABLE,{method:'POST',body:JSON.stringify({fields,typecast:true})});
     leadCompCloseCita();
-    mqNote('✓ Cita guardada'+(fields['Folio Cita']?' · '+fields['Folio Cita']:''));
+    mqNote('✓ Cita guardada');
   }catch(e){ setMsg('Error al guardar cita: '+(e.message||e),'var(--rose)'); }
   finally{ if(btn){btn.disabled=false;btn.textContent='Guardar cita';} }
 }
@@ -3657,7 +3577,6 @@ document.addEventListener('click', function(e){
   if(action==='enviar-acompanamiento'){ enviarAcompanamientoComprador(folio); return; }
   if(action==='agendar-visita'){ agendarVisitaComprador(folio); return; }
   if(action==='editar-registro'){ editarRegistroComprador(folio); return; }
-  if(action==='seguimiento-comprador'){ seguimientoComprador(folio); return; }
 });
 document.addEventListener('keydown', function(e){
   if(e.key==='Escape') closeFichaComp();
