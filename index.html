@@ -3289,6 +3289,71 @@ function fcPanelHTML(stateKey,c,key,opts){
   }
   return `<div class="fc-riel-msg"><strong>Primero: contactar.</strong> Antes que nada, escríbele. Confirma que sigue buscando, su forma de pago y la propiedad de interés. No lo dejes como registro muerto.</div><div class="fc-riel-acts">${waOk?`<button class="fc-riel-btn" data-action="whatsapp-lead-comprador" data-folio="${f}">Contactar ahora · WhatsApp</button>`:`<button class="fc-riel-btn" data-action="editar-registro" data-folio="${f}">Capturar teléfono para contactar</button>`}</div>`;
 }
+/* ════════ Seguimiento del comprador · reloj 24h→72h→semanal, lo enciende el primer contacto (Acompañamiento enviado) ════════ */
+function fcSeguimientoState(c){
+  const proxRaw=fcVal(c,'Próximo Seguimiento','proximoSeguimiento');
+  if(!proxRaw) return {due:false,ciclo:0,prox:null};
+  const prox=new Date(proxRaw);
+  if(isNaN(prox.getTime())) return {due:false,ciclo:0,prox:null};
+  const ciclo=Number(fcVal(c,'Ciclo Seguimiento','cicloSeguimiento'))||0;
+  const st=fcStateFor(c);
+  const activo = st==='calificacion' || st==='cita';
+  return {due: activo && prox.getTime()<=Date.now(), ciclo:ciclo, prox:prox};
+}
+function fcSeguimientoIntervaloMs(cicloAntes){
+  // Tras el 1er recordatorio (ciclo 0): 72 h. De ahí en adelante: semanal.
+  return cicloAntes<=0 ? 72*3600*1000 : 7*24*3600*1000;
+}
+function fcSeguimientoMsg(c, ciclo){
+  const nombre=fcFirstName(fcVal(c,'Nombre Completo','nombre'));
+  const propiedad=fcVal(c,'Propiedad de Interés','Propiedad de interés','propiedad');
+  const conProp = propiedad ? ' de '+propiedad : '';
+  let base;
+  if(ciclo<=0) base='Hola '+nombre+', ¿pudiste revisar la información'+conProp+' que te envié? Quedo al pendiente de cualquier duda.';
+  else if(ciclo===1) base='Hola '+nombre+', sigo al pendiente para ayudarte'+conProp+'. ¿Te late que agendemos una llamada rápida?';
+  else base='Hola '+nombre+', ¿sigues en la búsqueda? Tengo esta y otras opciones que te pueden servir.';
+  const ruta=String(fcVal(c,'Ruta de crédito','Ruta de credito','rutaCredito','credito')||'').toLowerCase();
+  if(ciclo>=1){
+    if(ruta.includes('banc')) base+=' ¿Ya avanzaste con tu precalificación?';
+    else if(ruta.includes('infonavit')) base+=' ¿Ya revisaste tu precalificación de Infonavit?';
+    else if(ruta.includes('propio')||ruta.includes('recurso')||ruta.includes('contado')) base+=' Si ya tienes el recurso listo, podemos avanzar cuando quieras.';
+  }
+  return base;
+}
+function fcSeguimientoHTML(c, key){
+  const s=fcSeguimientoState(c);
+  if(!s.due) return '';
+  const f=fvEscape(key);
+  const n=(s.ciclo||0)+1;
+  const etiqueta = s.ciclo<=0 ? 'Primer recordatorio' : (s.ciclo===1 ? 'Segundo recordatorio' : 'Recordatorio semanal');
+  return '<div class="fc-riel-msg" style="margin-top:8px"><strong>⏱ Toca seguimiento.</strong> Pasó el tiempo sin avance. '+etiqueta+' (#'+n+'). El mensaje ya va listo; tú solo confirmas y envías.</div><div class="fc-riel-acts"><button class="fc-riel-btn" data-action="seguimiento-comprador" data-folio="'+f+'">Enviar seguimiento · WhatsApp</button></div>';
+}
+async function seguimientoComprador(folio){
+  const c=buscarComprador(folio);
+  if(!c){ mqNote('No encontré el comprador '+folio); return; }
+  const s=fcSeguimientoState(c);
+  const ciclo=s.ciclo||0;
+  const href=fcWaHref(c, fcSeguimientoMsg(c, ciclo));
+  if(!href){ mqNote('Falta WhatsApp del comprador · '+folio); return; }
+  window.open(href,'_blank','noopener');
+  if(!c.id || !leadCompCanUseAirtable()){
+    mqNote('WhatsApp abierto · inicia sesión para mover el reloj de seguimiento.');
+    return;
+  }
+  try{
+    const proxIso=new Date(Date.now()+fcSeguimientoIntervaloMs(ciclo)).toISOString();
+    const sigCiclo=ciclo+1;
+    await atFetch(`${LEAD_COMP_TABLE}/${c.id}`,{method:'PATCH',body:JSON.stringify({fields:{'Próximo Seguimiento':proxIso,'Ciclo Seguimiento':sigCiclo},typecast:true})});
+    c.fields=c.fields||{};
+    c.fields['Próximo Seguimiento']=proxIso;
+    c.fields['Ciclo Seguimiento']=sigCiclo;
+    mqNote('✓ Seguimiento enviado · próximo en '+(ciclo<=0?'72 h':'1 semana'));
+    openFichaComp(fcLeadKey(c), COMPRADORES.indexOf(c));
+    renderCaptacion('comp');
+  }catch(e){
+    mqNote('WhatsApp abierto; no se pudo mover el reloj: '+(e.message||e));
+  }
+}
 function openFichaComp(folio,idx){
   const c=buscarComprador(folio,idx);
   if(!c){ mqNote('No encontré el comprador '+folio); return; }
