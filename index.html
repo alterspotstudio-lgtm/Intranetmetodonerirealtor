@@ -1695,7 +1695,8 @@ a.owner-wa-link:hover{opacity:.75}
   </div>
 
   <!-- ════════ FICHA DE PROPIEDAD (se abre desde el medallón) ════════ -->
-  <div class="modal-bg" id="fichaPropModal" onclick="if(event.target===this)closeFichaProp()">
+  <!-- Blindaje anti pérdida: esta ficha NO se cierra al hacer clic fuera; solo con Cerrar/X o Guardar. -->
+  <div class="modal-bg" id="fichaPropModal">
     <div class="modal ficha-modal" id="fichaPropBox"></div>
   </div>
 
