@@ -4094,6 +4094,19 @@ const ASESOR_FRASES=['Te ayudo a vender con estrategia, orden y seguimiento real
 let _perfilLoaded=false;
 let perfilState={recId:null,rec:null,editMode:false,localFallback:false};
 
+function perfilTokenExpirado(token){
+  // Lee la expiración REAL del token (su 'exp', firmado por el servidor) y dice si ya venció.
+  // Así el navegador nunca cree tener sesión cuando el servidor ya la rechazaría. A prueba de
+  // cambios futuros de duración: si el servidor cambia el TTL, esto lo respeta solo.
+  try{
+    const parts=String(token||'').split('.');
+    if(parts.length!==3) return false;
+    let b=parts[1].replace(/-/g,'+').replace(/_/g,'/');
+    while(b.length%4) b+='=';
+    const payload=JSON.parse(atob(b));
+    return !!(payload && payload.exp && Date.now() > payload.exp);
+  }catch(e){ return false; }
+}
 function perfilReadStoredSession(){
   try{
     if(window.SESSION && typeof window.SESSION==='object') return window.SESSION;
@@ -4101,8 +4114,9 @@ function perfilReadStoredSession(){
     if(!raw) return null;
     const s=JSON.parse(raw);
     if(s && typeof s==='object'){
-      if(s._ts && (Date.now()-s._ts > 7*24*60*60*1000)){
+      if(perfilTokenExpirado(s.token) || (s._ts && (Date.now()-s._ts > 7*24*60*60*1000))){
         localStorage.removeItem(SESSION_STORE_KEY);
+        try{ sessionStorage.removeItem(SESSION_STORE_KEY); }catch(e){}
         return null;
       }
       window.SESSION=s;
@@ -4159,6 +4173,7 @@ async function doLogin(){
     try{ sessionStorage.setItem(SESSION_STORE_KEY,JSON.stringify(session)); }catch(e){}
     if(errEl)errEl.textContent='';
     if(passEl)passEl.value='';
+    _sessionExpiredHandled=false;
     enterApp();
   }catch(e){
     if(errEl)errEl.textContent=e.message||'No se pudo iniciar sesión.';
@@ -4230,6 +4245,17 @@ function perfilIsPrimeraVez(rec){return !(_fval(rec,'Teléfono WhatsApp')||_fval
 function perfilLocalReadOnlyRecord(){const s=perfilSession();return{id:s.perfilRecId||'',fields:{'Nombre':s.nombre||ADVISOR.nombre,'Teléfono WhatsApp':s.whatsapp||ADVISOR.whatsapp,'Email':s.email||ADVISOR.email,'Ciudad':ADVISOR.zona||s.empresa,'Frase':ADVISOR.frase,'Pixel ID Meta':s.pixel||ADVISOR.pixel||'','Puesto':ADVISOR.puesto,'Slug':s.slug||ADVISOR.slug,'Link Captación':s.linkCaptacion||ADVISOR.linkCaptacion||capLinkUrl(),'Cuenta':s.cuenta||ADVISOR.cuenta,'Tipo':ADVISOR.tipo,'Estado':'Sin sesión real','Activo':false,'Foto':ADVISOR.foto?[{url:ADVISOR.foto}]:[]}};}
 function perfilApplyRecord(rec){if(!rec)return;const v=n=>_fval(rec,n),foto=_attInfo(rec,'Foto'),nombre=v('Nombre')||ADVISOR.nombre;ADVISOR.nombre=nombre||'Asesor';ADVISOR.iniciales=perfilInitials(ADVISOR.nombre);ADVISOR.puesto=v('Puesto')||v('Puesto (texto viejo)')||ADVISOR.puesto;ADVISOR.zona=v('Ciudad')||v('Ciudad (texto viejo)')||ADVISOR.zona;ADVISOR.whatsapp=v('Teléfono WhatsApp')||ADVISOR.whatsapp;ADVISOR.email=v('Email')||ADVISOR.email;ADVISOR.slug=v('Slug')||ADVISOR.slug;ADVISOR.estado=v('Estado')||ADVISOR.estado;ADVISOR.tipo=v('Tipo')||ADVISOR.tipo;ADVISOR.pixel=v('Pixel ID Meta')||ADVISOR.pixel;ADVISOR.frase=v('Frase')||ADVISOR.frase;ADVISOR.cuenta=v('Cuenta')||v('Cuenta asignada')||v('Inmobiliaria')||v('Inmobiliaria / Cuenta')||v('Cuenta / inmobiliaria / grupo')||ADVISOR.cuenta;ADVISOR.linkCaptacion=v('Link Captación')||ADVISOR.linkCaptacion;if(foto.has)ADVISOR.foto=foto.thumb||foto.url;renderCabina();}
 
+let _sessionExpiredHandled=false;
+function perfilSessionExpired(){
+  // Token vencido/ inválido en el servidor: limpiamos la sesión y caemos al login, una sola vez,
+  // en vez de dejar el tablero con datos en cero. Un cliente nunca debe ver eso.
+  if(_sessionExpiredHandled) return;
+  _sessionExpiredHandled=true;
+  try{ doLogout(); }catch(e){}
+  const errEl=document.getElementById('login-err');
+  if(errEl) errEl.textContent='Tu sesión expiró por seguridad. Vuelve a entrar.';
+}
+
 async function atFetch(path,opts={}){
   const cleanPath=String(path||'').replace(/^\//,'');
   const proxy=(typeof window!=='undefined'&&window.AT_PROXY)?window.AT_PROXY:AT_PROXY;
@@ -4246,6 +4272,8 @@ async function atFetch(path,opts={}){
   if(!r.ok){
     let msg=data.error||data.raw||data.message||('HTTP '+r.status);
     if(msg && typeof msg==='object') msg=msg.message||msg.type||JSON.stringify(msg);
+    // Token muerto en el servidor: limpiamos sesión y mandamos al login en lugar de romper el tablero.
+    if(r.status===401){ perfilSessionExpired(); }
     throw new Error(msg);
   }
   return data;
