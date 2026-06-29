@@ -19,8 +19,8 @@
 }
 
 html,body{background:var(--black);color:#fff;font-family:var(--fb)}
-body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px}
-.app{width:100%;max-width:1240px}
+body{min-height:100vh;display:flex;justify-content:center;padding:22px 20px 60px}
+.app{width:100%;max-width:1440px}
 
 /* ─── EYEBROW ─── */
 .sys-eye{
@@ -91,7 +91,7 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
    CUERPO COMPARTIDO
 ══════════════════════════════════════════ */
 .body{
-  display:grid;grid-template-columns:228px 1fr;gap:1px;
+  display:grid;grid-template-columns:196px 1fr;gap:1px;
   background:var(--w04);border:1px solid var(--w08);border-radius:3px;overflow:hidden;
   min-height:540px;
 }
@@ -129,12 +129,12 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
 /* ══════════════════════════════════════════
    PANEL PRINCIPAL (columna derecha)
 ══════════════════════════════════════════ */
-.main{background:var(--black);padding:24px 28px 28px;position:relative;overflow:hidden;display:flex;flex-direction:column}
+.main{background:var(--black);padding:20px 22px 24px;position:relative;overflow:hidden;display:flex;flex-direction:column}
 .main::after{content:"";position:absolute;inset:0;pointer-events:none;
   background:radial-gradient(ellipse 70% 38% at 50% -4%,rgba(198,168,107,.05),transparent 70%)}
 
 .m-top{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;position:relative;z-index:2}
-.m-name{font-family:var(--fd);font-size:26px;letter-spacing:3px;line-height:1;color:#fff}
+.m-name{font-family:var(--fd);font-size:24px;letter-spacing:3px;line-height:1;color:#fff}
 .m-sub{font-size:8px;letter-spacing:1.5px;color:var(--w60);margin-top:6px;font-weight:400;text-transform:uppercase;line-height:1.7}
 .m-sub .dotm{opacity:.4;margin:0 6px}
 .m-badge{
@@ -144,14 +144,14 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
 
 /* ── MEDALLÓN (propiedades) ── */
 .med-wrap{display:flex;justify-content:center;position:relative;z-index:2;margin:14px 0 6px}
-.med{position:relative;width:300px;height:300px}
-.med-glow{position:absolute;inset:0;border-radius:50%;filter:blur(34px);opacity:0;transition:opacity 1s ease,background 1s ease;z-index:0}
-.med svg{position:relative;z-index:1;width:300px;height:300px;display:block}
+.med{position:relative;width:280px;height:280px}
+.med-glow{position:absolute;inset:0;border-radius:50%;filter:blur(28px);opacity:0;transition:opacity 1s ease,background 1s ease;z-index:0}
+.med svg{position:relative;z-index:1;width:280px;height:280px;display:block}
 .seg-fill{transition:stroke-dashoffset 1.1s cubic-bezier(.16,1,.3,1)}
 
 .med-ctr{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:3;pointer-events:none;gap:2px}
 .mc-pct{
-  font-family:var(--fd);font-size:70px;letter-spacing:2px;line-height:.9;
+  font-family:var(--fd);font-size:62px;letter-spacing:2px;line-height:.9;
   background:linear-gradient(180deg,#FBEFC0 0%,#E2C98A 30%,#C6A86B 52%,#7A5510 100%);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
   filter:drop-shadow(0 1px 0 rgba(0,0,0,.6))
@@ -202,17 +202,17 @@ body{min-height:100vh;display:flex;justify-content:center;padding:26px 16px 60px
 .act-unlock svg{width:12px;height:12px;opacity:.8}
 
 /* ── ESCENARIO: propietario · propiedad · comprador ── */
-.stage{display:grid;grid-template-columns:1fr 300px 1fr;gap:16px;align-items:center;position:relative;z-index:2;margin:14px 0 6px}
+.stage{display:grid;grid-template-columns:1fr 280px 1fr;gap:14px;align-items:center;position:relative;z-index:2;margin:14px 0 6px}
 .stage .med-wrap{margin:0}
-.party{position:relative;border:1px solid var(--w08);border-radius:3px;background:var(--black2);padding:15px 15px 15px 17px;overflow:hidden}
+.party{position:relative;border:1px solid var(--w08);border-radius:3px;background:var(--black2);padding:14px 14px 14px 16px;overflow:hidden;min-height:130px}
 .party-bar{position:absolute;left:0;top:0;bottom:0;width:3px}
-.party-ey{font-size:7px;letter-spacing:2.5px;text-transform:uppercase;font-weight:600;display:flex;align-items:center;gap:7px;margin-bottom:9px;color:var(--w60)}
+.party-ey{font-size:7px;letter-spacing:2.5px;text-transform:uppercase;font-weight:600;display:flex;align-items:center;gap:7px;margin-bottom:8px;color:var(--w60)}
 .party-ey .pd{width:4px;height:4px;border-radius:50%;flex-shrink:0}
-.party-name{font-family:var(--fd);font-size:19px;letter-spacing:1px;color:#fff;line-height:1.05}
-.party-tag{display:inline-block;font-family:var(--fm);font-size:8px;letter-spacing:.5px;padding:4px 9px;border:1px solid var(--w08);border-radius:2px;margin-top:9px}
-.party-note{font-size:10px;color:var(--w35);line-height:1.5;margin-top:10px}
-.party.empty{border-style:dashed;background:transparent}
-.party-empty{font-family:var(--fe);font-style:italic;font-size:13px;color:var(--w35);margin-top:2px}
+.party-name{font-family:var(--fd);font-size:17px;letter-spacing:1px;color:#fff;line-height:1.05}
+.party-tag{display:inline-block;font-family:var(--fm);font-size:8px;letter-spacing:.5px;padding:4px 9px;border:1px solid var(--w08);border-radius:2px;margin-top:8px}
+.party-note{font-size:10px;color:var(--w35);line-height:1.5;margin-top:8px}
+.party.empty{border-style:dashed;background:transparent;min-height:130px}
+.party-empty{font-family:var(--fe);font-style:italic;font-size:12px;color:var(--w35);margin-top:4px;line-height:1.5}
 @media(max-width:880px){
   .stage{grid-template-columns:1fr;gap:14px}
   .med-wrap{order:-1}
@@ -410,8 +410,8 @@ a.owner-wa-link:hover{opacity:.75}
   .pi{border-bottom:none;border:1px solid var(--w08);border-radius:3px;min-width:160px;flex-shrink:0}
   .spine-row{flex-direction:column}
   .vert:not(:last-child){border-right:none;border-bottom:1px solid var(--w04)}
-  .med,.med svg,.med-glow{width:260px;height:260px}
-  .mc-pct{font-size:60px}
+  .med,.med svg,.med-glow{width:240px;height:240px}
+  .mc-pct{font-size:52px}
   .temp-row{flex-wrap:wrap}
   .lead-grid{grid-template-columns:1fr}
   .main,.cap-main{padding:18px}
@@ -424,7 +424,8 @@ a.owner-wa-link:hover{opacity:.75}
 /* ══════════════════════════════════════════
    VISTA PROPIEDADES · medallón + leads de la propiedad
    Base = móvil: 1 columna (medallón arriba, sus leads debajo).
-   ≥1100px = 2 columnas SOLO en Propiedades (medallón izq · leads der).
+   ≥1100px = 2 columnas (main izq · leads der). Stage apilado (medallón arriba, cards abajo).
+   ≥1360px = stage horizontal (propietario · medallón · comprador) con más espacio.
    En vistas CRM el carril se oculta y la tabla usa todo el ancho.
 ══════════════════════════════════════════ */
 .work{display:grid;grid-template-columns:1fr;gap:18px;align-items:start;margin-bottom:24px}
@@ -432,10 +433,15 @@ a.owner-wa-link:hover{opacity:.75}
 .work-side{min-width:0;order:1}                       /* móvil: leads debajo del medallón */
 .work:not(.view-prop) .work-side{display:none}        /* leads solo en Propiedades */
 @media(min-width:1100px){
-  .work.view-prop{grid-template-columns:1fr 340px}
-  /* en columna angosta el escenario se acomoda: medallón arriba, propietario+comprador debajo */
+  .work.view-prop{grid-template-columns:1fr 290px}
+  /* stage apilado: medallón arriba, propietario + comprador debajo */
   .work.view-prop .work-main .stage{grid-template-columns:1fr 1fr;gap:14px}
-  .work.view-prop .work-main .stage .med-wrap{grid-column:1/-1;order:-1;margin-bottom:4px}
+  .work.view-prop .work-main .stage .med-wrap{grid-column:1/-1;order:-1;margin-bottom:8px;display:flex;justify-content:center}
+}
+@media(min-width:1360px){
+  /* stage horizontal: propietario · medallón · comprador en fila */
+  .work.view-prop .work-main .stage{grid-template-columns:1fr 280px 1fr;gap:16px;align-items:start}
+  .work.view-prop .work-main .stage .med-wrap{grid-column:auto;order:0;margin-bottom:0;justify-content:center}
 }
 
 /* #3 — riel y siguiente paso con más jerarquía (el medallón no los opaca) */
@@ -446,7 +452,7 @@ a.owner-wa-link:hover{opacity:.75}
 .work-main .act-in{padding:18px 20px 18px 24px}
 
 /* ── PANEL DE LEADS (carril contextual por propiedad) ── */
-.leads-panel{border:1px solid var(--w08);border-radius:3px;background:var(--obsidian);position:relative;overflow:hidden;padding:20px 18px}
+.leads-panel{border:1px solid var(--w08);border-radius:3px;background:var(--obsidian);position:relative;overflow:hidden;padding:18px 16px}
 .leads-panel::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--steel),transparent);opacity:.5}
 .leads-head{margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--w08);position:relative}
 .leads-head::after{content:"";position:absolute;left:0;bottom:-1px;width:48px;height:1px;background:var(--steel)}
