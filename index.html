@@ -3720,19 +3720,29 @@ async function leadCompSaveCita(){
   const asesor=fcVal(c,'Asesor','asesor') || (typeof perfilSession==='function' ? perfilSession().nombre : '') || (ADVISOR&&ADVISOR.nombre) || '';
   const fields={'Folio Cliente Origen':folioLead,'Comprador':nombre,'Propiedad':propiedad,'Asesor':asesor};
   document.querySelectorAll('#leadCompCitaFields [data-field]').forEach(el=>{ const val=(el.value||'').trim(); if(val) fields[el.dataset.field]=val; });
-  // Folio de la cita en tiempo real: lo arma el intranet al crear la cita (folio comprador + -C + consecutivo),
-  // reservando el número en Contador Citas del lead. Si algo falla, la cita se crea sin folio y el respaldo de Make lo asigna.
-  if(c && c.id && folioLead && leadCompCanUseAirtable()){
-    try{
-      const sig=(Number(fcVal(c,'Contador Citas','contadorCitas'))||0)+1;
-      await atFetch(`${LEAD_COMP_TABLE}/${c.id}`,{method:'PATCH',body:JSON.stringify({fields:{'Contador Citas':sig},typecast:true})});
-      c.fields=c.fields||{}; c.fields['Contador Citas']=sig;
-      fields['Folio Cita']=folioLead+'-C'+(sig<10?'0':'')+sig;
-    }catch(_){ /* sin folio local: el respaldo de Make lo genera */ }
-  }
+  // Botón bloqueado durante TODA la operación (reservar folio + crear cita): evita doble toque y citas duplicadas.
   if(btn){btn.disabled=true;btn.textContent='Guardando…';}
   setMsg('');
   try{
+    // Folio de la cita en tiempo real: lo arma el intranet (folio comprador + -C + consecutivo),
+    // reservando el número en Contador Citas del lead. Sin respaldo externo: si no se logra reservar,
+    // NO se crea una cita sin folio; se avisa al asesor para reintentar (el link al comprador nunca queda vacío).
+    if(c && c.id && folioLead && leadCompCanUseAirtable()){
+      const sig=(Number(fcVal(c,'Contador Citas','contadorCitas'))||0)+1;
+      let reservado=false;
+      for(let intento=0; intento<2 && !reservado; intento++){
+        try{
+          await atFetch(`${LEAD_COMP_TABLE}/${c.id}`,{method:'PATCH',body:JSON.stringify({fields:{'Contador Citas':sig},typecast:true})});
+          reservado=true;
+        }catch(_){ /* reintenta una vez */ }
+      }
+      if(!reservado){
+        setMsg('No se pudo asignar el folio (Airtable no respondió). La cita no se guardó — vuelve a intentar.','var(--rose)');
+        return;
+      }
+      c.fields=c.fields||{}; c.fields['Contador Citas']=sig;
+      fields['Folio Cita']=folioLead+'-C'+(sig<10?'0':'')+sig;
+    }
     await atFetch(LEAD_COMP_CITA_TABLE,{method:'POST',body:JSON.stringify({fields,typecast:true})});
     leadCompCloseCita();
     mqNote('✓ Cita guardada'+(fields['Folio Cita']?' · '+fields['Folio Cita']:''));
