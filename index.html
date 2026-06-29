@@ -2976,6 +2976,78 @@ async function leadVendMarcarPropiedadCreada(recId, rec){
   try{ await rielPatchLeadReal(recId, {'Propiedad Creada':true}); }
   catch(e){ console.warn('No se pudo marcar Propiedad Creada desde intranet:', e.message); }
 }
+
+/* V-05 · Blindaje de conversión Lead Vendedor → Propiedades.
+   No toca activar-expediente.js ni cambia nombres de Airtable.
+   Restaura el comportamiento documentado: Continuar proceso crea/localiza
+   la Propiedad por Folio Vendedor antes de activar/buscar expediente. */
+function leadVendNumeroSeguro(v){
+  const raw=String(v==null?'':v).trim();
+  if(!raw) return null;
+  const n=Number(raw.replace(/[^0-9.]/g,''));
+  return Number.isFinite(n)?n:null;
+}
+function leadVendPropNombreDesdeLead(rec, folio){
+  const tipo=_fval(rec,'Tipo de Propiedad')||'Propiedad';
+  const zona=_fval(rec,'Zona')||_fval(rec,'Zona / Colonia')||'zona por confirmar';
+  return (tipo+' en '+zona).trim() || ('Propiedad '+folio);
+}
+function leadVendPrefijoDesdeLead(rec, folio){
+  const directo=_fval(rec,'Prefijo Auto')||_fval(rec,'Prefijo Folio');
+  if(directo) return String(directo).trim().toUpperCase().slice(0,4);
+  const zona=(_fval(rec,'Zona')||folio||'NER').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Za-z0-9]/g,'').toUpperCase();
+  return (zona||'NER').slice(0,4);
+}
+function leadVendBuildPropFields(rec, folio){
+  const fields={
+    'Nombre Propiedad': leadVendPropNombreDesdeLead(rec, folio),
+    'Folio Vendedor': folio,
+    'Propietario': _fval(rec,'Nombre Completo')||_fval(rec,'Nombre')||'',
+    'Estado Propiedad': 'Disponible',
+    'Zona / Colonia': _fval(rec,'Zona')||_fval(rec,'Zona / Colonia')||'',
+    'Municipio': _fval(rec,'Municipio')||_fval(rec,'Zona')||'',
+    'Estado / Entidad': _fval(rec,'Estado / Entidad')||'Morelos',
+    'Asesor': _fval(rec,'Asesor')||'',
+    'Prefijo Folio': leadVendPrefijoDesdeLead(rec, folio),
+    'Moneda': 'MXN',
+    'Fecha de Alta': new Date().toISOString().slice(0,10),
+    'Notas Internas': 'Propiedad creada desde Continuar proceso del lead vendedor '+folio+'. Completar datos básicos antes de enviar portal.'
+  };
+  const tipo=_fval(rec,'Tipo de Propiedad'); if(tipo) fields['Tipo de Propiedad']=tipo;
+  const hab=leadVendNumeroSeguro(_fval(rec,'Habitaciones')); if(hab!=null) fields['Habitaciones']=hab;
+  const banos=leadVendNumeroSeguro(_fval(rec,'Baños')||_fval(rec,'Banos')); if(banos!=null) fields['Banos']=banos;
+  const medios=leadVendNumeroSeguro(_fval(rec,'Medios Baños')||_fval(rec,'Medios Banos')); if(medios!=null) fields['Medios Banos']=medios;
+  const est=leadVendNumeroSeguro(_fval(rec,'Estacionamientos')); if(est!=null) fields['Estacionamientos']=est;
+  if(rec && rec.id) fields['Lead Vendedor']=[rec.id];
+  Object.keys(fields).forEach(k=>{ if(fields[k]==='' || fields[k]==null) delete fields[k]; });
+  return fields;
+}
+async function leadVendCrearPropiedadDesdeLead(rec, folio){
+  if(!propCanUseAirtable()) throw new Error('Sesión real requerida para crear propiedad.');
+  const fields=leadVendBuildPropFields(rec, folio);
+  const created=await atFetch(PROP_TABLE,{method:'POST',body:JSON.stringify({fields:fields,typecast:true})});
+  if(!created || !created.id) throw new Error('Airtable no devolvió la propiedad creada.');
+  return created;
+}
+async function leadVendGarantizarPropiedadDesdeLead(rec, folio){
+  let prop=await leadVendFetchPropiedadByFolio(folio).catch(()=>null);
+  if(prop) return prop;
+  prop=await leadVendCrearPropiedadDesdeLead(rec, folio);
+  try{ await leadVendMarcarPropiedadCreada(rec.id, rec); }catch(_){ }
+  return prop;
+}
+async function leadVendMarcarExpedienteIniciadoPropiedad(prop){
+  const id=(prop&&prop.id)||(prop&&prop._recId);
+  if(!id) return null;
+  try{
+    const updated=await atFetch(PROP_TABLE + '/' + id,{method:'PATCH',body:JSON.stringify({fields:{'Expediente Iniciado':true},typecast:true})});
+    if(prop && prop.fields) prop.fields=Object.assign({},prop.fields,updated.fields||{}, {'Expediente Iniciado':true});
+    return updated;
+  }catch(e){
+    console.warn('No se pudo marcar Expediente Iniciado desde intranet:', e.message);
+    return null;
+  }
+}
 async function leadVendContinuarProceso(btn){
   const rec=leadVendFichaState.rec || ((VENDEDORES||[]).find(r=>r&&r.id===leadVendFichaState.folio));
   if(!rec) return rielSay('No encontré el lead abierto. Cierra y vuelve a abrir la ficha.');
@@ -2985,10 +3057,13 @@ async function leadVendContinuarProceso(btn){
   const oldText=btn?btn.textContent:'';
   if(btn){ btn.disabled=true; btn.textContent='Abriendo Propiedades…'; }
   try{
-    rielSay('Creando/localizando propiedad y activando expediente…');
+    rielSay('Creando/localizando propiedad…');
+    let prop=await leadVendGarantizarPropiedadDesdeLead(rec, folio);
+    rielSay('Activando expediente…');
     let activationError=null;
     try{ await rielActivarExpedienteReal(folio, recId, _fval(rec,'Conversión')); }
     catch(e){ activationError=e; console.warn('Activación instantánea no completó:', e.message); }
+    if(prop) await leadVendMarcarExpedienteIniciadoPropiedad(prop);
     const fresh=await leadVendRefreshRecord(recId);
     const leadRec=fresh || rec;
     try{ crmVendedoresFolioIndex[propNormalizeFolio(folio)]=leadRec; }catch(_){}
@@ -2996,7 +3071,7 @@ async function leadVendContinuarProceso(btn){
     if(typeof activarVertebra==='function') activarVertebra('prop');
     try{ await propLoad(true); }catch(_){}
     rielSay('Buscando la propiedad por folio…');
-    const prop=await leadVendBuscarPropiedadConReintentos(folio,6);
+    prop=prop || await leadVendBuscarPropiedadConReintentos(folio,6);
     if(prop){
       leadVendSelectPropiedad(prop);
       await leadVendMarcarPropiedadCreada(recId, leadRec);
