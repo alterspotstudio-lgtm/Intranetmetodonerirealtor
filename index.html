@@ -5487,31 +5487,42 @@ window.cabEnviarPortalVenta=cabEnviarPortalVenta;
     return lineas.join('\n');
   }
 
-  /* ── Llamada a la API de Claude con web_search habilitado (Capa 2) ── */
-  async function pmktCallClaude(prompt) {
-    var res = await fetch('https://api.anthropic.com/v1/messages', {
+  /* ── Estudio de mercado vía Make (lado servidor) ──
+        La llave de IA vive en Make, nunca en el navegador (por eso ya no se llama a
+        la API de Claude desde el front: eso solo funcionaba dentro de Claude.ai). La
+        ficha solo manda el id de la propiedad; Make corre el análisis, escribe los 10 campos
+        en la propiedad y devuelve los 11 valores separados por ||| para pintar aquí.
+        Webhook externo de Make (no es dominio propio): fijo a propósito. */
+  var PMKT_ESTUDIO_WEBHOOK = 'https://hook.us2.make.com/yquo4e968n368cq5ydeit88f6xk8q0wq';
+  async function pmktCallEstudio(recId, folio) {
+    if (!recId) throw new Error('Falta el identificador de la propiedad.');
+    var res = await fetch(PMKT_ESTUDIO_WEBHOOK, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 2000,
-        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
-        messages: [{ role: 'user', content: prompt }]
-      })
+      body: JSON.stringify({ recId: recId, folio: folio || '' })
     });
-    var data = await res.json();
-    if (!res.ok) throw new Error((data && data.error && data.error.message) || ('HTTP ' + res.status));
+    if (!res.ok) throw new Error('El estudio no respondió (HTTP ' + res.status + '). Intenta de nuevo.');
 
-    /* Recolectar todo el texto de los bloques content (puede haber tool_use + text) */
-    var text = (data.content || [])
-      .map(function(b){ return b.type === 'text' ? b.text : ''; })
-      .join('');
+    var raw = (await res.text()).trim();
+    if (!raw) throw new Error('El estudio regresó vacío. Intenta de nuevo.');
 
-    /* Limpiar posibles backticks o prefijos de markdown */
-    text = text.replace(/```json|```/g, '').trim();
-    var match = text.match(/\{[\s\S]*\}/);
-    if (!match) throw new Error('La IA no devolvió JSON válido. Intenta de nuevo.');
-    return JSON.parse(match[0]);
+    var p = raw.split('|||');
+    if (p.length < 11) throw new Error('El estudio regresó incompleto. Intenta de nuevo.');
+
+    var norm = function (s) { return String(s == null ? '' : s).trim(); };
+    return {
+      precio_minimo_viable:    norm(p[0]),
+      precio_optimo_salida:    norm(p[1]),
+      precio_aspiracional:     norm(p[2]),
+      comparables_encontrados: norm(p[3]),
+      argumento_precio:        norm(p[4]),
+      entorno_ubicacion:       norm(p[5]),
+      comprabilidad_contado:   norm(p[6]),
+      comprabilidad_bancario:  norm(p[7]),
+      comprabilidad_infonavit: norm(p[8]),
+      nivel_alerta:            norm(p[9]),
+      siguiente_jugada:        norm(p[10])
+    };
   }
 
   /* ── Persistir el estudio en la propiedad: deja de evaporarse y queda disponible
@@ -5666,12 +5677,13 @@ window.cabEnviarPortalVenta=cabEnviarPortalVenta;
     body.innerHTML = '<div class="pmkt-loading">Buscando comparables en portales y generando análisis…</div>';
     if (chip) chip.textContent = 'Analizando…';
 
-    var prompt = pmktBuildPrompt(folio, rec, prop);
+    var recId = (prop && prop._recId) || '';
 
     try {
-      var result = await pmktCallClaude(prompt);
+      /* Make corre el análisis del lado servidor y persiste los 10 campos;
+         aquí solo pintamos lo que devolvió. */
+      var result = await pmktCallEstudio(recId, folio);
       if (folio) PMKT_CACHE[folio] = result;
-      pmktSaveToProperty(prop, result);
       pmktRenderResult(body, result, folio);
       if (chip) chip.textContent = 'Análisis listo';
     } catch (e) {
