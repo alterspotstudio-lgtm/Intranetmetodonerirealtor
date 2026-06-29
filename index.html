@@ -3190,7 +3190,7 @@ function fcBuyerMsg(c){
   const nombre=fcFirstName(fcVal(c,'Nombre Completo','nombre'));
   const asesor=fcVal(c,'Asesor','asesor') || (typeof ADVISOR !== 'undefined' && ADVISOR && ADVISOR.nombre) || (typeof SESSION !== 'undefined' && SESSION && SESSION.nombre) || 'su asesor';
   const propiedad=fcVal(c,'Propiedad de Interés','Propiedad de interés','propiedad');
-  return 'Hola '+nombre+', soy '+asesor+'. Recibí tu solicitud'+(propiedad?' por '+propiedad:' de compra')+'. Te escribo para ayudarte con el siguiente paso. ¿Tienes unos minutos?';
+  return 'Hola '+nombre+', soy '+asesor+'. Recibí tu solicitud'+(propiedad?' por '+propiedad:' de compra')+'. Me encantaría que la conozcas en persona para que la sientas. ¿Te late que agendemos una visita esta semana?';
 }
 function fcAcompanamientoLinks(acomp){
   const a=String(acomp||'').toLowerCase();
@@ -3226,7 +3226,7 @@ function fcRow(k,v,full){
 function fcNum(k,v){
   return `<div class="fc-num"><div class="fc-num-val">${v ? fvEscape(v) : '—'}</div><div class="fc-num-lbl">${fvEscape(k)}</div></div>`;
 }
-const FC_RIEL = ['Contacto','Calificación','Cita','Apartado'];
+const FC_RIEL = ['Contacto','Cita','Calificación','Apartado'];
 function fcDecisionNum(decision){
   const m=String(decision||'').match(/\d+/);
   return m ? m[0] : '';
@@ -3238,23 +3238,22 @@ function fcIsPropertyDefined(propiedad){
 function fcStateFor(c){
   const status=fcVal(c,'Status del Lead','Status del lead','statusLead','estadoLead','Estado').toLowerCase();
   const clasif=fcVal(c,'Clasificación','Clasificacion','clasificacion','temp').toLowerCase();
-  const decision=Number(fcDecisionNum(fcVal(c,'Decisión','Decisión 1-10','Decisión 1–10','Decisión 1 - 10','Decision','Decisión de Compra','Nivel de Decisión','Intención','Intención de Compra','decision'))||0);
-  const propiedad=fcVal(c,'Propiedad de Interés','Propiedad de interés','propiedad');
-  const acomp=fcVal(c,'Acompañamiento sugerido','Acompanamiento sugerido','acompanamientoSugerido');
+  const conversion=fcVal(c,'Conversión','conversion').toLowerCase();
   const enviado=fcVal(c,'Acompañamiento enviado','Acompanamiento enviado','acompanamientoEnviado');
-  // El asesor "ganó" el contacto solo si hay evidencia real: acompañamiento enviado o status movido por él.
-  const contactoHecho = fcSent(enviado) || /seguimiento|contactad|calific|en\s*proceso|cita|visita|oferta|apartad/i.test(status);
+  const ultima=fcVal(c,'Última interacción','Ultima interaccion','ultimaInteraccion');
+  const visita=fcVal(c,'Visita Realizada','Visita realizada','visitaRealizada');
   // Estados explícitos primero (no se infieren del puntaje de la IA).
-  if(status.includes('apartado') || status.includes('cliente activo')) return 'apartado';
-  if(status.includes('cerrado') || status.includes('perdido') || status.includes('frío') || status.includes('frio') || clasif==='cold') return 'frio';
-  // Compuerta de contacto: nada avanza hasta que el asesor escribió. La IA no salta este paso.
+  if(conversion.includes('apartado') || status.includes('apartado') || status.includes('cliente activo')) return 'apartado';
+  if(conversion.includes('no calific') || status.includes('cerrado') || status.includes('perdido') || status.includes('frío') || status.includes('frio') || clasif==='cold') return 'frio';
+  // Compuerta de contacto: nada avanza hasta que el asesor escribió. Lo enciende el primer WhatsApp (invitar a la visita), no el crédito.
+  const contactoHecho = fcSent(ultima) || fcSent(enviado) || /seguimiento|contactad|calific|en\s*proceso|cita|visita|oferta|apartad/i.test(status);
   if(!contactoHecho) return 'nuevo';
-  // Ya contactado: pasa a cita si hay propiedad e intención clara; si no, sigue en calificación.
-  if(fcIsPropertyDefined(propiedad) && (clasif==='hot' || decision>=8)) return 'cita';
-  return 'calificacion';
+  // Primero la visita; la Calificación (crédito/viabilidad) entra DESPUÉS de que el comprador ya conoció la casa. Señal única e inequívoca: el check 'Visita Realizada'.
+  if(fcSent(visita)) return 'calificacion';
+  return 'cita';
 }
 function fcRielHTML(stateKey){
-  const idxMap={nuevo:0,calificacion:1,cita:2,apartado:3,frio:1};
+  const idxMap={nuevo:0,cita:1,calificacion:2,apartado:3,frio:1};
   const idx=idxMap[stateKey] ?? 0;
   return FC_RIEL.map(function(p,i){
     const cls=i<idx?'done':(i===idx?'cur':'');
@@ -3277,7 +3276,7 @@ function fcPanelHTML(stateKey,c,key,opts){
     return `<div class="fc-riel-msg"><strong>Apartado detectado.</strong> El comprador pasa al proceso de operación desde Propiedades. Esta ficha queda como origen del lead.</div><div class="fc-riel-acts"><button class="fc-riel-btn ghost" data-action="editar-registro" data-folio="${f}">Editar registro</button></div><div class="fc-riel-status">El portal del cliente nace en Propiedades, no desde aquí.</div>`;
   }
   if(stateKey==='cita'){
-    return `<div class="fc-riel-msg"><strong>Siguiente: llevar a visita.</strong> Calificado y con interés claro. La visita debe terminar en una de cuatro: descarta, le interesa, oferta o siguiente paso. No visitas turísticas.</div><div class="fc-riel-acts"><button class="fc-riel-btn" data-action="agendar-visita" data-folio="${f}">Confirmar cita</button>${waOk?`<button class="fc-riel-btn ghost" data-action="whatsapp-lead-comprador" data-folio="${f}">WhatsApp</button>`:''}</div>`;
+    return `<div class="fc-riel-msg"><strong>Siguiente: llevar a la visita.</strong> Que conozca y sienta la propiedad. La visita debe terminar en una de cuatro: descarta, le interesa, oferta o siguiente paso. No visitas turísticas.</div><div class="fc-riel-acts"><button class="fc-riel-btn" data-action="agendar-visita" data-folio="${f}">Confirmar cita</button><button class="fc-riel-btn" data-action="marcar-visita-realizada" data-folio="${f}">Visita realizada</button>${waOk?`<button class="fc-riel-btn ghost" data-action="whatsapp-lead-comprador" data-folio="${f}">WhatsApp</button>`:''}</div>`;
   }
   if(stateKey==='calificacion'){
     const ruta=fcVal(c,'Ruta de crédito','Ruta de credito','rutaCredito','Método / Crédito','Metodo / Credito','credito');
@@ -3285,9 +3284,9 @@ function fcPanelHTML(stateKey,c,key,opts){
     const golden = acompPend
       ? `<button class="fc-riel-btn" data-action="enviar-acompanamiento" data-folio="${f}">Calificar · enviar acompañamiento</button>`
       : `<button class="fc-riel-btn" data-action="editar-registro" data-folio="${f}">Registrar forma de pago</button>`;
-    return `<div class="fc-riel-msg"><strong>Ahora: calificar.</strong> ${rutaTxt}Confirma forma de pago antes de negociar: recurso propio comprobable, bancario preautorizado o Infonavit precalificado.</div><div class="fc-riel-acts">${golden}${waOk?`<button class="fc-riel-btn ghost" data-action="whatsapp-lead-comprador" data-folio="${f}">WhatsApp</button>`:''}</div>`;
+    return `<div class="fc-riel-msg"><strong>Ya visitó. Ahora: calificar y abrir la viabilidad.</strong> ${rutaTxt}Con la experiencia de la visita fresca, confirma forma de pago y comparte el acompañamiento: recurso propio comprobable, bancario preautorizado o Infonavit precalificado.</div><div class="fc-riel-acts">${golden}${waOk?`<button class="fc-riel-btn ghost" data-action="whatsapp-lead-comprador" data-folio="${f}">WhatsApp</button>`:''}</div>`;
   }
-  return `<div class="fc-riel-msg"><strong>Primero: contactar.</strong> Antes que nada, escríbele. Confirma que sigue buscando, su forma de pago y la propiedad de interés. No lo dejes como registro muerto.</div><div class="fc-riel-acts">${waOk?`<button class="fc-riel-btn" data-action="whatsapp-lead-comprador" data-folio="${f}">Contactar ahora · WhatsApp</button>`:`<button class="fc-riel-btn" data-action="editar-registro" data-folio="${f}">Capturar teléfono para contactar</button>`}</div>`;
+  return `<div class="fc-riel-msg"><strong>Primero: invitar a conocer la casa.</strong> Escríbele e invítalo a la visita; el mensaje sugerido ya va listo. Aquí enciendes el seguimiento — el crédito viene después de que la conozca.</div><div class="fc-riel-acts">${waOk?`<button class="fc-riel-btn" data-action="whatsapp-lead-comprador" data-folio="${f}">Invitar a la visita · WhatsApp</button>`:`<button class="fc-riel-btn" data-action="editar-registro" data-folio="${f}">Capturar teléfono para contactar</button>`}</div>`;
 }
 /* ════════ Seguimiento del comprador · reloj 24h→72h→semanal, lo enciende el primer contacto (Acompañamiento enviado) ════════ */
 function fcSeguimientoState(c){
@@ -3309,7 +3308,7 @@ function fcSeguimientoMsg(c, ciclo){
   const propiedad=fcVal(c,'Propiedad de Interés','Propiedad de interés','propiedad');
   const conProp = propiedad ? ' de '+propiedad : '';
   let base;
-  if(ciclo<=0) base='Hola '+nombre+', ¿pudiste revisar la información'+conProp+' que te envié? Quedo al pendiente de cualquier duda.';
+  if(ciclo<=0) base='Hola '+nombre+', ¿viste mi mensaje'+conProp+'? Me encantaría coordinar la visita para que la conozcas en persona. ¿Qué día te queda mejor?';
   else if(ciclo===1) base='Hola '+nombre+', sigo al pendiente para ayudarte'+conProp+'. ¿Te late que agendemos una llamada rápida?';
   else base='Hola '+nombre+', ¿sigues en la búsqueda? Tengo esta y otras opciones que te pueden servir.';
   const ruta=String(fcVal(c,'Ruta de crédito','Ruta de credito','rutaCredito','credito')||'').toLowerCase();
@@ -3472,12 +3471,24 @@ function buscarComprador(folio,idx){
 function acompanamientoPendiente(acomp,enviado){
   return !!(acomp && acomp!=='Ninguno' && !fcSent(enviado));
 }
-function whatsappLeadComprador(folio){
+async function whatsappLeadComprador(folio){
   const c=buscarComprador(folio);
   if(!c){ mqNote('No encontré el comprador '+folio); return; }
   const href=fcWaHref(c, fcBuyerMsg(c));
   if(!href){ mqNote('Falta WhatsApp del comprador · '+folio); return; }
   window.open(href,'_blank','noopener');
+  // El primer contacto (invitar a la visita) enciende el reloj de seguimiento. Aquí nace el avance, no en el crédito.
+  if(!c.id || !leadCompCanUseAirtable()) return;
+  try{
+    const yaArranco = fcSent(fcVal(c,'Última interacción','Ultima interaccion','ultimaInteraccion')) || !!fcVal(c,'Próximo Seguimiento','proximoSeguimiento');
+    const hoy=new Date().toISOString().slice(0,10);
+    const fields={'Última interacción':hoy};
+    if(!yaArranco){ fields['Próximo Seguimiento']=new Date(Date.now()+24*3600*1000).toISOString(); fields['Ciclo Seguimiento']=0; }
+    await atFetch(`${LEAD_COMP_TABLE}/${c.id}`,{method:'PATCH',body:JSON.stringify({fields:fields,typecast:true})});
+    c.fields=c.fields||{};
+    Object.keys(fields).forEach(function(k){ c.fields[k]=fields[k]; });
+    if(!yaArranco){ mqNote('✓ Primer contacto registrado · reloj de seguimiento encendido (24 h)'); openFichaComp(fcLeadKey(c), COMPRADORES.indexOf(c)); renderCaptacion('comp'); }
+  }catch(e){ /* WhatsApp ya abrió; el registro es secundario */ }
 }
 function copiarMensajeComprador(folio){
   const c=buscarComprador(folio);
@@ -3504,13 +3515,11 @@ async function enviarAcompanamientoComprador(folio){
   }
   try{
     const enviadoIso=new Date().toISOString();
-    // El primer contacto enciende el reloj de seguimiento: próximo recordatorio en 24 h, ciclo 0. De aquí lo avanza el botón de seguimiento.
-    const proxIso=new Date(Date.now()+24*3600*1000).toISOString();
-    await atFetch(`${LEAD_COMP_TABLE}/${c.id}`,{method:'PATCH',body:JSON.stringify({fields:{'Acompañamiento enviado':enviadoIso,'Próximo Seguimiento':proxIso,'Ciclo Seguimiento':0},typecast:true})});
+    // El reloj ya corre desde el primer contacto; el acompañamiento (crédito) solo deja su huella, no reinicia el ciclo.
+    await atFetch(`${LEAD_COMP_TABLE}/${c.id}`,{method:'PATCH',body:JSON.stringify({fields:{'Acompañamiento enviado':enviadoIso,'Última interacción':enviadoIso.slice(0,10)},typecast:true})});
     c.fields=c.fields||{};
     c.fields['Acompañamiento enviado']=enviadoIso;
-    c.fields['Próximo Seguimiento']=proxIso;
-    c.fields['Ciclo Seguimiento']=0;
+    c.fields['Última interacción']=enviadoIso.slice(0,10);
     fcSetSent(c,enviadoIso);
     document.querySelectorAll('#fichaCompModal [data-action="enviar-acompanamiento"]').forEach(function(btn){ btn.textContent='Acompañamiento enviado'; btn.disabled=true; });
     mqNote('✓ Acompañamiento marcado como enviado');
@@ -3540,6 +3549,24 @@ function agendarVisitaComprador(folio){
   const fields = LEAD_COMP_CITA_EDITABLE.map(meta=>leadCompEditInput(meta, {})).join('');
   document.getElementById('leadCompCitaFields').innerHTML=inherited+fields;
   document.getElementById('leadCompCitaModal').classList.add('open');
+}
+async function marcarVisitaRealizada(folio){
+  const c=buscarComprador(folio);
+  if(!c){ mqNote('No encontré el comprador '+folio); return; }
+  if(typeof leadCompRequireSession==='function' && !leadCompRequireSession()) return;
+  if(!c.id || !leadCompCanUseAirtable()){ mqNote('Inicia sesión para marcar la visita.'); return; }
+  try{
+    const hoy=new Date().toISOString().slice(0,10);
+    await atFetch(`${LEAD_COMP_TABLE}/${c.id}`,{method:'PATCH',body:JSON.stringify({fields:{'Visita Realizada':true,'Última interacción':hoy},typecast:true})});
+    c.fields=c.fields||{};
+    c.fields['Visita Realizada']=true;
+    c.fields['Última interacción']=hoy;
+    mqNote('✓ Visita realizada · ahora toca calificar y abrir la viabilidad');
+    openFichaComp(fcLeadKey(c), COMPRADORES.indexOf(c));
+    renderCaptacion('comp');
+  }catch(e){
+    mqNote('No se pudo marcar la visita: '+(e.message||e));
+  }
 }
 function editarRegistroComprador(folio){
   const c=buscarComprador(folio);
@@ -3656,6 +3683,7 @@ document.addEventListener('click', function(e){
   if(action==='copiar-mensaje-sugerido'){ copiarMensajeComprador(folio); return; }
   if(action==='enviar-acompanamiento'){ enviarAcompanamientoComprador(folio); return; }
   if(action==='agendar-visita'){ agendarVisitaComprador(folio); return; }
+  if(action==='marcar-visita-realizada'){ marcarVisitaRealizada(folio); return; }
   if(action==='editar-registro'){ editarRegistroComprador(folio); return; }
   if(action==='seguimiento-comprador'){ seguimientoComprador(folio); return; }
 });
@@ -5487,31 +5515,42 @@ window.cabEnviarPortalVenta=cabEnviarPortalVenta;
     return lineas.join('\n');
   }
 
-  /* ── Llamada a la API de Claude con web_search habilitado (Capa 2) ── */
-  async function pmktCallClaude(prompt) {
-    var res = await fetch('https://api.anthropic.com/v1/messages', {
+  /* ── Estudio de mercado vía Make (lado servidor) ──
+        La llave de IA vive en Make, nunca en el navegador (por eso ya no se llama a
+        la API de Claude desde el front: eso solo funcionaba dentro de Claude.ai). La
+        ficha solo manda el id de la propiedad; Make corre el análisis, escribe los 10 campos
+        en la propiedad y devuelve los 11 valores separados por ||| para pintar aquí.
+        Webhook externo de Make (no es dominio propio): fijo a propósito. */
+  var PMKT_ESTUDIO_WEBHOOK = 'https://hook.us2.make.com/yquo4e968n368cq5ydeit88f6xk8q0wq';
+  async function pmktCallEstudio(recId, folio) {
+    if (!recId) throw new Error('Falta el identificador de la propiedad.');
+    var res = await fetch(PMKT_ESTUDIO_WEBHOOK, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 2000,
-        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
-        messages: [{ role: 'user', content: prompt }]
-      })
+      body: JSON.stringify({ recId: recId, folio: folio || '' })
     });
-    var data = await res.json();
-    if (!res.ok) throw new Error((data && data.error && data.error.message) || ('HTTP ' + res.status));
+    if (!res.ok) throw new Error('El estudio no respondió (HTTP ' + res.status + '). Intenta de nuevo.');
 
-    /* Recolectar todo el texto de los bloques content (puede haber tool_use + text) */
-    var text = (data.content || [])
-      .map(function(b){ return b.type === 'text' ? b.text : ''; })
-      .join('');
+    var raw = (await res.text()).trim();
+    if (!raw) throw new Error('El estudio regresó vacío. Intenta de nuevo.');
 
-    /* Limpiar posibles backticks o prefijos de markdown */
-    text = text.replace(/```json|```/g, '').trim();
-    var match = text.match(/\{[\s\S]*\}/);
-    if (!match) throw new Error('La IA no devolvió JSON válido. Intenta de nuevo.');
-    return JSON.parse(match[0]);
+    var p = raw.split('|||');
+    if (p.length < 11) throw new Error('El estudio regresó incompleto. Intenta de nuevo.');
+
+    var norm = function (s) { return String(s == null ? '' : s).trim(); };
+    return {
+      precio_minimo_viable:    norm(p[0]),
+      precio_optimo_salida:    norm(p[1]),
+      precio_aspiracional:     norm(p[2]),
+      comparables_encontrados: norm(p[3]),
+      argumento_precio:        norm(p[4]),
+      entorno_ubicacion:       norm(p[5]),
+      comprabilidad_contado:   norm(p[6]),
+      comprabilidad_bancario:  norm(p[7]),
+      comprabilidad_infonavit: norm(p[8]),
+      nivel_alerta:            norm(p[9]),
+      siguiente_jugada:        norm(p[10])
+    };
   }
 
   /* ── Persistir el estudio en la propiedad: deja de evaporarse y queda disponible
@@ -5666,12 +5705,13 @@ window.cabEnviarPortalVenta=cabEnviarPortalVenta;
     body.innerHTML = '<div class="pmkt-loading">Buscando comparables en portales y generando análisis…</div>';
     if (chip) chip.textContent = 'Analizando…';
 
-    var prompt = pmktBuildPrompt(folio, rec, prop);
+    var recId = (prop && prop._recId) || '';
 
     try {
-      var result = await pmktCallClaude(prompt);
+      /* Make corre el análisis del lado servidor y persiste los 10 campos;
+         aquí solo pintamos lo que devolvió. */
+      var result = await pmktCallEstudio(recId, folio);
       if (folio) PMKT_CACHE[folio] = result;
-      pmktSaveToProperty(prop, result);
       pmktRenderResult(body, result, folio);
       if (chip) chip.textContent = 'Análisis listo';
     } catch (e) {
