@@ -5440,6 +5440,9 @@ window.cabEnviarPortalVenta=cabEnviarPortalVenta;
       'Busca: "' + (tipo||'casa') + ' en venta ' + ubicacion + ' ' + (mConst ? mConst + ' m2' : '') + '"',
       'También busca: "precio ' + (tipo||'casa') + ' ' + (zona||municipio||'') + ' ' + (entidad||'') + '"',
       '',
+      'PASO 1B: Investiga también el ENTORNO de la ubicación, para defender la propiedad por lo que tiene cerca y no solo por metro cuadrado.',
+      'Busca: "qué hay cerca de ' + (ubicacion || (zona||municipio||'')) + ' supermercado plaza comercial escuelas transporte público"',
+      '',
       'PASO 2: Con los comparables encontrados y los datos de la propiedad, devuelve ÚNICAMENTE un objeto JSON válido.',
       'No incluyas texto adicional, ni markdown, ni explicaciones fuera del JSON.',
       '',
@@ -5472,6 +5475,7 @@ window.cabEnviarPortalVenta=cabEnviarPortalVenta;
       '  "comparables_encontrados": "resumen de 1-2 oraciones de precios reales encontrados en portales, o Sin comparables encontrados si no hubo resultados",',
       '  "riesgo_precio_emocional": true o false,',
       '  "argumento_precio": "1-2 oraciones con la brecha o confirmación, citando comparables si los hay",',
+      '  "entorno_ubicacion": "2-3 oraciones nombrando lo cercano y útil para vivir ahí: supermercado/tiendas, plaza comercial, transporte y rutas, escuelas. Concreto y con nombres si los hay. Arma al asesor en la visita.",',
       '  "comprabilidad_contado": "viable / probable / poco probable",',
       '  "comprabilidad_bancario": "viable / probable / poco probable",',
       '  "comprabilidad_infonavit": "viable / probable / no aplica",',
@@ -5508,6 +5512,45 @@ window.cabEnviarPortalVenta=cabEnviarPortalVenta;
     var match = text.match(/\{[\s\S]*\}/);
     if (!match) throw new Error('La IA no devolvió JSON válido. Intenta de nuevo.');
     return JSON.parse(match[0]);
+  }
+
+  /* ── Persistir el estudio en la propiedad: deja de evaporarse y queda disponible
+        para el flujo del comprador. Defensivo: si algo falla, el estudio igual se
+        muestra en pantalla; nunca rompe el render. ── */
+  function pmktNum(v) {
+    var n = Number(String(v == null ? '' : v).replace(/[^0-9.]/g, ''));
+    return (n && !isNaN(n)) ? n : null;
+  }
+  function pmktComprabilidad(v) {
+    var s = String(v == null ? '' : v).toLowerCase();
+    if (s.indexOf('poco') > -1) return 'Poco probable';
+    if (s.indexOf('no aplica') > -1) return 'No aplica';
+    if (s.indexOf('viable') > -1) return 'Viable';
+    if (s.indexOf('probable') > -1) return 'Probable';
+    return null;
+  }
+  function pmktSaveToProperty(prop, result) {
+    try {
+      var recId = (prop && prop._recId) || '';
+      var send = (typeof atFetch === 'function') ? atFetch
+               : (typeof window !== 'undefined' && typeof window.atFetch === 'function') ? window.atFetch
+               : null;
+      if (!recId || !result || !send) return;
+      var f = {};
+      if (result.argumento_precio)        f['Argumento de Precio']     = String(result.argumento_precio);
+      if (result.comparables_encontrados) f['Comparables de Mercado']  = String(result.comparables_encontrados);
+      if (result.entorno_ubicacion)       f['Entorno y Ubicación']     = String(result.entorno_ubicacion);
+      var pmv = pmktNum(result.precio_minimo_viable); if (pmv != null) f['Precio Mínimo Viable']   = pmv;
+      var pos = pmktNum(result.precio_optimo_salida); if (pos != null) f['Precio Óptimo de Salida'] = pos;
+      var pas = pmktNum(result.precio_aspiracional);  if (pas != null) f['Precio Aspiracional']     = pas;
+      var cc = pmktComprabilidad(result.comprabilidad_contado);   if (cc) f['Comprabilidad Contado']   = cc;
+      var cb = pmktComprabilidad(result.comprabilidad_bancario);  if (cb) f['Comprabilidad Bancario']  = cb;
+      var ci = pmktComprabilidad(result.comprabilidad_infonavit); if (ci) f['Comprabilidad Infonavit'] = ci;
+      f['Fecha del Estudio'] = new Date().toISOString().slice(0, 10);
+      if (!Object.keys(f).length) return;
+      send('tblmco2JyXRiZGhaY/' + recId, { method: 'PATCH', body: JSON.stringify({ fields: f, typecast: true }) })
+        .catch(function () { /* silencioso: el estudio igual se ve en pantalla */ });
+    } catch (e) { /* no-op: nunca romper el render del estudio */ }
   }
 
   /* ── Renderizar el resultado dentro del panel ── */
@@ -5628,6 +5671,7 @@ window.cabEnviarPortalVenta=cabEnviarPortalVenta;
     try {
       var result = await pmktCallClaude(prompt);
       if (folio) PMKT_CACHE[folio] = result;
+      pmktSaveToProperty(prop, result);
       pmktRenderResult(body, result, folio);
       if (chip) chip.textContent = 'Análisis listo';
     } catch (e) {
