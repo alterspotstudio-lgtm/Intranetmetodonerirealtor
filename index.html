@@ -423,28 +423,51 @@ a.owner-wa-link:hover{opacity:.75}
 
 /* ══════════════════════════════════════════
    VISTA PROPIEDADES · medallón + leads de la propiedad
-   Base = móvil: 1 columna (medallón arriba, sus leads debajo).
-   ≥1100px = 2 columnas (main izq · leads der). Stage apilado (medallón arriba, cards abajo).
-   ≥1360px = stage horizontal (propietario · medallón · comprador) con más espacio.
+   Base = móvil: 1 columna (medallón arriba, leads debajo).
+   ≥1100px = main izq · leads der (260px). Stage SIEMPRE horizontal.
    En vistas CRM el carril se oculta y la tabla usa todo el ancho.
 ══════════════════════════════════════════ */
 .work{display:grid;grid-template-columns:1fr;gap:18px;align-items:start;margin-bottom:24px}
 .work-main{min-width:0;order:0}
-.work-side{min-width:0;order:1}                       /* móvil: leads debajo del medallón */
-.work:not(.view-prop) .work-side{display:none}        /* leads solo en Propiedades */
+.work-side{min-width:0;order:1}
+.work:not(.view-prop) .work-side{display:none}
 @media(min-width:1100px){
-  .work.view-prop{grid-template-columns:1fr 290px}
-  /* stage apilado: medallón arriba, propietario + comprador debajo */
-  .work.view-prop .work-main .stage{grid-template-columns:1fr 1fr;gap:14px}
-  .work.view-prop .work-main .stage .med-wrap{grid-column:1/-1;order:-1;margin-bottom:8px;display:flex;justify-content:center}
-}
-@media(min-width:1360px){
-  /* stage horizontal: propietario · medallón · comprador en fila */
-  .work.view-prop .work-main .stage{grid-template-columns:1fr 280px 1fr;gap:16px;align-items:start}
-  .work.view-prop .work-main .stage .med-wrap{grid-column:auto;order:0;margin-bottom:0;justify-content:center}
+  .work.view-prop{grid-template-columns:1fr 260px}
+  /* stage SIEMPRE horizontal: propietario · medallón · comprador en fila */
+  /* No hay override apilado — el stage base 1fr 280px 1fr se usa tal cual */
 }
 
-/* #3 — riel y siguiente paso con más jerarquía (el medallón no los opaca) */
+/* ── ACTIVIDAD — semáforo de vida en lista de propiedades ── */
+/* Activo: se movió ≤14 días */
+.pi.st-active .pi-dot{background:var(--emerald)!important;animation:propActivePulse 2.4s ease-in-out infinite}
+.pi.st-active .pi-badge{color:var(--emerald)!important}
+.pi.st-active.sel{background:rgba(70,208,110,.06)!important}
+.pi.st-active.sel::before{background:var(--emerald)!important;opacity:1}
+@keyframes propActivePulse{0%,100%{box-shadow:0 0 0 2px rgba(70,208,110,.3)}50%{box-shadow:0 0 0 6px rgba(70,208,110,.08)}}
+
+/* Lento: 15–30 días sin movimiento */
+.pi.st-slow .pi-dot{background:var(--amber)!important;box-shadow:0 0 0 3px rgba(224,162,78,.25)!important}
+.pi.st-slow .pi-badge{color:var(--amber)!important}
+.pi.st-slow.sel{background:rgba(224,162,78,.05)!important}
+.pi.st-slow.sel::before{background:var(--amber)!important;opacity:1}
+
+/* Alerta: superó los 30 días sin movimiento o >90 días de contrato */
+.pi.st-alert .pi-dot{background:var(--rose)!important;animation:propAlertPulse 1.4s ease-in-out infinite}
+.pi.st-alert .pi-badge{color:var(--rose)!important;font-size:9px}
+.pi.st-alert.sel{background:rgba(224,111,138,.05)!important}
+.pi.st-alert.sel::before{background:var(--rose)!important;opacity:1}
+@keyframes propAlertPulse{0%,100%{box-shadow:0 0 0 2px rgba(224,111,138,.4)}50%{box-shadow:0 0 0 7px rgba(224,111,138,.08)}}
+
+/* Mini badge de días — en la lista */
+.pi-days{font-family:var(--fm);font-size:7.5px;letter-spacing:.4px;color:var(--w22);margin-top:2px;display:block}
+.pi.st-slow .pi-days{color:rgba(224,162,78,.6)}
+.pi.st-alert .pi-days{color:rgba(224,111,138,.7)}
+.pi.st-active .pi-days{color:rgba(70,208,110,.55)}
+
+/* Medallón: porcentaje coloreado por estado de actividad */
+.med[data-status="active"] .mc-pct{background:linear-gradient(180deg,#b8ffcc 0%,#46D06E 40%,#2aab52 100%)!important;-webkit-background-clip:text!important;background-clip:text!important}
+.med[data-status="slow"] .mc-pct{background:linear-gradient(180deg,#ffe0a0 0%,#E0A24E 40%,#b07c2a 100%)!important;-webkit-background-clip:text!important;background-clip:text!important}
+.med[data-status="alert"] .mc-pct{background:linear-gradient(180deg,#ffc0cc 0%,#E06F8A 40%,#b04060 100%)!important;-webkit-background-clip:text!important;background-clip:text!important}
 .work-main .rail{margin-top:28px}
 .work-main .act{margin-top:24px;border-color:rgba(198,168,107,.22)}
 .work-main .act-ey{font-size:8px;letter-spacing:4px}
@@ -1880,6 +1903,12 @@ function renderProp(p){
   document.getElementById('actUnlock').innerHTML=IC.lockOpen+`Al completar se abre: <b style="color:rgba(${rgb},.95);font-weight:600;margin-left:2px">${p.act.unlock}</b>`;
   renderParties(p);
   if(typeof renderLeadsProp==='function') renderLeadsProp(p);
+  // Aplicar status de actividad al medallón
+  const medEl=document.querySelector('.med');
+  if(medEl && typeof propActivityStatus==='function'){
+    const st=propActivityStatus(p);
+    medEl.dataset.status=st;
+  }
   propDocsCheck(p);
 }
 
@@ -1906,18 +1935,30 @@ function buildPropList(){
   PROPS.forEach((p,i)=>{
     const stage=STAGES[Math.max(0,Math.min(N-1,Number(p.active)||0))]||STAGES[0];
     const acc=ACCENT[stage.accent]||ACCENT.gold;
+    const status=typeof propActivityStatus==='function'?propActivityStatus(p):'active';
+    const diasLbl=typeof propActivityDiasLabel==='function'?propActivityDiasLabel(p):'';
     const el=document.createElement('div');
-    el.className='pi'+(i===selectedIndex?' sel':'');
+    el.className='pi'+(i===selectedIndex?' sel':'')+' st-'+status;
     el.dataset.recId=p._recId||'';
     el.dataset.folio=p.folio||'';
-    el.innerHTML=`<div class="pi-dot" style="background:${acc};box-shadow:0 0 0 3px ${acc}22"></div>
-      <div class="pi-meta"><div class="pi-name">${_esc(p.name||'Propiedad sin nombre')}</div><div class="pi-folio">${_esc(p.folio||'— sin folio —')}</div></div>
-      <div class="pi-badge" style="color:${acc}">${Number(p.pct||0)}%</div>`;
-    el.onclick=()=>{
-      document.querySelectorAll('#lst-prop .pi').forEach(x=>{x.className='pi';});
-      el.className='pi sel';
-      renderProp(p);
-    };
+    el.innerHTML=`<div class="pi-dot"></div>
+      <div class="pi-meta">
+        <div class="pi-name">${_esc(p.name||'Propiedad sin nombre')}</div>
+        <div class="pi-folio">${_esc(p.folio||'— sin folio —')}</div>
+        ${diasLbl?`<span class="pi-days">${_esc(diasLbl)}</span>`:''}
+      </div>
+      <div class="pi-badge">${Number(p.pct||0)}%</div>`;
+    el.onclick=(function(prop, st){
+      return function(){
+        document.querySelectorAll('#lst-prop .pi').forEach(function(x){
+          // restaurar clase sin 'sel' pero manteniendo su status
+          const prevSt=x.className.match(/st-(\w+)/);
+          x.className='pi'+(prevSt?' st-'+prevSt[1]:'');
+        });
+        el.className='pi sel st-'+st;
+        renderProp(prop);
+      };
+    })(p, status);
     lst.appendChild(el);
   });
   const c=document.getElementById('vcount-prop'); if(c)c.textContent=PROPS.length;
@@ -4681,6 +4722,50 @@ function propMapRecord(rec){
     }
   };
 }
+/* ── Actividad de la propiedad: verde / ámbar / rojo ─────────────────
+   Usa "Fecha Inicio Fase" para medir días sin movimiento.
+   Usa createdTime del record como inicio de operación (contrato de exclusiva).
+   Thresholds: activo ≤14 días, lento 15-30, alerta >30 o >90 en total.
+──────────────────────────────────────────────────────────────────── */
+function propActivityStatus(p){
+  if(!p) return 'active';
+  const rec=p._rawRec;
+  const now=Date.now();
+  const msDay=86400000;
+  const EXCL_DIAS=90; // días de contrato exclusiva típico
+  const SLOW_DIAS=15; // días sin movimiento → ámbar
+  const ALERT_DIAS=30; // días sin movimiento → rojo (antes de vencer contrato)
+
+  // Días desde el último cambio de fase
+  const fechaFaseRaw=rec&&(propFirst(rec,['Fecha Inicio Fase','Fecha Cambio Fase','Fecha Actualización','Última Actualización','Fecha de Actualización'])||rec.createdTime||'');
+  let diasSinMov=999;
+  if(fechaFaseRaw){const ms=Date.parse(fechaFaseRaw);if(!isNaN(ms))diasSinMov=Math.floor((now-ms)/msDay);}
+
+  // Días totales en operación desde creación del record
+  const createdRaw=rec&&(rec.createdTime||propFirst(rec,['Fecha de Alta','Fecha de Ingreso','Fecha Alta'])||'');
+  let diasEnOp=0;
+  if(createdRaw){const ms=Date.parse(createdRaw);if(!isNaN(ms))diasEnOp=Math.floor((now-ms)/msDay);}
+
+  if(diasEnOp>EXCL_DIAS || diasSinMov>ALERT_DIAS) return 'alert';
+  if(diasSinMov>=SLOW_DIAS) return 'slow';
+  return 'active';
+}
+
+function propActivityDiasLabel(p){
+  if(!p||!p._rawRec) return '';
+  const rec=p._rawRec;
+  const now=Date.now();
+  const msDay=86400000;
+  const fechaFaseRaw=propFirst(rec,['Fecha Inicio Fase','Fecha Cambio Fase','Fecha Actualización','Fecha de Actualización'])||rec.createdTime||'';
+  if(!fechaFaseRaw) return '';
+  const ms=Date.parse(fechaFaseRaw);
+  if(isNaN(ms)) return '';
+  const dias=Math.floor((now-ms)/msDay);
+  if(dias===0) return 'Hoy';
+  if(dias===1) return 'Ayer';
+  return dias+'d sin mov.';
+}
+
 function expIsClosedRecord(rec){
   const estado=String(_fval(rec,'Estado Propiedad')||'').trim().toLowerCase();
   return estado==='vendida' || estado==='vendido' || estado==='completado' || estado==='completada';
