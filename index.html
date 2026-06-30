@@ -204,15 +204,15 @@ body{min-height:100vh;display:flex;justify-content:center;padding:22px 20px 60px
 /* ── ESCENARIO: propietario · propiedad · comprador ── */
 .stage{display:grid;grid-template-columns:1fr 280px 1fr;gap:14px;align-items:center;position:relative;z-index:2;margin:14px 0 6px}
 .stage .med-wrap{margin:0}
-.party{position:relative;border:1px solid var(--w08);border-radius:3px;background:var(--black2);padding:14px 14px 14px 16px;overflow:hidden;min-height:130px}
+.party{position:relative;border:1px solid var(--w08);border-radius:3px;background:var(--black2);padding:11px 11px 11px 14px;overflow:hidden;min-height:0}
 .party-bar{position:absolute;left:0;top:0;bottom:0;width:3px}
-.party-ey{font-size:7px;letter-spacing:2.5px;text-transform:uppercase;font-weight:600;display:flex;align-items:center;gap:7px;margin-bottom:8px;color:var(--w60)}
-.party-ey .pd{width:4px;height:4px;border-radius:50%;flex-shrink:0}
-.party-name{font-family:var(--fd);font-size:17px;letter-spacing:1px;color:#fff;line-height:1.05}
-.party-tag{display:inline-block;font-family:var(--fm);font-size:8px;letter-spacing:.5px;padding:4px 9px;border:1px solid var(--w08);border-radius:2px;margin-top:8px}
-.party-note{font-size:10px;color:var(--w35);line-height:1.5;margin-top:8px}
-.party.empty{border-style:dashed;background:transparent;min-height:130px}
-.party-empty{font-family:var(--fe);font-style:italic;font-size:12px;color:var(--w35);margin-top:4px;line-height:1.5}
+.party-ey{font-size:6.5px;letter-spacing:2px;text-transform:uppercase;font-weight:600;display:flex;align-items:center;gap:6px;margin-bottom:6px;color:var(--w60)}
+.party-ey .pd{width:3px;height:3px;border-radius:50%;flex-shrink:0}
+.party-name{font-family:var(--fd);font-size:15px;letter-spacing:1px;color:#fff;line-height:1.05}
+.party-tag{display:inline-block;font-family:var(--fm);font-size:7px;letter-spacing:.4px;padding:2px 7px;border:1px solid var(--w08);border-radius:2px;margin-top:6px;opacity:.75}
+.party-note{font-size:9px;color:var(--w35);line-height:1.5;margin-top:6px}
+.party.empty{border-style:dashed;background:transparent;min-height:0}
+.party-empty{font-family:var(--fe);font-style:italic;font-size:11px;color:var(--w35);margin-top:3px;line-height:1.45}
 @media(max-width:880px){
   .stage{grid-template-columns:1fr;gap:14px}
   .med-wrap{order:-1}
@@ -339,6 +339,9 @@ body{min-height:100vh;display:flex;justify-content:center;padding:22px 20px 60px
 .crm-body button.wa-chip:hover{background:rgba(74,222,128,.16);border-color:rgba(74,222,128,.45)}
 a.owner-wa-link{color:var(--steel);text-decoration:none;font-weight:600;transition:opacity .15s}
 a.owner-wa-link:hover{opacity:.75}
+/* WhatsApp dentro de party — versión compacta, discreta */
+.party .fv-wa-btn{font-size:7px;letter-spacing:1px;padding:3px 8px;border-radius:2px;margin-top:6px;opacity:.8}
+.party .fv-wa-btn:hover{opacity:1;transform:translateY(-1px)}
 
 .crm-body .crm-search{flex:1;max-width:340px;display:flex;align-items:center;gap:9px;background:var(--black2);border:1px solid var(--w08);border-radius:2px;padding:9px 13px;transition:.15s}
 .crm-body .crm-search:focus-within{border-color:var(--gb2)}
@@ -4529,13 +4532,13 @@ function renderParties(p){
   var sage='#4ade80', sageRgb='74,222,128';
   var steel='#6FA8E0', steelRgb='111,168,224';
   var v=p.vend||{};
-  var wa=v.whatsapp?`<a class="fv-wa-btn" href="${_escAttr(v.whatsapp)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">↗ WhatsApp</a>`:'';
+  var wa=v.whatsapp?`<a class="fv-wa-btn" href="${_escAttr(v.whatsapp)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">↗ Contactar</a>`:'';
   document.getElementById('partyVend').innerHTML=
     '<div class="party-bar" style="background:'+sage+'"></div>'+ 
     '<div class="party-ey" style="color:'+sage+'"><span class="pd" style="background:'+sage+'"></span>Propietario</div>'+ 
     '<div class="party-name">'+_esc(v.name||'—')+'</div>'+ 
-    (v.estado?'<div class="party-tag" style="border-color:rgba('+sageRgb+',.3);color:'+sage+'">'+_esc(v.estado)+'</div>':'')+ 
-    (wa?'<div style="margin-top:10px">'+wa+'</div>':'')+
+    (v.estado?'<div class="party-tag" style="border-color:rgba('+sageRgb+',.25);color:'+sage+'">'+_esc(v.estado)+'</div>':'')+ 
+    (wa?'<div>'+wa+'</div>':'')+
     (v.nota?'<div class="party-note">'+_esc(v.nota)+'</div>':'');
   var box=document.getElementById('partyComp');
   var c=p.comp;
@@ -4544,16 +4547,16 @@ function renderParties(p){
     var tag=_esc(c.credito||'')+(c.temp?' · '+_esc(c.temp):'');
     box.innerHTML=
       '<div class="party-bar" style="background:'+steel+'"></div>'+ 
-      '<div class="party-ey" style="color:'+steel+'"><span class="pd" style="background:'+steel+'"></span>Comprador · Cliente</div>'+ 
+      '<div class="party-ey" style="color:'+steel+'"><span class="pd" style="background:'+steel+'"></span>Comprador</div>'+ 
       '<div class="party-name">'+_esc(c.name||'—')+'</div>'+ 
-      (tag.trim()?'<div class="party-tag" style="border-color:rgba('+steelRgb+',.3);color:'+steel+'">'+tag+'</div>':'')+ 
+      (tag.trim()?'<div class="party-tag" style="border-color:rgba('+steelRgb+',.25);color:'+steel+'">'+tag+'</div>':'')+ 
       (c.nota?'<div class="party-note">'+_esc(c.nota)+'</div>':'');
   }else{
     box.className='party party-comp empty';
     box.innerHTML=
       '<div class="party-ey" style="color:var(--w22)"><span class="pd" style="background:var(--w22)"></span>Comprador</div>'+ 
-      '<div class="party-empty">Aún sin comprador apartado</div>'+ 
-      '<div class="party-note">Cuando un comprador dé apartado, se vuelve cliente y aparece aquí.</div>';
+      '<div class="party-empty">Sin comprador apartado</div>'+ 
+      '<div class="party-note">Aparece aquí al dar apartado.</div>';
   }
 }
 
