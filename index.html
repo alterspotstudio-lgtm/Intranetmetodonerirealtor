@@ -2043,6 +2043,23 @@ async function propDocsCheck(p){
   let docs; try{ docs=await propDocsFetch(info.folio, info.token); }catch(_){ return; }  // falla en silencio
   info.docs=docs; propDocsCache[p._recId]=info;
   propDocsPaintAlert(p._recId, docs);
+  propDocsMaybeSetAction(p, docs);
+}
+/* Acción de oro: cuando el expediente tiene algo que revisar/validar, ESA es la
+   acción real — no "Activar portal" (ese link ya viajó dentro del portal).
+   Override con candados; no toca propActFromRecord ni la cadena del portal. */
+function propDocsMaybeSetAction(p, docs){
+  if(!p || propDocsActiveRecId!==p._recId) return;
+  const pend=propDocsCountPend(docs), faltan=propDocsGatePend(docs);
+  if(pend<=0 && faltan<=0) return;               // nada pendiente → no tocamos la acción
+  const t = pend>0 ? 'Revisar documentos del propietario' : 'Completar expediente documental';
+  const d = pend>0
+    ? 'El propietario subió '+pend+' documento'+(pend>1?'s':'')+'. Valídalos o recházalos antes de avanzar.'
+    : 'Faltan '+faltan+' documento'+(faltan>1?'s':'')+' mínimo'+(faltan>1?'s':'')+' para poder publicar. Revisa el expediente.';
+  const actT=document.getElementById('actT'); if(actT) actT.textContent=t;
+  const actD=document.getElementById('actD'); if(actD) actD.textContent=d;
+  const btn=document.getElementById('actBtn');
+  if(btn){ btn.innerHTML=(IC.file||IC.send)+'Revisar documentos'; btn.onclick=function(ev){ ev.preventDefault(); propDocsOpen(p._recId); }; }
 }
 async function propDocsOpen(recId){
   propDocsEnsureModal(); propDocsSetOpen(true); propDocsStatus('');
