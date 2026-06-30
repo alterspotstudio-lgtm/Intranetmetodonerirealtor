@@ -2535,11 +2535,33 @@ function renderLeadVendedoresError(msg){
   document.getElementById('crm-count-vend').innerHTML='<b>0</b> registros';
 }
 
+/* Blindaje de vista Lead Vendedores:
+   Un lead convertido NO se borra de Airtable; solo deja de mostrarse en Lead Vendedores.
+   La propiedad vive en Propiedades y el lead queda como respaldo/auditoría del origen. */
+function leadVendValorVerdadero(v){
+  if(v===true) return true;
+  if(v===1) return true;
+  const t=String(v==null?'':v).trim().toLowerCase();
+  return /^(true|1|si|sí|yes|✓|creada|created|propiedad creada)$/.test(t);
+}
+function leadVendEsConvertidoAPropiedad(raw){
+  const propCreada=fcVal(raw,'Propiedad Creada','Propiedad creada','propiedadCreada','Propiedad creada en sistema');
+  if(leadVendValorVerdadero(propCreada)) return true;
+  const estado=String(fcVal(raw,'Estado','estado')||'').toLowerCase();
+  const etapa=String(fcVal(raw,'Etapa','Estatus','Status')||'').toLowerCase();
+  const texto=[estado,etapa].join(' ');
+  return /propiedad|propiedades|cliente activo|operaci[oó]n/.test(texto);
+}
+function leadVendRegistrosVisibles(records){
+  return (records||[]).filter(function(raw){ return !leadVendEsConvertidoAPropiedad(raw); });
+}
+
 function renderCaptacion(tipo){
   if(tipo==='vend'){
     document.getElementById('crm-thead-vend').innerHTML='<tr>'+CAP_COLS.vend.map(c=>`<th>${c}</th>`).join('')+'</tr>';
     try{
-      const rows=VENDEDORES.map((raw,i)=>{
+      const vendedoresVisibles=leadVendRegistrosVisibles(VENDEDORES);
+      const rows=vendedoresVisibles.map((raw,i)=>{
         const v=leadVendNormalize(raw,i);
         const fiscal=(v.diagnosticoFiscal && /atenci/i.test(v.diagnosticoFiscal)) ? '<span class="chip fiscal"><span class="cd"></span>Atención</span>' : '';
         return `<tr onclick="abrirFichaCaptacion('vend','${fvEscape(v.folio)}')">
@@ -2554,14 +2576,16 @@ function renderCaptacion(tipo){
         </tr>`;
       }).join('');
       document.getElementById('crm-tbody-vend').innerHTML=rows || renderLeadVendedoresEmpty();
-      document.getElementById('crm-count-vend').innerHTML=`<b>${VENDEDORES.length}</b> registros`;
-      document.getElementById('vcount-vend').textContent=VENDEDORES.length;
-      const firmados=VENDEDORES.filter(raw=>/firma/i.test(fcVal(raw,'Conversión','conversion'))).length;
-      const enProp=VENDEDORES.filter(raw=>{ const est=(fcVal(raw,'Estado','estado')||'').toLowerCase(); return est.includes('propiedad')||est.includes('activ')||est.includes('operac'); }).length;
-      const sinAvanzar=firmados-enProp;
+      document.getElementById('crm-count-vend').innerHTML=`<b>${vendedoresVisibles.length}</b> registros`;
+      document.getElementById('vcount-vend').textContent=vendedoresVisibles.length;
+      const firmados=vendedoresVisibles.filter(raw=>/firma/i.test(fcVal(raw,'Conversión','conversion'))).length;
+      const convertidos=(VENDEDORES||[]).length-vendedoresVisibles.length;
+      const sinAvanzar=firmados;
       const bannerMsg=sinAvanzar>0
         ? `<b>${sinAvanzar} propietario${sinAvanzar===1?'':'s'} firmado${sinAvanzar===1?'':' s'} sin avanzar a Propiedades.</b> El expediente está listo — el proceso no puede continuar sin ese paso.`
-        : `<b>${firmados} propietario${firmados===1?'':'s'} firmado${firmados===1?'':' s'}.</b> Todos han avanzado a Propiedades NERI.`;
+        : (convertidos>0
+          ? `<b>${convertidos} propietario${convertidos===1?'':'s'} convertido${convertidos===1?'':'s'} a Propiedades.</b> Ya no aparece${convertidos===1?'':'n'} en Lead Vendedores; continúa el proceso desde Propiedades NERI.`
+          : `<b>${firmados} propietario${firmados===1?'':'s'} firmado${firmados===1?'':' s'}.</b> Todos los leads activos siguen pendientes de conversión.`);
       document.getElementById('vendBannerSlot').innerHTML=`<div class="crm-banner sage"><span class="bd"></span><span>${bannerMsg}</span><button class="bgo" onclick="event.stopPropagation();activarVertebra('prop')">Ver propiedades →</button></div>`;
     }catch(err){
       renderLeadVendedoresError(err && err.message ? err.message : '');
@@ -4517,7 +4541,7 @@ function reportesLocalData(){return{compradores:Array.isArray(COMPRADORES)?COMPR
 async function asesorLoadReportes(force=false){ if(_asesorReportsLoaded&&!force)return; _asesorReportsLoaded=true; const el=document.getElementById('asesor-reportes-nums'); if(!el)return; try{ const data=(typeof asesorLoadAll==='function')?await asesorLoadAll(force):reportesLocalData(); const citas=(data.citas||[]).filter(r=>['Pendiente','Confirmada','Reagendada'].includes(_fval(r,'Estado Cita'))).length; el.innerHTML=[[((data.compradores||[]).length+(data.vendedores||[]).length),'Leads / captaciones'],[citas,'Citas activas'],[(data.progreso||[]).length,'Operaciones en progreso'],[(data.propiedades||[]).length,'Propiedades asignadas']].map(n=>`<div class="fv-num"><div class="fv-num-val">${n[0]}</div><div class="fv-num-lbl">${n[1]}</div></div>`).join(''); }catch(e){ el.innerHTML=`<div class="hoy-empty err">No se pudieron cargar reportes: ${_esc(e.message)}</div>`; } }
 function openReportes(){ const modal=document.getElementById('reportesModal'); const body=document.getElementById('reportes-asesor-body'); if(body&&!body.dataset.ready){ body.innerHTML=buildAsesorReportesPanel(); body.dataset.ready='1'; } if(modal)modal.classList.add('open'); setTimeout(()=>asesorLoadReportes(false),60); }
 function closeReportes(){ const modal=document.getElementById('reportesModal'); if(modal)modal.classList.remove('open'); }
-document.addEventListener('keydown',e=>{ if(e.key==='Escape'){closePerfil();closeReportes();closeFichaProp(); if(typeof closeFichaVend==='function') closeFichaVend(); if(typeof closeFichaComp==='function') closeFichaComp();} });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){closePerfil();closeReportes(); if(typeof closeFichaVend==='function') closeFichaVend(); if(typeof closeFichaComp==='function') closeFichaComp();} });
 
 /* ════════ FICHA DE PROPIEDAD — conexiones reales migradas desde index_viejo_funciona.html ════════ */
 let CURRENT_PROP = (typeof PROPS!=='undefined' && PROPS.length)?PROPS[0]:null;
