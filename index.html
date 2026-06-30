@@ -1173,7 +1173,7 @@ a.owner-wa-link:hover{opacity:.75}
 <style id="propdocs-css">
 /* ── Fase 2 · alerta de documentos dentro de la ficha ── */
 #propDocsAlert{margin:12px 0 0}
-.pda-alert{display:flex;align-items:center;gap:11px;width:100%;text-align:left;cursor:default;font-family:var(--fb);background:rgba(224,162,78,.07);border:1px solid rgba(224,162,78,.30);border-radius:3px;padding:11px 13px;transition:background .15s,border-color .15s}
+.pda-alert{display:flex;align-items:center;gap:11px;width:100%;text-align:left;cursor:pointer;font-family:var(--fb);background:rgba(224,162,78,.07);border:1px solid rgba(224,162,78,.30);border-radius:3px;padding:11px 13px;transition:background .15s,border-color .15s}
 .pda-alert:hover{background:rgba(224,162,78,.12);border-color:rgba(224,162,78,.5)}
 .pda-dot{position:relative;width:7px;height:7px;border-radius:50%;background:var(--amber);flex-shrink:0}
 .pda-dot::after{content:"";position:absolute;inset:-3px;border-radius:50%;border:1px solid var(--amber);opacity:.6;animation:pdaPulse 1.8s ease-out infinite}
@@ -2018,9 +2018,10 @@ function propDocsAlertHTML(recId, pend, faltan){
   const paso = pend>0
     ? 'Siguiente paso: revisar y validar lo recibido antes de avanzar.'
     : 'Siguiente paso: pedir al propietario completar documentos mínimos o validar pendientes.';
-  return '<div class="pda-alert" role="status" aria-label="Alerta de expediente documental">'
+  return '<button type="button" class="pda-alert" onclick="propDocsOpen(\''+recId+'\')" aria-label="Revisar expediente documental del propietario">'
     +'<span class="pda-dot"></span>'
-    +'<span class="pda-txt"><b>Expediente documental</b> · '+txt+'<small>'+paso+'</small></span></div>';
+    +'<span class="pda-txt"><b>Expediente documental</b> · '+txt+'<small>'+paso+'</small></span>'
+    +'<span class="pda-cta">Revisar</span></button>';
 }
 function propDocsCountPend(docs){ return (docs||[]).filter(d=>String(d.estado||'')==='Recibido').length; }
 function propDocsGatePend(docs){ return (docs||[]).filter(d=>d.gate_publicacion && (String(d.estado||'')!=='Validado' || d.requiere_actualizacion || d.vigencia_estado==='Vencido')).length; }
