@@ -2047,8 +2047,13 @@ async function propDocsCheck(p){
 }
 /* ─────────────────────────────────────────────
    ACCIÓN DE ORO DEL EXPEDIENTE — nunca se estaciona.
-   Prioridad: revisar documentos → completar mínimos →
-   confirmar producción → recordar producción.
+   Documentos y producción son dos vías PARALELAS, no una
+   cadena: documentos bloquea publicación, producción (foto/
+   video) toma 2-3 días y debe avanzar aunque falten documentos.
+   Prioridad: revisar documentos recién subidos → producción
+   en curso (recordar/confirmar cita, sin importar si faltan
+   documentos) → cuando producción ya quedó confirmada, recién
+   ahí se recuerdan (no se bloquean) los documentos pendientes.
    Solo entra cuando el portal ya salió (hay documentos
    subidos o ya hay propuesta de cita), para no pisar
    "Activar portal" antes de tiempo. La propuesta de
@@ -2067,36 +2072,97 @@ function propSetAccionDocs(p, pend, faltan){
     : 'Faltan '+faltan+' documento'+(faltan>1?'s':'')+' mínimo'+(faltan>1?'s':'')+' para poder publicar. Revisa el expediente.';
   propSetAccionOro(t, d, 'Revisar documentos', 'file', function(){ propDocsOpen(p._recId); });
 }
+// Recordatorio (no bloqueo): la producción ya quedó confirmada, pero el
+// expediente sigue incompleto. Tono de experiencia, no de presión —
+// un mensaje precargado y personalizado, no una tarea pendiente.
+function propSetAccionRecordatorioDocs(p, faltan, rec){
+  const owner=(typeof crmPropietarioData==='function'&&(p._rawRec||rec))?crmPropietarioData(p._rawRec||rec):null;
+  const nombre=(owner&&owner.nombre)||'el propietario';
+  const phone=propProdWaPhone(owner);
+  const propName=(p&&p.name)||'tu propiedad';
+  propSetAccionOro('Recordar documentos pendientes',
+    'La producción de '+propName+' ya está en marcha. Para publicar, faltan '+faltan+' documento'+(faltan>1?'s':'')+' del expediente — mándale un recordatorio amable a '+nombre+'.',
+    'Recordar documentos', 'file',
+    function(){
+      const msg='Hola '+nombre+', vamos muy bien con '+propName+' — la producción de fotos y video ya está en marcha. Para poder publicarla nos falta'+(faltan>1?'n ':' ')+faltan+' documento'+(faltan>1?'s':'')+' de tu expediente. Cuando puedas, súbelo'+(faltan>1?'s':'')+' en tu portal. ¡Gracias!';
+      if(phone) window.open('https://wa.me/'+phone+'?text='+encodeURIComponent(msg),'_blank');
+      else if(typeof mqNote==='function') mqNote('Recuérdale al propietario subir los '+faltan+' documentos pendientes.');
+    });
+}
 function propProdWaPhone(owner){
   const tel=owner&&owner.telefono;
   if(!tel) return '';
   return (typeof fcPhone==='function')?fcPhone(tel):(typeof waNumberProp==='function'?waNumberProp(tel):String(tel).replace(/\D/g,''));
 }
-function propSetAccionProduccion(p, prod, rec){
+// Landing pública del evento — Confirmacion.html pinta fecha/hora/checklist
+// en vivo desde Eventos Operación vía el webhook de Make. El folio del
+// evento es la llave; si no existe, no se puede armar el link.
+function confirmacionEventoUrl(folio){
+  return folio?('https://intranetmetodonerirealtor.vercel.app/Confirmacion.html?evento='+encodeURIComponent(folio)):'';
+}
+// Vía A de producción — hay propuesta del propietario, falta que el asesor
+// la confirme. Al confirmar: se marca Estado='Confirmada' en Eventos
+// Operación (mismo campo que lee el webhook de Confirmacion.html, así la
+// landing del propietario se actualiza sola) y se manda el mensaje con el
+// link de confirmación en vivo — cierra la cadena que faltaba.
+function propSetAccionConfirmarProduccion(p, prod, rec){
   const owner=(typeof crmPropietarioData==='function'&&(p._rawRec||rec))?crmPropietarioData(p._rawRec||rec):null;
   const nombre=(prod&&prod.cliente)||(owner&&owner.nombre)||'el propietario';
   const phone=propProdWaPhone(owner);
   const propName=(p&&p.name)||'tu propiedad';
-  if(prod && prod.fecha){
-    const cuando=prod.fecha+(prod.hora?(' a las '+prod.hora):'');
-    propSetAccionOro('Confirmar producción inmobiliaria',
-      nombre+' propuso '+cuando+'. Confirma la cita de foto y video.',
-      'Confirmar cita', 'calendar',
-      function(){
-        const msg='Hola '+nombre+', confirmo la producción de '+propName+' para el '+cuando+'. ¿Te queda bien?';
-        if(phone) window.open('https://wa.me/'+phone+'?text='+encodeURIComponent(msg),'_blank');
-        else if(typeof mqNote==='function') mqNote('El propietario propuso '+cuando+'. Falta su WhatsApp para confirmar.');
-      });
-  } else {
-    propSetAccionOro('Producción inmobiliaria',
-      'El expediente está al día. Recuérdale a '+nombre+' que entre a su portal y proponga día y hora para la producción.',
-      'Recordar al propietario', 'calendar',
-      function(){
-        const msg='Hola '+nombre+', ya está listo tu expediente. Entra a tu portal y propón día y hora para la producción (foto y video) de '+propName+'.';
-        if(phone) window.open('https://wa.me/'+phone+'?text='+encodeURIComponent(msg),'_blank');
-        else if(typeof mqNote==='function') mqNote('Recuérdale al propietario proponer día y hora de producción.');
-      });
-  }
+  const cuando=prod.fecha+(prod.hora?(' a las '+prod.hora):'');
+  propSetAccionOro('Confirmar producción inmobiliaria',
+    nombre+' propuso '+cuando+'. Confirma la cita de foto y video.',
+    'Confirmar cita', 'calendar',
+    async function(){
+      if(prod.recId){
+        try{ await atFetch(EVENTOS_TABLE+'/'+prod.recId,{method:'PATCH',body:JSON.stringify({fields:{'Estado':'Confirmada'},typecast:true})}); }
+        catch(_){ /* si falla el PATCH igual mandamos el mensaje — no bloquea al asesor */ }
+      }
+      const link=confirmacionEventoUrl(prod.folio);
+      const msg='Hola '+nombre+', llegó el momento que estábamos esperando — pronto damos a conocer a la estrella de este proceso: '+propName+'.\n\n'
+        +'◆ Fecha: '+prod.fecha+'\n'
+        +'◆ Hora de llegada del equipo: '+(prod.hora||'por confirmar')+'\n\n'
+        +'Le comparto la confirmación con todo lo que necesitamos tener listo para que la propiedad luzca en su mejor versión.\n\n'
+        +'Cualquier ajuste, con gusto lo atendemos con anticipación.'
+        +(link?('\n\n◆ Su confirmación en línea (siempre actualizada):\n'+link):'');
+      if(phone) window.open('https://wa.me/'+phone+'?text='+encodeURIComponent(msg),'_blank');
+      else if(typeof mqNote==='function') mqNote('El propietario propuso '+cuando+'. Falta su WhatsApp para confirmar.');
+      // Refrescar la acción de oro en vivo: si ya no faltan documentos debe
+      // saltar sola al siguiente paso, sin esperar a cambiar de propiedad.
+      const cached=propDocsCache[p._recId];
+      propDocsMaybeSetAction(p, (cached&&cached.docs)||[]);
+    });
+}
+// Vía B de producción — aún no hay propuesta del propietario. Recordatorio,
+// no bloqueo: avanza en paralelo al expediente.
+function propSetAccionRecordarProduccion(p, rec){
+  const owner=(typeof crmPropietarioData==='function'&&(p._rawRec||rec))?crmPropietarioData(p._rawRec||rec):null;
+  const nombre=(owner&&owner.nombre)||'el propietario';
+  const phone=propProdWaPhone(owner);
+  const propName=(p&&p.name)||'tu propiedad';
+  propSetAccionOro('Producción inmobiliaria',
+    'Recuérdale a '+nombre+' que entre a su portal y proponga día y hora para la producción de foto y video.',
+    'Recordar al propietario', 'calendar',
+    function(){
+      const msg='Hola '+nombre+', vamos avanzando con '+propName+'. Entra a tu portal y propón día y hora para la producción (foto y video) cuando puedas.';
+      if(phone) window.open('https://wa.me/'+phone+'?text='+encodeURIComponent(msg),'_blank');
+      else if(typeof mqNote==='function') mqNote('Recuérdale al propietario proponer día y hora de producción.');
+    });
+}
+// Ambas vías al día — producción confirmada (o realizada) y expediente
+// completo. Estado informativo, sin urgencia.
+function propSetAccionProduccionLista(p, prod, rec){
+  const propName=(p&&p.name)||'tu propiedad';
+  const cuando=prod&&prod.fecha?(prod.fecha+(prod.hora?(' a las '+prod.hora):'')):'';
+  const link=confirmacionEventoUrl(prod&&prod.folio);
+  propSetAccionOro('Producción confirmada',
+    'Expediente completo y producción de '+propName+(cuando?(' lista para el '+cuando):' confirmada')+'. Todo en orden.',
+    'Ver confirmación', 'calendar',
+    function(){
+      if(link) window.open(link,'_blank');
+      else if(typeof mqNote==='function') mqNote('Producción confirmada. Falta el folio del evento para abrir su link de confirmación.');
+    });
 }
 var propProdCache={};
 async function propProdFetchEvento(p){
@@ -2104,7 +2170,9 @@ async function propProdFetchEvento(p){
   const nombreProp=rec?(_fval(rec,'Nombre Propiedad')||_fval(rec,'Propiedad')||(p&&p.name)||''):((p&&p.name)||'');
   if(!nombreProp) return null;
   try{
-    const data=await atFetch(EVENTOS_TABLE+"?maxRecords=30&filterByFormula="+encodeURIComponent("{Estado}='Pendiente de confirmar'"));
+    // Trae cualquier evento de producción activo (no solo "Pendiente de
+    // confirmar"): así distinguimos "nunca se propuso" de "ya se confirmó".
+    const data=await atFetch(EVENTOS_TABLE+"?maxRecords=30&filterByFormula="+encodeURIComponent("OR({Estado}='Pendiente de confirmar',{Estado}='Confirmada',{Estado}='Reagendada',{Estado}='Realizada')"));
     const recs=(data&&data.records)||[];
     const norm=function(s){ return String(s||'').trim().toLowerCase(); };
     const ev=recs.find(function(r){
@@ -2113,7 +2181,7 @@ async function propProdFetchEvento(p){
       return /producci[oó]n/i.test(String(tipo))&&norm(prop)===norm(nombreProp);
     });
     if(!ev) return null;
-    return { recId:ev.id, fecha:propFirst(ev,['Fecha','Fecha propuesta','Día']), hora:propFirst(ev,['Hora','Hora propuesta']), cliente:propFirst(ev,['Cliente','Propietario','Nombre']), folio:propFirst(ev,['Folio Evento']) };
+    return { recId:ev.id, estado:propFirst(ev,['Estado']), fecha:propFirst(ev,['Fecha','Fecha propuesta','Día']), hora:propFirst(ev,['Hora','Hora propuesta']), cliente:propFirst(ev,['Cliente','Propietario','Nombre']), folio:propFirst(ev,['Folio Evento']) };
   }catch(_){ return null; }
 }
 async function propDocsMaybeSetAction(p, docs){
@@ -2127,8 +2195,18 @@ async function propDocsMaybeSetAction(p, docs){
   if(propDocsActiveRecId!==p._recId) return;
   propProdCache[p._recId]=prod;
   if(!portalFuera && !prod) return;                                         // portal aún no sale → dejar "Activar portal"
-  if(faltan>0){ propSetAccionDocs(p, 0, faltan); return; }                  // faltan mínimos (portal ya salió)
-  propSetAccionProduccion(p, prod, rec);                                    // expediente al día → producción
+  // Producción es una vía paralela a documentos: avanza aunque falten.
+  // Solo cuando ya quedó confirmada (o realizada) el foco regresa a
+  // documentos — como recordatorio, nunca como bloqueo.
+  const prodEstado=String((prod&&prod.estado)||'').toLowerCase();
+  const prodConfirmada=/confirm|realizad/.test(prodEstado);
+  if(!prodConfirmada){
+    if(prod && prod.fecha) propSetAccionConfirmarProduccion(p, prod, rec);   // hay propuesta, falta confirmar
+    else propSetAccionRecordarProduccion(p, rec);                            // aún no hay propuesta
+    return;
+  }
+  if(faltan>0){ propSetAccionRecordatorioDocs(p, faltan, rec); return; }     // producción lista; solo falta recordar documentos
+  propSetAccionProduccionLista(p, prod, rec);                                // ambos al día
 }
 async function propDocsOpen(recId){
   propDocsEnsureModal(); propDocsSetOpen(true); propDocsStatus('');
@@ -2235,7 +2313,19 @@ async function propDocsAccion(folio,id,accion,recId){
     const j=await r.json().catch(()=>({})); if(!r.ok) throw new Error(j.error||('HTTP '+r.status));
     propDocsStatus('');
     const c=propDocsCache[recId];
-    if(c){ try{ const docs=await propDocsFetch(c.folio, c.token); c.docs=docs; propDocsCache[recId]=c; propDocsRender(docs, folio, recId); propDocsPaintAlert(recId, docs); }catch(_){ } }
+    if(c){
+      try{
+        const docs=await propDocsFetch(c.folio, c.token);
+        c.docs=docs; propDocsCache[recId]=c;
+        propDocsRender(docs, folio, recId);
+        propDocsPaintAlert(recId, docs);
+        // Refrescar la acción de oro en vivo: si el expediente quedó al día
+        // (o cambió la cuenta de pendientes), debe saltar sola sin esperar
+        // a que el asesor cambie de propiedad y regrese.
+        const p=(typeof PROPS!=='undefined'?PROPS:[]).find(x=>x._recId===recId);
+        if(p) propDocsMaybeSetAction(p, docs);
+      }catch(_){ }
+    }
   }catch(e){ propDocsStatus('No se pudo aplicar: '+e.message); }
 }
 function propDocsStatus(msg){ const s=document.getElementById('propDocsStatus'); if(s) s.textContent=msg||''; }
