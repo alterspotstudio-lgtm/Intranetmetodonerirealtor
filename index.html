@@ -1770,6 +1770,7 @@ const PROPS = LOCAL_PROPS.slice();
 const EXPEDIENTES = [];
 let expedienteFilter = '';
 const PROP_TABLE = 'tblmco2JyXRiZGhaY';
+const EVENTOS_TABLE = 'tblaYhT3EUT0m5FYV';
 const PROP_VEND_TABLE = 'tblQHdwEucTaNrLzm';
 const PROP_PORTAL_BASE = String(window.PROGRESO_BASE || 'https://progreso-zeta.vercel.app/').replace(/\/+$/, '');
 let propUsingLocal = true;
@@ -2026,11 +2027,10 @@ function propDocsAlertHTML(recId, pend, faltan){
 function propDocsCountPend(docs){ return (docs||[]).filter(d=>String(d.estado||'')==='Recibido').length; }
 function propDocsGatePend(docs){ return (docs||[]).filter(d=>d.gate_publicacion && (String(d.estado||'')!=='Validado' || d.requiere_actualizacion || d.vigencia_estado==='Vencido')).length; }
 function propDocsPaintAlert(recId, docs){
-  if(propDocsActiveRecId!==recId) return;
+  // La acción de oro ("LO QUE TOCA AHORA") ya muestra el estado del expediente.
+  // Mantenemos este slot oculto para no duplicar el aviso de revisión.
   const slot=document.getElementById('propDocsAlert'); if(!slot) return;
-  const pend=propDocsCountPend(docs), faltan=propDocsGatePend(docs);
-  if(pend>0 || faltan>0){ slot.style.display=''; slot.innerHTML=propDocsAlertHTML(recId, pend, faltan); }
-  else { slot.style.display='none'; slot.innerHTML=''; }
+  slot.style.display='none'; slot.innerHTML='';
 }
 async function propDocsCheck(p){
   const slot=document.getElementById('propDocsAlert');
@@ -2045,21 +2045,90 @@ async function propDocsCheck(p){
   propDocsPaintAlert(p._recId, docs);
   propDocsMaybeSetAction(p, docs);
 }
-/* Acción de oro: cuando el expediente tiene algo que revisar/validar, ESA es la
-   acción real — no "Activar portal" (ese link ya viajó dentro del portal).
-   Override con candados; no toca propActFromRecord ni la cadena del portal. */
-function propDocsMaybeSetAction(p, docs){
-  if(!p || propDocsActiveRecId!==p._recId) return;
-  const pend=propDocsCountPend(docs), faltan=propDocsGatePend(docs);
-  if(pend<=0 && faltan<=0) return;               // nada pendiente → no tocamos la acción
+/* ─────────────────────────────────────────────
+   ACCIÓN DE ORO DEL EXPEDIENTE — nunca se estaciona.
+   Prioridad: revisar documentos → completar mínimos →
+   confirmar producción → recordar producción.
+   Solo entra cuando el portal ya salió (hay documentos
+   subidos o ya hay propuesta de cita), para no pisar
+   "Activar portal" antes de tiempo. La propuesta de
+   producción vive en Eventos Operación, no en la propiedad.
+   Override con candados; no toca propActFromRecord. ───── */
+function propSetAccionOro(t, d, btnLabel, btnIcon, onClick){
+  const actT=document.getElementById('actT'); if(actT) actT.textContent=t;
+  const actD=document.getElementById('actD'); if(actD) actD.textContent=d;
+  const btn=document.getElementById('actBtn');
+  if(btn){ btn.innerHTML=((typeof IC!=='undefined'&&(IC[btnIcon]||IC.send))||'')+btnLabel; btn.onclick=function(ev){ ev.preventDefault(); try{ onClick(); }catch(_){} }; }
+}
+function propSetAccionDocs(p, pend, faltan){
   const t = pend>0 ? 'Revisar documentos del propietario' : 'Completar expediente documental';
   const d = pend>0
     ? 'El propietario subió '+pend+' documento'+(pend>1?'s':'')+'. Valídalos o recházalos antes de avanzar.'
     : 'Faltan '+faltan+' documento'+(faltan>1?'s':'')+' mínimo'+(faltan>1?'s':'')+' para poder publicar. Revisa el expediente.';
-  const actT=document.getElementById('actT'); if(actT) actT.textContent=t;
-  const actD=document.getElementById('actD'); if(actD) actD.textContent=d;
-  const btn=document.getElementById('actBtn');
-  if(btn){ btn.innerHTML=(IC.file||IC.send)+'Revisar documentos'; btn.onclick=function(ev){ ev.preventDefault(); propDocsOpen(p._recId); }; }
+  propSetAccionOro(t, d, 'Revisar documentos', 'file', function(){ propDocsOpen(p._recId); });
+}
+function propProdWaPhone(owner){
+  const tel=owner&&owner.telefono;
+  if(!tel) return '';
+  return (typeof fcPhone==='function')?fcPhone(tel):(typeof waNumberProp==='function'?waNumberProp(tel):String(tel).replace(/\D/g,''));
+}
+function propSetAccionProduccion(p, prod, rec){
+  const owner=(typeof crmPropietarioData==='function'&&(p._rawRec||rec))?crmPropietarioData(p._rawRec||rec):null;
+  const nombre=(prod&&prod.cliente)||(owner&&owner.nombre)||'el propietario';
+  const phone=propProdWaPhone(owner);
+  const propName=(p&&p.name)||'tu propiedad';
+  if(prod && prod.fecha){
+    const cuando=prod.fecha+(prod.hora?(' a las '+prod.hora):'');
+    propSetAccionOro('Confirmar producción inmobiliaria',
+      nombre+' propuso '+cuando+'. Confirma la cita de foto y video.',
+      'Confirmar cita', 'calendar',
+      function(){
+        const msg='Hola '+nombre+', confirmo la producción de '+propName+' para el '+cuando+'. ¿Te queda bien?';
+        if(phone) window.open('https://wa.me/'+phone+'?text='+encodeURIComponent(msg),'_blank');
+        else if(typeof mqNote==='function') mqNote('El propietario propuso '+cuando+'. Falta su WhatsApp para confirmar.');
+      });
+  } else {
+    propSetAccionOro('Producción inmobiliaria',
+      'El expediente está al día. Recuérdale a '+nombre+' que entre a su portal y proponga día y hora para la producción.',
+      'Recordar al propietario', 'calendar',
+      function(){
+        const msg='Hola '+nombre+', ya está listo tu expediente. Entra a tu portal y propón día y hora para la producción (foto y video) de '+propName+'.';
+        if(phone) window.open('https://wa.me/'+phone+'?text='+encodeURIComponent(msg),'_blank');
+        else if(typeof mqNote==='function') mqNote('Recuérdale al propietario proponer día y hora de producción.');
+      });
+  }
+}
+var propProdCache={};
+async function propProdFetchEvento(p){
+  const rec=p&&(p._rawRec||(typeof getPropRecord==='function'&&getPropRecord(p._recId)));
+  const nombreProp=rec?(_fval(rec,'Nombre Propiedad')||_fval(rec,'Propiedad')||(p&&p.name)||''):((p&&p.name)||'');
+  if(!nombreProp) return null;
+  try{
+    const data=await atFetch(EVENTOS_TABLE+"?maxRecords=30&filterByFormula="+encodeURIComponent("{Estado}='Pendiente de confirmar'"));
+    const recs=(data&&data.records)||[];
+    const norm=function(s){ return String(s||'').trim().toLowerCase(); };
+    const ev=recs.find(function(r){
+      const tipo=propFirst(r,['Tipo Evento','Tipo de Evento','Tipo']);
+      const prop=propFirst(r,['Propiedad','Nombre Propiedad']);
+      return /producci[oó]n/i.test(String(tipo))&&norm(prop)===norm(nombreProp);
+    });
+    if(!ev) return null;
+    return { recId:ev.id, fecha:propFirst(ev,['Fecha','Fecha propuesta','Día']), hora:propFirst(ev,['Hora','Hora propuesta']), cliente:propFirst(ev,['Cliente','Propietario','Nombre']), folio:propFirst(ev,['Folio Evento']) };
+  }catch(_){ return null; }
+}
+async function propDocsMaybeSetAction(p, docs){
+  if(!p || propDocsActiveRecId!==p._recId) return;
+  const pend=propDocsCountPend(docs), faltan=propDocsGatePend(docs);
+  const recibidos=(docs||[]).filter(function(d){ return ['Recibido','Validado','Rechazado'].includes(String(d.estado||'')); }).length;
+  if(pend>0){ propSetAccionDocs(p, pend, 0); return; }                       // hay algo que revisar → prioridad
+  const rec=p&&(p._rawRec||(typeof getPropRecord==='function'&&getPropRecord(p._recId)));
+  const portalFuera=recibidos>0 || !!(rec&&typeof propPortalEnviado==='function'&&propPortalEnviado(rec));
+  let prod=null; try{ prod=await propProdFetchEvento(p); }catch(_){ prod=null; }
+  if(propDocsActiveRecId!==p._recId) return;
+  propProdCache[p._recId]=prod;
+  if(!portalFuera && !prod) return;                                         // portal aún no sale → dejar "Activar portal"
+  if(faltan>0){ propSetAccionDocs(p, 0, faltan); return; }                  // faltan mínimos (portal ya salió)
+  propSetAccionProduccion(p, prod, rec);                                    // expediente al día → producción
 }
 async function propDocsOpen(recId){
   propDocsEnsureModal(); propDocsSetOpen(true); propDocsStatus('');
@@ -2093,13 +2162,16 @@ function propDocsVigenciaTag(d){
 }
 function propDocsRender(docs, folio, recId){
   const body=document.getElementById('propDocsBody'); if(!body) return;
-  if(!docs.length){ body.innerHTML='<div class="pdoc-empty">Este propietario aún no ha subido documentos.</div>'; return; }
+  const _c=propDocsCache[recId], _vend=_c&&_c.vend;
+  const _expLink=_vend?(_fval(_vend,'Link Expediente Documental')||(typeof window!=='undefined'&&window.EXP_DOC_BASE)||''):'';
+  const subirBtn=_expLink?'<div style="margin:0 0 12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap"><a class="pdoc-pill gold" href="'+_esc(_expLink)+'" target="_blank" rel="noopener">Abrir expediente para subir documentos</a><span style="font-size:10px;color:rgba(255,255,255,.45)">Úsalo si necesitas subir un documento por el propietario.</span></div>':'';
+  if(!docs.length){ body.innerHTML=subirBtn+'<div class="pdoc-empty">Este propietario aún no ha subido documentos.</div>'; return; }
   const gateTotal=(docs||[]).filter(d=>d.gate_publicacion).length;
   const gateOk=(docs||[]).filter(d=>d.gate_publicacion && String(d.estado||'')==='Validado' && !(d.requiere_actualizacion||d.vigencia_estado==='Vencido')).length;
   const gateVencidos=(docs||[]).filter(d=>d.gate_publicacion && String(d.estado||'')==='Validado' && (d.requiere_actualizacion||d.vigencia_estado==='Vencido')).length;
   const recibidos=(docs||[]).filter(d=>['Recibido','Validado'].includes(String(d.estado||''))).length;
   const summary='<div class="pdoc" style="border-color:rgba(198,168,107,.22);background:rgba(198,168,107,.045)"><div class="pdoc-h"><span class="pdoc-tipo">Gate de publicación</span> '+(gateOk>=gateTotal&&gateVencidos===0?'<span class="pdoc-badge pdoc-badge-ok">Listo para publicar</span>':'<span class="pdoc-badge pdoc-badge-warn">Pendiente</span>')+'</div><div class="pdoc-desc">Mínimos validados: '+gateOk+'/'+gateTotal+' · Documentos recibidos: '+recibidos+'/'+docs.length+(gateVencidos?' · Vigencia vencida: '+gateVencidos:'')+'. Los condicionales pueden marcarse como No aplica.</div></div>';
-  body.innerHTML=summary+docs.map(function(d){
+  body.innerHTML=subirBtn+summary+docs.map(function(d){
     const id=d.id||'', estado=d.estado||'Pendiente', verUrl=d.archivo_url?propDocsVerUrl(d.archivo_url):'';
     const fecha=d.fecha_carga?'<span class="pdoc-fecha">'+_esc(String(d.fecha_carga).slice(0,10))+'</span>':'';
     const vigencia=propDocsVigenciaTag(d);
