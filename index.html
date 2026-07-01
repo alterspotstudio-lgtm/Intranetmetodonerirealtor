@@ -2094,6 +2094,25 @@ function propProdWaPhone(owner){
   if(!tel) return '';
   return (typeof fcPhone==='function')?fcPhone(tel):(typeof waNumberProp==='function'?waNumberProp(tel):String(tel).replace(/\D/g,''));
 }
+// Checklist estándar de preparación de la propiedad para producción
+// (foto/video). Mismo texto que ya existía en panel-citas.html (tab
+// Producción, sección "Preparación") — se reutiliza aquí para que
+// Confirmacion.html, que YA sabe leer "Cómo preparar la propiedad:" desde
+// el campo Notas del evento, por fin reciba ese dato. Antes nadie lo
+// escribía ahí, así que esa sección le salía vacía al cliente aunque la
+// pantalla ya estuviera lista para mostrarla.
+const PROD_CHECKLIST_PREPARACION=[
+  'Limpieza general completa','Despersonalizar espacios','Iluminación al máximo',
+  'Jardín o patio ordenado','Estacionamiento despejado','Mascotas resguardadas',
+  'Aromas agradables','Detalles decorativos'
+];
+function propProdNotasConChecklist(notasPrevias){
+  const base=String(notasPrevias||'').trim();
+  const marcador='Cómo preparar la propiedad:';
+  if(base.indexOf(marcador)>-1) return base; // ya lo tiene — no duplicar
+  const bloque=marcador+' '+PROD_CHECKLIST_PREPARACION.join(', ')+'.';
+  return base?(base+' · '+bloque):bloque;
+}
 // Landing pública del evento — Confirmacion.html pinta fecha/hora/checklist
 // en vivo desde Eventos Operación vía el webhook de Make. El folio del
 // evento es la llave; si no existe, no se puede armar el link.
@@ -2116,7 +2135,10 @@ function propSetAccionConfirmarProduccion(p, prod, rec){
     'Confirmar cita', 'calendar',
     async function(){
       if(prod.recId){
-        try{ await atFetch(EVENTOS_TABLE+'/'+prod.recId,{method:'PATCH',body:JSON.stringify({fields:{'Estado':'Confirmada'},typecast:true})}); }
+        try{
+          const fieldsEvento={'Estado':'Confirmada','Notas':propProdNotasConChecklist(prod.notas)};
+          await atFetch(EVENTOS_TABLE+'/'+prod.recId,{method:'PATCH',body:JSON.stringify({fields:fieldsEvento,typecast:true})});
+        }
         catch(_){ /* si falla el PATCH igual mandamos el mensaje — no bloquea al asesor */ }
       }
       // Espejo en Propiedades NERI: Eventos Operación es la fuente de verdad para
@@ -2192,7 +2214,7 @@ async function propProdFetchEvento(p){
       return /producci[oó]n/i.test(String(tipo))&&norm(prop)===norm(nombreProp);
     });
     if(!ev) return null;
-    return { recId:ev.id, estado:propFirst(ev,['Estado']), fecha:propFirst(ev,['Fecha','Fecha propuesta','Día']), hora:propFirst(ev,['Hora','Hora propuesta']), cliente:propFirst(ev,['Cliente','Propietario','Nombre']), folio:propFirst(ev,['Folio Evento']) };
+    return { recId:ev.id, estado:propFirst(ev,['Estado']), fecha:propFirst(ev,['Fecha','Fecha propuesta','Día']), hora:propFirst(ev,['Hora','Hora propuesta']), cliente:propFirst(ev,['Cliente','Propietario','Nombre']), folio:propFirst(ev,['Folio Evento']), notas:propFirst(ev,['Notas']) };
   }catch(_){ return null; }
 }
 async function propDocsMaybeSetAction(p, docs){
@@ -2210,7 +2232,12 @@ async function propDocsMaybeSetAction(p, docs){
   // Solo cuando ya quedó confirmada (o realizada) el foco regresa a
   // documentos — como recordatorio, nunca como bloqueo.
   const prodEstado=String((prod&&prod.estado)||'').toLowerCase();
-  const prodConfirmada=/confirm|realizad/.test(prodEstado);
+  // Comparación exacta, NO por sustring: "pendiente de confirmar" también
+  // contiene la palabra "confirmar" y un match por /confirm/ la trataba como
+  // ya confirmada, saltándose el botón "Confirmar cita". Los únicos estados
+  // reales de Eventos Operación que cuentan como producción lista son estos
+  // dos (ver campo Estado en Eventos Operación, tblaYhT3EUT0m5FYV).
+  const prodConfirmada=(prodEstado==='confirmada'||prodEstado==='realizada');
   if(!prodConfirmada){
     if(prod && prod.fecha) propSetAccionConfirmarProduccion(p, prod, rec);   // hay propuesta, falta confirmar
     else propSetAccionRecordarProduccion(p, rec);                            // aún no hay propuesta
@@ -3243,7 +3270,22 @@ async function leadVendMarcarPropiedadCreada(recId, rec){
 /* V-05 · Blindaje de conversión Lead Vendedor → Propiedades.
    No toca activar-expediente.js ni cambia nombres de Airtable.
    Restaura el comportamiento documentado: Continuar proceso crea/localiza
-   la Propiedad por Folio Vendedor antes de activar/buscar expediente. */
+   la Propiedad por Folio Vendedor antes de activar/buscar expediente.
+
+   V-05-b · Paridad total con Make (escenarios 5260867 y 5424659).
+   Este camino (intranet) y el de Make pueden competir por crear la misma
+   propiedad; gana el que llegue primero y el otro se detiene por el candado
+   "Propiedad Creada". Para que el resultado sea idéntico sin importar quién
+   gane, este bloque replica EXACTAMENTE los mismos campos que ponen esos dos
+   escenarios de Make al crear el registro en Propiedades NERI.
+
+   Letra Folio: esta función SOLO atiende conversión de Lead Vendedor
+   (captación propia) → siempre "V". La letra "C" (propiedad externa que
+   entra por comprador) no existe todavía en ningún lado del sistema — ni
+   aquí ni en Make — porque el flujo de propiedades por el lado comprador
+   (portal de expediente comprador) aún no está construido. Cuando se
+   construya ese flujo, la lógica de "C" debe vivir en la función que cree
+   la propiedad desde ESE lado, no aquí. */
 function leadVendNumeroSeguro(v){
   const raw=String(v==null?'':v).trim();
   if(!raw) return null;
@@ -3261,20 +3303,46 @@ function leadVendPrefijoDesdeLead(rec, folio){
   const zona=(_fval(rec,'Zona')||folio||'NER').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Za-z0-9]/g,'').toUpperCase();
   return (zona||'NER').slice(0,4);
 }
-function leadVendBuildPropFields(rec, folio){
+// Busca el Slug del asesor en Asesor captación por Nombre — mismo criterio
+// que usan los módulos de búsqueda de los escenarios 5260867/5424659
+// ({Nombre} = Asesor). Si el nombre del lead coincide con la sesión actual,
+// se usa el slug de sesión sin gastar una llamada. Si la búsqueda falla o no
+// hay match, regresa '' y NO bloquea la creación de la propiedad — el slug
+// se puede completar después a mano, pero el folio y el resto de campos no
+// deben esperar a esto.
+async function leadVendAsesorSlugDesdeNombre(nombreAsesor){
+  const nombre=String(nombreAsesor||'').trim();
+  if(!nombre) return '';
+  try{
+    const sess=(typeof perfilSession==='function')?perfilSession():null;
+    if(sess && sess.nombre && sess.slug && sess.nombre.trim().toLowerCase()===nombre.toLowerCase()) return sess.slug;
+  }catch(_){}
+  try{
+    const safe=nombre.replace(/(["\\])/g,'\\$1');
+    const formula='{Nombre}="'+safe+'"';
+    const data=await atFetch(ASESOR_PERFIL_TABLE+'?maxRecords=1&filterByFormula='+encodeURIComponent(formula));
+    const rec=(data&&data.records&&data.records[0])||null;
+    return rec?(_fval(rec,'Slug')||''):'';
+  }catch(_){ return ''; }
+}
+async function leadVendBuildPropFields(rec, folio){
+  const nombreAsesor=_fval(rec,'Asesor')||'';
   const fields={
     'Nombre Propiedad': leadVendPropNombreDesdeLead(rec, folio),
     'Folio Vendedor': folio,
     'Propietario': _fval(rec,'Nombre Completo')||_fval(rec,'Nombre')||'',
-    'Estado Propiedad': 'Disponible',
+    'Estado Propiedad': 'Activa',
     'Zona / Colonia': _fval(rec,'Zona')||_fval(rec,'Zona / Colonia')||'',
     'Municipio': _fval(rec,'Municipio')||_fval(rec,'Zona')||'',
     'Estado / Entidad': _fval(rec,'Estado / Entidad')||'Morelos',
-    'Asesor': _fval(rec,'Asesor')||'',
+    'Asesor': nombreAsesor,
     'Prefijo Folio': leadVendPrefijoDesdeLead(rec, folio),
     'Moneda': 'MXN',
     'Fecha de Alta': new Date().toISOString().slice(0,10),
-    'Notas Internas': 'Propiedad creada desde Continuar proceso del lead vendedor '+folio+'. Completar datos básicos antes de enviar portal.'
+    'Notas Internas': 'Propiedad creada desde Continuar proceso del lead vendedor '+folio+'. Completar datos básicos antes de enviar portal.',
+    'Letra Folio': 'V',
+    'Etapa Comercializacion': 'Propiedad creada',
+    'Contador Leads': 0
   };
   const tipo=_fval(rec,'Tipo de Propiedad'); if(tipo) fields['Tipo de Propiedad']=tipo;
   const hab=leadVendNumeroSeguro(_fval(rec,'Habitaciones')); if(hab!=null) fields['Habitaciones']=hab;
@@ -3282,12 +3350,14 @@ function leadVendBuildPropFields(rec, folio){
   const medios=leadVendNumeroSeguro(_fval(rec,'Medios Baños')||_fval(rec,'Medios Banos')); if(medios!=null) fields['Medios Banos']=medios;
   const est=leadVendNumeroSeguro(_fval(rec,'Estacionamientos')); if(est!=null) fields['Estacionamientos']=est;
   if(rec && rec.id) fields['Lead Vendedor']=[rec.id];
+  const slug=await leadVendAsesorSlugDesdeNombre(nombreAsesor);
+  if(slug) fields['Asesor Slug']=slug;
   Object.keys(fields).forEach(k=>{ if(fields[k]==='' || fields[k]==null) delete fields[k]; });
   return fields;
 }
 async function leadVendCrearPropiedadDesdeLead(rec, folio){
   if(!propCanUseAirtable()) throw new Error('Sesión real requerida para crear propiedad.');
-  const fields=leadVendBuildPropFields(rec, folio);
+  const fields=await leadVendBuildPropFields(rec, folio);
   const created=await atFetch(PROP_TABLE,{method:'POST',body:JSON.stringify({fields:fields,typecast:true})});
   if(!created || !created.id) throw new Error('Airtable no devolvió la propiedad creada.');
   return created;
@@ -4262,33 +4332,51 @@ async function taCitaCards(){
   const seen=new Set();
   return fromBuyers.concat(fromTable).filter(c=>{ const k=c.nombre+'|'+c.descripcion; if(seen.has(k))return false; seen.add(k); return true; });
 }
-function taProduccionCards(){
+// TARJETA DE "NUEVA PROPUESTA DE PRODUCCIÓN" — el aviso discreto que
+// aparece arriba, en la cuadrícula de Tarjetas de Acción del dashboard
+// (junto con documentos/leads/riesgo/citas), NO en el botón dorado de la
+// ficha. Es el aviso que Enrique confirmó que ya existía: cuando el
+// cliente propone día/hora, aquí es donde se entera sin tener que abrir
+// cada propiedad una por una.
+//
+// Lee DIRECTO de Eventos Operación (igual que propProdFetchEvento), que es
+// donde de verdad vive la propuesta mientras está pendiente — reemplaza el
+// bloque roto que buscaba la fecha en el registro de la propiedad y nunca
+// la encontraba (ver comentario grande arriba de propProduccionInfo, unas
+// líneas más abajo en este archivo).
+//
+// Al dar clic en la tarjeta, lleva a la ficha de la propiedad — ahí es
+// donde vive el botón "Confirmar cita" (propSetAccionConfirmarProduccion),
+// que ya manda el WhatsApp real de confirmación al cliente. Esta tarjeta
+// NO manda WhatsApp por sí misma: es solo el aviso de que hay algo
+// pendiente por revisar, coherente con que en este sistema nada sale sin
+// que el asesor lo confirme y lo envíe él mismo.
+async function taProduccionCards(){
   const cards=[];
-  const seen=new Set();
-  (PROPS||[]).forEach(p=>{
-    const rec=p&&p._rawRec; if(!rec) return;
-    const fecha=propFirst(rec,['Fecha propuesta producción','Fecha Producción','Fecha de Producción','Producción Fecha','Fecha Produccion']);
-    const estado=String(propFirst(rec,['Estado Producción','Producción Confirmada','Produccion Confirmada','Confirmación Producción'])).toLowerCase();
-    if(!fecha || /confirm|realizad|cancel/.test(estado)) return;
-    const owner=(typeof crmPropietarioData==='function')?crmPropietarioData(rec):null;
-    const nombre=(owner&&owner.nombre)||p.vend?.name||p.name||'Propietario';
-    const tel=(owner&&owner.telefono)||'';
-    const phone=(typeof fcPhone==='function'?fcPhone(tel):String(tel||'').replace(/\D/g,''));
-    const msg='Hola '+nombre+', vi que propusiste '+fecha+' para la producción de la propiedad '+(p.name||'')+'. ¿Me confirmas si seguimos con esa fecha?';
-    const href=phone?'https://wa.me/'+phone+'?text='+encodeURIComponent(msg):'';
-    const key='prop|'+taPropId(p); seen.add(key);
-    cards.push({tipo:'produccion',prio:TARJETAS_ACCION_ORDEN.produccion,nombre,descripcion:nombre+' propuso fecha para producción. Falta confirmarla.',action:'whatsapp-produccion',id:taPropId(p),href,btn:href?'Confirmar':'Abrir propiedad',ts:Date.now()});
-  });
-  (VENDEDORES||[]).forEach((v,i)=>{
-    const fecha=fcVal(v,'Fecha propuesta producción','Fecha Producción','Fecha de Producción','Producción Fecha','Fecha Produccion');
-    const estado=String(fcVal(v,'Estado Producción','Producción Confirmada','Produccion Confirmada','Confirmación Producción')).toLowerCase();
-    if(!fecha || /confirm|realizad|cancel/.test(estado)) return;
-    const folio=leadVendKey(v,i); if(seen.has('vend|'+folio)) return;
-    const nombre=taNombreVendedor(v,i);
-    const phone=fcPhone(fcVal(v,'Teléfono WhatsApp','WhatsApp','whatsapp','telefono'));
-    const msg='Hola '+nombre+', vi que propusiste '+fecha+' para la producción. ¿Me confirmas si seguimos con esa fecha?';
-    const href=phone?'https://wa.me/'+phone+'?text='+encodeURIComponent(msg):'';
-    cards.push({tipo:'produccion',prio:TARJETAS_ACCION_ORDEN.produccion,nombre,descripcion:nombre+' propuso fecha para producción. Falta confirmarla.',action:'whatsapp-produccion',id:folio,href,btn:href?'Confirmar':'Abrir vendedor',ts:Date.now()});
+  let recs=[];
+  try{
+    const formula="AND({Estado}='Pendiente de confirmar',REGEX_MATCH({Tipo Evento}&'','(?i)producci'))";
+    const data=await atFetch(EVENTOS_TABLE+'?maxRecords=30&filterByFormula='+encodeURIComponent(formula));
+    recs=(data&&data.records)||[];
+  }catch(_){ return cards; }
+  recs.forEach(function(ev){
+    const folioProp=propFirst(ev,['Folio Propiedad']);
+    const p=(PROPS||[]).find(function(q){ return q&&q.folio&&folioProp&&leadVendFolioKey(q.folio)===leadVendFolioKey(folioProp); });
+    const nombreCliente=propFirst(ev,['Cliente'])||'El propietario';
+    const propName=propFirst(ev,['Propiedad'])||(p&&p.name)||'la propiedad';
+    const fecha=propFirst(ev,['Fecha'])||'una fecha';
+    const hora=propFirst(ev,['Hora']);
+    const folioEvento=propFirst(ev,['Folio Evento'])||ev.id;
+    cards.push({
+      tipo:'produccion',
+      prio:TARJETAS_ACCION_ORDEN.produccion,
+      nombre:nombreCliente,
+      descripcion:nombreCliente+' propuso '+fecha+(hora?' a las '+hora:'')+' para la producción de '+propName+'. Folio del evento: '+folioEvento+'. Revisa disponibilidad y confirma la cita.',
+      action:'abrir-propiedad',
+      id:p?p._recId:'',
+      btn:'Revisar y confirmar',
+      ts:Date.now()
+    });
   });
   return cards;
 }
@@ -4298,7 +4386,7 @@ async function buildTarjetasAccion(){
   cards.push(...taLeadCards());
   cards.push(...taRiesgoCards());
   cards.push(...await taCitaCards());
-  cards.push(...taProduccionCards());
+  cards.push(...await taProduccionCards());
   return cards.sort((a,b)=>(a.prio-b.prio)||((b.ts||0)-(a.ts||0))).slice(0,TARJETAS_ACCION_MAX);
 }
 function abrirTaSplash(){ var m=document.getElementById('taSplashModal'); if(m) m.classList.add('open'); }
@@ -4884,6 +4972,51 @@ function propPortalEnviado(rec){
   const direct=propFirst(rec,['Fecha Portal Enviado','Portal Enviado','Portal enviado','Portal de Venta Enviado']);
   return !!direct;
 }
+/* ═══════════════════════════════════════════════════════════════════
+   CAPA VIEJA DE PRODUCCIÓN — propProduccionInfo / propActProduccion /
+   propProduccionAction (este bloque, hasta propActFromRecord más abajo).
+
+   QUÉ HACE: es la capa SÍNCRONA de "primer pintado". Cuando se abre la
+   ficha de una propiedad, propActFromRecord() corre al instante (sin
+   esperar red) y pinta un título/descripción/botón provisional en
+   #actT/#actD/#actBtn. Un momento después, la escalera de oro asíncrona
+   (propDocsMaybeSetAction + propSetAccionOro, ya corregida arriba en
+   este archivo) trae el dato real desde Eventos Operación y SOBREESCRIBE
+   esos mismos elementos con la acción correcta.
+
+   POR QUÉ 'prod.pendiente' NUNCA DA true EN LA PRÁCTICA: esta función
+   busca la fecha de producción directo en el registro de Propiedades
+   NERI (campos 'Fecha propuesta producción' / 'Fecha Producción' /
+   'Producción Fecha' / etc.). Pero por diseño ya documentado en este
+   proyecto: cuando el propietario propone día/hora, Make (escenario
+   5431139) escribe esa propuesta en Eventos Operación — NO en el campo
+   'Produccion Fecha' de la propiedad, que se queda vacío a propósito
+   mientras la propuesta está pendiente. Ese campo de la propiedad solo
+   se llena DESPUÉS, cuando el asesor ya confirmó (ver
+   propSetAccionConfirmarProduccion, que lo escribe como espejo). Así
+   que aunque se corrijan los nombres de campo aquí, esta función jamás
+   va a detectar una propuesta pendiente — el dato que busca sencillamente
+   no vive en este registro durante esa ventana de tiempo. No es un typo,
+   es un modelo de datos que quedó desactualizado cuando se construyó la
+   escalera de oro nueva (que si lee Eventos Operación correctamente).
+
+   SIGUE VIVA / SE SIGUE LLAMANDO: propProduccionAction() (más abajo) es
+   el manejador de clic genérico del botón principal cuando el portal ya
+   se envió (ver propMainAction) — si se usa antes de que la escalera de
+   oro asíncrona reemplace el onclick, manda el mensaje genérico de "ya
+   te compartí el portal, propón día y hora" AUNQUE el propietario ya
+   haya propuesto y esté esperando confirmación. taProduccionCards() (las
+   tarjetas del dashboard) tiene el mismo problema por el mismo motivo:
+   nunca genera la tarjeta de "falta confirmar producción" porque su
+   condición de salida temprana depende de esta misma fecha que nunca
+   llega. Ninguna de las dos está "muerta"; las dos están vivas pero
+   estructuralmente incapaces de detectar el estado pendiente.
+
+   NO TOCADO A PROPÓSITO: arreglar esto de verdad significa hacer que
+   ambas lean Eventos Operación como ya hace propProdFetchEvento() más
+   arriba — es un cambio de arquitectura, no un ajuste de nombre de
+   campo, y merece su propio "Dale" explícito antes de moverlo.
+   ═══════════════════════════════════════════════════════════════════ */
 function propProduccionInfo(rec){
   const fecha=propFirst(rec,['Fecha propuesta producción','Fecha Producción','Fecha de Producción','Producción Fecha','Fecha Produccion']);
   const estado=String(propFirst(rec,['Estado Producción','Producción Confirmada','Produccion Confirmada','Confirmación Producción'])||'').toLowerCase();
@@ -4893,6 +5026,10 @@ function propProduccionInfo(rec){
   const phone=(typeof fcPhone==='function')?fcPhone(tel):waNumberProp(tel);
   return {fecha, estado, owner, nombre, tel, phone, pendiente:!!(fecha && !/confirm|realizad|cancel/.test(estado))};
 }
+// Rama "provisional" de la ficha mientras la escalera de oro asíncrona
+// no ha terminado de cargar. Ver comentario grande arriba: prod.pendiente
+// nunca da true en la práctica, así que en los hechos esta función SIEMPRE
+// regresa la rama genérica de abajo ("Portal enviado. Ahora toca...").
 function propActProduccion(rec){
   const prod=propProduccionInfo(rec);
   if(prod.pendiente){
@@ -5489,7 +5626,11 @@ async function propMarcarPortalEnviado(recId){
   }
   const fields={
     'Fecha Portal Enviado':new Date().toISOString(),
-    'Siguiente jugada':'Producción inmobiliaria: confirmar cita de foto y video desde el portal de venta.'
+    // 'Siguiente jugada' NO existe en Propiedades NERI (ese nombre de campo
+    // solo existe en Leads Compradores) — mandarlo aquí hacía que Airtable
+    // rechazara el PATCH completo, incluyendo 'Fecha Portal Enviado'. El
+    // campo equivalente en esta tabla es 'Notas Internas'.
+    'Notas Internas':'Producción inmobiliaria: confirmar cita de foto y video desde el portal de venta.'
   };
   let updatedRec=null;
   try{
@@ -5512,6 +5653,16 @@ async function propMarcarPortalEnviado(recId){
   mqNote('✓ Portal registrado en Airtable. Siguiente paso: producción inmobiliaria.');
   return true;
 }
+// MANEJADOR DE CLIC GENÉRICO del botón principal cuando el portal ya se
+// envió (lo llama propMainAction). Depende de propProduccionInfo, así que
+// hereda el mismo problema documentado arriba: prod.pendiente nunca da
+// true, así que esta función SIEMPRE manda el mensaje genérico de "propón
+// día y hora" (rama de abajo) — nunca el de "confirmar la fecha que ya
+// propusiste" (rama de arriba), aunque el propietario ya haya propuesto.
+// En la práctica esto casi no se nota porque la escalera de oro asíncrona
+// (propDocsMaybeSetAction) normalmente ya reemplazó el onclick del botón
+// antes de que el asesor alcance a dar clic — pero si algo tarda o falla
+// esa carga, este es el mensaje de respaldo que sí sale, y sale mal.
 function propProduccionAction(p){
   const rec=getPropRecord(p._recId)||propCurrentRec(p);
   const prod=propProduccionInfo(rec);
