@@ -88,28 +88,6 @@ body{font-family:'Montserrat',sans-serif;background:var(--black);color:var(--w10
   .prep-it{border-right:none;}
 }
 
-
-/* ── PROPUESTA DE CITA DEL CLIENTE ── */
-.propuesta-wrap{display:none;margin:0 20px 24px;padding:18px;background:linear-gradient(180deg,rgba(198,168,107,.08),rgba(255,255,255,.02));border:1px solid var(--gold-border);border-left:3px solid var(--gold);border-radius:6px;}
-.propuesta-wrap.active{display:block;}
-.prop-title{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:1.5px;color:var(--w100);line-height:1;margin-bottom:8px;}
-.prop-copy{font-size:12.5px;color:var(--w60);line-height:1.65;margin-bottom:14px;}
-.prop-copy b{color:var(--gold-light);font-weight:600;}
-.prop-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
-.prop-field{display:flex;flex-direction:column;gap:6px;}
-.prop-field.full{grid-column:1/-1;}
-.prop-label{font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);}
-.prop-input{width:100%;background:rgba(255,255,255,.035);border:1px solid var(--w8);border-radius:4px;color:var(--w100);font-family:'Montserrat',sans-serif;font-size:13px;padding:11px 12px;outline:none;}
-.prop-input:focus{border-color:var(--gold-border);background:rgba(198,168,107,.06);}
-textarea.prop-input{min-height:72px;resize:vertical;line-height:1.5;}
-.prop-btn{width:100%;margin-top:6px;padding:14px;border:none;border-radius:5px;background:var(--gold);color:#0A0A0A;font-family:'Montserrat',sans-serif;font-size:10px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;cursor:pointer;}
-.prop-btn:hover{background:var(--gold-light);}
-.prop-btn:disabled{opacity:.55;cursor:not-allowed;}
-.prop-msg{display:none;margin-top:12px;padding:11px 12px;border-radius:4px;font-size:12px;line-height:1.55;}
-.prop-msg.ok{display:block;background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.25);color:#8be8aa;}
-.prop-msg.err{display:block;background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.25);color:#f7b4ab;}
-@media(max-width:520px){.prop-grid{grid-template-columns:1fr;}}
-
 /* ── NOTAS ── */
 .notas{margin-bottom:24px;padding:14px 16px;background:var(--black-3);border:1px solid var(--w8);border-radius:4px;}
 .notas .d-lbl{margin-bottom:7px;color:var(--gold);}
@@ -202,28 +180,6 @@ textarea.prop-input{min-height:72px;resize:vertical;line-height:1.5;}
         <div class="d-lbl">Notas de tu asesor</div>
         <div class="notas-txt" id="notasX"></div>
       </div>
-
-    <div class="propuesta-wrap" id="propuestaWrap">
-      <div class="prop-title">Propón día y hora</div>
-      <div class="prop-copy">Para preparar correctamente la salida al mercado, necesitamos validar contigo la cita de foto y video. <b>Tu asesor revisará la disponibilidad y te confirmará la cita final.</b></div>
-      <div class="prop-grid">
-        <div class="prop-field">
-          <label class="prop-label" for="propFecha">Día propuesto</label>
-          <input class="prop-input" id="propFecha" type="date">
-        </div>
-        <div class="prop-field">
-          <label class="prop-label" for="propHora">Hora propuesta</label>
-          <input class="prop-input" id="propHora" type="time">
-        </div>
-        <div class="prop-field full">
-          <label class="prop-label" for="propComentario">Comentario opcional</label>
-          <textarea class="prop-input" id="propComentario" placeholder="Ej. Puedo recibirlos por la mañana, antes de las 12:00."></textarea>
-        </div>
-      </div>
-      <button class="prop-btn" id="btnPropuesta" onclick="enviarPropuestaCita()">Enviar propuesta de cita</button>
-      <div class="prop-msg" id="propMsg"></div>
-    </div>
-
     </div>
 
     <div class="asesor-wrap" id="asesorWrap" style="display:none">
@@ -238,7 +194,7 @@ textarea.prop-input{min-height:72px;resize:vertical;line-height:1.5;}
       </div>
     </div>
 
-    <a class="wa-btn" id="btnWa" target="_blank" rel="noopener" style="display:none">Hablar con tu asesor</a>
+    <a class="wa-btn" id="btnWa" target="_blank" rel="noopener" style="display:none">Avisar por WhatsApp</a>
     <button class="pdf-btn" onclick="window.print()">Descargar PDF</button>
 
     <div class="foot">
@@ -256,7 +212,6 @@ textarea.prop-input{min-height:72px;resize:vertical;line-height:1.5;}
    Lee ?evento=FOLIO y consulta el webhook de Eventos Operación.
    ════════════════════════════════════════════════════════════ */
 var WEBHOOK = "https://hook.us2.make.com/5ixjyngdawk1wstore3xg91xmiwym5i9";
-var WEBHOOK_PROPUESTA = "https://hook.us2.make.com/u0o13og2uful6sinwcq5w5xnjs3rg0oq";
 
 var C = {
   folio:"", tipo:"", estado:"", propiedad:"", cliente:"", fecha:"", hora:"", lugar:"",
@@ -286,10 +241,7 @@ function aplicar(d){
   if(tv(d.asesor||d.asesorNombre))          C.asesor  = String(d.asesor||d.asesorNombre).trim();
   if(tv(d.asesorFoto))                      C.asesorFoto = String(d.asesorFoto).trim();
   if(tv(d.asesorFrase||d.frase))            C.asesorFrase = String(d.asesorFrase||d.frase).trim();
-  if(tv(d.wa||d.whatsapp||d.asesorWhatsapp)){
-    C.wa = String(d.wa||d.whatsapp||d.asesorWhatsapp).replace(/\D/g,'');
-    if(C.wa.length === 10) C.wa = '52' + C.wa;
-  }
+  if(tv(d.wa||d.whatsapp||d.asesorWhatsapp))C.wa      = String(d.wa||d.whatsapp||d.asesorWhatsapp).replace(/\D/g,'');
   if(tv(d.foto||d.fotoPropiedad||d.portada))C.foto    = String(d.foto||d.fotoPropiedad||d.portada).trim();
   if(tv(d.logo||d.logoEmpresa))             C.logo    = String(d.logo||d.logoEmpresa).trim();
   if(d.independiente!==undefined){ var i=String(d.independiente).toLowerCase(); C.independiente=(i==='true'||i==='1'||i==='si'||i==='sí'); }
@@ -311,12 +263,11 @@ var TIPOS = {
 };
 
 var ESTADOS_CITA = {
-  'Pendiente':             {cls:'b-pend', note:'Registrada. Tu asesor confirmará los detalles pronto.'},
-  'Pendiente de confirmar':{cls:'b-pend', note:'Registrada. Elige día y hora para proponer tu cita al asesor.'},
-  'Confirmada':            {cls:'b-conf', note:'Te esperamos el día y hora indicados.'},
-  'Realizada':             {cls:'b-real', note:'Este evento ya se realizó. Gracias por tu tiempo.'},
-  'Cancelada':             {cls:'b-canc', note:'Cancelado. Escribe a tu asesor para reagendar.'},
-  'Reagendada':            {cls:'b-reag', note:'Reagendado. Revisa la nueva fecha y hora.'}
+  'Pendiente':  {cls:'b-pend', note:'Registrada. Tu asesor confirmará los detalles pronto.'},
+  'Confirmada': {cls:'b-conf', note:'Confirmada. Te esperamos el día y hora indicados.'},
+  'Realizada':  {cls:'b-real', note:'Este evento ya se realizó. Gracias por tu tiempo.'},
+  'Cancelada':  {cls:'b-canc', note:'Cancelado. Escribe a tu asesor para reagendar.'},
+  'Reagendada': {cls:'b-reag', note:'Reagendado. Revisa la nueva fecha y hora.'}
 };
 var ESTADOS_OFERTA = {
   'Enviada':      {cls:'b-pend', note:'Oferta presentada. Está en tus manos revisarla y responder.'},
@@ -326,96 +277,21 @@ var ESTADOS_OFERTA = {
   'Rechazada':    {cls:'b-canc', note:'Oferta declinada. Tu asesor sigue trabajando la operación.'}
 };
 
+function formatFechaBonita(fechaStr){
+  var s=String(fechaStr||'').trim();
+  var m=s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if(!m) return s; // no es ISO — texto libre de otro flujo, se deja tal cual
+  var dias=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+  var meses=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  var d=new Date(Number(m[1]), Number(m[2])-1, Number(m[3])); // fecha local — evita desfase de zona horaria
+  return dias[d.getDay()]+' '+m[3]+' '+meses[Number(m[2])-1]+' '+m[1];
+}
 function cell(lbl, val, cls, full){
   var d = document.createElement('div'); d.className = 'data-cell' + (full ? ' full' : '');
   var l = document.createElement('div'); l.className = 'd-lbl'; l.textContent = lbl;
   var v = document.createElement('div'); v.className = 'd-val' + (cls ? ' ' + cls : ''); v.textContent = val;
   d.appendChild(l); d.appendChild(v);
   return d;
-}
-
-
-function estadoNormal(v){
-  return String(v||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
-}
-function puedeProponerCita(t){
-  var estado = estadoNormal(C.estado || 'Pendiente');
-  var tipo = estadoNormal(C.tipo || 'Producción Inmobiliaria');
-  if(!t || !t.esCita) return false;
-  if(tipo.indexOf('produccion') === -1) return false;
-  /* bloquear solo estados terminales: Confirmada, Realizada, Cancelada */
-  if(estado === 'confirmada' || estado.indexOf('realiz') > -1 || estado.indexOf('cancel') > -1) return false;
-  return true;
-}
-function renderPropuesta(t){
-  var box = document.getElementById('propuestaWrap');
-  if(!box) return;
-  if(!puedeProponerCita(t)){ box.classList.remove('active'); return; }
-  box.classList.add('active');
-  var today = new Date();
-  today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
-  var fecha = document.getElementById('propFecha');
-  if(fecha && !fecha.value){ fecha.min = today.toISOString().slice(0,10); }
-}
-function setPropMsg(kind, msg){
-  var m = document.getElementById('propMsg');
-  if(!m) return;
-  m.className = 'prop-msg ' + (kind || '');
-  m.textContent = msg || '';
-}
-function whatsappPropuestaUrl(fecha,hora,comentario){
-  if(!C.wa) return '';
-  var msg = 'Hola' + (C.asesor ? ' ' + C.asesor : '') + ', ' +
-    (C.cliente ? C.cliente : 'el propietario') +
-    ' propuso una cita de producción inmobiliaria' +
-    (C.propiedad ? ' para ' + C.propiedad : '') + '.' +
-    '\n\nDía propuesto: ' + fecha +
-    '\nHora propuesta: ' + hora +
-    (comentario ? '\nComentario: ' + comentario : '\nComentario: Sin comentario') +
-    (C.folio ? '\n\nFolio del evento: ' + C.folio : '') +
-    '\n\nPor favor revisa disponibilidad y confirma la cita final.';
-  return 'https://wa.me/' + C.wa + '?text=' + encodeURIComponent(msg);
-}
-function abrirWhatsappPropuesta(fecha,hora,comentario,preopened){
-  var url = whatsappPropuestaUrl(fecha,hora,comentario);
-  if(!url) return false;
-  if(preopened && !preopened.closed){ preopened.location.href = url; return true; }
-  window.open(url, '_blank');
-  return true;
-}
-function enviarPropuestaCita(){
-  var fecha = (document.getElementById('propFecha')||{}).value || '';
-  var hora = (document.getElementById('propHora')||{}).value || '';
-  var comentario = (document.getElementById('propComentario')||{}).value || '';
-  var btn = document.getElementById('btnPropuesta');
-  if(!fecha || !hora){ setPropMsg('err','Elige día y hora para enviar tu propuesta.'); return; }
-  var waWin = null;
-  if(C.wa){
-    try{ waWin = window.open('', '_blank'); }catch(e){ waWin = null; }
-  }
-  var payload = {
-    folioEvento: C.folio,
-    fechaPropuesta: fecha,
-    horaPropuesta: hora,
-    comentario: comentario
-  };
-  if(btn){ btn.disabled = true; btn.textContent = 'Enviando propuesta…'; }
-  setPropMsg('', '');
-  fetch(WEBHOOK_PROPUESTA, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload), cache:'no-store' })
-    .then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
-    .then(function(){
-      setPropMsg('ok','Tu propuesta fue enviada al asesor. Te confirmaremos la disponibilidad final antes de agendar la producción.');
-      var badge = document.getElementById('evBadge');
-      if(badge){ badge.textContent = 'Propuesta enviada'; badge.className = 'estado-badge b-reag'; }
-      txt('evNote','Tu asesor validará la disponibilidad y confirmará la cita final.');
-      abrirWhatsappPropuesta(fecha,hora,comentario,waWin);
-      if(btn){ btn.disabled = true; btn.textContent = 'Propuesta enviada'; }
-    })
-    .catch(function(){
-      var opened = abrirWhatsappPropuesta(fecha,hora,comentario,waWin);
-      setPropMsg(opened ? 'ok' : 'err', opened ? 'No se pudo guardar directo en este momento, pero abrimos WhatsApp con tu propuesta para enviarla al asesor.' : 'No se pudo enviar directo. Escíbele a tu asesor para confirmar la cita.');
-      if(btn){ btn.disabled = false; btn.textContent = 'Enviar propuesta de cita'; }
-    });
 }
 
 function pintar(){
@@ -452,11 +328,11 @@ function pintar(){
   txt('detLabel', t.detLabel);
   var g = document.getElementById('dataGrid');
   if(t.esCita){
-    if(C.fecha) g.appendChild(cell('Fecha', C.fecha, 'gold'));
+    if(C.fecha) g.appendChild(cell('Fecha', formatFechaBonita(C.fecha), 'gold'));
     if(C.hora)  g.appendChild(cell('Hora', C.hora, 'gold'));
-    if(C.lugar) g.appendChild(cell('Lugar', C.lugar, ''));
-    if(C.cliente) g.appendChild(cell('A nombre de', C.cliente, ''));
-    if(C.propiedad && C.propiedad !== C.lugar) g.appendChild(cell('Propiedad', C.propiedad, '', true));
+    if(C.lugar) g.appendChild(cell('Lugar', C.lugar, '', true));
+    if(C.cliente) g.appendChild(cell('A nombre de', C.cliente));
+    if(C.propiedad && C.propiedad !== C.lugar) g.appendChild(cell('Propiedad', C.propiedad));
   } else {
     if(C.montoOferta) g.appendChild(cell('Monto de la oferta', C.montoOferta, 'monto', true));
     if(C.fecha) g.appendChild(cell('Presentada', C.fecha, 'gold'));
@@ -489,8 +365,6 @@ function pintar(){
     txt('notasX', notasTxt);
   }
 
-  renderPropuesta(t);
-
   /* asesor */
   if(C.asesor){
     document.getElementById('asesorWrap').style.display = 'block';
@@ -513,7 +387,7 @@ function pintar(){
     btn.href = 'https://wa.me/' + C.wa + '?text=' + encodeURIComponent(msg);
     btn.style.display = 'flex';
     btn.textContent = t.esCita
-      ? (C.asesor ? 'Hablar con ' + C.asesor.split(' ')[0] : 'Hablar con tu asesor')
+      ? ('Avisar' + (C.asesor ? ' a ' + C.asesor.split(' ')[0] : '') + ' por WhatsApp')
       : 'Responder a tu asesor';
   }
 
