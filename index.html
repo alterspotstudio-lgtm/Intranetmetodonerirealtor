@@ -2119,6 +2119,17 @@ function propSetAccionConfirmarProduccion(p, prod, rec){
         try{ await atFetch(EVENTOS_TABLE+'/'+prod.recId,{method:'PATCH',body:JSON.stringify({fields:{'Estado':'Confirmada'},typecast:true})}); }
         catch(_){ /* si falla el PATCH igual mandamos el mensaje — no bloquea al asesor */ }
       }
+      // Espejo en Propiedades NERI: Eventos Operación es la fuente de verdad para
+      // Confirmacion.html, pero el portal del propietario (progreso-zeta) calcula
+      // su Etapa Comercialización a partir de Produccion Confirmada + Produccion
+      // Fecha en ESTA tabla. Sin este espejo, confirmar aquí nunca mueve esa etapa.
+      if(p&&p._recId){
+        try{
+          const fields={'Produccion Confirmada':true};
+          if(prod.fecha) fields['Produccion Fecha']=prod.fecha;
+          await atFetch(PROP_TABLE+'/'+p._recId,{method:'PATCH',body:JSON.stringify({fields:fields,typecast:true})});
+        }catch(_){ /* no bloquea al asesor; Eventos Operación ya quedó confirmado */ }
+      }
       const link=confirmacionEventoUrl(prod.folio);
       const msg='Hola '+nombre+', llegó el momento que estábamos esperando — pronto damos a conocer a la estrella de este proceso: '+propName+'.\n\n'
         +'◆ Fecha: '+prod.fecha+'\n'
