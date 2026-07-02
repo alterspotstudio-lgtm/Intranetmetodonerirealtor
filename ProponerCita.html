@@ -180,15 +180,25 @@ var C_asesorWa = '', C_asesorNombre = '', C_propiedad = '';
       C_asesorNombre = d.asesor || d.asesorNombre || '';
       C_asesorWa = String(d.wa||d.whatsapp||d.asesorWhatsapp||'').replace(/\D/g,'');
       if(d.asesor){ document.getElementById('navName').textContent = d.asesor; document.getElementById('navSub').textContent = 'Tu asesor inmobiliario'; }
+      // OJO: Make pone Estado='Pendiente de confirmar' como valor por
+      // DEFECTO al crear el evento la primera vez que alguien pide ver
+      // producción — antes de que exista cualquier propuesta real. El
+      // mismo texto significa dos cosas distintas: "recién creado, nadie
+      // propuso nada" y "el cliente ya propuso, falta que el asesor
+      // confirme". La única forma de distinguirlas es revisar si ya hay
+      // una fecha guardada — sin fecha, no hubo propuesta real, así que
+      // sí se debe mostrar el formulario aunque el estado ya diga
+      // "Pendiente de confirmar".
+      var yaHayPropuesta = tv(d.fecha);
       // Ya confirmada o realizada → no tiene caso proponer de nuevo,
       // se manda directo a la ficha formal (Confirmacion.html), mismo folio.
       if(estado === 'confirmada' || estado === 'realizada'){
         location.replace('Confirmacion.html?evento=' + encodeURIComponent(folio));
         return;
       }
-      // Ya está pendiente de que el asesor confirme → no se vuelve a
-      // pedir propuesta, se avisa que ya está en manos del asesor.
-      if(estado === 'pendiente de confirmar'){
+      // Ya hay una propuesta real (con fecha) esperando confirmación del
+      // asesor → no se vuelve a pedir otra, se avisa que ya está en sus manos.
+      if(estado === 'pendiente de confirmar' && yaHayPropuesta){
         document.getElementById('okTitle').textContent = 'Ya enviaste tu propuesta';
         document.getElementById('okSub').textContent = 'Tu asesor está revisando la disponibilidad. En cuanto confirme, te va a llegar la confirmación formal con todos los datos.';
         show('scr-enviado');
