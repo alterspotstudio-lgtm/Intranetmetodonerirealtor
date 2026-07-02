@@ -62,6 +62,7 @@ body{font-family:'Montserrat',sans-serif;background:var(--black);color:var(--w10
 .f-inp:focus{outline:none;border-color:var(--gold-border);}
 textarea.f-inp{resize:vertical;min-height:70px;font-size:13px;}
 .f-note{font-size:11px;color:var(--w35);line-height:1.5;margin-bottom:20px;}
+.f-hora-hint{font-size:10px;color:var(--gold);margin-top:6px;}
 .submit-btn{display:block;width:100%;padding:15px;background:var(--gold);color:var(--black);border:none;font-family:'Montserrat',sans-serif;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;border-radius:5px;cursor:pointer;transition:filter .15s;}
 .submit-btn:hover{filter:brightness(1.08);}
 .submit-btn:disabled{opacity:.5;cursor:default;}
@@ -122,7 +123,8 @@ textarea.f-inp{resize:vertical;min-height:70px;font-size:13px;}
           </div>
           <div>
             <label class="f-lbl">Hora propuesta</label>
-            <input class="f-inp" type="time" id="fHora" required>
+            <input class="f-inp" type="time" id="fHora" min="09:00" max="15:00" required>
+            <div class="f-hora-hint">Horario disponible: 9:00 a.m. – 3:00 p.m., todos los días.</div>
           </div>
         </div>
         <div class="form-row">
@@ -206,6 +208,16 @@ document.getElementById('formCita').addEventListener('submit', function(ev){
   var hora = document.getElementById('fHora').value;
   var comentario = document.getElementById('fComentario').value.trim();
   if(!fecha || !hora) return;
+  // El min/max del input de hora es solo visual — muchos navegadores
+  // (sobre todo en celular) no lo obligan. Esta es la validación real.
+  var horaMin = hora.split(':').map(Number);
+  var minutosHora = horaMin[0]*60 + horaMin[1];
+  if(minutosHora < 9*60 || minutosHora > 15*60){
+    err.textContent = 'El horario disponible es de 9:00 a.m. a 3:00 p.m.';
+    err.style.display = 'block';
+    return;
+  }
+  err.textContent = 'No se pudo enviar. Verifica tu conexión e intenta de nuevo.';
   btn.disabled = true; btn.textContent = 'Enviando…';
   fetch(WEBHOOK_PROPONE, {
     method:'POST',
