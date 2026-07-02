@@ -403,7 +403,7 @@
       + '<div class="cab-field"><label>Propietario</label><input id="cab_p_prop" class="prefilled" value="' + esc(p.propietario) + '"><div class="cab-prefnote">↳ Del registro</div></div>'
       + '<div class="cab-field"><label>Propiedad</label><input id="cab_p_propiedad" class="prefilled" value="' + esc(p.propiedad || '') + '"><div class="cab-prefnote">↳ Del registro · nombre que verá el cliente</div></div>'
       + '<div class="cab-field"><label>Dirección / Zona</label><input id="cab_p_dir" class="prefilled" value="' + esc(p.direccion) + '"><div class="cab-prefnote">↳ Del registro · completa si falta calle</div></div>'
-      + '<div class="cab-field-row"><div class="cab-field"><label>Fecha</label><input id="cab_p_fecha" placeholder="Lunes 2 de junio"></div><div class="cab-field"><label>Hora</label><input id="cab_p_hora" placeholder="10:00 am"></div></div>'
+      + '<div class="cab-field-row"><div class="cab-field"><label>Fecha</label><input type="date" id="cab_p_fecha"></div><div class="cab-field"><label>Hora</label><input type="time" id="cab_p_hora" min="09:00" max="15:00"><div class="cab-prefnote">9:00 a.m. – 3:00 p.m., cualquier día</div></div></div>'
       + '<div class="cab-field"><label>Duración</label><select id="cab_p_dur"><option>1 hora aprox.</option><option>1.5 horas aprox.</option><option>2 horas aprox.</option><option>2.5 horas aprox.</option><option>3 horas aprox.</option></select></div>'
       + '<div class="cab-seclabel">Preparación</div><div class="cab-checkgrid">' + checks + '</div>'
       + '<div class="cab-seclabel">Producción</div>' + prods
@@ -527,13 +527,40 @@
     return '<div class="cab-secbar"><div class="cab-secbar-l">' + esc(label) + '</div><div class="cab-secbar-line"></div></div>';
   }
 
+  function cabFormatFecha(iso) {
+    var m = String(iso || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (!m) return iso || '—';
+    var dias = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+    var meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+    var d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+    var dia = dias[d.getDay()]; dia = dia.charAt(0).toUpperCase() + dia.slice(1);
+    return dia + ' ' + Number(m[3]) + ' de ' + meses[Number(m[2]) - 1];
+  }
+  function cabFormatHora(hhmm) {
+    var m = String(hhmm || '').match(/^(\d{2}):(\d{2})/);
+    if (!m) return hhmm || '—';
+    var h = Number(m[1]), min = m[2];
+    var suf = h < 12 ? 'am' : 'pm';
+    var h12 = h % 12; if (h12 === 0) h12 = 12;
+    return h12 + ':' + min + ' ' + suf;
+  }
+  function cabHoraEnRango(hhmm) {
+    var m = String(hhmm || '').match(/^(\d{2}):(\d{2})/);
+    if (!m) return false;
+    var mins = Number(m[1]) * 60 + Number(m[2]);
+    return mins >= 9 * 60 && mins <= 15 * 60;
+  }
   function cabGenProduccion() {
     var a = asesorActual();
     var prop = byId('cab_p_prop').value || '—';
     var propiedad = (byId('cab_p_propiedad') && byId('cab_p_propiedad').value) || cab.prefill.propiedad || 'su propiedad';
     var dir = byId('cab_p_dir').value || '—';
-    var fecha = byId('cab_p_fecha').value || '—';
-    var hora = byId('cab_p_hora').value || '—';
+    var fechaRaw = byId('cab_p_fecha').value || '';
+    var horaRaw = byId('cab_p_hora').value || '';
+    if (!fechaRaw || !horaRaw) { alert('Falta la fecha o la hora de la sesión.'); return; }
+    if (!cabHoraEnRango(horaRaw)) { alert('El horario disponible es de 9:00 a.m. a 3:00 p.m.'); return; }
+    var fecha = cabFormatFecha(fechaRaw);
+    var hora = cabFormatHora(horaRaw);
     var dur = byId('cab_p_dur').value || '—';
     var checksHTML = CHECKLIST.map(function (it, i) {
       return byId('cab_pc' + i) && byId('cab_pc' + i).checked
@@ -561,7 +588,7 @@
     var msg = 'Hola ' + n0 + ' 🏡\n\nLlegó el momento que estábamos esperando — pronto damos a conocer a la estrella de este proceso: *' + propiedad + '*.\n\n📅 *Fecha:* ' + fecha + '\n🕐 *Hora de llegada del equipo:* ' + hora + '\n⏱ *Duración estimada:* ' + dur + '\n\nLe comparto la confirmación con todo lo que necesitamos tener listo para que la propiedad luzca en su mejor versión.\n\nCualquier ajuste, con gusto lo atendemos con anticipación.\n\n— ' + a.nombre + '\n📲 ' + a.tel + '\n*Método Neri · Sistema de Control de Calidad Inmobiliaria*';
     showWA(msg);
     showActionButtons('cab_bp_print', 'cab_bp_wa');
-    cabCrearEvento('Producción Inmobiliaria', { estado: 'Pendiente de confirmar', fields: { 'Cliente': prop, 'Propiedad': propiedad, 'Lugar': dir, 'Fecha': fecha, 'Hora': hora, 'Notas': 'Duración estimada: ' + dur + (function(){ var p = CHECKLIST.filter(function(it,i){ return byId('cab_pc'+i) && byId('cab_pc'+i).checked; }).map(function(it){ return it.t; }); return p.length ? '\nCómo preparar la propiedad: ' + p.join(', ') + '.' : ''; })() } }, function (err, ev) {
+    cabCrearEvento('Producción Inmobiliaria', { estado: 'Confirmada', fields: { 'Cliente': prop, 'Propiedad': propiedad, 'Lugar': dir, 'Fecha': fecha, 'Hora': hora, 'Notas': 'Duración estimada: ' + dur + (function(){ var p = CHECKLIST.filter(function(it,i){ return byId('cab_pc'+i) && byId('cab_pc'+i).checked; }).map(function(it){ return it.t; }); return p.length ? '\nCómo preparar la propiedad: ' + p.join(', ') + '.' : ''; })() } }, function (err, ev) {
       if (err || !ev) { showEventoError(); return; }
       showEventoLink(ev.link, ev.folio);
       showWA(msg + '\n\n🔗 *Su confirmación en línea (siempre actualizada):*\n' + ev.link);
@@ -1165,7 +1192,7 @@
         ? '<div class="cab-acc-hint" style="border-left:2px solid #C6A86B;padding-left:10px;color:#C6A86B">Producción de video en curso · máximo 2 días. La <b>Oferta Formal</b> se libera en cuanto subas los videos a la landing.</div>'
         : '')
       + '<div class="cab-acc-grid">'
-      + accBtn('produccion', 'Producción Inmobiliaria', 'Foto y video · confirmación al propietario', minimosOk, 'Se libera con documentos mínimos recibidos o validados')
+      + accBtn('produccion', 'Producción Inmobiliaria', 'Foto y video · confirmación al propietario', esPropiedad, 'Se libera cuando la operación ya existe como propiedad')
       + accBtn('notaria', 'Cita en Notaría', 'Formalización · confirmación al cliente', expedienteOk, 'Se libera con expediente completo/validado')
       + '</div>'
       + '<div class="cab-acc-grid" style="margin-top:8px">'
