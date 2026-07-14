@@ -4827,27 +4827,6 @@ let CURRENT_PROP = (typeof PROPS!=='undefined' && PROPS.length)?PROPS[0]:null;
 const _renderPropBase = renderProp;
 renderProp = function(p){ CURRENT_PROP=p; return _renderPropBase(p); };
 
-/* ─────────────────────────────────────────────
-   AUTO-REFRESCO DE LA ACCIÓN DE ORO — sin UI nueva.
-   propDocsCheck() (documentos + producción) solo corría al
-   seleccionar la propiedad. Si el propietario sube documentos
-   o propone día/hora desde su portal mientras el asesor ya
-   tiene la propiedad abierta, el botón dorado se quedaba
-   "estacionado" en la acción vieja hasta reseleccionar o
-   recargar. Esto la vuelve a consultar sola: al regresar el
-   foco a la pestaña y cada 45s mientras sigue visible. No
-   toca "Lo que toca hoy" ni agrega ningún elemento visual. ───── */
-(function(){
-  function refrescarAccionOro(){
-    if(CURRENT_PROP && typeof propDocsCheck==='function'){ try{ propDocsCheck(CURRENT_PROP); }catch(_){} }
-  }
-  document.addEventListener('visibilitychange', function(){
-    if(document.visibilityState==='visible') refrescarAccionOro();
-  });
-  window.addEventListener('focus', refrescarAccionOro);
-  setInterval(refrescarAccionOro, 45000);
-})();
-
 function renderParties(p){
   p=p||{};
   var sage='#4ade80', sageRgb='74,222,128';
