@@ -4164,7 +4164,7 @@ renderCaptacion('comp');
    Orden: documento > lead nuevo > propiedad bloqueada > cita > producción.
 ═══════════════════════════════════════════ */
 const TARJETAS_ACCION_MAX = 5;
-const TARJETAS_ACCION_ORDEN = {documento:1,lead:2,riesgo:3,cita:4,produccion:5};
+const TARJETAS_ACCION_ORDEN = {documento:1,lead:2,riesgo:3,cita:4};
 let tarjetasAccionTimer = null;
 let tarjetasAccionCitasCache = [];
 let tarjetasAccionCitasStamp = 0;
@@ -4332,61 +4332,12 @@ async function taCitaCards(){
   const seen=new Set();
   return fromBuyers.concat(fromTable).filter(c=>{ const k=c.nombre+'|'+c.descripcion; if(seen.has(k))return false; seen.add(k); return true; });
 }
-// TARJETA DE "NUEVA PROPUESTA DE PRODUCCIÓN" — el aviso discreto que
-// aparece arriba, en la cuadrícula de Tarjetas de Acción del dashboard
-// (junto con documentos/leads/riesgo/citas), NO en el botón dorado de la
-// ficha. Es el aviso que Enrique confirmó que ya existía: cuando el
-// cliente propone día/hora, aquí es donde se entera sin tener que abrir
-// cada propiedad una por una.
-//
-// Lee DIRECTO de Eventos Operación (igual que propProdFetchEvento), que es
-// donde de verdad vive la propuesta mientras está pendiente — reemplaza el
-// bloque roto que buscaba la fecha en el registro de la propiedad y nunca
-// la encontraba (ver comentario grande arriba de propProduccionInfo, unas
-// líneas más abajo en este archivo).
-//
-// Al dar clic en la tarjeta, lleva a la ficha de la propiedad — ahí es
-// donde vive el botón "Confirmar cita" (propSetAccionConfirmarProduccion),
-// que ya manda el WhatsApp real de confirmación al cliente. Esta tarjeta
-// NO manda WhatsApp por sí misma: es solo el aviso de que hay algo
-// pendiente por revisar, coherente con que en este sistema nada sale sin
-// que el asesor lo confirme y lo envíe él mismo.
-async function taProduccionCards(){
-  const cards=[];
-  let recs=[];
-  try{
-    const formula="AND({Estado}='Pendiente de confirmar',REGEX_MATCH({Tipo Evento}&'','(?i)producci'))";
-    const data=await atFetch(EVENTOS_TABLE+'?maxRecords=30&filterByFormula='+encodeURIComponent(formula));
-    recs=(data&&data.records)||[];
-  }catch(_){ return cards; }
-  recs.forEach(function(ev){
-    const folioProp=propFirst(ev,['Folio Propiedad']);
-    const p=(PROPS||[]).find(function(q){ return q&&q.folio&&folioProp&&leadVendFolioKey(q.folio)===leadVendFolioKey(folioProp); });
-    const nombreCliente=propFirst(ev,['Cliente'])||'El propietario';
-    const propName=propFirst(ev,['Propiedad'])||(p&&p.name)||'la propiedad';
-    const fecha=propFirst(ev,['Fecha'])||'una fecha';
-    const hora=propFirst(ev,['Hora']);
-    const folioEvento=propFirst(ev,['Folio Evento'])||ev.id;
-    cards.push({
-      tipo:'produccion',
-      prio:TARJETAS_ACCION_ORDEN.produccion,
-      nombre:nombreCliente,
-      descripcion:nombreCliente+' propuso '+fecha+(hora?' a las '+hora:'')+' para la producción de '+propName+'. Folio del evento: '+folioEvento+'. Revisa disponibilidad y confirma la cita.',
-      action:'abrir-propiedad',
-      id:p?p._recId:'',
-      btn:'Revisar y confirmar',
-      ts:Date.now()
-    });
-  });
-  return cards;
-}
 async function buildTarjetasAccion(){
   const cards=[];
   cards.push(...await taDocumentCards(TARJETAS_ACCION_MAX));
   cards.push(...taLeadCards());
   cards.push(...taRiesgoCards());
   cards.push(...await taCitaCards());
-  cards.push(...await taProduccionCards());
   return cards.sort((a,b)=>(a.prio-b.prio)||((b.ts||0)-(a.ts||0))).slice(0,TARJETAS_ACCION_MAX);
 }
 function abrirTaSplash(){ var m=document.getElementById('taSplashModal'); if(m) m.classList.add('open'); }
@@ -4984,17 +4935,19 @@ function propPortalEnviado(rec){
    se envió (ver propMainAction) — si se usa antes de que la escalera de
    oro asíncrona reemplace el onclick, manda el mensaje genérico de "ya
    te compartí el portal, propón día y hora" AUNQUE el propietario ya
-   haya propuesto y esté esperando confirmación. taProduccionCards() (las
-   tarjetas del dashboard) tiene el mismo problema por el mismo motivo:
-   nunca genera la tarjeta de "falta confirmar producción" porque su
-   condición de salida temprana depende de esta misma fecha que nunca
-   llega. Ninguna de las dos está "muerta"; las dos están vivas pero
-   estructuralmente incapaces de detectar el estado pendiente.
+   haya propuesto y esté esperando confirmación. No está "muerta"; sigue
+   viva pero estructuralmente incapaz de detectar el estado pendiente.
 
    NO TOCADO A PROPÓSITO: arreglar esto de verdad significa hacer que
-   ambas lean Eventos Operación como ya hace propProdFetchEvento() más
-   arriba — es un cambio de arquitectura, no un ajuste de nombre de
-   campo, y merece su propio "Dale" explícito antes de moverlo.
+   lea Eventos Operación como ya hace propProdFetchEvento() más arriba —
+   es un cambio de arquitectura, no un ajuste de nombre de campo, y
+   merece su propio "Dale" explícito antes de moverlo.
+
+   (18-jul-2026: se eliminó taProduccionCards() — la tarjeta del dashboard
+   que leía Eventos Operación buscando Estado='Pendiente de confirmar' en
+   eventos de producción. Ese estado ya no lo escribe nada: el Make que lo
+   generaba [5431139, "cliente propone"] está desactivado desde el rediseño
+   donde el asesor propone directo. La tarjeta nunca iba a mostrar nada.)
    ═══════════════════════════════════════════════════════════════════ */
 function propProduccionInfo(rec){
   const fecha=propFirst(rec,['Fecha propuesta producción','Fecha Producción','Fecha de Producción','Producción Fecha','Fecha Produccion']);
