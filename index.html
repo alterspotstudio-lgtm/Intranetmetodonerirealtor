@@ -198,6 +198,14 @@ body{min-height:100vh;display:flex;justify-content:center;padding:22px 20px 60px
 }
 .act-btn svg{width:15px;height:15px}
 .act-btn:hover{transform:translateY(-1px)}
+.act-quick{display:flex;border-top:1px solid var(--w08)}
+.act-quick-btn{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 14px;border:none;background:transparent;cursor:pointer;
+  font-family:var(--fb);font-size:8.5px;letter-spacing:2px;text-transform:uppercase;font-weight:700;color:var(--w60);transition:color .25s,background .25s}
+.act-quick-btn+.act-quick-btn{border-left:1px solid var(--w08)}
+.act-quick-btn svg{width:13px;height:13px;flex-shrink:0;transition:transform .2s}
+.act-quick-btn:hover{color:var(--gold);background:var(--w04)}
+.act-quick-btn:hover svg{transform:translateY(-1px)}
+.act-quick-btn:active{color:var(--gold-l)}
 .act-unlock{font-family:var(--fm);font-size:8px;letter-spacing:.5px;color:var(--w60);display:flex;align-items:center;gap:6px}
 .act-unlock svg{width:12px;height:12px;opacity:.8}
 
@@ -1506,6 +1514,10 @@ a.owner-wa-link:hover{opacity:.75}
             <div class="act-unlock" id="actUnlock"></div>
           </div>
         </div>
+        <div class="act-quick">
+          <button class="act-quick-btn" type="button" onclick="propAccesoDirectoProduccion()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5.5" width="16" height="15" rx="2"/><path d="M4 9.5h16M8.5 3.5v4M15.5 3.5v4"/></svg>Producción inmobiliaria</button>
+          <button class="act-quick-btn" type="button" onclick="propAccesoDirectoDocs()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3.5H7a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8.5z"/><path d="M14 3.5v5h5M9 13h6M9 16.5h6"/></svg>Documentos</button>
+        </div>
       </div>
     </div>
   </div>
@@ -2210,6 +2222,18 @@ function propProdAbrirPicker(p){
   box.innerHTML='<div style="font-family:var(--fm);font-size:10px;letter-spacing:.6px;color:var(--w60);margin-bottom:6px">Elige un día · lunes a sábado</div>'
     +'<input type="date" id="prodFechaInput" min="'+minIso+'" style="background:rgba(255,255,255,.04);border:1px solid var(--w18);border-radius:3px;color:var(--w80);font-family:var(--fm);font-size:12px;padding:8px 10px;width:100%;max-width:220px" onchange="propProdCargarHoras(this.value)">'
     +'<div id="prodHorasBox" style="margin-top:10px"></div>';
+}
+// Accesos directos de la fila .act-quick — acceso manual a producción y
+// documentos en cualquier momento, sin esperar a que el candado dorado
+// les toque el turno. Reutilizan exactamente la misma lógica ya probada
+// (Vía B de producción, panel de expediente); no crean flujos nuevos.
+function propAccesoDirectoProduccion(){
+  const recId=propDocsActiveRecId; if(!recId) return;
+  const p=(typeof PROPS!=='undefined'?PROPS:[]).find(function(x){ return x._recId===recId; });
+  if(p) propProdAbrirPicker(p);
+}
+function propAccesoDirectoDocs(){
+  if(propDocsActiveRecId) propDocsOpen(propDocsActiveRecId);
 }
 async function propProdCargarHoras(fechaIso){
   const horasBox=document.getElementById('prodHorasBox'); if(!horasBox) return;
