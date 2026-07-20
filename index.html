@@ -1848,7 +1848,7 @@ function renderProp(p){
   if(!p) return;
   p.active=Math.max(0,Math.min(N-1,Number(p.active)||0));
   p.pct=Math.max(0,Math.min(100,Number(p.pct)||0));
-  p.act=p.act||{t:'Activar Portal de Venta',d:'Comparte al propietario el link madre de progreso, expediente documental y producción.',btn:'Activar portal de cliente',icon:'send',unlock:'Producción'};
+  p.act=p.act||{t:'Activar Portal de Venta',d:'',btn:'Enviar portal al cliente',icon:'send',unlock:'Producción'};
   const st=STAGES[p.active]||STAGES[0],acc=ACCENT[st.accent]||ACCENT.gold,rgb=ACCENT_RGB[st.accent]||ACCENT_RGB.gold;
   // segmentos
   const segs=document.getElementById('segs');segs.innerHTML='';
@@ -1920,7 +1920,7 @@ function renderProp(p){
   document.getElementById('actT').textContent=p.act.t;
   document.getElementById('actD').textContent=p.act.d;
   const btn=document.getElementById('actBtn');
-  btn.innerHTML=(IC[p.act.icon]||IC.send)+(p.act.btn||'Activar portal de cliente');btn.style.background=acc;
+  btn.innerHTML=(IC[p.act.icon]||IC.send)+(p.act.btn||'Enviar portal al cliente');btn.style.background=acc;
   btn.style.boxShadow=`0 6px 18px rgba(${rgb},.22)`;
   btn.onclick=function(ev){ev.preventDefault(); if(typeof propMainAction==='function') propMainAction(p);};
   document.getElementById('actUnlock').innerHTML=IC.lockOpen+`Al completar se abre: <b style="color:rgba(${rgb},.95);font-weight:600;margin-left:2px">${p.act.unlock}</b>`;
@@ -5131,8 +5131,8 @@ function propActFromRecord(rec){
   return {
     key:'enviar-portal',
     t: sj || 'Activar Portal de Venta del propietario',
-    d: 'Comparte el link madre: progreso de venta, expediente documental y confirmación de producción inmobiliaria.',
-    btn: 'Activar portal de cliente', icon:'send', unlock:'Producción'
+    d: '',
+    btn: 'Enviar portal al cliente', icon:'send', unlock:'Producción'
   };
 }
 function propMapRecord(rec){
@@ -5529,7 +5529,7 @@ function renderFichaPropModal(p){
   const rielActs=!min.ok
     ? '<button class="fp-riel-btn ghost" type="button" onclick="document.querySelector(\'#fichaPropBox .le-sec[open]\')?.scrollIntoView({behavior:\'smooth\',block:\'start\'})">Completar datos</button>'
     : (!portalActivo
-      ? `<button class="fp-riel-btn" type="button" onclick="propEnviarPortalDesdeFicha()"${portalDisabled}>Activar portal de cliente</button>`
+      ? `<button class="fp-riel-btn" type="button" onclick="propEnviarPortalDesdeFicha()"${portalDisabled}>Enviar portal al cliente</button>`
       : (linkComp
         ? `<button class="fp-riel-btn ghost" type="button" data-url="${_escAttr(linkComp)}" onclick="propOpenUrl(this.dataset.url,'Esta propiedad todavía no tiene Link Comprador.')">Ver landing</button>`
         : '<button class="fp-riel-btn ghost" type="button" disabled>Landing pendiente</button>'));
@@ -5558,7 +5558,7 @@ function renderFichaPropModal(p){
     <button class="modal-x" onclick="closeFichaProp()">&times;</button>
     <div class="fp-header"><div><div class="fp-name">${_esc(nombre)}</div><div class="fp-sub">Propiedad · editor de landing conectado</div><div class="fp-wa">${precioTxt}${headerPills}</div></div><div class="fp-folio"><div class="fp-folio-lbl">Folio</div>${_esc(folio||'— sin folio aún —')}</div></div>
     <div class="fp-body"><div class="fp-sec"><div class="fp-sec-title"><em>◇</em> Siguiente paso</div>${riel}</div><div class="fp-sec fp-context">${propV05FichaBanner(rec)}<div id="med-reloj-mount" data-folio="${_escAttr(folio)}"></div><div id="pmkt-mount" data-folio="${_escAttr(folio)}"></div><div class="le-banner">Para enviar el portal solo se requieren datos básicos de la propiedad. Portada y videos se completan después de agendar producción inmobiliaria.</div>${secs}${lockBlock}</div></div>
-    <div class="fp-actions"><span class="fp-status" id="prop-save-msg"></span><button class="m-btn" onclick="closeFichaProp()">Cerrar</button><button class="m-btn" data-url="${_escAttr(linkComp)}" onclick="propOpenUrl(this.dataset.url,'Esta propiedad todavía no tiene Link Comprador.')">◎ Ver landing</button><button class="m-btn" data-url="${_escAttr(propFichaUrl(p))}" onclick="propOpenUrl(this.dataset.url,'Esta propiedad todavía no tiene folio para ficha técnica.')">▣ Ver ficha técnica</button><button class="m-btn" data-url="${_escAttr(propFichaUrl(p))}" onclick="propCopyUrl(this.dataset.url)">↗ Compartir ficha</button><button class="m-btn" id="prop-send-portal-btn" onclick="propEnviarPortalDesdeFicha()"${portalDisabled}>Activar portal de cliente</button><button class="m-btn solid grow" id="prop-save-btn" onclick="landSaveProp()">Guardar cambios</button></div>`;
+    <div class="fp-actions"><span class="fp-status" id="prop-save-msg"></span><button class="m-btn" onclick="closeFichaProp()">Cerrar</button><button class="m-btn" data-url="${_escAttr(linkComp)}" onclick="propOpenUrl(this.dataset.url,'Esta propiedad todavía no tiene Link Comprador.')">◎ Ver landing</button><button class="m-btn" data-url="${_escAttr(propFichaUrl(p))}" onclick="propOpenUrl(this.dataset.url,'Esta propiedad todavía no tiene folio para ficha técnica.')">▣ Ver ficha técnica</button><button class="m-btn" data-url="${_escAttr(propFichaUrl(p))}" onclick="propCopyUrl(this.dataset.url)">↗ Compartir ficha</button><button class="m-btn" id="prop-send-portal-btn" onclick="propEnviarPortalDesdeFicha()"${portalDisabled}>Enviar portal al cliente</button><button class="m-btn solid grow" id="prop-save-btn" onclick="landSaveProp()">Guardar cambios</button></div>`;
   if(typeof window.medRelojMount==='function'){ try{ window.medRelojMount(folio); }catch(_){} }
   if(typeof window.pmktMount==='function'){ try{ window.pmktMount(folio, rec, p); }catch(_){} }
 }
