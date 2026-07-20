@@ -14,6 +14,7 @@ const TABLES = {
   propiedades: { id:'tblmco2JyXRiZGhaY', ownerField:'Asesor' },
   eventos: { id:'tblaYhT3EUT0m5FYV', ownerField:'Asesor' },
   asesores: { id: process.env.AIRTABLE_ASESORES_TABLE || 'tblIRPmLIyj8sWyEk', slugField:'Slug' },
+  agenda_produccion: { id:'tbl2OWeSoMZP3SxLz' }, // calendario de Enrique, sin ownerField: es compartido, no de un asesor
 };
 const TABLE_BY_ID = Object.fromEntries(Object.values(TABLES).map(t=>[t.id,t]));
 const PROFILE_EDITABLE = new Set(['Nombre','Teléfono WhatsApp','Email','Ciudad','Frase','Pixel ID Meta','Foto']);
