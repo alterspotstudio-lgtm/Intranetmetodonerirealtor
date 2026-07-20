@@ -1506,6 +1506,7 @@ a.owner-wa-link:hover{opacity:.75}
             <div class="act-ey" id="actEy"><span class="ad"></span>Lo que toca ahora</div>
             <div class="act-t" id="actT">—</div>
             <div class="act-d" id="actD">—</div>
+            <div id="actSemaforo" style="display:none;margin-top:8px"></div>
             <div id="propDocsAlert" style="display:none"></div>
             <div id="actExtra" style="display:none;margin-top:10px"></div>
           </div>
@@ -1960,6 +1961,8 @@ function buildPropList(){
     const acc=ACCENT[stage.accent]||ACCENT.gold;
     const status=typeof propActivityStatus==='function'?propActivityStatus(p):'active';
     const diasLbl=typeof propActivityDiasLabel==='function'?propActivityDiasLabel(p):'';
+    const sem=typeof propProdSemaforo==='function'?propProdSemaforo(p._rawRec):null;
+    const semDot=(sem&&sem.c!=='verde')?`<span title="${_escAttr(sem.l)}" style="display:inline-block;width:7px;height:7px;border-radius:50%;margin-left:6px;background:${sem.c==='rojo'?'var(--rose)':'var(--amber)'}"></span>`:'';
     const el=document.createElement('div');
     el.className='pi'+(i===selectedIndex?' sel':'')+' st-'+status;
     el.dataset.recId=p._recId||'';
@@ -1970,7 +1973,7 @@ function buildPropList(){
         <div class="pi-folio">${_esc(p.folio||'— sin folio —')}</div>
         ${diasLbl?`<span class="pi-days">${_esc(diasLbl)}</span>`:''}
       </div>
-      <div class="pi-badge">${Number(p.pct||0)}%</div>`;
+      <div class="pi-badge">${Number(p.pct||0)}%${semDot}</div>`;
     el.onclick=(function(prop, st){
       return function(){
         document.querySelectorAll('#lst-prop .pi').forEach(function(x){
@@ -2363,12 +2366,36 @@ function propSetAccionProduccionAutoLista(p, rec){
     'Todo listo', 'calendar',
     function(){ if(typeof mqNote==='function') mqNote('Producción y documentos completos — lista para publicar.'); });
 }
+// Semáforo de 48h para subir foto/video tras enviar el portal — mismo
+// criterio de color que ya usa el reloj de Progreso (verde <70%, amarillo
+// 70-100%, rojo 100%+). Se apaga solo: en cuanto hay media subida
+// (propV05TieneMedia) ya no hay nada que alertar, no importa la vía
+// (autoproducción o Solicitar producción inmobiliaria con Enrique).
+function propProdSemaforo(rec){
+  if(!rec || !propPortalEnviado(rec) || propV05TieneMedia(rec)) return null;
+  const inicioRaw=propFirst(rec,['Fecha Portal Enviado','Portal Enviado','Portal enviado','Portal de Venta Enviado']);
+  const inicioMs=Date.parse(inicioRaw);
+  if(isNaN(inicioMs)) return null;
+  const metaH=48, transH=(Date.now()-inicioMs)/3600000;
+  if(transH>=metaH) return {c:'rojo', l:'Vencida hace '+Math.floor(transH-metaH)+' h — falta subir foto y video'};
+  if(transH>=metaH*0.7) return {c:'amarillo', l:'Quedan '+Math.ceil(metaH-transH)+' h para subir foto y video'};
+  return {c:'verde', l:'Quedan '+Math.ceil(metaH-transH)+' h para subir foto y video'};
+}
+function propProdSemaforoPaint(rec){
+  const box=document.getElementById('actSemaforo'); if(!box) return;
+  const sem=propProdSemaforo(rec);
+  if(!sem){ box.style.display='none'; box.innerHTML=''; return; }
+  const rgb=sem.c==='rojo'?'224,111,138':(sem.c==='amarillo'?'224,162,78':'70,208,110');
+  box.style.display='block';
+  box.innerHTML='<span style="display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:2px;font-family:var(--fm);font-size:9px;letter-spacing:.5px;color:rgba('+rgb+',.95);background:rgba('+rgb+',.10);border:1px solid rgba('+rgb+',.30)"><span style="width:6px;height:6px;border-radius:50%;background:rgba('+rgb+',1);flex-shrink:0"></span>'+_esc(sem.l)+'</span>';
+}
 async function propDocsMaybeSetAction(p, docs){
   if(!p || propDocsActiveRecId!==p._recId) return;
   const pend=propDocsCountPend(docs), faltan=propDocsGatePend(docs);
   const recibidos=(docs||[]).filter(function(d){ return ['Recibido','Validado','Rechazado'].includes(String(d.estado||'')); }).length;
-  if(pend>0){ propSetAccionDocs(p, pend, 0); return; }                       // hay algo que revisar → prioridad
   const rec=p&&(p._rawRec||(typeof getPropRecord==='function'&&getPropRecord(p._recId)));
+  propProdSemaforoPaint(rec);                                                // siempre en sync con el estado real, sin importar la rama
+  if(pend>0){ propSetAccionDocs(p, pend, 0); return; }                       // hay algo que revisar → prioridad
   const portalFuera=recibidos>0 || !!(rec&&typeof propPortalEnviado==='function'&&propPortalEnviado(rec));
   let prod=null; try{ prod=await propProdFetchEvento(p); }catch(_){ prod=null; }
   if(propDocsActiveRecId!==p._recId) return;
