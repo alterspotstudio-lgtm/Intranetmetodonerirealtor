@@ -2339,6 +2339,20 @@ async function propProdFetchEvento(p){
     return { recId:ev.id, estado:propFirst(ev,['Estado']), fecha:propFirst(ev,['Fecha','Fecha propuesta','Día']), hora:propFirst(ev,['Hora','Hora propuesta']), cliente:propFirst(ev,['Cliente','Propietario','Nombre']), folio:propFirst(ev,['Folio Evento']), notas:propFirst(ev,['Notas']) };
   }catch(_){ return null; }
 }
+// Autoproducción — camino paralelo a Vía A/B que no pasa por Agenda
+// Producción ni por Enrique: si el asesor ya cargó la portada de la
+// propiedad, la producción cuenta como lista igual. Antes esto no existía
+// y el candado solo se abría contratando (19-jul-2026, reportado por Enrique).
+function propProdAutoprodLista(rec){
+  return !!(rec && typeof _attInfo==='function' && _attInfo(rec,'Foto de portada').has);
+}
+function propSetAccionProduccionAutoLista(p, rec){
+  const propName=(p&&p.name)||'tu propiedad';
+  propSetAccionOro('Producción confirmada',
+    'Expediente completo y producción propia de '+propName+' ya está cargada. Todo en orden.',
+    'Todo listo', 'calendar',
+    function(){ if(typeof mqNote==='function') mqNote('Producción y documentos completos — lista para publicar.'); });
+}
 async function propDocsMaybeSetAction(p, docs){
   if(!p || propDocsActiveRecId!==p._recId) return;
   const pend=propDocsCountPend(docs), faltan=propDocsGatePend(docs);
@@ -2359,14 +2373,15 @@ async function propDocsMaybeSetAction(p, docs){
   // ya confirmada, saltándose el botón "Confirmar cita". Los únicos estados
   // reales de Eventos Operación que cuentan como producción lista son estos
   // dos (ver campo Estado en Eventos Operación, tblaYhT3EUT0m5FYV).
-  const prodConfirmada=(prodEstado==='confirmada'||prodEstado==='realizada');
+  const prodConfirmada=(prodEstado==='confirmada'||prodEstado==='realizada')||propProdAutoprodLista(rec);
   if(!prodConfirmada){
     if(prod && prod.fecha) propSetAccionConfirmarProduccion(p, prod, rec);   // hay propuesta, falta confirmar
     else propSetAccionReservarProduccion(p, rec);                           // aún no hay horario reservado
     return;
   }
   if(faltan>0){ propSetAccionRecordatorioDocs(p, faltan, rec); return; }     // producción lista; solo falta recordar documentos
-  propSetAccionProduccionLista(p, prod, rec);                                // ambos al día
+  if(prod) propSetAccionProduccionLista(p, prod, rec);                      // lista vía Enrique (evento confirmado)
+  else propSetAccionProduccionAutoLista(p, rec);                            // lista vía autoproducción (sin evento)
 }
 async function propDocsOpen(recId){
   propDocsEnsureModal(); propDocsSetOpen(true); propDocsStatus('');
