@@ -2209,7 +2209,7 @@ function propSetAccionReservarProduccion(p, rec){
 function propSetAccionSubirMedia(p, rec){
   const propName=(p&&p.name)||'tu propiedad';
   propSetAccionOro('Subir foto y video de la propiedad',
-    'Sube la portada y los videos de '+propName+' en Información Landing. En cuanto estén cargados, el sistema los cuenta como producción lista.',
+    'Sin fotos ni video, '+propName+' no puede salir a mercado.',
     'Subir foto y video', 'file',
     function(){ propV05AbrirLandingParaMedia(p); });
 }
@@ -5122,7 +5122,7 @@ function propActProduccion(rec){
   return {
     key:'produccion',
     t:'Subir foto y video de la propiedad',
-    d:'Portal enviado. Sube la portada y los videos en Información Landing.',
+    d:'Portal enviado. Sin fotos ni video, la propiedad no puede salir a mercado.',
     btn:'Subir foto y video', icon:'file', unlock:'Producción lista'
   };
 }
@@ -5479,7 +5479,7 @@ function propV05FichaBanner(rec){
   if(min.ok){
     return '<div class="le-banner" style="border-color:rgba(74,222,128,.25);background:rgba(74,222,128,.07);color:var(--w80)">✓ Mínimos completos. Ya puedes enviar el Portal de Venta al propietario.</div>';
   }
-  return '<div class="le-banner">V-05 · Antes de enviar portal, completa estos datos de la propiedad: <strong>'+_esc(min.pendientes.join(', '))+'</strong>. Portada y videos van después en Información Landing.</div>';
+  return '<div class="le-banner">Antes de enviar portal, completa estos datos de la propiedad: <strong>'+_esc(min.pendientes.join(', '))+'</strong>. Portada y videos van después.</div>';
 }
 function propV05IrASeccionMedia(){
   const sec=document.getElementById('fp-sec-landing');
@@ -5545,7 +5545,7 @@ function renderFichaPropModal(p){
     : (!portalActivo
       ? '<strong>Mínimos completos.</strong> El siguiente movimiento es activar el portal de cliente/venta desde esta ficha.'
       : (!mediaLista
-        ? '<strong>Portal activo.</strong> Sube la portada y los videos de la propiedad en Información Landing.'
+        ? '<strong>Portal activo.</strong> Sin fotos ni video, la propiedad no sale a mercado.'
         : '<strong>Landing avanzada.</strong> Portada o videos ya están cargados. Continúa el seguimiento operativo desde Propiedades.'));
   const rielActs=!min.ok
     ? '<button class="fp-riel-btn ghost" type="button" onclick="document.querySelector(\'#fichaPropBox .le-sec[open]\')?.scrollIntoView({behavior:\'smooth\',block:\'start\'})">Completar datos</button>'
@@ -5580,7 +5580,7 @@ function renderFichaPropModal(p){
   document.getElementById('fichaPropBox').innerHTML=`
     <button class="modal-x" onclick="closeFichaProp()">&times;</button>
     <div class="fp-header"><div><div class="fp-name">${_esc(nombre)}</div><div class="fp-sub">Propiedad · editor de landing conectado</div><div class="fp-wa">${precioTxt}${headerPills}</div></div><div class="fp-folio"><div class="fp-folio-lbl">Folio</div>${_esc(folio||'— sin folio aún —')}</div></div>
-    <div class="fp-body"><div class="fp-sec"><div class="fp-sec-title"><em>◇</em> Siguiente paso</div>${riel}</div><div class="fp-sec fp-context">${propV05FichaBanner(rec)}<div id="med-reloj-mount" data-folio="${_escAttr(folio)}"></div><div id="pmkt-mount" data-folio="${_escAttr(folio)}"></div><div class="le-banner">Para enviar el portal solo se requieren datos básicos de la propiedad. Portada y videos se completan después, subiéndolos aquí en Información Landing.</div>${secs}${lockBlock}</div></div>
+    <div class="fp-body"><div class="fp-sec"><div class="fp-sec-title"><em>◇</em> Siguiente paso</div>${riel}</div><div class="fp-sec fp-context">${propV05FichaBanner(rec)}<div id="med-reloj-mount" data-folio="${_escAttr(folio)}"></div><div id="pmkt-mount" data-folio="${_escAttr(folio)}"></div><div class="le-banner">Para enviar el portal solo se requieren los datos básicos. Portada y video se completan después.</div>${secs}${lockBlock}</div></div>
     <div class="fp-actions"><span class="fp-status" id="prop-save-msg"></span><button class="m-btn" onclick="closeFichaProp()">Cerrar</button><button class="m-btn" data-url="${_escAttr(linkComp)}" onclick="propOpenUrl(this.dataset.url,'Esta propiedad todavía no tiene Link Comprador.')">◎ Ver landing</button><button class="m-btn" data-url="${_escAttr(propFichaUrl(p))}" onclick="propOpenUrl(this.dataset.url,'Esta propiedad todavía no tiene folio para ficha técnica.')">▣ Ver ficha técnica</button><button class="m-btn" data-url="${_escAttr(propFichaUrl(p))}" onclick="propCopyUrl(this.dataset.url)">↗ Compartir ficha</button><button class="m-btn solid grow" id="prop-save-btn" onclick="landSaveProp()">Guardar cambios</button></div>`;
   if(typeof window.medRelojMount==='function'){ try{ window.medRelojMount(folio); }catch(_){} }
   if(typeof window.pmktMount==='function'){ try{ window.pmktMount(folio, rec, p); }catch(_){} }
