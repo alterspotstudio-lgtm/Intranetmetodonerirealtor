@@ -54,7 +54,8 @@ const DOCS = [
   { id: 'carta_saldo',              tipo: 'Carta saldo, si hay crédito vigente',  bloque: 'Condicionales', aplica: 'condicional', gate_publicacion: false, descripcion: 'Aplica si existe crédito vigente sobre la vivienda.',                    critico: false, vigencia_dias: 60 },
   { id: 'exencion_isr',             tipo: 'Comprobantes de exención ISR',         bloque: 'Condicionales', aplica: 'condicional', gate_publicacion: false, descripcion: 'Aplica si el propietario busca exención de ISR.',                          critico: false, vigencia_dias: 60 },
   { id: 'licencia_terminacion_obra', tipo: 'Licencia / terminación de obra / uso de suelo', bloque: 'Condicionales', aplica: 'condicional', gate_publicacion: false, descripcion: 'Aplica si existe irregularidad o regularización municipal.',             critico: false, vigencia_dias: 60 },
-  { id: 'clabe_bancaria',           tipo: 'CLABE bancaria',                      bloque: 'Condicionales', aplica: 'condicional', gate_publicacion: false, descripcion: 'Cuenta para dispersión del pago al cierre.',                              critico: false, vigencia_dias: 60 },
+  // Reclasificado: se pide desde el inicio (no en notaría), pero no bloquea publicación.
+  { id: 'clabe_bancaria',           tipo: 'CLABE bancaria',                      bloque: 'Notaría',       aplica: 'siempre',     gate_publicacion: false, descripcion: 'Cuenta para dispersión del pago al cierre.',                              critico: false, vigencia_dias: 60 },
 ];
 const DOC_BY_ID = Object.fromEntries(DOCS.map(d => [d.id, d]));
 
@@ -273,25 +274,52 @@ function isDocExpired(fields, base) {
   const vigencia = calcVigencia(fields && fields['Fecha de Carga'], base && base.vigencia_dias);
   return vigencia.estado === 'Vencido';
 }
+// Capa C: mismo resolver que activar-expediente.js — debe mantenerse alineado.
+function condicionalAplica(docId, leadFields) {
+  const estadoCivil = String((leadFields && leadFields['Estado civil']) || '');
+  switch (docId) {
+    case 'acta_matrimonio':
+    case 'conyuge_id_docs':
+      return estadoCivil === 'Casado';
+    case 'poder_notarial':
+      return Boolean(leadFields && leadFields['Firma por apoderado']);
+    case 'regimen_condominio':
+    case 'reglamento_condominio':
+    case 'no_adeudo_mantenimiento':
+      return Boolean(leadFields && leadFields['En condominio']);
+    case 'carta_saldo':
+      return Boolean(leadFields && leadFields['Crédito vigente']);
+    case 'exencion_isr':
+      return String((leadFields && leadFields['Exención ISR (casa habitación)']) || '') === 'Aplica';
+    case 'licencia_terminacion_obra':
+      return Boolean(leadFields && leadFields['Construcción irregular / uso de suelo']);
+    default:
+      return true;
+  }
+}
+
 async function syncChecklist(folio, lead, rows) {
   const existingIds = new Set((rows || []).map(r => r.fields && r.fields['Document ID']).filter(Boolean));
   const missing = DOCS.filter(d => !existingIds.has(d.id));
   if (!missing.length) return rows || [];
   const asesor = String(lead.fields['Asesor'] || '');
   const now = new Date().toISOString();
-  const records = missing.map(d => ({
-    fields: {
-      'Documento': folio + ' · ' + d.tipo,
-      'Folio': folio,
-      'Tipo de Documento': d.tipo,
-      'Document ID': d.id,
-      'Estado del Documento': 'Pendiente',
-      'Documento Crítico': Boolean(d.critico),
-      'Subido por': 'Sistema',
-      'Fecha Solicitud': now,
-      'Asesor': asesor,
-    },
-  }));
+  const records = missing.map(d => {
+    const aplica = d.aplica !== 'condicional' || condicionalAplica(d.id, lead.fields);
+    return {
+      fields: {
+        'Documento': folio + ' · ' + d.tipo,
+        'Folio': folio,
+        'Tipo de Documento': d.tipo,
+        'Document ID': d.id,
+        'Estado del Documento': aplica ? 'Pendiente' : 'No aplica',
+        'Documento Crítico': Boolean(d.critico),
+        'Subido por': 'Sistema',
+        'Fecha Solicitud': now,
+        'Asesor': asesor,
+      },
+    };
+  });
   for (let i = 0; i < records.length; i += 10) {
     await airCreate(DOCS_TABLE, records.slice(i, i + 10));
   }

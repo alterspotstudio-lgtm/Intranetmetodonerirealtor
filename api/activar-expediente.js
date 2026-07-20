@@ -32,7 +32,8 @@ const DOCS = [
   { id: 'constancia_fiscal', tipo: 'RFC / constancia fiscal',                   bloque: 'Identidad y persona', aplica: 'siempre',     gate_publicacion: true,  descripcion: 'Necesaria para revisar correctamente el tema fiscal e ISR.',              critico: true },
   { id: 'acta_nacimiento',   tipo: 'Acta de nacimiento',                        bloque: 'Identidad y persona', aplica: 'siempre',     gate_publicacion: true,  descripcion: 'Acredita identidad y datos legales para escritura.',                      critico: true },
   { id: 'domicilio',         tipo: 'Comprobante de domicilio',                  bloque: 'Identidad y persona', aplica: 'siempre',     gate_publicacion: true,  descripcion: 'Comprobante vigente del propietario.',                                    critico: true },
-  { id: 'clabe_bancaria',    tipo: 'CLABE bancaria',                            bloque: 'Identidad y persona', aplica: 'siempre',     gate_publicacion: true,  descripcion: 'Cuenta para dispersión del pago al cierre.',                              critico: true },
+  // Reclasificado: se pide desde el inicio (no en notaría), pero no bloquea publicación.
+  { id: 'clabe_bancaria',    tipo: 'CLABE bancaria',                            bloque: 'Notaría',              aplica: 'siempre',     gate_publicacion: false, descripcion: 'Cuenta para dispersión del pago al cierre.',                              critico: true },
 
   // Bloque 2 · Estado civil y representación — condicional
   { id: 'acta_matrimonio',   tipo: 'Acta de matrimonio / régimen matrimonial',  bloque: 'Estado civil y representación', aplica: 'condicional', gate_publicacion: false, descripcion: 'Aplica cuando la situación civil lo requiere.',                           critico: false },
@@ -184,6 +185,33 @@ async function ensureDocsTable() {
   return r.ok;                            // si falla (sin scope), seguimos sin tabla
 }
 
+// Capa C: condicionales que se resuelven solos según las características de la operación
+// que el asesor marca en el lead. Si el campo no está marcado, el documento nace
+// "No aplica" en vez de "Pendiente". Documentos sin caso aquí abajo se comportan
+// igual que siempre (nacen Pendiente), sea "siempre" o "condicional".
+function condicionalAplica(docId, leadFields) {
+  const estadoCivil = String((leadFields && leadFields['Estado civil']) || '');
+  switch (docId) {
+    case 'acta_matrimonio':
+    case 'conyuge_id_docs':
+      return estadoCivil === 'Casado';
+    case 'poder_notarial':
+      return Boolean(leadFields && leadFields['Firma por apoderado']);
+    case 'regimen_condominio':
+    case 'reglamento_condominio':
+    case 'no_adeudo_mantenimiento':
+      return Boolean(leadFields && leadFields['En condominio']);
+    case 'carta_saldo':
+      return Boolean(leadFields && leadFields['Crédito vigente']);
+    case 'exencion_isr':
+      return String((leadFields && leadFields['Exención ISR (casa habitación)']) || '') === 'Aplica';
+    case 'licencia_terminacion_obra':
+      return Boolean(leadFields && leadFields['Construcción irregular / uso de suelo']);
+    default:
+      return true;
+  }
+}
+
 async function seedChecklist(folio, lead) {
   const existing = await airListDocs(folio);
   if (existing === null) return;          // tabla no disponible
@@ -194,19 +222,22 @@ async function seedChecklist(folio, lead) {
 
   const asesor = String(lead.fields['Asesor'] || '');
   const now = new Date().toISOString();
-  const records = missing.map(d => ({
-    fields: {
-      'Documento': folio + ' · ' + d.tipo,
-      'Folio': folio,
-      'Tipo de Documento': d.tipo,
-      'Document ID': d.id,
-      'Estado del Documento': 'Pendiente',
-      'Documento Crítico': Boolean(d.critico),
-      'Subido por': 'Sistema',
-      'Fecha Solicitud': now,
-      'Asesor': asesor,
-    },
-  }));
+  const records = missing.map(d => {
+    const aplica = d.aplica !== 'condicional' || condicionalAplica(d.id, lead.fields);
+    return {
+      fields: {
+        'Documento': folio + ' · ' + d.tipo,
+        'Folio': folio,
+        'Tipo de Documento': d.tipo,
+        'Document ID': d.id,
+        'Estado del Documento': aplica ? 'Pendiente' : 'No aplica',
+        'Documento Crítico': Boolean(d.critico),
+        'Subido por': 'Sistema',
+        'Fecha Solicitud': now,
+        'Asesor': asesor,
+      },
+    };
+  });
   for (let i = 0; i < records.length; i += 10) {
     await airCreate(DOCS_TABLE, records.slice(i, i + 10));
   }
