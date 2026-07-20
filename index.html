@@ -2377,9 +2377,9 @@ function propProdSemaforo(rec){
   const inicioMs=Date.parse(inicioRaw);
   if(isNaN(inicioMs)) return null;
   const metaH=48, transH=(Date.now()-inicioMs)/3600000;
-  if(transH>=metaH) return {c:'rojo', l:'Vencida hace '+Math.floor(transH-metaH)+' h — falta subir foto y video'};
-  if(transH>=metaH*0.7) return {c:'amarillo', l:'Quedan '+Math.ceil(metaH-transH)+' h para subir foto y video'};
-  return {c:'verde', l:'Quedan '+Math.ceil(metaH-transH)+' h para subir foto y video'};
+  if(transH>=metaH) return {c:'rojo', l:'Se acabó el tiempo y el material sigue sin subir.'};
+  if(transH>=metaH*0.7) return {c:'amarillo', l:'Falta subir el material — se acaba el tiempo.'};
+  return null;
 }
 function propProdSemaforoPaint(rec){
   const box=document.getElementById('actSemaforo'); if(!box) return;
