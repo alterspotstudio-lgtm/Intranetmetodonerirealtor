@@ -5476,10 +5476,11 @@ function propV05MinimosCompletos(rec){
 }
 function propV05FichaBanner(rec){
   const min=propV05MinimosCompletos(rec);
-  if(min.ok){
-    return '<div class="le-banner" style="border-color:rgba(74,222,128,.25);background:rgba(74,222,128,.07);color:var(--w80)">✓ Mínimos completos. Ya puedes enviar el Portal de Venta al propietario.</div>';
+  if(!min.ok){
+    return '<div class="le-banner">Antes de enviar portal, completa estos datos de la propiedad: <strong>'+_esc(min.pendientes.join(', '))+'</strong>. Portada y videos van después.</div>';
   }
-  return '<div class="le-banner">Antes de enviar portal, completa estos datos de la propiedad: <strong>'+_esc(min.pendientes.join(', '))+'</strong>. Portada y videos van después.</div>';
+  if(propPortalEnviado(rec)) return '';  // ya se envió — el riel de arriba ya dice el paso actual, no repetir
+  return '<div class="le-banner" style="border-color:rgba(74,222,128,.25);background:rgba(74,222,128,.07);color:var(--w80)">✓ Mínimos completos. Ya puedes enviar el Portal de Venta al propietario.</div>';
 }
 function propV05IrASeccionMedia(){
   const sec=document.getElementById('fp-sec-landing');
@@ -5562,7 +5563,7 @@ function renderFichaPropModal(p){
       <div class="fp-riel-node ${pasoClase(2)}"><div class="fp-riel-dot">${pasoMarca(2)}</div><div class="fp-riel-lbl">Producción</div></div><div class="fp-riel-bar"></div>
       <div class="fp-riel-node ${cierreDetectado?'done':pasoClase(3)}"><div class="fp-riel-dot">${cierreDetectado?'✓':pasoMarca(3)}</div><div class="fp-riel-lbl">Cierre</div></div>
     </div>
-    <div class="fp-riel-panel"><div class="fp-riel-msg">${rielMsg}</div><div class="fp-riel-acts">${rielActs}</div><div class="fp-riel-status">Acciones existentes conservadas · sin cambiar conexiones.</div></div>`;
+    <div class="fp-riel-panel"><div class="fp-riel-msg" id="fp-riel-msg">${rielMsg}</div><div class="fp-riel-acts" id="fp-riel-acts">${rielActs}</div><div class="fp-riel-status">Acciones existentes conservadas · sin cambiar conexiones.</div></div>`;
   const headerPills=[
     tipo?`<span class="fp-pill">${_esc(tipo)}</span>`:'',
     estado?`<span class="fp-pill ${min.ok?'done':'warn'}">${_esc(estado)}</span>`:'',
@@ -5584,6 +5585,21 @@ function renderFichaPropModal(p){
     <div class="fp-actions"><span class="fp-status" id="prop-save-msg"></span><button class="m-btn" onclick="closeFichaProp()">Cerrar</button><button class="m-btn" data-url="${_escAttr(linkComp)}" onclick="propOpenUrl(this.dataset.url,'Esta propiedad todavía no tiene Link Comprador.')">◎ Ver landing</button><button class="m-btn" data-url="${_escAttr(propFichaUrl(p))}" onclick="propOpenUrl(this.dataset.url,'Esta propiedad todavía no tiene folio para ficha técnica.')">▣ Ver ficha técnica</button><button class="m-btn" data-url="${_escAttr(propFichaUrl(p))}" onclick="propCopyUrl(this.dataset.url)">↗ Compartir ficha</button><button class="m-btn solid grow" id="prop-save-btn" onclick="landSaveProp()">Guardar cambios</button></div>`;
   if(typeof window.medRelojMount==='function'){ try{ window.medRelojMount(folio); }catch(_){} }
   if(typeof window.pmktMount==='function'){ try{ window.pmktMount(folio, rec, p); }catch(_){} }
+  propV05SyncRielConGolden(p, portalActivo);
+}
+// El riel de la ficha y la tarjeta dorada deben decir SIEMPRE lo mismo.
+// En vez de calcular el estado dos veces (la causa real de las contradicciones
+// que reportó Enrique: un botón podía decir "subir foto y video" mientras el
+// otro decía "recordar documentos"), el riel copia el texto que la escalera
+// de oro ya resolvió para actT/actD/actBtn y el botón del riel simplemente
+// dispara el clic del botón dorado real — una sola fuente de verdad.
+function propV05SyncRielConGolden(p, portalActivo){
+  if(!portalActivo || !p || !CURRENT_PROP || CURRENT_PROP._recId!==p._recId) return;
+  const actT=document.getElementById('actT'), actBtn=document.getElementById('actBtn');
+  const msgEl=document.getElementById('fp-riel-msg'), actsEl=document.getElementById('fp-riel-acts');
+  if(!actT || !actBtn || !msgEl || !actsEl || !actT.textContent) return;
+  msgEl.innerHTML='<strong>'+_esc(actT.textContent)+'</strong>';
+  actsEl.innerHTML='<button class="fp-riel-btn" type="button" onclick="document.getElementById(\'actBtn\')?.click()">'+_esc(actBtn.textContent.trim())+'</button>';
 }
 function openFichaProp(){
   if(!CURRENT_PROP) return;
