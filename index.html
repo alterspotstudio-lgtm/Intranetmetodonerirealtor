@@ -2383,13 +2383,20 @@ async function propDocsMaybeSetAction(p, docs){
   // ya confirmada, saltándose el botón "Confirmar cita". Los únicos estados
   // reales de Eventos Operación que cuentan como producción lista son estos
   // dos (ver campo Estado en Eventos Operación, tblaYhT3EUT0m5FYV).
-  const prodConfirmada=(prodEstado==='confirmada'||prodEstado==='realizada')||propProdAutoprodLista(rec);
-  if(!prodConfirmada){
-    if(prod && prod.fecha) propSetAccionConfirmarProduccion(p, prod, rec);   // hay propuesta, falta confirmar
-    else propSetAccionSubirMedia(p, rec);                                   // default: subir foto/video propios
+  // Candado correcto: lo que habilita "recordar documentos" es que la media
+  // YA ESTÉ SUBIDA en la propiedad (portada/video), no que la cita de
+  // producción esté confirmada o realizada. Una cita "Realizada" solo dice
+  // que el equipo fue a grabar — no que el material final ya se cargó al
+  // sistema. Si se usa prodConfirmada como candado, el asesor puede tener
+  // los videos en su celular días enteros sin que nada se lo recuerde.
+  const mediaLista=propV05TieneMedia(rec);
+  if(!mediaLista){
+    if(prod && prod.fecha && prodEstado!=='confirmada' && prodEstado!=='realizada')
+      propSetAccionConfirmarProduccion(p, prod, rec);                        // hay propuesta, falta confirmar
+    else propSetAccionSubirMedia(p, rec);                                    // sin propuesta, o ya confirmada pero aún sin subir media
     return;
   }
-  if(faltan>0){ propSetAccionRecordatorioDocs(p, faltan, rec); return; }     // producción lista; solo falta recordar documentos
+  if(faltan>0){ propSetAccionRecordatorioDocs(p, faltan, rec); return; }     // media lista; solo falta recordar documentos
   if(prod) propSetAccionProduccionLista(p, prod, rec);                      // lista vía Enrique (evento confirmado)
   else propSetAccionProduccionAutoLista(p, rec);                            // lista vía autoproducción (sin evento)
 }
