@@ -3135,6 +3135,56 @@ function leadVendContratoHref(url){
   if(!url) return '';
   return /idrivee2\.com|amazonaws\.com/i.test(url) ? '/api/idrive-read-url?url='+encodeURIComponent(url) : url;
 }
+const LEAD_VEND_CAPAC_FIELDS = [
+  {f:'Estado civil', type:'select', opts:['Soltero','Casado']},
+  {f:'Firma por apoderado', type:'checkbox'},
+  {f:'En condominio', type:'checkbox'},
+  {f:'Crédito vigente', type:'checkbox'},
+  {f:'Exención ISR (casa habitación)', type:'select', opts:['Aplica','No acreditada','Por confirmar']},
+  {f:'Construcción irregular / uso de suelo', type:'checkbox'}
+];
+function leadVendCapaCInput(meta, values){
+  const fieldAttr=_escAttr(meta.f);
+  if(meta.type==='checkbox'){
+    const checked=values[meta.f]?' checked':'';
+    return '<label style="display:flex;align-items:center;gap:6px;font-family:var(--fb);font-size:12px;color:var(--w80);cursor:pointer"><input type="checkbox" data-capac-field="'+fieldAttr+'"'+checked+' style="accent-color:var(--gold);width:15px;height:15px">'+fvEscape(meta.f)+'</label>';
+  }
+  const val=values[meta.f]||'';
+  return '<div class="lec-field"><div class="lec-label">'+fvEscape(meta.f)+'</div><select class="lec-in" data-capac-field="'+fieldAttr+'"><option value="">—</option>'+(meta.opts||[]).map(function(o){return '<option value="'+_escAttr(o)+'"'+(String(o)===String(val)?' selected':'')+'>'+fvEscape(o)+'</option>';}).join('')+'</select></div>';
+}
+function leadVendCapaCHTML(rec){
+  const values=rec&&rec.fields?rec.fields:{};
+  const checks=LEAD_VEND_CAPAC_FIELDS.filter(function(m){return m.type==='checkbox';}).map(function(m){return leadVendCapaCInput(m,values);}).join('');
+  const selects=LEAD_VEND_CAPAC_FIELDS.filter(function(m){return m.type==='select';}).map(function(m){return leadVendCapaCInput(m,values);}).join('');
+  return '<div class="fv-sec" style="margin-bottom:14px">'
+    +'<div class="fv-sec-title"><em>◈</em>Datos de la operación</div>'
+    +'<div class="fv-riel-msg" style="margin-bottom:10px">Marca lo que aplique antes de subir el contrato firmado. Esto define qué documentos se le van a pedir al propietario.</div>'
+    +'<div id="fv-capac-fields">'
+    +'<div style="display:flex;flex-wrap:wrap;gap:14px;margin-bottom:10px">'+checks+'</div>'
+    +'<div class="lec-grid">'+selects+'</div>'
+    +'</div>'
+    +'<div class="fv-riel-acts" style="margin-top:10px"><button class="fv-riel-btn ghost" onclick="leadVendGuardarCapaC(\''+_escAttr(rec.id)+'\')">Guardar datos de la operación</button></div>'
+    +'<div class="fv-riel-status" id="fv-capac-status"></div>'
+    +'</div>';
+}
+async function leadVendGuardarCapaC(recId){
+  const status=document.getElementById('fv-capac-status');
+  const setMsg=function(t,c){ if(status){ status.textContent=t; status.style.color=c||''; } };
+  if(!leadVendRequireSession()) return;
+  const fields={};
+  document.querySelectorAll('#fv-capac-fields [data-capac-field]').forEach(function(el){
+    const name=el.dataset.capacField;
+    if(el.type==='checkbox'){ fields[name]=el.checked; }
+    else { fields[name]=el.value||null; }
+  });
+  setMsg('Guardando…');
+  try{
+    await atFetch(LEAD_VEND_TABLE+'/'+recId,{method:'PATCH',body:JSON.stringify({fields:fields,typecast:true})});
+    await leadVendLoad(true);
+    setMsg('✓ Guardado','var(--gold)');
+    if(leadVendFichaState && leadVendFichaState.folio) openFichaVend(leadVendFichaState.folio);
+  }catch(e){ setMsg('Error al guardar: '+(e.message||e),'var(--rose)'); }
+}
 function leadVendPanelHTML(rec, et){
   const recId=rec.id;
   const folio=leadVendFolioValue(rec) || recId;
@@ -3154,6 +3204,7 @@ function leadVendPanelHTML(rec, et){
   }
   if(et.idx===1){
     return '<div class="fv-riel-msg"><strong>En seguimiento.</strong> La meta es la firma. Descarga el contrato y sube el PDF firmado; la conversión y el expediente se activan desde aquí.</div>'
+      + leadVendCapaCHTML(rec)
       + '<div class="fv-riel-acts">'
       + '<a class="fv-riel-btn ghost" data-action="descargar-contrato-exclusiva" href="'+_escAttr(LEAD_VEND_CONTRATOS['Firma exclusiva'])+'" download>Descargar contrato de exclusiva</a>'
       + '<a class="fv-riel-btn ghost" data-action="descargar-venta-directa" href="'+_escAttr(LEAD_VEND_CONTRATOS['Firma venta directa'])+'" download>Descargar venta directa</a>'
