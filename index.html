@@ -1499,6 +1499,7 @@ a.owner-wa-link:hover{opacity:.75}
             <div class="act-t" id="actT">—</div>
             <div class="act-d" id="actD">—</div>
             <div id="propDocsAlert" style="display:none"></div>
+            <div id="actExtra" style="display:none;margin-top:10px"></div>
           </div>
           <div class="act-r">
             <button class="act-btn" id="actBtn"></button>
@@ -1771,6 +1772,15 @@ const EXPEDIENTES = [];
 let expedienteFilter = '';
 const PROP_TABLE = 'tblmco2JyXRiZGhaY';
 const EVENTOS_TABLE = 'tblaYhT3EUT0m5FYV';
+// Agenda Producción: calendario de disponibilidad para citas de foto/video.
+// Regla fija de negocio (no vive en Airtable, vive aquí): lunes a sábado,
+// 10:00 am a 5:00 pm, solo en punto — sin excepción, sin que nadie tenga
+// que "publicar" horarios. Lo único que se guarda en Airtable es lo que
+// YA se reservó; todo lo demás se calcula con esta regla.
+const AGENDA_PRODUCCION_TABLE = 'tbl2OWeSoMZP3SxLz';
+const PROD_HORAS = ['10:00 am','11:00 am','12:00 pm','1:00 pm','2:00 pm','3:00 pm','4:00 pm'];
+const PROD_DIAS = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+const PROD_MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 const PROP_VEND_TABLE = 'tblQHdwEucTaNrLzm';
 const PROP_PORTAL_BASE = String(window.PROGRESO_BASE || 'https://progreso-zeta.vercel.app/').replace(/\/+$/, '');
 let propUsingLocal = true;
@@ -2062,6 +2072,7 @@ async function propDocsCheck(p){
 function propSetAccionOro(t, d, btnLabel, btnIcon, onClick){
   const actT=document.getElementById('actT'); if(actT) actT.textContent=t;
   const actD=document.getElementById('actD'); if(actD) actD.textContent=d;
+  const actExtra=document.getElementById('actExtra'); if(actExtra){ actExtra.style.display='none'; actExtra.innerHTML=''; }
   const btn=document.getElementById('actBtn');
   if(btn){ btn.innerHTML=((typeof IC!=='undefined'&&(IC[btnIcon]||IC.send))||'')+btnLabel; btn.onclick=function(ev){ ev.preventDefault(); try{ onClick(); }catch(_){} }; }
 }
@@ -2167,21 +2178,108 @@ function propSetAccionConfirmarProduccion(p, prod, rec){
       propDocsMaybeSetAction(p, (cached&&cached.docs)||[]);
     });
 }
-// Vía B de producción — aún no hay propuesta del propietario. Recordatorio,
-// no bloqueo: avanza en paralelo al expediente.
-function propSetAccionRecordarProduccion(p, rec){
-  const owner=(typeof crmPropietarioData==='function'&&(p._rawRec||rec))?crmPropietarioData(p._rawRec||rec):null;
+// Vía B de producción — aún no hay horario reservado. Enrique agenda él
+// mismo, horario fijo (L-S, 10am-5pm en punto, sin excepción). No hay
+// "propuesta" que esperar del propietario: el asesor reserva un horario
+// real ahí mismo y eso YA es la confirmación — no hay paso de confirmar
+// aparte. Nadie entra a Airtable: la disponibilidad es la regla (arriba,
+// PROD_HORAS) menos lo que ya esté Reservado en Agenda Producción.
+function propSetAccionReservarProduccion(p, rec){
+  const propName=(p&&p.name)||'tu propiedad';
+  propSetAccionOro('Producción inmobiliaria',
+    'Reserva el horario de foto y video de '+propName+'. Lunes a sábado, 10:00 am a 5:00 pm, por hora.',
+    'Elegir horario', 'calendar',
+    function(){ propProdAbrirPicker(p); });
+}
+function propProdEsDiaValido(iso){
+  if(!iso) return false;
+  const d=new Date(iso+'T12:00:00');
+  const dow=d.getDay(); // 0 = domingo
+  return dow>=1 && dow<=6;
+}
+function propProdFechaLegible(iso){
+  const d=new Date(iso+'T12:00:00');
+  if(isNaN(d)) return iso;
+  return PROD_DIAS[d.getDay()]+' '+d.getDate()+' de '+PROD_MESES[d.getMonth()];
+}
+function propProdAbrirPicker(p){
+  const box=document.getElementById('actExtra'); if(!box || !p) return;
+  const minIso=new Date().toISOString().slice(0,10);
+  box.dataset.recId=p._recId;
+  box.style.display='block';
+  box.innerHTML='<div style="font-family:var(--fm);font-size:10px;letter-spacing:.6px;color:var(--w60);margin-bottom:6px">Elige un día · lunes a sábado</div>'
+    +'<input type="date" id="prodFechaInput" min="'+minIso+'" style="background:rgba(255,255,255,.04);border:1px solid var(--w18);border-radius:3px;color:var(--w80);font-family:var(--fm);font-size:12px;padding:8px 10px;width:100%;max-width:220px" onchange="propProdCargarHoras(this.value)">'
+    +'<div id="prodHorasBox" style="margin-top:10px"></div>';
+}
+async function propProdCargarHoras(fechaIso){
+  const horasBox=document.getElementById('prodHorasBox'); if(!horasBox) return;
+  if(!propProdEsDiaValido(fechaIso)){ horasBox.innerHTML='<div style="font-family:var(--fb);font-size:11px;color:var(--rose)">Domingo no — elige lunes a sábado.</div>'; return; }
+  horasBox.innerHTML='<div style="font-family:var(--fb);font-size:11px;color:var(--w60)">Consultando horarios…</div>';
+  let ocupadas=[];
+  try{
+    const formula=encodeURIComponent("AND({Fecha}='"+fechaIso+"',{Estado}='Reservado')");
+    const data=await atFetch(AGENDA_PRODUCCION_TABLE+'?filterByFormula='+formula);
+    ocupadas=((data&&data.records)||[]).map(function(r){ return _fval(r,'Hora'); });
+  }catch(e){ horasBox.innerHTML='<div style="font-family:var(--fb);font-size:11px;color:var(--rose)">No se pudo consultar disponibilidad: '+_esc(e.message)+'</div>'; return; }
+  horasBox.innerHTML='<div style="display:flex;flex-wrap:wrap;gap:6px">'+PROD_HORAS.map(function(h){
+    const tomado=ocupadas.indexOf(h)>-1;
+    return '<button type="button" '+(tomado?'disabled':'')+' onclick="propProdReservar(\''+fechaIso+'\',\''+h+'\')" style="font-family:var(--fm);font-size:11px;letter-spacing:.4px;padding:8px 12px;border-radius:3px;border:1px solid '+(tomado?'var(--w08)':'var(--gb2)')+';background:'+(tomado?'rgba(255,255,255,.02)':'var(--gd)')+';color:'+(tomado?'var(--w35)':'var(--gold)')+';cursor:'+(tomado?'not-allowed':'pointer')+'">'+h+(tomado?' · ocupado':'')+'</button>';
+  }).join('')+'</div>';
+}
+async function propProdReservar(fechaIso, horaLabel){
+  const box=document.getElementById('actExtra'); const recId=box&&box.dataset.recId;
+  const p=(typeof PROPS!=='undefined'?PROPS:[]).find(function(x){ return x._recId===recId; }); if(!p) return;
+  document.querySelectorAll('#prodHorasBox button').forEach(function(b){ b.disabled=true; }); // evita doble-tap
+  try{
+    // Chequeo justo antes de reservar (no el de cuando se abrió el calendario)
+    // — reduce la ventana de choque a lo que tarda este fetch, no a lo que
+    // tardó el asesor decidiendo. El proxy no deja borrar registros salvo
+    // administrador, así que la defensa es no crear el duplicado, no
+    // limpiarlo después.
+    const formula=encodeURIComponent("AND({Fecha}='"+fechaIso+"',{Hora}='"+horaLabel+"',{Estado}='Reservado')");
+    const check=await atFetch(AGENDA_PRODUCCION_TABLE+'?filterByFormula='+formula);
+    if(((check&&check.records)||[]).length>0){
+      if(typeof mqNote==='function') mqNote('Ese horario ya se reservó. Elige otro.');
+      propProdCargarHoras(fechaIso);
+      return;
+    }
+    await atFetch(AGENDA_PRODUCCION_TABLE,{method:'POST',body:JSON.stringify({fields:{Fecha:fechaIso,Hora:horaLabel,Estado:'Reservado',Propiedad:[p._recId]},typecast:true})});
+  }catch(e){
+    if(typeof mqNote==='function') mqNote('No se pudo reservar: '+e.message);
+    propProdCargarHoras(fechaIso);
+    return;
+  }
+  // Espejo en Eventos Operación (misma forma que ya lee Confirmacion.html y
+  // que ya usa propSetAccionConfirmarProduccion) + en Propiedades NERI
+  // (misma forma que ya usa progreso-zeta para su Etapa Comercialización).
+  // Si alguno de los dos espejos falla, la reserva en Agenda Producción ya
+  // quedó — no se pierde el horario, solo faltaría re-sincronizar a mano.
+  const rec=p._rawRec||(typeof getPropRecord==='function'&&getPropRecord(p._recId));
+  const owner=(typeof crmPropietarioData==='function'&&rec)?crmPropietarioData(rec):null;
   const nombre=(owner&&owner.nombre)||'el propietario';
   const phone=propProdWaPhone(owner);
   const propName=(p&&p.name)||'tu propiedad';
-  propSetAccionOro('Producción inmobiliaria',
-    'Recuérdale a '+nombre+' que entre a su portal y proponga día y hora para la producción de foto y video.',
-    'Recordar al propietario', 'calendar',
-    function(){
-      const msg='Hola '+nombre+', vamos avanzando con '+propName+'. Entra a tu portal y propón día y hora para la producción (foto y video) cuando puedas.';
-      if(phone) window.open('https://wa.me/'+phone+'?text='+encodeURIComponent(msg),'_blank');
-      else if(typeof mqNote==='function') mqNote('Recuérdale al propietario proponer día y hora de producción.');
-    });
+  const folioProp=_fval(rec,'Folio NERI');
+  const s=perfilSession();
+  try{
+    await atFetch(EVENTOS_TABLE,{method:'POST',body:JSON.stringify({fields:{
+      'Tipo Evento':'Producción Inmobiliaria','Estado':'Confirmada','Propiedad':propName,'Cliente':nombre,
+      'Fecha':propProdFechaLegible(fechaIso),'Hora':horaLabel,'Notas':propProdNotasConChecklist(''),
+      'Asesor':s.nombre||'','WhatsApp Asesor':s.whatsapp||'','Folio Propiedad':folioProp||''
+    },typecast:true})});
+  }catch(e){ /* no bloquea — Agenda Producción ya quedó reservada */ }
+  try{
+    await atFetch(PROP_TABLE+'/'+p._recId,{method:'PATCH',body:JSON.stringify({fields:{'Produccion Confirmada':true,'Produccion Fecha':fechaIso},typecast:true})});
+  }catch(e){ /* no bloquea */ }
+  const msg='Hola '+nombre+', llegó el momento que estábamos esperando — pronto damos a conocer a la estrella de este proceso: '+propName+'.\n\n'
+    +'◆ Fecha: '+propProdFechaLegible(fechaIso)+'\n'
+    +'◆ Hora de llegada del equipo: '+horaLabel+'\n\n'
+    +'Cualquier ajuste, con gusto lo atendemos con anticipación.';
+  if(phone) window.open('https://wa.me/'+phone+'?text='+encodeURIComponent(msg),'_blank');
+  else if(typeof mqNote==='function') mqNote('Horario reservado. Falta el WhatsApp del propietario para avisarle.');
+  const box2=document.getElementById('actExtra'); if(box2){ box2.style.display='none'; box2.innerHTML=''; }
+  const cached=propDocsCache[p._recId];
+  propDocsMaybeSetAction(p,(cached&&cached.docs)||[]);
 }
 // Ambas vías al día — producción confirmada (o realizada) y expediente
 // completo. Estado informativo, sin urgencia.
@@ -2240,7 +2338,7 @@ async function propDocsMaybeSetAction(p, docs){
   const prodConfirmada=(prodEstado==='confirmada'||prodEstado==='realizada');
   if(!prodConfirmada){
     if(prod && prod.fecha) propSetAccionConfirmarProduccion(p, prod, rec);   // hay propuesta, falta confirmar
-    else propSetAccionRecordarProduccion(p, rec);                            // aún no hay propuesta
+    else propSetAccionReservarProduccion(p, rec);                           // aún no hay horario reservado
     return;
   }
   if(faltan>0){ propSetAccionRecordatorioDocs(p, faltan, rec); return; }     // producción lista; solo falta recordar documentos
