@@ -41,6 +41,7 @@ const DOCS = [
 
   // Bloque 3 · Propiedad / legal — siempre
   { id: 'escritura',         tipo: 'Escritura pública o título inscrito',        bloque: 'Propiedad / legal', aplica: 'siempre',     gate_publicacion: true,  descripcion: 'Documento base que acredita la propiedad.',                               critico: true },
+  { id: 'libertad_gravamen', tipo: 'Libertad de gravamen',                       bloque: 'Propiedad / legal', aplica: 'siempre',     gate_publicacion: false, descripcion: 'Certificado de que la propiedad no tiene deudas ni embargos registrados.', critico: true },
   { id: 'predial',           tipo: 'Último predial / boleta predial',            bloque: 'Propiedad / legal', aplica: 'siempre',     gate_publicacion: true,  descripcion: 'Boleta o comprobante de predial reciente.',                              critico: true, vigencia_dias: 60 },
   { id: 'agua_luz',          tipo: 'Último recibo de agua',                     bloque: 'Propiedad / legal', aplica: 'siempre',     gate_publicacion: true,  descripcion: 'Recibo de agua reciente. La luz no forma parte del set canónico.',        critico: true, vigencia_dias: 60 },
   { id: 'no_adeudo_predial', tipo: 'Certificado no adeudo predial',              bloque: 'Propiedad / legal', aplica: 'siempre',     gate_publicacion: false, descripcion: 'Documento de Catastro municipal para notaría / ISABI.',                   critico: true, vigencia_dias: 60 },
