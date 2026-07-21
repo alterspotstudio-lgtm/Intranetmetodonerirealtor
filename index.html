@@ -1517,7 +1517,7 @@ a.owner-wa-link:hover{opacity:.75}
         </div>
         <div class="act-quick">
           <button class="act-quick-btn" type="button" onclick="propAccesoDirectoProduccion()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5.5" width="16" height="15" rx="2"/><path d="M4 9.5h16M8.5 3.5v4M15.5 3.5v4"/></svg>Solicitar producción inmobiliaria</button>
-          <button class="act-quick-btn" type="button" onclick="propAccesoDirectoDocs()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3.5H7a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8.5z"/><path d="M14 3.5v5h5M9 13h6M9 16.5h6"/></svg>Documentos</button>
+          <button class="act-quick-btn" type="button" onclick="propAccesoDirectoDocs()" id="propDocsQuickBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3.5H7a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8.5z"/><path d="M14 3.5v5h5M9 13h6M9 16.5h6"/></svg>Documentos<span id="propDocsVigDot" style="display:none;width:7px;height:7px;border-radius:50%;margin-left:2px;flex-shrink:0"></span></button>
         </div>
       </div>
     </div>
@@ -2389,12 +2389,24 @@ function propProdSemaforoPaint(rec){
   box.style.display='block';
   box.innerHTML='<span style="display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:2px;font-family:var(--fm);font-size:9px;letter-spacing:.5px;color:rgba('+rgb+',.95);background:rgba('+rgb+',.10);border:1px solid rgba('+rgb+',.30)"><span style="width:6px;height:6px;border-radius:50%;background:rgba('+rgb+',1);flex-shrink:0"></span>'+_esc(sem.l)+'</span>';
 }
+// Punto de vigencia de documentos, en el botón Documentos (no en la acción de oro).
+// Lo escribe /api/alerta-expediente todos los días; aquí solo se lee y se pinta.
+function propDocsVigDotPaint(rec){
+  const dot=document.getElementById('propDocsVigDot'); if(!dot) return;
+  const estado=propFirst(rec,['Semáforo Documentos']);
+  if(!estado || estado==='Vigente'){ dot.style.display='none'; return; }
+  const rgb = estado==='Vencido' ? '224,111,138' : '224,162,78';
+  dot.style.display='inline-block';
+  dot.style.background='rgb('+rgb+')';
+  dot.title = estado==='Vencido' ? 'Hay un documento vencido' : 'Hay un documento por vencer';
+}
 async function propDocsMaybeSetAction(p, docs){
   if(!p || propDocsActiveRecId!==p._recId) return;
   const pend=propDocsCountPend(docs), faltan=propDocsGatePend(docs);
   const recibidos=(docs||[]).filter(function(d){ return ['Recibido','Validado','Rechazado'].includes(String(d.estado||'')); }).length;
   const rec=p&&(p._rawRec||(typeof getPropRecord==='function'&&getPropRecord(p._recId)));
   propProdSemaforoPaint(rec);                                                // siempre en sync con el estado real, sin importar la rama
+  propDocsVigDotPaint(rec);
   if(pend>0){ propSetAccionDocs(p, pend, 0); return; }                       // hay algo que revisar → prioridad
   const portalFuera=recibidos>0 || !!(rec&&typeof propPortalEnviado==='function'&&propPortalEnviado(rec));
   let prod=null; try{ prod=await propProdFetchEvento(p); }catch(_){ prod=null; }
