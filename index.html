@@ -1748,6 +1748,11 @@ a.owner-wa-link:hover{opacity:.75}
     <div class="modal" id="produccionBox"></div>
   </div>
 
+  <!-- ════════ PUBLICAR — riel de publicación, ficha propia aparte de la de propiedad ════════ -->
+  <div class="modal-bg" id="pubModal">
+    <div class="modal" id="pubBox"></div>
+  </div>
+
 </div><!-- /app -->
 
 <script>
@@ -2217,6 +2222,46 @@ function cerrarProduccionModal(){
   document.getElementById('produccionBox').innerHTML='';
   PROD_MODAL_PROP=null;
 }
+// ════════ PUBLICAR — riel de publicación, propia, aparte de la ficha ════════
+// Paso 1 es el estudio de mercado (reengancha pmktMount, sin tocarlo, en su
+// propio contenedor #pmkt-mount — libre desde que se desmontó de la ficha).
+// Pasos 2-4 (medios, copy IA, publicar) llegan en el siguiente bloque.
+var PUB_MODAL_PROP=null;
+function pubAbrir(p){
+  if(!p) return;
+  PUB_MODAL_PROP=p;
+  document.getElementById('pubModal').classList.add('open');
+  pubRender(p);
+}
+function pubCerrar(){
+  document.getElementById('pubModal').classList.remove('open');
+  document.getElementById('pubBox').innerHTML='';
+  PUB_MODAL_PROP=null;
+}
+function pubPasoNodo(label, activo){
+  const dot=activo?'background:var(--gold);border:1px solid var(--gb)':'background:transparent;border:1px solid var(--w08)';
+  const txt=activo?'var(--gold)':'var(--w22)';
+  return '<div style="display:flex;flex-direction:column;align-items:center;gap:5px;flex-shrink:0">'
+    +'<div style="width:9px;height:9px;border-radius:50%;'+dot+'"></div>'
+    +'<div style="font-family:var(--fm);font-size:7px;letter-spacing:1px;text-transform:uppercase;color:'+txt+'">'+_esc(label)+'</div>'
+    +'</div>';
+}
+function pubRender(p){
+  const propName=(p&&p.name)||'tu propiedad';
+  const rec=p&&(p._rawRec||(typeof getPropRecord==='function'&&getPropRecord(p._recId)));
+  const folio=rec?_fval(rec,'Folio NERI'):((p&&p.folio)||'');
+  const barra='<div style="flex:1;height:1px;background:var(--w08);margin-top:4px"></div>';
+  document.getElementById('pubBox').innerHTML=
+    '<button class="modal-x" onclick="pubCerrar()">&times;</button>'
+    +'<div style="font-family:var(--fm);font-size:9px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:6px">Publicar</div>'
+    +'<div style="font-size:12px;color:var(--w60);margin-bottom:20px">'+_esc(propName)+'</div>'
+    +'<div style="display:flex;align-items:flex-start;gap:4px;margin-bottom:22px">'
+      +pubPasoNodo('Estudio',true)+barra+pubPasoNodo('Medios',false)+barra+pubPasoNodo('Copy',false)+barra+pubPasoNodo('Publicar',false)
+    +'</div>'
+    +'<div id="pmkt-mount" data-folio="'+_escAttr(folio)+'"></div>'
+    +'<div style="font-family:var(--fe);font-style:italic;font-size:10.5px;color:var(--w35);line-height:1.6;margin-top:18px;padding-top:14px;border-top:1px solid var(--w08)">Los siguientes pasos — subir fotos y video de producción, generar el texto y publicar — se habilitan en el próximo bloque.</div>';
+  if(typeof window.pmktMount==='function'){ try{ window.pmktMount(folio, rec, p); }catch(_){} }
+}
 function renderProduccionPaso1(p){
   const propName=(p&&p.name)||'tu propiedad';
   const edicionGratis=produccionPromoDisponible('Promo Edición Usada');
@@ -2393,8 +2438,8 @@ function propSetAccionProduccionLista(p, prod, rec){
   const cuando=prod&&prod.fecha?(prod.fecha+(prod.hora?(' a las '+prod.hora):'')):'';
   propSetAccionOro('Producción confirmada',
     'Expediente completo y producción de '+propName+(cuando?(' lista para el '+cuando):' confirmada')+'. Todo en orden.',
-    'Todo listo', 'calendar',
-    function(){ if(typeof mqNote==='function') mqNote('Producción y documentos completos — lista para publicar.'); });
+    'Publicar', 'send',
+    function(){ if(typeof pubAbrir==='function') pubAbrir(p); });
 }
 var propProdCache={};
 async function propProdFetchEvento(p){
@@ -2427,8 +2472,8 @@ function propSetAccionProduccionAutoLista(p, rec){
   const propName=(p&&p.name)||'tu propiedad';
   propSetAccionOro('Producción confirmada',
     'Expediente completo y producción propia de '+propName+' ya está cargada. Todo en orden.',
-    'Todo listo', 'calendar',
-    function(){ if(typeof mqNote==='function') mqNote('Producción y documentos completos — lista para publicar.'); });
+    'Publicar', 'send',
+    function(){ if(typeof pubAbrir==='function') pubAbrir(p); });
 }
 // Semáforo de 48h para subir foto/video tras enviar el portal — mismo
 // criterio de color que ya usa el reloj de Progreso (verde <70%, amarillo
