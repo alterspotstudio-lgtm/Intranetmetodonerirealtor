@@ -1812,6 +1812,18 @@ const PROD_CRUDO_FIELDS = [
   {room:'Alberca', idrive:'Video Alberca Crudo iDrive'},
   {room:'Extra', idrive:'Video Extra Crudo iDrive'},
 ];
+// Precio y regalo de lanzamiento — solo visibles para el asesor, nunca al
+// propietario. Vigente todo agosto 2026; una sola vez por asesor por
+// beneficio (edición y visita corren aparte). Cambia PROD_PROMO_LIMITE
+// si el lanzamiento se extiende.
+const PROD_PRECIO_EDICION=800, PROD_PRECIO_VISITA=1200;
+const PROD_PROMO_LIMITE='2026-08-31';
+function produccionPromoVigente(){
+  return new Date().toISOString().slice(0,10)<=PROD_PROMO_LIMITE;
+}
+function produccionPromoDisponible(campo){
+  return produccionPromoVigente() && !_fval(perfilState.rec, campo);
+}
 const PROP_VEND_TABLE = 'tblQHdwEucTaNrLzm';
 const PROP_PORTAL_BASE = String(window.PROGRESO_BASE || 'https://progreso-zeta.vercel.app/').replace(/\/+$/, '');
 let propUsingLocal = true;
@@ -2268,11 +2280,13 @@ function propAccesoDirectoProduccion(){
 // Esta ficha es el servicio aparte — el asesor entra, dice qué necesita,
 // y todo pasa aquí mismo. Nunca se mezcla con los videos ya publicados.
 var PROD_MODAL_PROP=null;
-function abrirProduccionModal(p){
+async function abrirProduccionModal(p){
   if(!p) return;
   PROD_MODAL_PROP=p;
-  renderProduccionPaso1(p);
   document.getElementById('produccionModal').classList.add('open');
+  document.getElementById('produccionBox').innerHTML='<div style="font-family:var(--fm);font-size:11px;color:var(--w60);padding:6px 0">Cargando…</div>';
+  if(!perfilState.rec){ try{ await perfilLoad(); }catch(e){ /* si falla, sigue sin promo — nunca bloquea la ficha */ } }
+  renderProduccionPaso1(p);
 }
 function cerrarProduccionModal(){
   document.getElementById('produccionModal').classList.remove('open');
@@ -2281,14 +2295,18 @@ function cerrarProduccionModal(){
 }
 function renderProduccionPaso1(p){
   const propName=(p&&p.name)||'tu propiedad';
+  const edicionGratis=produccionPromoDisponible('Promo Edición Usada');
+  const visitaMitad=produccionPromoDisponible('Promo Visita Usada');
+  const precioEdicion=edicionGratis?'Cortesía tu primer video':('$'+PROD_PRECIO_EDICION+' por video editado');
+  const precioVisita=visitaMitad?('50% en tu primera visita · $'+(PROD_PRECIO_VISITA/2)):('$'+PROD_PRECIO_VISITA.toLocaleString('es-MX')+' la visita');
   document.getElementById('produccionBox').innerHTML=
     '<button class="modal-x" onclick="cerrarProduccionModal()">&times;</button>'
     +'<div style="font-family:var(--fm);font-size:9px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:6px">Producción inmobiliaria</div>'
     +'<div style="font-size:12px;color:var(--w60);margin-bottom:22px">'+_esc(propName)+'</div>'
     +'<div style="font-family:var(--fb);font-weight:600;font-size:15px;color:#fff;margin-bottom:14px">¿Qué necesitas?</div>'
     +'<div style="display:flex;flex-direction:column;gap:10px">'
-    +'<button type="button" onclick="renderProduccionRutaA()" style="text-align:left;display:flex;align-items:center;gap:12px;border:1px solid var(--gb2);background:transparent;border-radius:3px;padding:14px 16px;cursor:pointer"><span style="font-family:var(--fm);color:var(--gold);font-size:16px">↑</span><span><span style="display:block;font-family:var(--fb);font-weight:500;font-size:13px;color:#fff">Tengo el material</span><span style="display:block;font-size:11px;color:var(--w60);margin-top:2px">Lo edita el equipo</span></span></button>'
-    +'<button type="button" onclick="renderProduccionRutaB()" style="text-align:left;display:flex;align-items:center;gap:12px;border:1px solid var(--gb2);background:transparent;border-radius:3px;padding:14px 16px;cursor:pointer"><span style="font-family:var(--fm);color:var(--gold);font-size:16px">▦</span><span><span style="display:block;font-family:var(--fb);font-weight:500;font-size:13px;color:#fff">Que lo graben</span><span style="display:block;font-size:11px;color:var(--w60);margin-top:2px">Van a tu propiedad</span></span></button>'
+    +'<button type="button" onclick="renderProduccionRutaA()" style="text-align:left;display:flex;align-items:center;gap:12px;border:1px solid var(--gb2);background:transparent;border-radius:3px;padding:14px 16px;cursor:pointer"><span style="font-family:var(--fm);color:var(--gold);font-size:16px">↑</span><span><span style="display:block;font-family:var(--fb);font-weight:500;font-size:13px;color:#fff">Tengo el material</span><span style="display:block;font-size:11px;color:var(--w60);margin-top:2px">Lo edita el equipo</span><span style="display:block;font-size:11px;color:var(--gold);margin-top:4px">'+precioEdicion+'</span></span></button>'
+    +'<button type="button" onclick="renderProduccionRutaB()" style="text-align:left;display:flex;align-items:center;gap:12px;border:1px solid var(--gb2);background:transparent;border-radius:3px;padding:14px 16px;cursor:pointer"><span style="font-family:var(--fm);color:var(--gold);font-size:16px">▦</span><span><span style="display:block;font-family:var(--fb);font-weight:500;font-size:13px;color:#fff">Que lo graben</span><span style="display:block;font-size:11px;color:var(--w60);margin-top:2px">Van a tu propiedad</span><span style="display:block;font-size:11px;color:var(--gold);margin-top:4px">'+precioVisita+'</span></span></button>'
     +'</div>';
 }
 // Ruta A · material sin editar. Reusa _prodCrudoRowMq y uploadIdriveFile
@@ -2299,11 +2317,14 @@ function renderProduccionRutaA(){
   const rec=(p._rawRec||(typeof getPropRecord==='function'&&getPropRecord(p._recId)))||{fields:{}};
   const propName=(p&&p.name)||'tu propiedad';
   const crudoEnviado=!!_fval(rec,'Fecha Envío Material Crudo');
+  const edicionGratis=produccionPromoDisponible('Promo Edición Usada');
+  const notaPrecio=edicionGratis?'Tu primer video va sin costo.':('$'+PROD_PRECIO_EDICION+' por video editado.');
   document.getElementById('produccionBox').innerHTML=
     '<button class="modal-x" onclick="cerrarProduccionModal()">&times;</button>'
     +'<div style="font-family:var(--fm);font-size:9px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:6px">Producción inmobiliaria</div>'
     +'<div style="font-size:12px;color:var(--w60);margin-bottom:18px">'+_esc(propName)+' · Tengo el material</div>'
-    +'<div style="font-size:11px;color:var(--w60);margin-bottom:14px">Para que el equipo lo edite. No se publica directo.</div>'
+    +'<div style="font-size:11px;color:var(--w60);margin-bottom:6px">Para que el equipo lo edite. No se publica directo.</div>'
+    +'<div style="font-size:11px;color:var(--gold);margin-bottom:14px">'+notaPrecio+'</div>'
     +'<div id="produccionCrudoFilas">'+PROD_CRUDO_FIELDS.map(function(v){ return _prodCrudoRowMq(v,rec); }).join('')+'</div>'
     +'<div style="margin-top:14px"><label style="display:flex;align-items:center;gap:8px;font-family:var(--fb);font-size:12px;color:var(--w80);cursor:'+(crudoEnviado?'default':'pointer')+'"><input type="checkbox" id="produccionCrudoStamp"'+(crudoEnviado?' checked disabled':'')+'> '+(crudoEnviado?'Enviado a producción':'Enviar a producción')+'</label></div>'
     +'<button type="button" id="produccionCrudoBtn" onclick="produccionGuardarCrudo()" style="margin-top:16px;width:100%;background:var(--gold);border:none;border-radius:3px;padding:12px;font-family:var(--fb);font-weight:600;font-size:12px;color:#241B0B;cursor:pointer">Guardar</button>'
@@ -2328,12 +2349,19 @@ async function produccionGuardarCrudo(){
       fields[el.dataset.uploadIdrive]=url;
     }
     if(wantsStamp) fields['Fecha Envío Material Crudo']=new Date().toISOString();
+    const usaPromoEdicion=wantsStamp && produccionPromoDisponible('Promo Edición Usada');
     const updatedRec=await atFetch(PROP_TABLE+'/'+p._recId,{method:'PATCH',body:JSON.stringify({fields:fields,typecast:true})});
     const recAfter=(updatedRec&&updatedRec.fields)?updatedRec:rec;
     if(!(updatedRec&&updatedRec.fields)){ recAfter.fields=recAfter.fields||{}; Object.keys(fields).forEach(function(k){ recAfter.fields[k]=fields[k]; }); }
     p._rawRec=recAfter;
     if(typeof propRecIndex!=='undefined') propRecIndex[p._recId]=recAfter;
-    if(msg){ msg.style.color='var(--emerald)'; msg.textContent=wantsStamp?'Video enviado. Tu ficha estará lista en 48 horas.':'✓ Guardado.'; }
+    if(usaPromoEdicion && perfilState.recId){
+      try{
+        await atFetch(ASESOR_PERFIL_TABLE+'/'+perfilState.recId,{method:'PATCH',body:JSON.stringify({fields:{'Promo Edición Usada':true},typecast:true})});
+        perfilState.rec.fields['Promo Edición Usada']=true;
+      }catch(e){ /* no bloquea — el video ya quedó guardado */ }
+    }
+    if(msg){ msg.style.color='var(--emerald)'; msg.textContent=wantsStamp?(usaPromoEdicion?'Video enviado, sin costo. Tu ficha estará lista en 48 horas.':'Video enviado. Tu ficha estará lista en 48 horas.'):'✓ Guardado.'; }
     if(typeof mqNote==='function') mqNote(wantsStamp?'✓ Enviado a producción.':'✓ Video guardado.');
     renderProduccionRutaA();
   }catch(e){
@@ -2349,11 +2377,14 @@ function renderProduccionRutaB(){
   const p=PROD_MODAL_PROP; if(!p) return;
   const propName=(p&&p.name)||'tu propiedad';
   const minIso=new Date().toISOString().slice(0,10);
+  const visitaMitad=produccionPromoDisponible('Promo Visita Usada');
+  const notaPrecio=visitaMitad?('50% en tu primera visita · $'+(PROD_PRECIO_VISITA/2)+'.'):('$'+PROD_PRECIO_VISITA.toLocaleString('es-MX')+' la visita.');
   document.getElementById('produccionBox').innerHTML=
     '<button class="modal-x" onclick="cerrarProduccionModal()">&times;</button>'
     +'<div style="font-family:var(--fm);font-size:9px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:6px">Producción inmobiliaria</div>'
     +'<div style="font-size:12px;color:var(--w60);margin-bottom:18px">'+_esc(propName)+' · Que lo graben</div>'
-    +'<div style="font-size:11px;color:var(--w60);margin-bottom:18px;line-height:1.5">La cita queda reservada con el equipo al elegir la hora.<br>El mensaje para tu cliente se abre listo para enviar.</div>'
+    +'<div style="font-size:11px;color:var(--w60);margin-bottom:6px;line-height:1.5">La cita queda reservada con el equipo al elegir la hora.<br>El mensaje para tu cliente se abre listo para enviar.</div>'
+    +'<div style="font-size:11px;color:var(--gold);margin-bottom:18px">'+notaPrecio+'</div>'
     +'<div style="font-family:var(--fm);font-size:10px;letter-spacing:.6px;color:var(--w60);margin-bottom:6px">Elige un día · lunes a sábado</div>'
     +'<input type="date" id="pmFechaInput" min="'+minIso+'" style="background:rgba(255,255,255,.04);border:1px solid var(--w18);border-radius:3px;color:var(--w80);font-family:var(--fm);font-size:12px;padding:8px 10px;width:100%;max-width:220px" onchange="produccionCargarHoras(this.value)">'
     +'<div id="pmHorasBox" style="margin-top:10px"></div>'
@@ -2377,6 +2408,7 @@ async function produccionCargarHoras(fechaIso){
 async function produccionReservar(fechaIso, horaLabel){
   const p=PROD_MODAL_PROP; if(!p) return;
   document.querySelectorAll('#pmHorasBox button').forEach(function(b){ b.disabled=true; }); // evita doble-tap
+  const usaPromoVisita=produccionPromoDisponible('Promo Visita Usada');
   try{
     const formula=encodeURIComponent("AND({Fecha}='"+fechaIso+"',{Hora}='"+horaLabel+"',{Estado}='Reservado')");
     const check=await atFetch(AGENDA_PRODUCCION_TABLE+'?filterByFormula='+formula);
@@ -2408,6 +2440,12 @@ async function produccionReservar(fechaIso, horaLabel){
   try{
     await atFetch(PROP_TABLE+'/'+p._recId,{method:'PATCH',body:JSON.stringify({fields:{'Produccion Confirmada':true,'Produccion Fecha':fechaIso},typecast:true})});
   }catch(e){ /* no bloquea */ }
+  if(usaPromoVisita && perfilState.recId){
+    try{
+      await atFetch(ASESOR_PERFIL_TABLE+'/'+perfilState.recId,{method:'PATCH',body:JSON.stringify({fields:{'Promo Visita Usada':true},typecast:true})});
+      perfilState.rec.fields['Promo Visita Usada']=true;
+    }catch(e){ /* no bloquea — la cita ya quedó reservada */ }
+  }
   const msg='Hola '+nombre+', llegó el momento que estábamos esperando — pronto damos a conocer a la estrella de este proceso: '+propName+'.\n\n'
     +'◆ Fecha: '+propProdFechaLegible(fechaIso)+'\n'
     +'◆ Hora de llegada del equipo: '+horaLabel+'\n\n'
