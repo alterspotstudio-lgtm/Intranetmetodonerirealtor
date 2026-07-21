@@ -2169,73 +2169,6 @@ function propProdNotasConChecklist(notasPrevias){
   const bloque=marcador+' '+PROD_CHECKLIST_PREPARACION.join(', ')+'.';
   return base?(base+' · '+bloque):bloque;
 }
-// Landing pública del evento — Confirmacion.html pinta fecha/hora/checklist
-// en vivo desde Eventos Operación vía el webhook de Make. El folio del
-// evento es la llave; si no existe, no se puede armar el link.
-function confirmacionEventoUrl(folio){
-  return folio?('https://intranetmetodonerirealtor.vercel.app/Confirmacion.html?evento='+encodeURIComponent(folio)):'';
-}
-// Vía A de producción — hay propuesta del propietario, falta que el asesor
-// la confirme. Al confirmar: se marca Estado='Confirmada' en Eventos
-// Operación (mismo campo que lee el webhook de Confirmacion.html, así la
-// landing del propietario se actualiza sola) y se manda el mensaje con el
-// link de confirmación en vivo — cierra la cadena que faltaba.
-function propSetAccionConfirmarProduccion(p, prod, rec){
-  const owner=(typeof crmPropietarioData==='function'&&(p._rawRec||rec))?crmPropietarioData(p._rawRec||rec):null;
-  const nombre=(prod&&prod.cliente)||(owner&&owner.nombre)||'el propietario';
-  const phone=propProdWaPhone(owner);
-  const propName=(p&&p.name)||'tu propiedad';
-  const cuando=prod.fecha+(prod.hora?(' a las '+prod.hora):'');
-  propSetAccionOro('Confirmar producción inmobiliaria',
-    nombre+' propuso '+cuando+'. Confirma la cita de foto y video.',
-    'Confirmar cita', 'calendar',
-    async function(){
-      if(prod.recId){
-        try{
-          const fieldsEvento={'Estado':'Confirmada','Notas':propProdNotasConChecklist(prod.notas)};
-          await atFetch(EVENTOS_TABLE+'/'+prod.recId,{method:'PATCH',body:JSON.stringify({fields:fieldsEvento,typecast:true})});
-        }
-        catch(_){ /* si falla el PATCH igual mandamos el mensaje — no bloquea al asesor */ }
-      }
-      // Espejo en Propiedades NERI: Eventos Operación es la fuente de verdad para
-      // Confirmacion.html, pero el portal del propietario (progreso-zeta) calcula
-      // su Etapa Comercialización a partir de Produccion Confirmada + Produccion
-      // Fecha en ESTA tabla. Sin este espejo, confirmar aquí nunca mueve esa etapa.
-      if(p&&p._recId){
-        try{
-          const fields={'Produccion Confirmada':true};
-          if(prod.fecha) fields['Produccion Fecha']=prod.fecha;
-          await atFetch(PROP_TABLE+'/'+p._recId,{method:'PATCH',body:JSON.stringify({fields:fields,typecast:true})});
-        }catch(_){ /* no bloquea al asesor; Eventos Operación ya quedó confirmado */ }
-      }
-      const link=confirmacionEventoUrl(prod.folio);
-      const msg='Hola '+nombre+', llegó el momento que estábamos esperando — pronto damos a conocer a la estrella de este proceso: '+propName+'.\n\n'
-        +'◆ Fecha: '+prod.fecha+'\n'
-        +'◆ Hora de llegada del equipo: '+(prod.hora||'por confirmar')+'\n\n'
-        +'Le comparto la confirmación con todo lo que necesitamos tener listo para que la propiedad luzca en su mejor versión.\n\n'
-        +'Cualquier ajuste, con gusto lo atendemos con anticipación.'
-        +(link?('\n\n◆ Su confirmación en línea (siempre actualizada):\n'+link):'');
-      if(phone) window.open('https://wa.me/'+phone+'?text='+encodeURIComponent(msg),'_blank');
-      else if(typeof mqNote==='function') mqNote('El propietario propuso '+cuando+'. Falta su WhatsApp para confirmar.');
-      // Refrescar la acción de oro en vivo: si ya no faltan documentos debe
-      // saltar sola al siguiente paso, sin esperar a cambiar de propiedad.
-      const cached=propDocsCache[p._recId];
-      propDocsMaybeSetAction(p, (cached&&cached.docs)||[]);
-    });
-}
-// Vía B de producción — aún no hay horario reservado. Enrique agenda él
-// mismo, horario fijo (L-S, 10am-5pm en punto, sin excepción). No hay
-// "propuesta" que esperar del propietario: el asesor reserva un horario
-// real ahí mismo y eso YA es la confirmación — no hay paso de confirmar
-// aparte. Nadie entra a Airtable: la disponibilidad es la regla (arriba,
-// PROD_HORAS) menos lo que ya esté Reservado en Agenda Producción.
-function propSetAccionReservarProduccion(p, rec){
-  const propName=(p&&p.name)||'tu propiedad';
-  propSetAccionOro('Producción inmobiliaria',
-    'Reserva el horario de foto y video de '+propName+'. Lunes a sábado, 10:00 am a 5:00 pm, por hora.',
-    'Elegir horario', 'calendar',
-    function(){ propProdAbrirPicker(p); });
-}
 // Default tras portal enviado: subir foto/video propios va primero.
 // Solicitar producción con Enrique queda como acceso aparte (fila .act-quick),
 // nunca como paso obligatorio del riel dorado.
@@ -2256,15 +2189,6 @@ function propProdFechaLegible(iso){
   const d=new Date(iso+'T12:00:00');
   if(isNaN(d)) return iso;
   return PROD_DIAS[d.getDay()]+' '+d.getDate()+' de '+PROD_MESES[d.getMonth()];
-}
-function propProdAbrirPicker(p){
-  const box=document.getElementById('actExtra'); if(!box || !p) return;
-  const minIso=new Date().toISOString().slice(0,10);
-  box.dataset.recId=p._recId;
-  box.style.display='block';
-  box.innerHTML='<div style="font-family:var(--fm);font-size:10px;letter-spacing:.6px;color:var(--w60);margin-bottom:6px">Elige un día · lunes a sábado</div>'
-    +'<input type="date" id="prodFechaInput" min="'+minIso+'" style="background:rgba(255,255,255,.04);border:1px solid var(--w18);border-radius:3px;color:var(--w80);font-family:var(--fm);font-size:12px;padding:8px 10px;width:100%;max-width:220px" onchange="propProdCargarHoras(this.value)">'
-    +'<div id="prodHorasBox" style="margin-top:10px"></div>';
 }
 // Accesos directos de la fila .act-quick — acceso manual a producción y
 // documentos en cualquier momento, sin esperar a que el candado dorado
@@ -2369,10 +2293,11 @@ async function produccionGuardarCrudo(){
     if(btn){ btn.disabled=false; btn.textContent='Guardar'; }
   }
 }
-// Ruta B · agendar cita. Misma regla (L-S, PROD_HORAS) que la Vía B del
-// riel dorado, pero con su propio contenedor e IDs (pmFechaInput/
-// pmHorasBox) para no compartir estado con propProdAbrirPicker — esa
-// sigue intacta para cuando el riel dorado la dispara directo.
+// Ruta B · agendar cita. Misma regla (L-S, PROD_HORAS) que usaba el riel
+// dorado, con su propio contenedor e IDs (pmFechaInput/pmHorasBox). Es la
+// única vía de reserva que queda — la del riel dorado (propProdAbrirPicker
+// y compañía) se eliminó el 21-jul-2026 por no tener ningún botón que la
+// disparara.
 function renderProduccionRutaB(){
   const p=PROD_MODAL_PROP; if(!p) return;
   const propName=(p&&p.name)||'tu propiedad';
@@ -2461,89 +2386,15 @@ async function produccionReservar(fechaIso, horaLabel){
 function propAccesoDirectoDocs(){
   if(propDocsActiveRecId) propDocsOpen(propDocsActiveRecId);
 }
-async function propProdCargarHoras(fechaIso){
-  const horasBox=document.getElementById('prodHorasBox'); if(!horasBox) return;
-  if(!propProdEsDiaValido(fechaIso)){ horasBox.innerHTML='<div style="font-family:var(--fb);font-size:11px;color:var(--rose)">Domingo no — elige lunes a sábado.</div>'; return; }
-  horasBox.innerHTML='<div style="font-family:var(--fb);font-size:11px;color:var(--w60)">Consultando horarios…</div>';
-  let ocupadas=[];
-  try{
-    const formula=encodeURIComponent("AND({Fecha}='"+fechaIso+"',{Estado}='Reservado')");
-    const data=await atFetch(AGENDA_PRODUCCION_TABLE+'?filterByFormula='+formula);
-    ocupadas=((data&&data.records)||[]).map(function(r){ return _fval(r,'Hora'); });
-  }catch(e){ horasBox.innerHTML='<div style="font-family:var(--fb);font-size:11px;color:var(--rose)">No se pudo consultar disponibilidad: '+_esc(e.message)+'</div>'; return; }
-  horasBox.innerHTML='<div style="display:flex;flex-wrap:wrap;gap:6px">'+PROD_HORAS.map(function(h){
-    const tomado=ocupadas.indexOf(h)>-1;
-    return '<button type="button" '+(tomado?'disabled':'')+' onclick="propProdReservar(\''+fechaIso+'\',\''+h+'\')" style="font-family:var(--fm);font-size:11px;letter-spacing:.4px;padding:8px 12px;border-radius:3px;border:1px solid '+(tomado?'var(--w08)':'var(--gb2)')+';background:'+(tomado?'rgba(255,255,255,.02)':'var(--gd)')+';color:'+(tomado?'var(--w35)':'var(--gold)')+';cursor:'+(tomado?'not-allowed':'pointer')+'">'+h+(tomado?' · ocupado':'')+'</button>';
-  }).join('')+'</div>';
-}
-async function propProdReservar(fechaIso, horaLabel){
-  const box=document.getElementById('actExtra'); const recId=box&&box.dataset.recId;
-  const p=(typeof PROPS!=='undefined'?PROPS:[]).find(function(x){ return x._recId===recId; }); if(!p) return;
-  document.querySelectorAll('#prodHorasBox button').forEach(function(b){ b.disabled=true; }); // evita doble-tap
-  try{
-    // Chequeo justo antes de reservar (no el de cuando se abrió el calendario)
-    // — reduce la ventana de choque a lo que tarda este fetch, no a lo que
-    // tardó el asesor decidiendo. El proxy no deja borrar registros salvo
-    // administrador, así que la defensa es no crear el duplicado, no
-    // limpiarlo después.
-    const formula=encodeURIComponent("AND({Fecha}='"+fechaIso+"',{Hora}='"+horaLabel+"',{Estado}='Reservado')");
-    const check=await atFetch(AGENDA_PRODUCCION_TABLE+'?filterByFormula='+formula);
-    if(((check&&check.records)||[]).length>0){
-      if(typeof mqNote==='function') mqNote('Ese horario ya se reservó. Elige otro.');
-      propProdCargarHoras(fechaIso);
-      return;
-    }
-    await atFetch(AGENDA_PRODUCCION_TABLE,{method:'POST',body:JSON.stringify({fields:{Fecha:fechaIso,Hora:horaLabel,Estado:'Reservado',Propiedad:[p._recId]},typecast:true})});
-  }catch(e){
-    if(typeof mqNote==='function') mqNote('No se pudo reservar: '+e.message);
-    propProdCargarHoras(fechaIso);
-    return;
-  }
-  // Espejo en Eventos Operación (misma forma que ya lee Confirmacion.html y
-  // que ya usa propSetAccionConfirmarProduccion) + en Propiedades NERI
-  // (misma forma que ya usa progreso-zeta para su Etapa Comercialización).
-  // Si alguno de los dos espejos falla, la reserva en Agenda Producción ya
-  // quedó — no se pierde el horario, solo faltaría re-sincronizar a mano.
-  const rec=p._rawRec||(typeof getPropRecord==='function'&&getPropRecord(p._recId));
-  const owner=(typeof crmPropietarioData==='function'&&rec)?crmPropietarioData(rec):null;
-  const nombre=(owner&&owner.nombre)||'el propietario';
-  const phone=propProdWaPhone(owner);
-  const propName=(p&&p.name)||'tu propiedad';
-  const folioProp=_fval(rec,'Folio NERI');
-  const s=perfilSession();
-  try{
-    await atFetch(EVENTOS_TABLE,{method:'POST',body:JSON.stringify({fields:{
-      'Tipo Evento':'Producción Inmobiliaria','Estado':'Confirmada','Propiedad':propName,'Cliente':nombre,
-      'Fecha':propProdFechaLegible(fechaIso),'Hora':horaLabel,'Notas':propProdNotasConChecklist(''),
-      'Asesor':s.nombre||'','WhatsApp Asesor':s.whatsapp||'','Folio Propiedad':folioProp||''
-    },typecast:true})});
-  }catch(e){ /* no bloquea — Agenda Producción ya quedó reservada */ }
-  try{
-    await atFetch(PROP_TABLE+'/'+p._recId,{method:'PATCH',body:JSON.stringify({fields:{'Produccion Confirmada':true,'Produccion Fecha':fechaIso},typecast:true})});
-  }catch(e){ /* no bloquea */ }
-  const msg='Hola '+nombre+', llegó el momento que estábamos esperando — pronto damos a conocer a la estrella de este proceso: '+propName+'.\n\n'
-    +'◆ Fecha: '+propProdFechaLegible(fechaIso)+'\n'
-    +'◆ Hora de llegada del equipo: '+horaLabel+'\n\n'
-    +'Cualquier ajuste, con gusto lo atendemos con anticipación.';
-  if(phone) window.open('https://wa.me/'+phone+'?text='+encodeURIComponent(msg),'_blank');
-  else if(typeof mqNote==='function') mqNote('Horario reservado. Falta el WhatsApp del propietario para avisarle.');
-  const box2=document.getElementById('actExtra'); if(box2){ box2.style.display='none'; box2.innerHTML=''; }
-  const cached=propDocsCache[p._recId];
-  propDocsMaybeSetAction(p,(cached&&cached.docs)||[]);
-}
 // Ambas vías al día — producción confirmada (o realizada) y expediente
 // completo. Estado informativo, sin urgencia.
 function propSetAccionProduccionLista(p, prod, rec){
   const propName=(p&&p.name)||'tu propiedad';
   const cuando=prod&&prod.fecha?(prod.fecha+(prod.hora?(' a las '+prod.hora):'')):'';
-  const link=confirmacionEventoUrl(prod&&prod.folio);
   propSetAccionOro('Producción confirmada',
     'Expediente completo y producción de '+propName+(cuando?(' lista para el '+cuando):' confirmada')+'. Todo en orden.',
-    'Ver confirmación', 'calendar',
-    function(){
-      if(link) window.open(link,'_blank');
-      else if(typeof mqNote==='function') mqNote('Producción confirmada. Falta el folio del evento para abrir su link de confirmación.');
-    });
+    'Todo listo', 'calendar',
+    function(){ if(typeof mqNote==='function') mqNote('Producción y documentos completos — lista para publicar.'); });
 }
 var propProdCache={};
 async function propProdFetchEvento(p){
@@ -2627,27 +2478,14 @@ async function propDocsMaybeSetAction(p, docs){
   propProdCache[p._recId]=prod;
   if(!portalFuera && !prod) return;                                         // portal aún no sale → dejar "Activar portal"
   // Producción es una vía paralela a documentos: avanza aunque falten.
-  // Solo cuando ya quedó confirmada (o realizada) el foco regresa a
-  // documentos — como recordatorio, nunca como bloqueo.
-  const prodEstado=String((prod&&prod.estado)||'').toLowerCase();
-  // Comparación exacta, NO por sustring: "pendiente de confirmar" también
-  // contiene la palabra "confirmar" y un match por /confirm/ la trataba como
-  // ya confirmada, saltándose el botón "Confirmar cita". Los únicos estados
-  // reales de Eventos Operación que cuentan como producción lista son estos
-  // dos (ver campo Estado en Eventos Operación, tblaYhT3EUT0m5FYV).
   // Candado correcto: lo que habilita "recordar documentos" es que la media
-  // YA ESTÉ SUBIDA en la propiedad (portada/video), no que la cita de
-  // producción esté confirmada o realizada. Una cita "Realizada" solo dice
-  // que el equipo fue a grabar — no que el material final ya se cargó al
-  // sistema. Si se usa prodConfirmada como candado, el asesor puede tener
-  // los videos en su celular días enteros sin que nada se lo recuerde.
+  // YA ESTÉ SUBIDA en la propiedad (portada/video), no el estado de la cita
+  // de producción. Una cita "Realizada" solo dice que el equipo fue a
+  // grabar — no que el material final ya se cargó al sistema. Si se usa
+  // eso como candado, el asesor puede tener los videos en su celular días
+  // enteros sin que nada se lo recuerde.
   const mediaLista=propV05TieneMedia(rec);
-  if(!mediaLista){
-    if(prod && prod.fecha && prodEstado!=='confirmada' && prodEstado!=='realizada')
-      propSetAccionConfirmarProduccion(p, prod, rec);                        // hay propuesta, falta confirmar
-    else propSetAccionSubirMedia(p, rec);                                    // sin propuesta, o ya confirmada pero aún sin subir media
-    return;
-  }
+  if(!mediaLista){ propSetAccionSubirMedia(p, rec); return; }
   if(faltan>0){ propSetAccionRecordatorioDocs(p, faltan, rec); return; }     // media lista; solo falta recordar documentos
   if(prod) propSetAccionProduccionLista(p, prod, rec);                      // lista vía Enrique (evento confirmado)
   else propSetAccionProduccionAutoLista(p, rec);                            // lista vía autoproducción (sin evento)
@@ -5379,8 +5217,10 @@ function propPortalEnviado(rec){
    5431139) escribe esa propuesta en Eventos Operación — NO en el campo
    'Produccion Fecha' de la propiedad, que se queda vacío a propósito
    mientras la propuesta está pendiente. Ese campo de la propiedad solo
-   se llena DESPUÉS, cuando el asesor ya confirmó (ver
-   propSetAccionConfirmarProduccion, que lo escribe como espejo). Así
+   se llenaba DESPUÉS, cuando el asesor confirmaba desde la Vía A (función
+   ya eliminada — 21-jul-2026, esa vía ya no está en la cadena real: el
+   asesor reserva directo desde el botón "Solicitar producción
+   inmobiliaria", ver abrirProduccionModal/produccionReservar). Así
    que aunque se corrijan los nombres de campo aquí, esta función jamás
    va a detectar una propuesta pendiente — el dato que busca sencillamente
    no vive en este registro durante esa ventana de tiempo. No es un typo,
