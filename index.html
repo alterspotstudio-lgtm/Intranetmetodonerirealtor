@@ -1518,6 +1518,7 @@ a.owner-wa-link:hover{opacity:.75}
         <div class="act-quick">
           <button class="act-quick-btn" type="button" onclick="propAccesoDirectoProduccion()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5.5" width="16" height="15" rx="2"/><path d="M4 9.5h16M8.5 3.5v4M15.5 3.5v4"/></svg>Solicitar producción inmobiliaria</button>
           <button class="act-quick-btn" type="button" onclick="propAccesoDirectoDocs()" id="propDocsQuickBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3.5H7a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8.5z"/><path d="M14 3.5v5h5M9 13h6M9 16.5h6"/></svg>Documentos<span id="propDocsVigDot" style="display:none;width:7px;height:7px;border-radius:50%;margin-left:2px;flex-shrink:0"></span></button>
+          <button class="act-quick-btn" type="button" onclick="propAccesoDirectoEstudio()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V10M10 19V5M16 19v-7M21 19H3"/></svg>Estudio de mercado</button>
         </div>
       </div>
     </div>
@@ -1751,6 +1752,11 @@ a.owner-wa-link:hover{opacity:.75}
   <!-- ════════ PUBLICAR — riel de publicación, ficha propia aparte de la de propiedad ════════ -->
   <div class="modal-bg" id="pubModal">
     <div class="modal" id="pubBox"></div>
+  </div>
+
+  <!-- ════════ ESTUDIO DE MERCADO — acceso temprano, mismo motor que Publicar paso 1 ════════ -->
+  <div class="modal-bg" id="estudioModal">
+    <div class="modal" id="estudioBox"></div>
   </div>
 
 </div><!-- /app -->
@@ -2202,6 +2208,40 @@ function propAccesoDirectoProduccion(){
   const recId=propDocsActiveRecId; if(!recId) return;
   const p=(typeof PROPS!=='undefined'?PROPS:[]).find(function(x){ return x._recId===recId; });
   if(p) abrirProduccionModal(p);
+}
+// Acceso temprano al estudio de mercado — misma lógica de precio/negociación
+// que antes vivía forzada en cada ficha, ahora es opcional y bajo demanda,
+// disponible desde antes de llegar a producción/publicación. Reusa el mismo
+// motor (pmktMount + PMKT_CACHE por folio) que el paso 1 de Publicar: si el
+// asesor ya lo corrió aquí, en Publicar aparece listo, sin gastar de nuevo.
+var ESTUDIO_MODAL_PROP=null;
+function propAccesoDirectoEstudio(){
+  const recId=propDocsActiveRecId; if(!recId) return;
+  const p=(typeof PROPS!=='undefined'?PROPS:[]).find(function(x){ return x._recId===recId; });
+  if(p) estudioAbrir(p);
+}
+function estudioAbrir(p){
+  if(!p) return;
+  ESTUDIO_MODAL_PROP=p;
+  document.getElementById('estudioModal').classList.add('open');
+  estudioRender(p);
+}
+function estudioCerrar(){
+  document.getElementById('estudioModal').classList.remove('open');
+  document.getElementById('estudioBox').innerHTML='';
+  ESTUDIO_MODAL_PROP=null;
+}
+function estudioRender(p){
+  const propName=(p&&p.name)||'tu propiedad';
+  const rec=p&&(p._rawRec||(typeof getPropRecord==='function'&&getPropRecord(p._recId)));
+  const folio=rec?_fval(rec,'Folio NERI'):((p&&p.folio)||'');
+  document.getElementById('estudioBox').innerHTML=
+    '<button class="modal-x" onclick="estudioCerrar()">&times;</button>'
+    +'<div style="font-family:var(--fm);font-size:9px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:6px">Estudio de mercado</div>'
+    +'<div style="font-size:12px;color:var(--w60);margin-bottom:20px">'+_esc(propName)+'</div>'
+    +'<div id="pmkt-mount-early" data-folio="'+_escAttr(folio)+'"></div>'
+    +'<div style="font-family:var(--fe);font-style:italic;font-size:10.5px;color:var(--w35);line-height:1.6;margin-top:18px;padding-top:14px;border-top:1px solid var(--w08)">Este análisis queda guardado por folio — cuando llegues a Publicar, ya está listo, sin generarlo dos veces.</div>';
+  if(typeof window.pmktMount==='function'){ try{ window.pmktMount(folio, rec, p, 'pmkt-mount-early'); }catch(_){} }
 }
 // ════════ FICHA DE PRODUCCIÓN — propia, aparte de la ficha de propiedad ════════
 // A propósito no comparte pantalla con "Información Landing": ese botón
@@ -6550,18 +6590,21 @@ window.cabEnviarPortalVenta=cabEnviarPortalVenta;
   }
 
   /* ── Función pública principal ── */
-  window.pmktMount = function (folio, rec, prop) {
-    var el = document.getElementById('pmkt-mount');
+  window.pmktMount = function (folio, rec, prop, mountId) {
+    mountId = mountId || 'pmkt-mount';
+    var el = document.getElementById(mountId);
     if (!el) return;
+    var chipId = mountId + '-chip';
+    var bodyId = mountId + '-body';
 
     /* ── Renderizar el contenedor colapsable ── */
     el.innerHTML =
       '<div class="pmkt-wrap">' +
         '<button class="pmkt-trigger" onclick="window.pmktToggle()" aria-expanded="false">' +
           '<span class="pmkt-lbl">◈ Precio de mercado · Análisis IA</span>' +
-          '<span class="pmkt-chip" id="pmkt-chip">Haz clic para generar</span>' +
+          '<span class="pmkt-chip" id="' + chipId + '">Haz clic para generar</span>' +
         '</button>' +
-        '<div class="pmkt-body" id="pmkt-body">' +
+        '<div class="pmkt-body" id="' + bodyId + '">' +
           '<div class="pmkt-empty">Presiona el botón para generar el análisis de precio con inteligencia artificial.</div>' +
           '<div class="pmkt-actions" style="margin-top:10px">' +
             '<button class="pmkt-btn" onclick="window.pmktGenerar()">Generar análisis de precio</button>' +
@@ -6569,20 +6612,21 @@ window.cabEnviarPortalVenta=cabEnviarPortalVenta;
         '</div>' +
       '</div>';
 
-    /* Guardar contexto para regenerar */
-    window._pmktCtx = { folio: folio, rec: rec, prop: prop };
+    /* Guardar contexto para regenerar — incluye a qué contenedor pertenece */
+    window._pmktCtx = { folio: folio, rec: rec, prop: prop, mountId: mountId };
 
     /* Si hay caché, pre-abrir y mostrar resultado inmediato */
     if (folio && PMKT_CACHE[folio]) {
-      var body = document.getElementById('pmkt-body');
-      var chip = document.getElementById('pmkt-chip');
+      var body = document.getElementById(bodyId);
+      var chip = document.getElementById(chipId);
       if (body) { body.classList.add('open'); pmktRenderResult(body, PMKT_CACHE[folio], folio); }
       if (chip) chip.textContent = 'Análisis listo';
     }
   };
 
   window.pmktToggle = function () {
-    var body = document.getElementById('pmkt-body');
+    var mountId = (window._pmktCtx && window._pmktCtx.mountId) || 'pmkt-mount';
+    var body = document.getElementById(mountId + '-body');
     if (!body) return;
     body.classList.toggle('open');
   };
@@ -6592,8 +6636,9 @@ window.cabEnviarPortalVenta=cabEnviarPortalVenta;
     var folio = ctx.folio || '';
     var rec   = ctx.rec   || {};
     var prop  = ctx.prop  || {};
-    var body  = document.getElementById('pmkt-body');
-    var chip  = document.getElementById('pmkt-chip');
+    var mountId = ctx.mountId || 'pmkt-mount';
+    var body  = document.getElementById(mountId + '-body');
+    var chip  = document.getElementById(mountId + '-chip');
     if (!body) return;
 
     /* Asegurar panel abierto */
@@ -6605,10 +6650,30 @@ window.cabEnviarPortalVenta=cabEnviarPortalVenta;
 
     var recId = (prop && prop._recId) || '';
 
+    /* Reintento automático y silencioso: la IA a veces regresa el análisis
+       incompleto (formato, no falla de conexión). Antes de molestar al
+       asesor con un error, se intenta una vez más solo. Si el segundo
+       intento también falla, ahí sí se muestra el error con su botón. */
+    var intentos = 0, maxIntentos = 2, result = null, ultimoError = null;
+    while (intentos < maxIntentos) {
+      intentos++;
+      try {
+        result = await pmktCallEstudio(recId, folio);
+        ultimoError = null;
+        break;
+      } catch (e) {
+        ultimoError = e;
+        if (intentos < maxIntentos) {
+          body.innerHTML = '<div class="pmkt-loading">El primer intento no salió completo — reintentando…</div>';
+          if (chip) chip.textContent = 'Reintentando…';
+        }
+      }
+    }
+
     try {
+      if (ultimoError) throw ultimoError;
       /* Make corre el análisis del lado servidor y persiste los 10 campos;
          aquí solo pintamos lo que devolvió. */
-      var result = await pmktCallEstudio(recId, folio);
       if (folio) PMKT_CACHE[folio] = result;
       pmktRenderResult(body, result, folio);
       if (chip) chip.textContent = 'Análisis listo';
