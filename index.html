@@ -1794,6 +1794,19 @@ const AGENDA_PRODUCCION_TABLE = 'tbl2OWeSoMZP3SxLz';
 const PROD_HORAS = ['10:00 am','11:00 am','12:00 pm','1:00 pm','2:00 pm','3:00 pm','4:00 pm'];
 const PROD_DIAS = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
 const PROD_MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+// Ruta A · material sin editar (distinto de los campos ya publicados de
+// Información Landing). Apunta a los campos "Crudo iDrive" que ya existían
+// en Propiedades NERI sin usarse. No tocar propV05VideoFields — ese es el
+// material YA publicado; mezclarlos haría que propV05TieneMedia() marcara
+// como "listo para publicar" un video que apenas se mandó a editar.
+const PROD_CRUDO_FIELDS = [
+  {room:'Sala', idrive:'Video Sala Crudo iDrive'},
+  {room:'Cocina', idrive:'Video Cocina Crudo iDrive'},
+  {room:'Recámara', idrive:'Video Recamara Crudo iDrive'},
+  {room:'Jardín', idrive:'Video Jardin Crudo iDrive'},
+  {room:'Alberca', idrive:'Video Alberca Crudo iDrive'},
+  {room:'Extra', idrive:'Video Extra Crudo iDrive'},
+];
 const PROP_VEND_TABLE = 'tblQHdwEucTaNrLzm';
 const PROP_PORTAL_BASE = String(window.PROGRESO_BASE || 'https://progreso-zeta.vercel.app/').replace(/\/+$/, '');
 let propUsingLocal = true;
@@ -2243,7 +2256,42 @@ function propProdAbrirPicker(p){
 function propAccesoDirectoProduccion(){
   const recId=propDocsActiveRecId; if(!recId) return;
   const p=(typeof PROPS!=='undefined'?PROPS:[]).find(function(x){ return x._recId===recId; });
-  if(p) propProdAbrirPicker(p);
+  if(p) propProdAbrirChooser(p);
+}
+// Ruta A / Ruta B — un paso antes del calendario. "Agendar cita" llama a
+// propProdAbrirPicker exactamente igual que antes (cero cambios ahí).
+function propProdAbrirChooser(p){
+  const box=document.getElementById('actExtra'); if(!box || !p) return;
+  box.dataset.recId=p._recId;
+  box.style.display='block';
+  box.innerHTML='<div style="font-family:var(--fm);font-size:10px;letter-spacing:.6px;color:var(--w60);margin-bottom:8px">Elige cómo</div>'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap">'
+    +'<button type="button" onclick="propProdIrARutaA()" style="font-family:var(--fm);font-size:11px;letter-spacing:.4px;padding:8px 12px;border-radius:3px;border:1px solid var(--gb2);background:var(--gd);color:var(--gold);cursor:pointer">Subir mi video</button>'
+    +'<button type="button" onclick="propProdIrARutaB()" style="font-family:var(--fm);font-size:11px;letter-spacing:.4px;padding:8px 12px;border-radius:3px;border:1px solid var(--gb2);background:var(--gd);color:var(--gold);cursor:pointer">Agendar cita</button>'
+    +'</div>';
+}
+function propProdPropDeBox(){
+  const box=document.getElementById('actExtra'); const recId=box&&box.dataset.recId;
+  return (typeof PROPS!=='undefined'?PROPS:[]).find(function(x){ return x._recId===recId; });
+}
+function propProdIrARutaB(){
+  const p=propProdPropDeBox(); if(p) propProdAbrirPicker(p);
+}
+function propProdIrASeccionCrudo(){
+  const sec=document.getElementById('fp-sec-crudo');
+  if(sec){ sec.open=true; sec.scrollIntoView({behavior:'smooth',block:'start'}); }
+}
+function propProdAbrirFichaCrudo(p){
+  if(p) CURRENT_PROP=p;
+  if(!CURRENT_PROP) return;
+  renderFichaPropModal(CURRENT_PROP);
+  document.getElementById('fichaPropModal').classList.add('open');
+  setTimeout(propProdIrASeccionCrudo,50);
+}
+function propProdIrARutaA(){
+  const p=propProdPropDeBox();
+  const box=document.getElementById('actExtra'); if(box){ box.style.display='none'; box.innerHTML=''; }
+  if(p) propProdAbrirFichaCrudo(p);
 }
 function propAccesoDirectoDocs(){
   if(propDocsActiveRecId) propDocsOpen(propDocsActiveRecId);
@@ -5534,6 +5582,10 @@ function _landVideoRowMq(v,rec){
   const ph=v.extra?'Nombre (ej. Estudio)':'ID de YouTube';
   return `<div class="le-video"><span class="le-video-room">${_esc(v.room)}</span><div><input class="le-in" type="text" data-field="${_escAttr(v.yt)}" data-ftype="text" data-orig="${_escAttr(ytVal)}" value="${_escAttr(ytVal)}" placeholder="${ph}"><div class="le-upload"><input class="le-in" type="file" data-upload-idrive="${_escAttr(v.idrive)}" data-upload-doc="${_escAttr(v.room)}" accept="video/mp4,video/quicktime"></div></div><span class="le-vstatus ${tiene?'on':'off'}">MP4 ${tiene?'✓':'—'}</span></div>`;
 }
+function _prodCrudoRowMq(v,rec){
+  const tiene=!!_fval(rec,v.idrive);
+  return `<div class="le-video"><span class="le-video-room">${_esc(v.room)}</span><div><div class="le-upload"><input class="le-in" type="file" data-upload-idrive="${_escAttr(v.idrive)}" data-upload-doc="${_escAttr(v.room+' Crudo')}" accept="video/mp4,video/quicktime"></div></div><span class="le-vstatus ${tiene?'on':'off'}">${tiene?'✓':'—'}</span></div>`;
+}
 async function uploadIdriveFile(file,folio,doc){
   if(!file) return null;
   const ct=file.type||'video/mp4';
@@ -5675,10 +5727,14 @@ function renderFichaPropModal(p){
   }).join('');
   const lockRow=(k,v)=>v?`<div class="le-lock"><div class="le-lock-k">🔒 ${_esc(k)}</div><div class="le-lock-v">${_esc(v)}</div></div>`:'';
   const lockBlock=`<details class="le-sec"><summary><span class="le-ico">🔒</span>Folio y enlaces (solo lectura)<span class="le-caret">›</span></summary><div class="le-body"><div class="le-banner2">Estos datos se generan automáticamente. No los edites manualmente.</div>${lockRow('Folio NERI',folio)}${lockRow('Folio Vendedor',_fval(rec,'Folio Vendedor'))}${lockRow('Link Comprador',linkComp)}${lockRow('Link Portal',linkPort)}</div></details>`;
+  // Ruta A · material sin editar. Sección aparte de "Información Landing"
+  // a propósito — estos videos no se publican, van al equipo de edición.
+  const crudoEnviado=!!_fval(rec,'Fecha Envío Material Crudo');
+  const crudoSec=`<details class="le-sec" id="fp-sec-crudo"><summary><span class="le-ico">▤</span>Video sin editar<span class="le-caret">›</span></summary><div class="le-body"><div class="le-note">Para que el equipo lo edite. No se publica directo.</div>${PROD_CRUDO_FIELDS.map(v=>_prodCrudoRowMq(v,rec)).join('')}<div class="le-field full" style="margin-top:10px"><label style="display:flex;align-items:center;gap:8px;font-family:var(--fb);font-size:12px;color:var(--w80);cursor:${crudoEnviado?'default':'pointer'}"><input type="checkbox" data-stamp-if-checked="Fecha Envío Material Crudo"${crudoEnviado?' checked disabled':''}> ${crudoEnviado?'Enviado a producción':'Enviar a producción'}</label></div></div></details>`;
   document.getElementById('fichaPropBox').innerHTML=`
     <button class="modal-x" onclick="closeFichaProp()">&times;</button>
     <div class="fp-header"><div><div class="fp-name">${_esc(nombre)}</div><div class="fp-sub">Propiedad · editor de landing conectado</div><div class="fp-wa">${precioTxt}${headerPills}</div></div><div class="fp-folio"><div class="fp-folio-lbl">Folio</div>${_esc(folio||'— sin folio aún —')}</div></div>
-    <div class="fp-body"><div class="fp-sec"><div class="fp-sec-title"><em>◇</em> Siguiente paso</div>${riel}</div><div class="fp-sec fp-context">${propV05FichaBanner(rec)}<div id="med-reloj-mount" data-folio="${_escAttr(folio)}"></div><div id="pmkt-mount" data-folio="${_escAttr(folio)}"></div><div class="le-banner">Para enviar el portal solo se requieren los datos básicos. Portada y video se completan después.</div>${secs}${lockBlock}</div></div>
+    <div class="fp-body"><div class="fp-sec"><div class="fp-sec-title"><em>◇</em> Siguiente paso</div>${riel}</div><div class="fp-sec fp-context">${propV05FichaBanner(rec)}<div id="med-reloj-mount" data-folio="${_escAttr(folio)}"></div><div id="pmkt-mount" data-folio="${_escAttr(folio)}"></div><div class="le-banner">Para enviar el portal solo se requieren los datos básicos. Portada y video se completan después.</div>${secs}${crudoSec}${lockBlock}</div></div>
     <div class="fp-actions"><span class="fp-status" id="prop-save-msg"></span><button class="m-btn" onclick="closeFichaProp()">Cerrar</button><button class="m-btn" data-url="${_escAttr(linkComp)}" onclick="propOpenUrl(this.dataset.url,'Esta propiedad todavía no tiene Link Comprador.')">◎ Ver landing</button><button class="m-btn" data-url="${_escAttr(propFichaUrl(p))}" onclick="propOpenUrl(this.dataset.url,'Esta propiedad todavía no tiene folio para ficha técnica.')">▣ Ver ficha técnica</button><button class="m-btn" data-url="${_escAttr(propFichaUrl(p))}" onclick="propCopyUrl(this.dataset.url)">↗ Compartir ficha</button><button class="m-btn solid grow" id="prop-save-btn" onclick="landSaveProp()">Guardar cambios</button></div>`;
   if(typeof window.medRelojMount==='function'){ try{ window.medRelojMount(folio); }catch(_){} }
   if(typeof window.pmktMount==='function'){ try{ window.pmktMount(folio, rec, p); }catch(_){} }
@@ -5720,6 +5776,13 @@ async function landSaveProp(){
     else fields[name]=nv===''?null:nv;
   });
   document.querySelectorAll('#fichaPropBox [data-attach]').forEach(el=>{ const url=(el.value||'').trim(); if(url) fields[el.dataset.attach]=[{url}]; });
+  // Ruta A · checkbox "Enviar a producción" — sella la fecha una sola vez.
+  // Igual que Progreso Creado / Propiedad Creada: candado anti-duplicados,
+  // si el campo ya tiene valor no se vuelve a escribir.
+  const crudoStampEl=document.querySelector('#fichaPropBox [data-stamp-if-checked]');
+  if(crudoStampEl && crudoStampEl.checked && !_fval(rec,crudoStampEl.dataset.stampIfChecked)){
+    fields[crudoStampEl.dataset.stampIfChecked]=new Date().toISOString();
+  }
   const folioUpload=_fval(rec,'Folio NERI')||_fval(rec,'Nombre Propiedad')||p._recId;
   const blobInputs=Array.from(document.querySelectorAll('#fichaPropBox [data-upload-attach]')).filter(el=>el.files&&el.files[0]);
   const idriveInputs=Array.from(document.querySelectorAll('#fichaPropBox [data-upload-idrive]')).filter(el=>el.files&&el.files[0]);
