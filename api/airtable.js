@@ -17,7 +17,7 @@ const TABLES = {
   agenda_produccion: { id:'tbl2OWeSoMZP3SxLz' }, // calendario de Enrique, sin ownerField: es compartido, no de un asesor
 };
 const TABLE_BY_ID = Object.fromEntries(Object.values(TABLES).map(t=>[t.id,t]));
-const PROFILE_EDITABLE = new Set(['Nombre','Teléfono WhatsApp','Email','Ciudad','Frase','Pixel ID Meta','Foto']);
+const PROFILE_EDITABLE = new Set(['Nombre','Teléfono WhatsApp','Email','Ciudad','Frase','Pixel ID Meta','Foto','Promo Edición Usada','Promo Visita Usada']);
 export default async function handler(req,res){
   res.setHeader('Access-Control-Allow-Methods','GET,POST,PATCH,DELETE,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers','Content-Type, Authorization');
