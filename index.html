@@ -2411,6 +2411,8 @@ async function produccionReservar(fechaIso, horaLabel){
   const msg='Hola '+nombre+', llegó el momento que estábamos esperando — pronto damos a conocer a la estrella de este proceso: '+propName+'.\n\n'
     +'◆ Fecha: '+propProdFechaLegible(fechaIso)+'\n'
     +'◆ Hora de llegada del equipo: '+horaLabel+'\n\n'
+    +'Para que luzca en su mejor versión, ayúdanos con:\n'
+    +PROD_CHECKLIST_PREPARACION.map(function(x){ return '• '+x; }).join('\n')+'\n\n'
     +'Cualquier ajuste, con gusto lo atendemos con anticipación.';
   if(phone) window.open('https://wa.me/'+phone+'?text='+encodeURIComponent(msg),'_blank');
   else if(typeof mqNote==='function') mqNote('Horario reservado. Falta el WhatsApp del propietario para avisarle.');
