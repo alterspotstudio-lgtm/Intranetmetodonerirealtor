@@ -12,7 +12,7 @@
 //   NERI_SESSION_SECRET=...
 
 import crypto from 'node:crypto';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 const MAX_VIDEO_MB = 500;
@@ -32,16 +32,39 @@ const ALLOWED_TYPES = new Set([
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Método no permitido' });
 
   const session = verifySession(req);
   if (!session) return res.status(401).json({ error: 'Sesión inválida o vencida.' });
 
   const cfg = readConfig();
   if (cfg.error) return res.status(500).json({ error: cfg.error });
+
+  /* Borrado del buzón temporal de publicación — el asesor lo llama después
+     de que Instagram ya tomó la foto/video, o si cancela sin publicar.
+     Solo puede borrar dentro de metodo-neri/publicacion-temporal/*, nunca
+     fuera de esa carpeta (contratos y expedientes quedan fuera de alcance). */
+  if (req.method === 'DELETE') {
+    try {
+      const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
+      const key = String(body.key || '');
+      if (!key.startsWith('metodo-neri/publicacion-temporal/')) {
+        return res.status(400).json({ error: 'Solo se puede borrar del buzón temporal de publicación.' });
+      }
+      const s3 = new S3Client({
+        region: cfg.region, endpoint: cfg.endpoint, forcePathStyle: true,
+        credentials: { accessKeyId: cfg.accessKeyId, secretAccessKey: cfg.secretAccessKey },
+      });
+      await s3.send(new DeleteObjectCommand({ Bucket: cfg.bucket, Key: key }));
+      return res.status(200).json({ ok: true });
+    } catch (err) {
+      return res.status(500).json({ error: 'No se pudo borrar: ' + (err?.message || err) });
+    }
+  }
+
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Método no permitido' });
 
   try {
     const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
@@ -64,7 +87,9 @@ export default async function handler(req, res) {
     const ext = extensionFrom(filename, contentType);
     const stamp = new Date().toISOString().replace(/[:.]/g, '-');
     const rand = crypto.randomBytes(5).toString('hex');
-    const key = `metodo-neri/${asesor}/${folio}/${doc}/${stamp}-${rand}${ext}`;
+    const key = doc === 'publicacion'
+      ? `metodo-neri/publicacion-temporal/${folio}/${stamp}-${rand}${ext}`
+      : `metodo-neri/${asesor}/${folio}/${doc}/${stamp}-${rand}${ext}`;
 
     const s3 = new S3Client({
       region: cfg.region,
