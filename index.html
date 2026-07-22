@@ -1759,6 +1759,11 @@ a.owner-wa-link:hover{opacity:.75}
     <div class="modal" id="estudioBox"></div>
   </div>
 
+  <!-- ════════ ESTUDIO DE MERCADO TEMPRANO — sobre el Lead Vendedor, antes de la firma ════════ -->
+  <div class="modal-bg" id="leadEstudioModal">
+    <div class="modal" id="leadEstudioBox"></div>
+  </div>
+
 </div><!-- /app -->
 
 <script>
@@ -2242,6 +2247,34 @@ function estudioRender(p){
     +'<div id="pmkt-mount-early" data-folio="'+_escAttr(folio)+'"></div>'
     +'<div style="font-family:var(--fe);font-style:italic;font-size:10.5px;color:var(--w35);line-height:1.6;margin-top:18px;padding-top:14px;border-top:1px solid var(--w08)">Este análisis queda guardado por folio — cuando llegues a Publicar, ya está listo, sin generarlo dos veces.</div>';
   if(typeof window.pmktMount==='function'){ try{ window.pmktMount(folio, rec, p, 'pmkt-mount-early'); }catch(_){} }
+}
+// ════════ ESTUDIO DE MERCADO TEMPRANO — sobre el Lead Vendedor ════════
+// Arma al asesor ANTES de la firma, con lo que levantó en la primera llamada
+// o visita. Mismo motor (pmktMount), otro webhook (escenario aparte en Make,
+// lee y escribe en Leads Vendedores, no en Propiedades). Cuando la propiedad
+// se cree tras la firma, este análisis ya no se pierde: queda en el lead.
+function leadEstudioAbrir(recId){
+  const rec=(typeof VENDEDORES!=='undefined'?VENDEDORES:[]).find(function(r){ return r&&r.id===recId; });
+  if(!rec) return;
+  document.getElementById('leadEstudioModal').classList.add('open');
+  leadEstudioRender(rec);
+}
+function leadEstudioCerrar(){
+  document.getElementById('leadEstudioModal').classList.remove('open');
+  document.getElementById('leadEstudioBox').innerHTML='';
+}
+function leadEstudioRender(rec){
+  const nombre=_fval(rec,'Nombre Completo')||'este lead';
+  const folio=(typeof leadVendFolioValue==='function'?leadVendFolioValue(rec):'')||rec.id;
+  document.getElementById('leadEstudioBox').innerHTML=
+    '<button class="modal-x" onclick="leadEstudioCerrar()">&times;</button>'
+    +'<div style="font-family:var(--fm);font-size:9px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:6px">Estudio de mercado · temprano</div>'
+    +'<div style="font-size:12px;color:var(--w60);margin-bottom:20px">'+_esc(nombre)+'</div>'
+    +'<div id="pmkt-mount-lead" data-folio="'+_escAttr(folio)+'"></div>'
+    +'<div style="font-family:var(--fe);font-style:italic;font-size:10.5px;color:var(--w35);line-height:1.6;margin-top:18px;padding-top:14px;border-top:1px solid var(--w08)">Con los datos aproximados de esta primera cita. Cuando la propiedad se cree, este análisis se retoma — no se pierde ni se vuelve a pagar.</div>';
+  if(typeof window.pmktMount==='function'){
+    try{ window.pmktMount(folio, rec, {_recId:rec.id, name:nombre}, 'pmkt-mount-lead', window.PMKT_ESTUDIO_TEMPRANO_WEBHOOK); }catch(_){}
+  }
 }
 // ════════ FICHA DE PRODUCCIÓN — propia, aparte de la ficha de propiedad ════════
 // A propósito no comparte pantalla con "Información Landing": ese botón
@@ -3217,6 +3250,7 @@ const LEAD_VEND_EDITABLE = [
   {f:'Baños',              type:'text'},
   {f:'Medios Baños',       type:'text'},
   {f:'Estacionamientos',   type:'text'},
+  {f:'Metros de Construcción (aprox)', type:'text'},
   {f:'Tiempo de Venta',    type:'text'},
   {f:'Razón de Venta',     type:'text'},
   {f:'Diagnóstico Fiscal', type:'text'},
@@ -3348,6 +3382,7 @@ function leadVendPanelHTML(rec, et){
     return '<div class="fv-riel-msg"><strong>Lead nuevo.</strong> El primer movimiento es el contacto. Al enviar el mensaje, el lead queda en <strong>En seguimiento</strong>.</div>'
       + '<div class="fv-riel-acts">'
       + (wa ? '<button class="fv-riel-btn" data-action="enviar-primer-contacto-whatsapp" onclick="rielPrimerContactoReal(\''+_escAttr(recId)+'\')">Abrir primer contacto · WhatsApp</button>' : '<button class="fv-riel-btn ghost" data-action="capturar-telefono-editar" onclick="leadVendOpenEditByFolio(\''+_escAttr(folio)+'\')">Capturar teléfono en Editar</button>')
+      + '<button class="fv-riel-btn ghost" data-action="estudio-temprano" onclick="leadEstudioAbrir(\''+_escAttr(recId)+'\')">Estudio de mercado</button>'
       + '</div><div class="fv-riel-status" id="riel-status">Listo para registrar primer contacto real.</div>';
   }
   if(et.idx===1){
@@ -3359,6 +3394,8 @@ function leadVendPanelHTML(rec, et){
       + '</div><div class="fv-riel-acts">'
       + '<button class="fv-riel-btn" data-action="subir-exclusiva-firmada-pdf" onclick="rielSubirContratoReal(\''+_escAttr(recId)+'\',\'Firma exclusiva\')">Subir exclusiva firmada · PDF</button>'
       + '<button class="fv-riel-btn" data-action="subir-venta-directa-firmada-pdf" onclick="rielSubirContratoReal(\''+_escAttr(recId)+'\',\'Firma venta directa\')">Subir venta directa firmada · PDF</button>'
+      + '</div><div class="fv-riel-acts">'
+      + '<button class="fv-riel-btn ghost" data-action="estudio-temprano" onclick="leadEstudioAbrir(\''+_escAttr(recId)+'\')">Estudio de mercado</button>'
       + '</div><div class="fv-riel-status" id="riel-status">Sube el contrato firmado para continuar con el proceso.</div>';
   }
   if(et.idx===2){
@@ -6460,9 +6497,13 @@ window.cabEnviarPortalVenta=cabEnviarPortalVenta;
         en la propiedad y devuelve los 11 valores separados por ||| para pintar aquí.
         Webhook externo de Make (no es dominio propio): fijo a propósito. */
   var PMKT_ESTUDIO_WEBHOOK = 'https://hook.us2.make.com/yquo4e968n368cq5ydeit88f6xk8q0wq';
-  async function pmktCallEstudio(recId, folio) {
+  /* Estudio temprano — mismo motor, corre sobre el Lead Vendedor (antes de que
+     exista la propiedad). Escenario aparte en Make, no toca el de arriba. */
+  var PMKT_ESTUDIO_TEMPRANO_WEBHOOK = 'https://hook.us2.make.com/csy2ff73brs6t27p2laprysvirh1nhb8';
+  window.PMKT_ESTUDIO_TEMPRANO_WEBHOOK = PMKT_ESTUDIO_TEMPRANO_WEBHOOK;
+  async function pmktCallEstudio(recId, folio, webhookUrl) {
     if (!recId) throw new Error('Falta el identificador de la propiedad.');
-    var res = await fetch(PMKT_ESTUDIO_WEBHOOK, {
+    var res = await fetch(webhookUrl || PMKT_ESTUDIO_WEBHOOK, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ recId: recId, folio: folio || '' })
@@ -6590,7 +6631,7 @@ window.cabEnviarPortalVenta=cabEnviarPortalVenta;
   }
 
   /* ── Función pública principal ── */
-  window.pmktMount = function (folio, rec, prop, mountId) {
+  window.pmktMount = function (folio, rec, prop, mountId, webhookUrl) {
     mountId = mountId || 'pmkt-mount';
     var el = document.getElementById(mountId);
     if (!el) return;
@@ -6612,8 +6653,8 @@ window.cabEnviarPortalVenta=cabEnviarPortalVenta;
         '</div>' +
       '</div>';
 
-    /* Guardar contexto para regenerar — incluye a qué contenedor pertenece */
-    window._pmktCtx = { folio: folio, rec: rec, prop: prop, mountId: mountId };
+    /* Guardar contexto para regenerar — incluye a qué contenedor pertenece y qué webhook usar */
+    window._pmktCtx = { folio: folio, rec: rec, prop: prop, mountId: mountId, webhookUrl: webhookUrl };
 
     /* Si hay caché, pre-abrir y mostrar resultado inmediato */
     if (folio && PMKT_CACHE[folio]) {
@@ -6637,6 +6678,7 @@ window.cabEnviarPortalVenta=cabEnviarPortalVenta;
     var rec   = ctx.rec   || {};
     var prop  = ctx.prop  || {};
     var mountId = ctx.mountId || 'pmkt-mount';
+    var webhookUrl = ctx.webhookUrl || undefined;
     var body  = document.getElementById(mountId + '-body');
     var chip  = document.getElementById(mountId + '-chip');
     if (!body) return;
@@ -6658,7 +6700,7 @@ window.cabEnviarPortalVenta=cabEnviarPortalVenta;
     while (intentos < maxIntentos) {
       intentos++;
       try {
-        result = await pmktCallEstudio(recId, folio);
+        result = await pmktCallEstudio(recId, folio, webhookUrl);
         ultimoError = null;
         break;
       } catch (e) {
