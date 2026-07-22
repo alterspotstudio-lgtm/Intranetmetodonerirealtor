@@ -3583,6 +3583,12 @@ async function rielContratoUploadReal(recId, conversion, file){
     if(!put.ok) throw new Error('iDrive respondió HTTP '+put.status);
     rielSay('Guardando contrato…');
     await rielPatchLeadReal(recId, {'Contrato Firmado':cfg.url, 'Conversión':conversion});
+    /* Un solo paso: subir el contrato dispara, en la misma acción, guardar
+       el archivo, marcar la firma y crear la propiedad. No hay otro momento,
+       no hay otro camino — si esta llamada falla, no se crea la propiedad y
+       no queda pendiente ningún proceso aparte esperando hacerlo después. */
+    try{ await rielCrearPropiedadRealTime(recId, folio); }
+    catch(e){ console.warn('No se pudo crear la propiedad al subir el contrato:', e.message); }
     rielSay('Activando expediente…');
     try{ await rielActivarExpedienteReal(folio, recId, conversion); }
     catch(e){ console.warn('activar-expediente no completó después de subir contrato:', e.message); }
@@ -3594,6 +3600,19 @@ async function rielContratoUploadReal(recId, conversion, file){
   }catch(e){
     rielSay('Error: '+(e.message||e));
   }
+}
+/* Webhook 'Tiempo Real' ya construido en Make (escenario 5424659) — hoy
+   corre en paralelo al sondeo, hasta confirmar que funciona en producción.
+   Acepta folio o recordId; aquí mandamos los dos por seguridad. */
+var RIEL_PROPIEDAD_REALTIME_WEBHOOK = 'https://hook.us2.make.com/ssvbsjs3on1i87616fefilx8shk42ncv';
+async function rielCrearPropiedadRealTime(recId, folio){
+  const res=await fetch(RIEL_PROPIEDAD_REALTIME_WEBHOOK,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({recordId:recId, folio:folio||''})
+  });
+  if(!res.ok) throw new Error('HTTP '+res.status);
+  return res.json().catch(()=>({}));
 }
 async function rielActivarExpedienteReal(folio, recId, conversion){
   const res=await fetch('/api/activar-expediente',{
