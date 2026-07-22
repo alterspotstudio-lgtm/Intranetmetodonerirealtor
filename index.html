@@ -2322,6 +2322,33 @@ function pubCerrar(){
 }
 function pubIrAMedios(){ PUB_STEP='medios'; pubRender(PUB_MODAL_PROP); }
 function pubIrAEstudio(){ PUB_STEP='estudio'; pubRender(PUB_MODAL_PROP); }
+function pubIrACopy(){ PUB_STEP='copy'; pubRender(PUB_MODAL_PROP); if(!PUB_COPY_TEXT) pubGenerarCopy(); }
+function pubIrAPublicar(){ PUB_STEP='publicar'; pubRender(PUB_MODAL_PROP); }
+/* Webhooks de Make para Copy y Publicar — cada uno hace una sola cosa,
+   ninguno corre solo, todos se disparan por el clic del asesor. */
+var PUB_WEBHOOK_COPY   = 'https://hook.us2.make.com/h5ztzn6euvhs5m17x4mpf239al1dvzz2';
+var PUB_WEBHOOK_FOTO   = 'https://hook.us2.make.com/3jkn61w2ohaggkdqwyj1arv86isx3f1e';
+var PUB_WEBHOOK_VIDEO_CREAR    = 'https://hook.us2.make.com/jyhsainyy9muahgnas9b77nsy4vekqbn';
+var PUB_WEBHOOK_VIDEO_PUBLICAR = 'https://hook.us2.make.com/90cr7w1i969vwq4523rjzanattb564a4';
+var PUB_COPY_TEXT='';
+var PUB_COPY_CARGANDO=false;
+var PUB_PUBLICANDO=false;
+var PUB_PUBLICADO=null;
+async function pubGenerarCopy(){
+  PUB_COPY_CARGANDO=true; pubRenderCopy(PUB_MODAL_PROP);
+  try{
+    const p=PUB_MODAL_PROP;
+    const res=await fetch(PUB_WEBHOOK_COPY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({recId:p&&p._recId||'', folio:(p&&p.folio)||''})});
+    const txt=await res.text();
+    if(!res.ok||!txt) throw new Error('HTTP '+res.status);
+    PUB_COPY_TEXT=txt.trim();
+  }catch(e){
+    PUB_COPY_TEXT='';
+    if(typeof mqNote==='function') mqNote('No se pudo generar el texto. Puedes escribirlo tú o intentar de nuevo.');
+  }
+  PUB_COPY_CARGANDO=false; pubRenderCopy(PUB_MODAL_PROP);
+}
+function pubCopyEditado(v){ PUB_COPY_TEXT=v; }
 function pubAgregarFotos(fileList){
   if(!fileList) return;
   Array.prototype.forEach.call(fileList, function(f){
@@ -2361,6 +2388,8 @@ function pubPasoNodo(label, estado){
 }
 function pubRender(p){
   if(PUB_STEP==='medios'){ pubRenderMedios(p); return; }
+  if(PUB_STEP==='copy'){ pubRenderCopy(p); return; }
+  if(PUB_STEP==='publicar'){ pubRenderPublicar(p); return; }
   pubRenderEstudio(p);
 }
 function pubRenderEstudio(p){
@@ -2418,8 +2447,133 @@ function pubRenderMedios(p){
     +'</div>'
     +'<div style="display:flex;justify-content:space-between;align-items:center;padding-top:18px;margin-top:18px;border-top:1px solid var(--w08)">'
       +'<button type="button" onclick="pubIrAEstudio()" style="background:transparent;border:1px solid var(--w18);color:var(--w60);font-family:var(--fm);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:11px 14px;border-radius:3px;cursor:pointer">Atrás</button>'
-      +'<span style="font-family:var(--fe);font-style:italic;font-size:10.5px;color:var(--w35)">El texto con IA y publicar se habilitan en el próximo bloque.</span>'
+      +'<button type="button" onclick="pubIrACopy()" style="background:var(--gold);border:none;color:#050505;font-family:var(--fm);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;padding:11px 18px;border-radius:3px;cursor:pointer">Continuar a Copy</button>'
     +'</div>';
+}
+function pubRenderCopy(p){
+  const propName=(p&&p.name)||'tu propiedad';
+  const barra='<div style="flex:1;height:1px;background:var(--w08);margin-top:4px"></div>';
+  const cuerpo = PUB_COPY_CARGANDO
+    ? '<div style="font-family:var(--fe);font-style:italic;font-size:12px;color:var(--w60);padding:20px 0;text-align:center">Escribiendo el texto…</div>'
+    : '<textarea oninput="pubCopyEditado(this.value)" style="width:100%;min-height:160px;background:#0d0d0d;border:1px solid var(--w18);border-radius:4px;color:#fff;font-family:var(--fb);font-size:13px;line-height:1.6;padding:12px;resize:vertical;box-sizing:border-box">'+_esc(PUB_COPY_TEXT)+'</textarea>';
+  document.getElementById('pubBox').innerHTML=
+    '<button class="modal-x" onclick="pubCerrar()">&times;</button>'
+    +'<div style="font-family:var(--fm);font-size:9px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:6px">Publicar</div>'
+    +'<div style="font-size:12px;color:var(--w60);margin-bottom:20px">'+_esc(propName)+'</div>'
+    +'<div style="display:flex;align-items:flex-start;gap:4px;margin-bottom:22px">'
+      +pubPasoNodo('Estudio','done')+barra+pubPasoNodo('Medios','done')+barra+pubPasoNodo('Copy','active')+barra+pubPasoNodo('Publicar','pending')
+    +'</div>'
+    +'<div style="font-family:var(--fe);font-style:italic;font-size:11px;color:var(--w60);line-height:1.6;margin-bottom:14px">Puedes editarlo antes de continuar — es tuyo, no tiene que quedar tal cual salió.</div>'
+    +cuerpo
+    +'<div style="display:flex;justify-content:space-between;align-items:center;padding-top:18px;margin-top:18px;border-top:1px solid var(--w08)">'
+      +'<button type="button" onclick="pubIrAMedios()" style="background:transparent;border:1px solid var(--w18);color:var(--w60);font-family:var(--fm);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:11px 14px;border-radius:3px;cursor:pointer">Atrás</button>'
+      +'<div style="display:flex;gap:8px">'
+        +'<button type="button" onclick="pubGenerarCopy()" '+(PUB_COPY_CARGANDO?'disabled':'')+' style="background:transparent;border:1px solid var(--gb2);color:var(--gold);font-family:var(--fm);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:11px 14px;border-radius:3px;cursor:pointer">Regenerar</button>'
+        +'<button type="button" onclick="pubIrAPublicar()" '+(PUB_COPY_CARGANDO?'disabled':'')+' style="background:var(--gold);border:none;color:#050505;font-family:var(--fm);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;padding:11px 18px;border-radius:3px;cursor:pointer">Continuar a Publicar</button>'
+      +'</div>'
+    +'</div>';
+}
+function pubRenderPublicar(p){
+  const propName=(p&&p.name)||'tu propiedad';
+  const barra='<div style="flex:1;height:1px;background:var(--w08);margin-top:4px"></div>';
+  const via = PUB_MEDIA.video ? 'Video' : (PUB_MEDIA.photos.length?'Foto':'—');
+  const miniaturas = PUB_MEDIA.video
+    ? '<div style="width:56px;height:56px;border-radius:4px;background:#161616;border:1px solid var(--w18);display:flex;align-items:center;justify-content:center;color:var(--gold);font-family:var(--fm);font-size:8px;flex-shrink:0">VIDEO</div>'
+    : (PUB_MEDIA.photos[0] ? '<img src="'+PUB_MEDIA.photos[0]._url+'" style="width:56px;height:56px;border-radius:4px;object-fit:cover;border:1px solid var(--w18);flex-shrink:0">' : '');
+  let resultado='';
+  if(PUB_PUBLICADO && PUB_PUBLICADO.ok){
+    resultado='<div style="border:1px solid rgba(120,200,140,.4);background:rgba(120,200,140,.08);border-radius:4px;padding:14px;margin-top:14px;color:#9fe0b0;font-family:var(--fb);font-size:13px">✓ Publicado en Instagram.</div>';
+  } else if(PUB_PUBLICADO && !PUB_PUBLICADO.ok){
+    resultado='<div style="border:1px solid rgba(220,120,120,.4);background:rgba(220,120,120,.08);border-radius:4px;padding:14px;margin-top:14px;color:#f0a8a8;font-family:var(--fb);font-size:13px">'+_esc(PUB_PUBLICADO.mensaje)+'</div>';
+  }
+  document.getElementById('pubBox').innerHTML=
+    '<button class="modal-x" onclick="pubCerrar()">&times;</button>'
+    +'<div style="font-family:var(--fm);font-size:9px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:6px">Publicar</div>'
+    +'<div style="font-size:12px;color:var(--w60);margin-bottom:20px">'+_esc(propName)+'</div>'
+    +'<div style="display:flex;align-items:flex-start;gap:4px;margin-bottom:22px">'
+      +pubPasoNodo('Estudio','done')+barra+pubPasoNodo('Medios','done')+barra+pubPasoNodo('Copy','done')+barra+pubPasoNodo('Publicar','active')
+    +'</div>'
+    +'<div style="display:flex;gap:12px;align-items:center;margin-bottom:18px">'
+      +miniaturas
+      +'<div style="font-family:var(--fm);font-size:9px;letter-spacing:1.5px;color:var(--w35);text-transform:uppercase">Vía<div style="color:var(--gold);font-size:12px;margin-top:3px;text-transform:none;letter-spacing:0">'+via+'</div></div>'
+    +'</div>'
+    +'<div style="font-family:var(--fb);font-size:12px;color:var(--w60);line-height:1.6;white-space:pre-wrap;border:1px solid var(--w08);border-radius:4px;padding:12px;max-height:120px;overflow:auto;margin-bottom:6px">'+_esc(PUB_COPY_TEXT||'(sin texto)')+'</div>'
+    +'<div id="pub-estado-publicar" style="font-family:var(--fe);font-style:italic;font-size:11px;color:var(--gold);min-height:16px;margin-bottom:4px">'+(PUB_PUBLICANDO?'Preparando…':'')+'</div>'
+    +resultado
+    +'<div style="display:flex;justify-content:space-between;align-items:center;padding-top:18px;margin-top:18px;border-top:1px solid var(--w08)">'
+      +'<button type="button" onclick="pubIrACopy()" '+(PUB_PUBLICANDO?'disabled':'')+' style="background:transparent;border:1px solid var(--w18);color:var(--w60);font-family:var(--fm);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:11px 14px;border-radius:3px;cursor:pointer">Atrás</button>'
+      +'<button type="button" onclick="pubEjecutarPublicacion()" '+(PUB_PUBLICANDO?'disabled':'')+' style="background:var(--gold);border:none;color:#050505;font-family:var(--fm);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;padding:11px 18px;border-radius:3px;cursor:pointer">'+(PUB_PUBLICANDO?'Publicando…':'Publicar')+'</button>'
+    +'</div>';
+}
+function pubEstadoPublicar(msg){
+  const el=document.getElementById('pub-estado-publicar');
+  if(el) el.textContent=msg;
+}
+/* Buzón temporal propio de Publicar — sube a la misma carpeta reservada
+   metodo-neri/publicacion-temporal/, y siempre se borra al terminar
+   (éxito o error), nunca se queda guardado. */
+async function pubUploadTemp(file, folio){
+  const ct=file.type||'application/octet-stream';
+  const pre=await fetch('/api/upload-idrive-url',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(perfilSession().token||'')},body:JSON.stringify({filename:file.name||'archivo',contentType:ct,size:file.size,folio:folio||'sin-folio',doc:'publicacion'})});
+  const cfg=await pre.json().catch(()=>({}));
+  if(!pre.ok) throw new Error(cfg.error||'No se pudo preparar la subida.');
+  if(!cfg.uploadUrl||!cfg.url) throw new Error('No se recibió URL de subida.');
+  const put=await fetch(cfg.uploadUrl,{method:'PUT',headers:{'Content-Type':ct},body:file});
+  if(!put.ok) throw new Error('Error al subir el archivo (HTTP '+put.status+').');
+  return {url:cfg.url, key:cfg.key};
+}
+async function pubBorrarTemp(key){
+  if(!key) return;
+  try{
+    await fetch('/api/upload-idrive-url',{method:'DELETE',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(perfilSession().token||'')},body:JSON.stringify({key:key})});
+  }catch(_){ /* limpieza best-effort — no bloquea al asesor si falla */ }
+}
+async function pubEjecutarPublicacion(){
+  if(PUB_PUBLICANDO) return;
+  const p=PUB_MODAL_PROP;
+  const rec=p&&(p._rawRec||(typeof getPropRecord==='function'&&getPropRecord(p._recId)));
+  const folio=rec?_fval(rec,'Folio NERI'):((p&&p.folio)||'sin-folio');
+  const tieneVideo=!!PUB_MEDIA.video;
+  const tieneFoto=PUB_MEDIA.photos.length>0;
+  if(!tieneVideo && !tieneFoto){ if(typeof mqNote==='function') mqNote('Elige al menos una foto o un video antes de publicar.'); return; }
+  PUB_PUBLICANDO=true; PUB_PUBLICADO=null;
+  pubRenderPublicar(p);
+  let tempKey=null;
+  try{
+    if(tieneVideo){
+      pubEstadoPublicar('Subiendo video…');
+      const up=await pubUploadTemp(PUB_MEDIA.video.file, folio);
+      tempKey=up.key;
+      pubEstadoPublicar('Entregando a Instagram…');
+      const crearRes=await fetch(PUB_WEBHOOK_VIDEO_CREAR,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({videoUrl:up.url, caption:PUB_COPY_TEXT})});
+      const crear=await crearRes.json().catch(()=>({}));
+      if(!crearRes.ok || !crear.creationId) throw new Error(crear.error||'No se pudo entregar el video a Instagram.');
+      let publicado=null;
+      for(var intento=0; intento<8 && !publicado; intento++){
+        pubEstadoPublicar('Instagram está procesando el video… ('+(intento+1)+'/8)');
+        await new Promise(function(r){ setTimeout(r, 9000); });
+        const pubRes=await fetch(PUB_WEBHOOK_VIDEO_PUBLICAR,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({creationId:crear.creationId})});
+        const pubData=await pubRes.json().catch(()=>({}));
+        if(pubData && pubData.id){ publicado=pubData; }
+      }
+      if(!publicado) throw new Error('Instagram sigue procesando el video. Espera un minuto y vuelve a darle Publicar.');
+      PUB_PUBLICADO={ok:true};
+    } else {
+      pubEstadoPublicar('Subiendo foto…');
+      const up=await pubUploadTemp(PUB_MEDIA.photos[0].file, folio);
+      tempKey=up.key;
+      pubEstadoPublicar('Publicando en Instagram…');
+      const res=await fetch(PUB_WEBHOOK_FOTO,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({imageUrl:up.url, caption:PUB_COPY_TEXT})});
+      const data=await res.json().catch(()=>({}));
+      if(!res.ok || !data.ok) throw new Error(data.error||'Instagram no aceptó la publicación.');
+      PUB_PUBLICADO={ok:true};
+    }
+  }catch(e){
+    PUB_PUBLICADO={ok:false, mensaje:e.message||'No se pudo publicar.'};
+  }
+  if(tempKey) pubBorrarTemp(tempKey);
+  PUB_PUBLICANDO=false;
+  pubRenderPublicar(PUB_MODAL_PROP);
 }
 function renderProduccionPaso1(p){
   const propName=(p&&p.name)||'tu propiedad';
