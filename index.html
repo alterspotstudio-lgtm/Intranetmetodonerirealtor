@@ -2296,30 +2296,74 @@ function cerrarProduccionModal(){
   PROD_MODAL_PROP=null;
 }
 // ════════ PUBLICAR — riel de publicación, propia, aparte de la ficha ════════
-// Paso 1 es el estudio de mercado (reengancha pmktMount, sin tocarlo, en su
-// propio contenedor #pmkt-mount — libre desde que se desmontó de la ficha).
-// Pasos 2-4 (medios, copy IA, publicar) llegan en el siguiente bloque.
+// Paso 1 estudio de mercado (reengancha pmktMount). Paso 2 medios: el asesor
+// elige fotos/video de su propio dispositivo — quedan en memoria del
+// navegador nada más, nunca se suben a Airtable ni al almacenamiento propio.
+// Al publicar (paso 4, pendiente) se entregan directo a Instagram/Facebook
+// vía el share nativo del teléfono, igual que cualquier botón "Compartir".
 var PUB_MODAL_PROP=null;
+var PUB_STEP='estudio';
+var PUB_MEDIA={photos:[], video:null};
 function pubAbrir(p){
   if(!p) return;
   PUB_MODAL_PROP=p;
+  PUB_STEP='estudio';
+  PUB_MEDIA={photos:[], video:null};
   document.getElementById('pubModal').classList.add('open');
   pubRender(p);
 }
 function pubCerrar(){
   document.getElementById('pubModal').classList.remove('open');
   document.getElementById('pubBox').innerHTML='';
+  PUB_MEDIA.photos.forEach(function(it){ try{ URL.revokeObjectURL(it._url); }catch(_){} });
+  if(PUB_MEDIA.video){ try{ URL.revokeObjectURL(PUB_MEDIA.video._url); }catch(_){} }
   PUB_MODAL_PROP=null;
+  PUB_MEDIA={photos:[], video:null};
 }
-function pubPasoNodo(label, activo){
-  const dot=activo?'background:var(--gold);border:1px solid var(--gb)':'background:transparent;border:1px solid var(--w08)';
-  const txt=activo?'var(--gold)':'var(--w22)';
+function pubIrAMedios(){ PUB_STEP='medios'; pubRender(PUB_MODAL_PROP); }
+function pubIrAEstudio(){ PUB_STEP='estudio'; pubRender(PUB_MODAL_PROP); }
+function pubAgregarFotos(fileList){
+  if(!fileList) return;
+  Array.prototype.forEach.call(fileList, function(f){
+    if(!/^image\//.test(f.type)) return;
+    PUB_MEDIA.photos.push({file:f, _url:URL.createObjectURL(f)});
+  });
+  pubRenderMedios(PUB_MODAL_PROP);
+}
+function pubQuitarFoto(i){
+  var it=PUB_MEDIA.photos[i];
+  if(it){ try{ URL.revokeObjectURL(it._url); }catch(_){} }
+  PUB_MEDIA.photos.splice(i,1);
+  pubRenderMedios(PUB_MODAL_PROP);
+}
+function pubAgregarVideo(fileList){
+  if(!fileList || !fileList[0]) return;
+  var f=fileList[0];
+  if(!/^video\//.test(f.type)) return;
+  if(PUB_MEDIA.video){ try{ URL.revokeObjectURL(PUB_MEDIA.video._url); }catch(_){} }
+  PUB_MEDIA.video={file:f, _url:URL.createObjectURL(f)};
+  pubRenderMedios(PUB_MODAL_PROP);
+}
+function pubQuitarVideo(){
+  if(PUB_MEDIA.video){ try{ URL.revokeObjectURL(PUB_MEDIA.video._url); }catch(_){} }
+  PUB_MEDIA.video=null;
+  pubRenderMedios(PUB_MODAL_PROP);
+}
+function pubPasoNodo(label, estado){
+  const dot = estado==='done' ? 'background:var(--gold);border:1px solid var(--gb)'
+    : estado==='active' ? 'background:transparent;border:1px solid var(--gold)'
+    : 'background:transparent;border:1px solid var(--w08)';
+  const txt = (estado==='done'||estado==='active') ? 'var(--gold)' : 'var(--w22)';
   return '<div style="display:flex;flex-direction:column;align-items:center;gap:5px;flex-shrink:0">'
     +'<div style="width:9px;height:9px;border-radius:50%;'+dot+'"></div>'
     +'<div style="font-family:var(--fm);font-size:7px;letter-spacing:1px;text-transform:uppercase;color:'+txt+'">'+_esc(label)+'</div>'
     +'</div>';
 }
 function pubRender(p){
+  if(PUB_STEP==='medios'){ pubRenderMedios(p); return; }
+  pubRenderEstudio(p);
+}
+function pubRenderEstudio(p){
   const propName=(p&&p.name)||'tu propiedad';
   const rec=p&&(p._rawRec||(typeof getPropRecord==='function'&&getPropRecord(p._recId)));
   const folio=rec?_fval(rec,'Folio NERI'):((p&&p.folio)||'');
@@ -2329,11 +2373,53 @@ function pubRender(p){
     +'<div style="font-family:var(--fm);font-size:9px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:6px">Publicar</div>'
     +'<div style="font-size:12px;color:var(--w60);margin-bottom:20px">'+_esc(propName)+'</div>'
     +'<div style="display:flex;align-items:flex-start;gap:4px;margin-bottom:22px">'
-      +pubPasoNodo('Estudio',true)+barra+pubPasoNodo('Medios',false)+barra+pubPasoNodo('Copy',false)+barra+pubPasoNodo('Publicar',false)
+      +pubPasoNodo('Estudio','active')+barra+pubPasoNodo('Medios','pending')+barra+pubPasoNodo('Copy','pending')+barra+pubPasoNodo('Publicar','pending')
     +'</div>'
     +'<div id="pmkt-mount" data-folio="'+_escAttr(folio)+'"></div>'
-    +'<div style="font-family:var(--fe);font-style:italic;font-size:10.5px;color:var(--w35);line-height:1.6;margin-top:18px;padding-top:14px;border-top:1px solid var(--w08)">Los siguientes pasos — subir fotos y video de producción, generar el texto y publicar — se habilitan en el próximo bloque.</div>';
-  if(typeof window.pmktMount==='function'){ try{ window.pmktMount(folio, rec, p); }catch(_){} }
+    +'<div style="display:flex;justify-content:flex-end;padding-top:18px;margin-top:18px;border-top:1px solid var(--w08)">'
+      +'<button type="button" onclick="pubIrAMedios()" style="background:var(--gold);border:none;color:#050505;font-family:var(--fm);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;padding:11px 18px;border-radius:3px;cursor:pointer">Continuar a Medios</button>'
+    +'</div>';
+  if(typeof window.pmktMount==='function'){ try{ window.pmktMount(folio, rec, p, 'pmkt-mount', undefined, '◈ Prepara tu publicación · Análisis IA', 'Antes de publicar, revisa a quién le va a hablar esta propiedad.', 'Preparar publicación'); }catch(_){} }
+}
+function pubRenderMedios(p){
+  const propName=(p&&p.name)||'tu propiedad';
+  const barra='<div style="flex:1;height:1px;background:var(--w08);margin-top:4px"></div>';
+  const fotosPrev=PUB_MEDIA.photos.map(function(it,i){
+    return '<div style="position:relative;width:64px;height:64px;border-radius:4px;overflow:hidden;border:1px solid var(--w18)">'
+      +'<img src="'+it._url+'" style="width:100%;height:100%;object-fit:cover;display:block">'
+      +'<button type="button" onclick="pubQuitarFoto('+i+')" aria-label="Quitar foto" style="position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;background:rgba(0,0,0,.7);border:none;color:#fff;font-size:10px;line-height:16px;padding:0;cursor:pointer">×</button>'
+      +'</div>';
+  }).join('');
+  const videoPrev=PUB_MEDIA.video
+    ? '<div style="position:relative;width:64px;height:64px;border-radius:4px;overflow:hidden;border:1px solid var(--w18);display:flex;align-items:center;justify-content:center;background:#161616;color:var(--gold)">'
+      +'<span style="font-family:var(--fm);font-size:8px;letter-spacing:1px">VIDEO</span>'
+      +'<button type="button" onclick="pubQuitarVideo()" aria-label="Quitar video" style="position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;background:rgba(0,0,0,.7);border:none;color:#fff;font-size:10px;line-height:16px;padding:0;cursor:pointer">×</button>'
+      +'</div>'
+    : '';
+  document.getElementById('pubBox').innerHTML=
+    '<button class="modal-x" onclick="pubCerrar()">&times;</button>'
+    +'<div style="font-family:var(--fm);font-size:9px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:6px">Publicar</div>'
+    +'<div style="font-size:12px;color:var(--w60);margin-bottom:20px">'+_esc(propName)+'</div>'
+    +'<div style="display:flex;align-items:flex-start;gap:4px;margin-bottom:22px">'
+      +pubPasoNodo('Estudio','done')+barra+pubPasoNodo('Medios','active')+barra+pubPasoNodo('Copy','pending')+barra+pubPasoNodo('Publicar','pending')
+    +'</div>'
+    +'<div style="font-family:var(--fe);font-style:italic;font-size:11px;color:var(--w60);line-height:1.6;margin-bottom:18px">Elige las fotos y el video que salieron de la producción. Solo se usan para armar esta publicación — no se guardan en ningún lado.</div>'
+    +'<div style="margin-bottom:16px">'
+      +'<div style="font-family:var(--fm);font-size:9px;letter-spacing:1.5px;color:var(--w35);text-transform:uppercase;margin-bottom:8px">Fotos</div>'
+      +'<div style="display:flex;gap:8px;flex-wrap:wrap">'+fotosPrev
+        +'<label style="width:64px;height:64px;border-radius:4px;border:1px dashed var(--gb2);display:flex;align-items:center;justify-content:center;color:var(--gold);cursor:pointer;font-size:22px;font-family:var(--fb)">+<input type="file" accept="image/*" multiple onchange="pubAgregarFotos(this.files)" style="display:none"></label>'
+      +'</div>'
+    +'</div>'
+    +'<div style="margin-bottom:8px">'
+      +'<div style="font-family:var(--fm);font-size:9px;letter-spacing:1.5px;color:var(--w35);text-transform:uppercase;margin-bottom:8px">Video</div>'
+      +'<div style="display:flex;gap:8px;flex-wrap:wrap">'+videoPrev
+        +(PUB_MEDIA.video?'':'<label style="width:64px;height:64px;border-radius:4px;border:1px dashed var(--gb2);display:flex;align-items:center;justify-content:center;color:var(--gold);cursor:pointer;font-size:22px;font-family:var(--fb)">+<input type="file" accept="video/*" onchange="pubAgregarVideo(this.files)" style="display:none"></label>')
+      +'</div>'
+    +'</div>'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;padding-top:18px;margin-top:18px;border-top:1px solid var(--w08)">'
+      +'<button type="button" onclick="pubIrAEstudio()" style="background:transparent;border:1px solid var(--w18);color:var(--w60);font-family:var(--fm);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:11px 14px;border-radius:3px;cursor:pointer">Atrás</button>'
+      +'<span style="font-family:var(--fe);font-style:italic;font-size:10.5px;color:var(--w35)">El texto con IA y publicar se habilitan en el próximo bloque.</span>'
+    +'</div>';
 }
 function renderProduccionPaso1(p){
   const propName=(p&&p.name)||'tu propiedad';
@@ -6650,24 +6736,27 @@ window.cabEnviarPortalVenta=cabEnviarPortalVenta;
   }
 
   /* ── Función pública principal ── */
-  window.pmktMount = function (folio, rec, prop, mountId, webhookUrl) {
+  window.pmktMount = function (folio, rec, prop, mountId, webhookUrl, label, emptyText, btnText) {
     mountId = mountId || 'pmkt-mount';
     var el = document.getElementById(mountId);
     if (!el) return;
     var chipId = mountId + '-chip';
     var bodyId = mountId + '-body';
+    var lbl = label || '◈ Precio de mercado · Análisis IA';
+    var etx = emptyText || 'Presiona el botón para generar el análisis de precio con inteligencia artificial.';
+    var btx = btnText || 'Generar análisis de precio';
 
     /* ── Renderizar el contenedor colapsable ── */
     el.innerHTML =
       '<div class="pmkt-wrap">' +
         '<button class="pmkt-trigger" onclick="window.pmktToggle()" aria-expanded="false">' +
-          '<span class="pmkt-lbl">◈ Precio de mercado · Análisis IA</span>' +
+          '<span class="pmkt-lbl">' + lbl + '</span>' +
           '<span class="pmkt-chip" id="' + chipId + '">Haz clic para generar</span>' +
         '</button>' +
         '<div class="pmkt-body" id="' + bodyId + '">' +
-          '<div class="pmkt-empty">Presiona el botón para generar el análisis de precio con inteligencia artificial.</div>' +
+          '<div class="pmkt-empty">' + etx + '</div>' +
           '<div class="pmkt-actions" style="margin-top:10px">' +
-            '<button class="pmkt-btn" onclick="window.pmktGenerar()">Generar análisis de precio</button>' +
+            '<button class="pmkt-btn" onclick="window.pmktGenerar()">' + btx + '</button>' +
           '</div>' +
         '</div>' +
       '</div>';
