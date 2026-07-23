@@ -5463,22 +5463,18 @@ function perfilConectarFacebook(){
     +'&response_type=code'
     +'&state='+encodeURIComponent(slug);
   const popup=window.open(url, 'fbconnect', 'width=600,height=720');
-  let tries=0;
-  const poll=setInterval(async function(){
-    tries++;
-    if(popup && popup.closed){ clearInterval(poll); perfilCheckFacebookStatus(); return; }
-    if(tries>40){ clearInterval(poll); return; }
-    try{
-      const res=await fetch(PUB_WEBHOOK_FB_ESTADO,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({slug:slug})});
-      const data=await res.json().catch(()=>({}));
-      if(data && data.connected){
-        clearInterval(poll);
-        perfilCheckFacebookStatus();
-        if(popup && !popup.closed) popup.close();
-      }
-    }catch(e){}
-  }, 1500);
+  /* Esto NO le pregunta nada a Make — solo revisa localmente, en el
+     navegador, si la ventana emergente sigue abierta. Cero costo, cero
+     llamadas. Cuando por fin se cierra (una sola vez), ahí sí se hace
+     UNA llamada a Make para refrescar el estado. */
+  const watch=setInterval(function(){
+    if(!popup || popup.closed){
+      clearInterval(watch);
+      perfilCheckFacebookStatus();
+    }
+  }, 500);
 }
+
 var PUB_WEBHOOK_IG_ESTADO = 'https://hook.us2.make.com/oj791d8co203ibprmprr73ivxix2y6zk';
 async function perfilCheckInstagramStatus(){
   const el=document.getElementById('perfil-ig-status');
