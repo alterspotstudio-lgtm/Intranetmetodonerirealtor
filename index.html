@@ -5399,7 +5399,7 @@ function perfilRenderForm(rec){
   const fotoThumb=foto.has?`<img class="le-thumb" src="${_escAttr(foto.thumb||foto.url)}" alt="Foto del asesor">`:`<div class="le-thumb-empty">＋</div>`;
   const fbConectado=!!(rec.fields&&rec.fields['Facebook Conectado']);
   let fbPageName='—';
-  try{ const fbPages=JSON.parse(v('Facebook Página Info')||'[]'); if(fbPages[0]&&fbPages[0].name) fbPageName=fbPages[0].name; }catch(e){}
+  try{ const fbRaw=JSON.parse(v('Facebook Página Info')||'{}'); const fbArr=Array.isArray(fbRaw)?fbRaw:(fbRaw.data||[]); if(fbArr[0]&&fbArr[0].name) fbPageName=fbArr[0].name; }catch(e){}
   const fbStatusText=fbConectado?('✓ Conectado: '+fbPageName):'Aún no has conectado tu Facebook.';
   const fbStatusColor=fbConectado?'var(--gold)':'var(--w60)';
   const input=(label,field,value,attrs='')=>`<div class="perfil-fv-field"><div class="fv-row-k">${_esc(label)}</div><input class="form-inp perfil-fv-input" data-pf="${_escAttr(field)}" data-orig="${_escAttr(value)}" value="${_escAttr(value)}" ${attrs}></div>`;
