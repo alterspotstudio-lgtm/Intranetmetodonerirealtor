@@ -2304,12 +2304,15 @@ function cerrarProduccionModal(){
 var PUB_MODAL_PROP=null;
 var PUB_STEP='estudio';
 var PUB_MEDIA={photos:[], video:null};
-function pubAbrir(p){
+async function pubAbrir(p){
   if(!p) return;
   PUB_MODAL_PROP=p;
   PUB_STEP='estudio';
   PUB_MEDIA={photos:[], video:null};
+  PUB_REDES={facebook:true, instagram:true};
+  PUB_PUBLICADO=null;
   document.getElementById('pubModal').classList.add('open');
+  if(!perfilState.rec){ try{ await perfilLoad(); }catch(e){ /* si falla, el paso Publicar avisa que falta conectar Facebook */ } }
   pubRender(p);
 }
 function pubCerrar(){
@@ -2330,10 +2333,16 @@ var PUB_WEBHOOK_COPY   = 'https://hook.us2.make.com/h5ztzn6euvhs5m17x4mpf239al1d
 var PUB_WEBHOOK_FOTO   = 'https://hook.us2.make.com/3jkn61w2ohaggkdqwyj1arv86isx3f1e';
 var PUB_WEBHOOK_VIDEO_CREAR    = 'https://hook.us2.make.com/jyhsainyy9muahgnas9b77nsy4vekqbn';
 var PUB_WEBHOOK_VIDEO_PUBLICAR = 'https://hook.us2.make.com/90cr7w1i969vwq4523rjzanattb564a4';
+var PUB_WEBHOOK_FB_FOTO  = 'https://hook.us2.make.com/yvcaitlvgysteu4z7ps2ym1coorz71i4';
+var PUB_WEBHOOK_FB_VIDEO = 'https://hook.us2.make.com/jj6kljhmq38bo27uij6lni6gt9kds9sd';
 var PUB_COPY_TEXT='';
 var PUB_COPY_CARGANDO=false;
 var PUB_PUBLICANDO=false;
 var PUB_PUBLICADO=null;
+/* Qué redes va a usar el asesor en ESTE publicar. Por default ambas, pero
+   se apagan solas si no hay conexión (ver pubRenderPublicar). */
+var PUB_REDES={facebook:true, instagram:true};
+function pubToggleRed(red){ PUB_REDES[red]=!PUB_REDES[red]; pubRenderPublicar(PUB_MODAL_PROP); }
 async function pubGenerarCopy(){
   PUB_COPY_CARGANDO=true; pubRenderCopy(PUB_MODAL_PROP);
   try{
@@ -2480,12 +2489,38 @@ function pubRenderPublicar(p){
   const miniaturas = PUB_MEDIA.video
     ? '<div style="width:56px;height:56px;border-radius:4px;background:#161616;border:1px solid var(--w18);display:flex;align-items:center;justify-content:center;color:var(--gold);font-family:var(--fm);font-size:8px;flex-shrink:0">VIDEO</div>'
     : (PUB_MEDIA.photos[0] ? '<img src="'+PUB_MEDIA.photos[0]._url+'" style="width:56px;height:56px;border-radius:4px;object-fit:cover;border:1px solid var(--w18);flex-shrink:0">' : '');
+  const rec=perfilState.rec;
+  const fbConectado=!!(rec&&rec.fields&&rec.fields['Facebook Conectado']);
+  const igConectado=!!(rec&&_fval(rec,'IG User ID'));
+  if(!fbConectado){ PUB_REDES.facebook=false; PUB_REDES.instagram=false; }
+  if(!igConectado){ PUB_REDES.instagram=false; }
   let resultado='';
-  if(PUB_PUBLICADO && PUB_PUBLICADO.ok){
-    resultado='<div style="border:1px solid rgba(120,200,140,.4);background:rgba(120,200,140,.08);border-radius:4px;padding:14px;margin-top:14px;color:#9fe0b0;font-family:var(--fb);font-size:13px">✓ Publicado en Instagram.</div>';
-  } else if(PUB_PUBLICADO && !PUB_PUBLICADO.ok){
+  if(PUB_PUBLICADO && PUB_PUBLICADO.ok===false && PUB_PUBLICADO.mensaje){
     resultado='<div style="border:1px solid rgba(220,120,120,.4);background:rgba(220,120,120,.08);border-radius:4px;padding:14px;margin-top:14px;color:#f0a8a8;font-family:var(--fb);font-size:13px">'+_esc(PUB_PUBLICADO.mensaje)+'</div>';
+  } else if(PUB_PUBLICADO){
+    const nombreRed={facebook:'Facebook', instagram:'Instagram'};
+    const claves=Object.keys(PUB_PUBLICADO);
+    const filas=claves.map(function(red){
+      const r=PUB_PUBLICADO[red];
+      return r.ok
+        ? '<div style="color:#9fe0b0">✓ Publicado en '+(nombreRed[red]||red)+'.</div>'
+        : '<div style="color:#f0a8a8">✗ '+(nombreRed[red]||red)+': '+_esc(r.mensaje)+'</div>';
+    }).join('');
+    const algunOk=claves.some(function(red){ return PUB_PUBLICADO[red].ok; });
+    const algunFalla=claves.some(function(red){ return !PUB_PUBLICADO[red].ok; });
+    const borde=algunFalla?(algunOk?'rgba(220,180,120,.4)':'rgba(220,120,120,.4)'):'rgba(120,200,140,.4)';
+    const fondo=algunFalla?(algunOk?'rgba(220,180,120,.08)':'rgba(220,120,120,.08)'):'rgba(120,200,140,.08)';
+    resultado='<div style="border:1px solid '+borde+';background:'+fondo+';border-radius:4px;padding:14px;margin-top:14px;font-family:var(--fb);font-size:13px;display:flex;flex-direction:column;gap:4px">'+filas+'</div>';
   }
+  const redesBox = !fbConectado
+    ? '<div class="le-banner" style="margin-bottom:14px">Conecta tu Facebook desde tu perfil para poder publicar.</div>'
+    : '<div style="display:flex;gap:16px;align-items:center;margin-bottom:14px">'
+      +'<label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-family:var(--fb);font-size:12px;color:#fff"><input type="checkbox" '+(PUB_REDES.facebook?'checked':'')+' onchange="pubToggleRed(\'facebook\')"> Facebook</label>'
+      +(igConectado
+        ? '<label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-family:var(--fb);font-size:12px;color:#fff"><input type="checkbox" '+(PUB_REDES.instagram?'checked':'')+' onchange="pubToggleRed(\'instagram\')"> Instagram</label>'
+        : '<span style="font-family:var(--fb);font-size:11px;color:var(--w35)">Instagram — liga tu Página a una cuenta de Instagram para activarlo</span>')
+    +'</div>';
+  const puedePublicar = fbConectado && (PUB_REDES.facebook || PUB_REDES.instagram);
   document.getElementById('pubBox').innerHTML=
     '<button class="modal-x" onclick="pubCerrar()">&times;</button>'
     +'<div style="font-family:var(--fm);font-size:9px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:6px">Publicar</div>'
@@ -2497,12 +2532,13 @@ function pubRenderPublicar(p){
       +miniaturas
       +'<div style="font-family:var(--fm);font-size:9px;letter-spacing:1.5px;color:var(--w35);text-transform:uppercase">Vía<div style="color:var(--gold);font-size:12px;margin-top:3px;text-transform:none;letter-spacing:0">'+via+'</div></div>'
     +'</div>'
+    +redesBox
     +'<div style="font-family:var(--fb);font-size:12px;color:var(--w60);line-height:1.6;white-space:pre-wrap;border:1px solid var(--w08);border-radius:4px;padding:12px;max-height:120px;overflow:auto;margin-bottom:6px">'+_esc(PUB_COPY_TEXT||'(sin texto)')+'</div>'
     +'<div id="pub-estado-publicar" style="font-family:var(--fe);font-style:italic;font-size:11px;color:var(--gold);min-height:16px;margin-bottom:4px">'+(PUB_PUBLICANDO?'Preparando…':'')+'</div>'
     +resultado
     +'<div style="display:flex;justify-content:space-between;align-items:center;padding-top:18px;margin-top:18px;border-top:1px solid var(--w08)">'
       +'<button type="button" onclick="pubIrACopy()" '+(PUB_PUBLICANDO?'disabled':'')+' style="background:transparent;border:1px solid var(--w18);color:var(--w60);font-family:var(--fm);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:11px 14px;border-radius:3px;cursor:pointer">Atrás</button>'
-      +'<button type="button" onclick="pubEjecutarPublicacion()" '+(PUB_PUBLICANDO?'disabled':'')+' style="background:var(--gold);border:none;color:#050505;font-family:var(--fm);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;padding:11px 18px;border-radius:3px;cursor:pointer">'+(PUB_PUBLICANDO?'Publicando…':'Publicar')+'</button>'
+      +'<button type="button" onclick="pubEjecutarPublicacion()" '+((PUB_PUBLICANDO||!puedePublicar)?'disabled':'')+' style="background:var(--gold);border:none;color:#050505;font-family:var(--fm);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;padding:11px 18px;border-radius:3px;cursor:pointer">'+(PUB_PUBLICANDO?'Publicando…':'Publicar')+'</button>'
     +'</div>';
 }
 function pubEstadoPublicar(msg){
@@ -2528,6 +2564,30 @@ async function pubBorrarTemp(key){
     await fetch('/api/upload-idrive-url',{method:'DELETE',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(perfilSession().token||'')},body:JSON.stringify({key:key})});
   }catch(_){ /* limpieza best-effort — no bloquea al asesor si falla */ }
 }
+async function pubPublicarFotoRed(url, webhook){
+  const res=await fetch(webhook,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({imageUrl:url, caption:PUB_COPY_TEXT, slug:(perfilSession().slug||'')})});
+  const data=await res.json().catch(()=>({}));
+  if(!res.ok || !data.ok) throw new Error(data.error||'No se aceptó la publicación.');
+}
+async function pubPublicarVideoFacebook(url){
+  const res=await fetch(PUB_WEBHOOK_FB_VIDEO,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({videoUrl:url, caption:PUB_COPY_TEXT, slug:(perfilSession().slug||'')})});
+  const data=await res.json().catch(()=>({}));
+  if(!res.ok || !data.ok) throw new Error(data.error||'No se aceptó la publicación.');
+}
+async function pubPublicarVideoInstagram(url){
+  const crearRes=await fetch(PUB_WEBHOOK_VIDEO_CREAR,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({videoUrl:url, caption:PUB_COPY_TEXT, slug:(perfilSession().slug||'')})});
+  const crear=await crearRes.json().catch(()=>({}));
+  if(!crearRes.ok || !crear.creationId) throw new Error(crear.error||'No se pudo entregar el video a Instagram.');
+  let publicado=null;
+  for(var intento=0; intento<8 && !publicado; intento++){
+    pubEstadoPublicar('Instagram está procesando el video… ('+(intento+1)+'/8)');
+    await new Promise(function(r){ setTimeout(r, 9000); });
+    const pubRes=await fetch(PUB_WEBHOOK_VIDEO_PUBLICAR,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({creationId:crear.creationId, slug:(perfilSession().slug||'')})});
+    const pubData=await pubRes.json().catch(()=>({}));
+    if(pubData && pubData.id){ publicado=pubData; }
+  }
+  if(!publicado) throw new Error('Instagram sigue procesando el video. Espera un minuto y vuelve a darle Publicar.');
+}
 async function pubEjecutarPublicacion(){
   if(PUB_PUBLICANDO) return;
   const p=PUB_MODAL_PROP;
@@ -2536,40 +2596,33 @@ async function pubEjecutarPublicacion(){
   const tieneVideo=!!PUB_MEDIA.video;
   const tieneFoto=PUB_MEDIA.photos.length>0;
   if(!tieneVideo && !tieneFoto){ if(typeof mqNote==='function') mqNote('Elige al menos una foto o un video antes de publicar.'); return; }
+  if(!PUB_REDES.facebook && !PUB_REDES.instagram){ if(typeof mqNote==='function') mqNote('Elige al menos una red antes de publicar.'); return; }
   PUB_PUBLICANDO=true; PUB_PUBLICADO=null;
   pubRenderPublicar(p);
   let tempKey=null;
   try{
-    if(tieneVideo){
-      pubEstadoPublicar('Subiendo video…');
-      const up=await pubUploadTemp(PUB_MEDIA.video.file, folio);
-      tempKey=up.key;
-      pubEstadoPublicar('Entregando a Instagram…');
-      const crearRes=await fetch(PUB_WEBHOOK_VIDEO_CREAR,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({videoUrl:up.url, caption:PUB_COPY_TEXT, slug:(perfilSession().slug||'')})});
-      const crear=await crearRes.json().catch(()=>({}));
-      if(!crearRes.ok || !crear.creationId) throw new Error(crear.error||'No se pudo entregar el video a Instagram.');
-      let publicado=null;
-      for(var intento=0; intento<8 && !publicado; intento++){
-        pubEstadoPublicar('Instagram está procesando el video… ('+(intento+1)+'/8)');
-        await new Promise(function(r){ setTimeout(r, 9000); });
-        const pubRes=await fetch(PUB_WEBHOOK_VIDEO_PUBLICAR,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({creationId:crear.creationId, slug:(perfilSession().slug||'')})});
-        const pubData=await pubRes.json().catch(()=>({}));
-        if(pubData && pubData.id){ publicado=pubData; }
-      }
-      if(!publicado) throw new Error('Instagram sigue procesando el video. Espera un minuto y vuelve a darle Publicar.');
-      PUB_PUBLICADO={ok:true};
-    } else {
-      pubEstadoPublicar('Subiendo foto…');
-      const up=await pubUploadTemp(PUB_MEDIA.photos[0].file, folio);
-      tempKey=up.key;
-      pubEstadoPublicar('Publicando en Instagram…');
-      const res=await fetch(PUB_WEBHOOK_FOTO,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({imageUrl:up.url, caption:PUB_COPY_TEXT, slug:(perfilSession().slug||'')})});
-      const data=await res.json().catch(()=>({}));
-      if(!res.ok || !data.ok) throw new Error(data.error||'Instagram no aceptó la publicación.');
-      PUB_PUBLICADO={ok:true};
+    pubEstadoPublicar(tieneVideo?'Subiendo video…':'Subiendo foto…');
+    const archivo = tieneVideo ? PUB_MEDIA.video.file : PUB_MEDIA.photos[0].file;
+    const up=await pubUploadTemp(archivo, folio);
+    tempKey=up.key;
+    const resultados={};
+    if(PUB_REDES.facebook){
+      pubEstadoPublicar('Publicando en Facebook…');
+      try{
+        if(tieneVideo){ await pubPublicarVideoFacebook(up.url); } else { await pubPublicarFotoRed(up.url, PUB_WEBHOOK_FB_FOTO); }
+        resultados.facebook={ok:true};
+      }catch(e){ resultados.facebook={ok:false, mensaje:e.message||'No se pudo publicar.'}; }
     }
+    if(PUB_REDES.instagram){
+      pubEstadoPublicar('Publicando en Instagram…');
+      try{
+        if(tieneVideo){ await pubPublicarVideoInstagram(up.url); } else { await pubPublicarFotoRed(up.url, PUB_WEBHOOK_FOTO); }
+        resultados.instagram={ok:true};
+      }catch(e){ resultados.instagram={ok:false, mensaje:e.message||'No se pudo publicar.'}; }
+    }
+    PUB_PUBLICADO=resultados;
   }catch(e){
-    PUB_PUBLICADO={ok:false, mensaje:e.message||'No se pudo publicar.'};
+    PUB_PUBLICADO={ok:false, mensaje:e.message||'No se pudo subir el archivo.'};
   }
   if(tempKey) pubBorrarTemp(tempKey);
   PUB_PUBLICANDO=false;
@@ -5427,7 +5480,7 @@ function perfilConectarFacebook(){
   const url='https://www.facebook.com/v21.0/dialog/oauth'
     +'?client_id=2342271542970476'
     +'&redirect_uri='+encodeURIComponent(redirectUri)
-    +'&scope='+encodeURIComponent('pages_show_list,pages_read_engagement,pages_manage_posts,business_management')
+    +'&scope='+encodeURIComponent('pages_show_list,pages_read_engagement,pages_manage_posts,business_management,instagram_basic,instagram_content_publish')
     +'&response_type=code'
     +'&state='+encodeURIComponent(slug);
   const popup=window.open(url, 'fbconnect', 'width=600,height=720');
