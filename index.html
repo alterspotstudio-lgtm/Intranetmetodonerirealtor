@@ -3651,7 +3651,7 @@ function leadVendCapaCHTML(rec){
   const selects=LEAD_VEND_CAPAC_FIELDS.filter(function(m){return m.type==='select';}).map(function(m){return leadVendCapaCInput(m,values);}).join('');
   return '<div class="fv-sec" style="margin-bottom:14px">'
     +'<div class="fv-sec-title"><em>◈</em>Datos de la operación</div>'
-    +'<div class="fv-riel-msg" style="margin-bottom:10px">Marca lo que aplique antes de subir el contrato firmado. Esto define qué documentos se le van a pedir al propietario.</div>'
+    +'<div class="fv-riel-msg" style="margin-bottom:10px">Esto define qué documentos se le piden al propietario. Si el expediente ya existe, un cambio aquí actualiza los documentos condicionales solos — nunca toca uno ya validado o ya subido.</div>'
     +'<div id="fv-capac-fields">'
     +'<div style="display:flex;flex-wrap:wrap;gap:14px;margin-bottom:10px">'+checks+'</div>'
     +'<div class="lec-grid">'+selects+'</div>'
@@ -3675,8 +3675,22 @@ async function leadVendGuardarCapaC(recId){
     await atFetch(LEAD_VEND_TABLE+'/'+recId,{method:'PATCH',body:JSON.stringify({fields:fields,typecast:true})});
     await leadVendLoad(true);
     setMsg('✓ Guardado','var(--gold)');
+    leadVendResyncCondicionales(recId);
     if(leadVendFichaState && leadVendFichaState.folio) openFichaVend(leadVendFichaState.folio);
   }catch(e){ setMsg('Error al guardar: '+(e.message||e),'var(--rose)'); }
+}
+/* Si el expediente ya existe para este folio, resincroniza los documentos
+   condicionales contra los nuevos Datos de la operación — nunca toca uno ya
+   validado o ya subido. Silencioso a propósito: es un plus, no debe
+   bloquear el guardado si algo falla. */
+async function leadVendResyncCondicionales(recId){
+  try{
+    const rec=(VENDEDORES||[]).find(function(r){ return r&&r.id===recId; });
+    const folio=rec?leadVendFolioValue(rec):'';
+    if(!folio) return;
+    const tok=(typeof perfilSession==='function'&&perfilSession().token)||'';
+    await fetch('/api/expediente-documentos',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},body:JSON.stringify({action:'resync_condicionales', folio:folio})});
+  }catch(_){}
 }
 function leadVendPanelHTML(rec, et){
   const recId=rec.id;
@@ -3698,7 +3712,6 @@ function leadVendPanelHTML(rec, et){
   }
   if(et.idx===1){
     return '<div class="fv-riel-msg"><strong>En seguimiento.</strong> La meta es la firma. Descarga el contrato y sube el PDF firmado; la conversión y el expediente se activan desde aquí.</div>'
-      + leadVendCapaCHTML(rec)
       + '<div class="fv-riel-acts">'
       + '<a class="fv-riel-btn ghost" data-action="descargar-contrato-exclusiva" href="'+_escAttr(LEAD_VEND_CONTRATOS['Firma exclusiva'])+'" download>Descargar contrato de exclusiva</a>'
       + '<a class="fv-riel-btn ghost" data-action="descargar-venta-directa" href="'+_escAttr(LEAD_VEND_CONTRATOS['Firma venta directa'])+'" download>Descargar venta directa</a>'
@@ -3787,6 +3800,7 @@ function openFichaVend(folio){
           <div class="fv-num"><div class="fv-num-val">${fvEscape(fv('Medios Baños')||v.mediosBanos||'—')}</div><div class="fv-num-lbl">Medios</div></div>
           <div class="fv-num"><div class="fv-num-val">${fvEscape(fv('Estacionamientos')||v.estacionamientos||'—')}</div><div class="fv-num-lbl">Est.</div></div>
         </div>
+        ${et.key!=='cerrado' ? leadVendCapaCHTML(rec) : ''}
       </div>
       <div class="fv-sec">
         <div class="fv-sec-title"><em>◎</em>Intención de venta</div>
