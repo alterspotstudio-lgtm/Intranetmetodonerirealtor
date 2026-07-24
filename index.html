@@ -2363,7 +2363,13 @@ async function pubGenerarCopy(){
     const res=await fetch(PUB_WEBHOOK_COPY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({recId:p&&p._recId||'', folio:(p&&p.folio)||''})});
     const txt=await res.text();
     if(!res.ok||!txt) throw new Error('HTTP '+res.status);
-    PUB_COPY_TEXT=txt.trim();
+    const limpio=txt.trim();
+    // Make a veces responde con su acuse genérico ("Accepted") en vez de
+    // esperar el texto real de la IA — un webhook que no se quedó
+    // escuchando la respuesta del escenario. Nunca mostrarlo como si fuera
+    // el copy — reportado por Enrique 23-jul-2026 ("no me arroja ningún copy").
+    if(/^accepted\.?$/i.test(limpio)) throw new Error('Make no esperó la respuesta del escenario.');
+    PUB_COPY_TEXT=limpio;
   }catch(e){
     PUB_COPY_TEXT='';
     if(typeof mqNote==='function') mqNote('No se pudo generar el texto. Puedes escribirlo tú o intentar de nuevo.');
@@ -2814,9 +2820,8 @@ function propAccesoDirectoDocs(){
 // completo. Estado informativo, sin urgencia.
 function propSetAccionProduccionLista(p, prod, rec){
   const propName=(p&&p.name)||'tu propiedad';
-  const cuando=prod&&prod.fecha?(prod.fecha+(prod.hora?(' a las '+prod.hora):'')):'';
-  propSetAccionOro('Producción confirmada',
-    'Expediente completo y producción de '+propName+(cuando?(' lista para el '+cuando):' confirmada')+'. Todo en orden.',
+  propSetAccionOro('Publicar propiedad',
+    'Expediente y producción de '+propName+' listos. Es momento de sacarla a mercado.',
     'Publicar', 'send',
     function(){ if(typeof pubAbrir==='function') pubAbrir(p); });
 }
@@ -2849,8 +2854,8 @@ function propProdAutoprodLista(rec){
 }
 function propSetAccionProduccionAutoLista(p, rec){
   const propName=(p&&p.name)||'tu propiedad';
-  propSetAccionOro('Producción confirmada',
-    'Expediente completo y producción propia de '+propName+' ya está cargada. Todo en orden.',
+  propSetAccionOro('Publicar propiedad',
+    'Expediente y producción propia de '+propName+' listos. Es momento de sacarla a mercado.',
     'Publicar', 'send',
     function(){ if(typeof pubAbrir==='function') pubAbrir(p); });
 }
@@ -6876,7 +6881,14 @@ window.cabEnviarPortalVenta=cabEnviarPortalVenta;
     if (!raw) throw new Error('El estudio regresó vacío. Intenta de nuevo.');
 
     var p = raw.split('|||');
-    if (p.length < 11) throw new Error('El estudio regresó incompleto. Intenta de nuevo.');
+    // Antes exigía 11 campos exactos. En la práctica la IA entrega SIEMPRE
+    // los primeros 9 (precios, comparables, argumento, entorno, comprabilidad
+    // — confirmado con datos reales guardados en Airtable) pero a veces
+    // recorta los últimos 2 (nivel_alerta, siguiente_jugada), que son
+    // cosméticos y ya tienen su propio "|| 'ok'" / "|| '—'" en
+    // pmktRenderResult. Exigir 11 tiraba análisis completos y buenos a la
+    // basura — reportado por Enrique 23-jul-2026 ("no arroja ningún estudio").
+    if (p.length < 9) throw new Error('El estudio regresó incompleto. Intenta de nuevo.');
 
     var norm = function (s) { return String(s == null ? '' : s).trim(); };
     return {
