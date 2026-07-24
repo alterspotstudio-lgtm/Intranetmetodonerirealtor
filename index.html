@@ -2130,12 +2130,25 @@ async function propDocsCheck(p){
    "Activar portal" antes de tiempo. La propuesta de
    producción vive en Eventos Operación, no en la propiedad.
    Override con candados; no toca propActFromRecord. ───── */
-function propSetAccionOro(t, d, btnLabel, btnIcon, onClick){
+function propSetAccionOro(t, d, btnLabel, btnIcon, onClick, unlock){
   const actT=document.getElementById('actT'); if(actT) actT.textContent=t;
   const actD=document.getElementById('actD'); if(actD) actD.textContent=d;
   const actExtra=document.getElementById('actExtra'); if(actExtra){ actExtra.style.display='none'; actExtra.innerHTML=''; }
   const btn=document.getElementById('actBtn');
   if(btn){ btn.innerHTML=((typeof IC!=='undefined'&&(IC[btnIcon]||IC.send))||'')+btnLabel; btn.onclick=function(ev){ ev.preventDefault(); try{ onClick(); }catch(_){} }; }
+  // "Al completar se abre" solo se muestra si de verdad sabemos qué sigue.
+  // Antes se quedaba pegado con lo que puso el render síncrono provisional
+  // (ej. "Producción lista" aunque ya se estuviera mostrando "Publicar") —
+  // reportado por Enrique 23-jul-2026. Sin unlock, se oculta, nunca miente.
+  const actUnlock=document.getElementById('actUnlock');
+  if(actUnlock){
+    if(unlock && typeof IC!=='undefined'){
+      actUnlock.style.display='';
+      actUnlock.innerHTML=IC.lockOpen+'Al completar se abre: <b style="color:rgba(198,168,107,.95);font-weight:600;margin-left:2px">'+unlock+'</b>';
+    } else {
+      actUnlock.style.display='none'; actUnlock.innerHTML='';
+    }
+  }
 }
 function propSetAccionDocs(p, pend, faltan){
   const t = pend>0 ? 'Revisar documentos del propietario' : 'Completar expediente documental';
@@ -2159,7 +2172,7 @@ function propSetAccionRecordatorioDocs(p, faltan, rec){
       const msg='Hola '+nombre+', vamos muy bien con '+propName+' — la producción de fotos y video ya está en marcha. Para poder publicarla nos falta'+(faltan>1?'n ':' ')+faltan+' documento'+(faltan>1?'s':'')+' de tu expediente. Cuando puedas, súbelo'+(faltan>1?'s':'')+' en tu portal. ¡Gracias!';
       if(phone) window.open('https://wa.me/'+phone+'?text='+encodeURIComponent(msg),'_blank');
       else if(typeof mqNote==='function') mqNote('Recuérdale al propietario subir los '+faltan+' documentos pendientes.');
-    });
+    }, 'Publicar');
 }
 function propProdWaPhone(owner){
   const tel=owner&&owner.telefono;
