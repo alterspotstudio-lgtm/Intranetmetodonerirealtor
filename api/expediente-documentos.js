@@ -103,6 +103,7 @@ async function handlePost(req, res) {
 
   if (action === 'documento_recibido') return await handleReceived(req, res, body);
   if (action === 'validar' || action === 'rechazar' || action === 'no_aplica') return await handleReview(req, res, body, action);
+  if (action === 'resync_condicionales') return await handleResync(req, res, body);
   return res.status(400).json({ error: 'Acción no reconocida.' });
 }
 
@@ -189,6 +190,47 @@ async function handleReview(req, res, body, action) {
   } catch (_) {}
 
   return res.status(200).json({ ok: true, estado: fields['Estado del Documento'] });
+}
+
+/* Resincroniza los documentos condicionales cuando cambian los "Datos de la
+   operación" (Estado civil, Firma por apoderado, En condominio, Crédito
+   vigente, Exención ISR, Construcción irregular) DESPUÉS de que el
+   expediente ya existe. Reglas:
+   - Si aún no hay expediente para el folio, no hace nada (no es error).
+   - Nunca toca un documento ya "Validado".
+   - Tampoco toca uno ya "Recibido" (el propietario ya lo subió) — si deja
+     de aplicar, lo revisa el asesor a mano en vez de que el sistema lo
+     esconda solo.
+   - Solo mueve Pendiente <-> No aplica según el nuevo valor de los checks.
+   Pedido por Enrique 23-jul-2026 tras la prueba en vivo del lead vendedor. */
+async function handleResync(req, res, body) {
+  if (!verifySession(req)) return res.status(401).json({ error: 'Sesión de asesor inválida o vencida.' });
+  const folio = String(body.folio || '').trim();
+  if (!folio) return res.status(400).json({ error: 'Falta folio.' });
+
+  const lead = await findLeadByFolio(folio);
+  if (!lead) return res.status(404).json({ error: 'Lead no encontrado.' });
+
+  const rows = await airListDocs(folio);
+  if (!rows || !rows.length) {
+    return res.status(200).json({ ok: true, actualizados: 0, nota: 'Aún no existe expediente para este folio.' });
+  }
+
+  const cambios = [];
+  for (const row of rows) {
+    const f = row.fields || {};
+    const docId = f['Document ID'];
+    const base = DOC_BY_ID[docId];
+    if (!base || base.aplica !== 'condicional') continue;
+    const estadoActual = pickName(f['Estado del Documento']) || 'Pendiente';
+    if (estadoActual === 'Validado' || estadoActual === 'Recibido') continue;
+    const deberiaSer = condicionalAplica(docId, lead.fields) ? 'Pendiente' : 'No aplica';
+    if (estadoActual !== deberiaSer) {
+      await airPatch(DOCS_TABLE, row.id, { 'Estado del Documento': deberiaSer });
+      cambios.push({ document_id: docId, de: estadoActual, a: deberiaSer });
+    }
+  }
+  return res.status(200).json({ ok: true, actualizados: cambios.length, cambios });
 }
 
 /* ───────── check-in: escribe el avance en el lead ───────── */
